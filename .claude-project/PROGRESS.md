@@ -1,67 +1,117 @@
 # Dogtor Burguer! - Development Progress
 
-## Current Phase: Phase 1 Complete - Editor Setup Needed
+## Current Status: Phase 2 Code Complete - Editor Setup Pending
 
-### Session Log
-
-#### Session 1 - Project Setup & Phase 1
-- [x] Created documentation folder (`.claude-project/`)
-- [x] Saved GDD
-- [x] Initialize git with LFS
-- [x] Create Unity folder structure
-- [x] Create implementation plan
-- [x] DOTween installed
-- [x] Phase 1 scripts created:
-  - Constants.cs
-  - GameState.cs
-  - GameManager.cs
-  - GridManager.cs
-  - Column.cs
-  - IngredientType.cs
-  - Ingredient.cs
-  - IngredientSpawner.cs
-
-**PENDING: Editor Setup Required**
+**Last Session:** 2025-01-20
 
 ---
 
-## Next: Editor Setup for Phase 1 Testing
+## What's Done
 
-1. Open Unity and let it compile scripts
-2. Run DOTween Setup Utility (Tools > Demigiant > DOTween Utility Panel)
-3. Create empty GameObject "GameManager" and attach:
-   - GameManager.cs
-   - GridManager.cs
-   - IngredientSpawner.cs
-4. Create Ingredient prefab:
-   - Create empty GameObject
-   - Add SpriteRenderer
-   - Add Ingredient.cs script
-   - Save to `_Project/Prefabs/Ingredients/Ingredient.prefab`
-5. Assign Ingredient prefab to IngredientSpawner
-6. Create placeholder sprites (colored squares) for testing
-7. Hit Play!
+### Phase 1: Core Grid & Ingredients ✅
+- Grid system (4 columns, 10 max rows)
+- Ingredients fall step-by-step with DOTween
+- Ingredients stack on columns
+- Match detection (same ingredients eliminate)
+- Burger detection (bun bottom + ingredients + bun top)
+- Basic scoring
+- GameManager with state machine
+- Debug GUI showing score/state
 
----
-
-## Architecture Notes
-
-### Core Systems
-- [x] Grid System - GridManager + Column
-- [x] Ingredient System - Ingredient + IngredientSpawner
-- [ ] Chef Controller - Next phase
-- [x] Game State Management - GameManager
-- [x] Scoring System - Basic, in GameManager
-
-### Tech Stack
-- Unity (2D) with URP
-- DOTween for animations
-- Git LFS for sprites/assets
+### Phase 2: Chef Controller ✅ (code only)
+- `ChefController.cs` - 3 positions, movement, plate swap
+- `TouchInputHandler.cs` - Touch/mouse input
 
 ---
 
-## Known Decisions
-- Step-based movement (not physics-based)
-- Touch controls for mobile
-- Vertical orientation (9:16)
-- 4 columns, max 10 rows
+## What's Next: Resume Here
+
+### Immediate: Editor Setup for Phase 2
+1. Create "Chef" GameObject in scene:
+   - Add SpriteRenderer (any placeholder sprite)
+   - Add ChefController script
+2. Add TouchInputHandler to GameManager object:
+   - Assign Chef reference
+3. Test: click left/right of chef to move, click on chef to swap
+
+### Then: Phase 3 - Match Detection Polish
+- Visual feedback for matches
+- Score popups
+
+### Then: Phase 4 - Burger Completion Polish
+- BurgerNameGenerator with funny names pool
+- Burger completion celebration animation
+
+### Then: Phase 5 - Game Flow
+- Difficulty progression (speed increases)
+- More ingredients unlock over time
+- Game over screen
+- Restart
+
+### Then: Phase 6+ - UI, Art, Audio, Monetization
+
+---
+
+## Scripts Created
+
+```
+Assets/_Project/Scripts/
+├── Core/
+│   ├── Constants.cs        # Grid size, timing, scoring values
+│   ├── GameState.cs        # Enum: Menu, Playing, Paused, GameOver
+│   └── GameManager.cs      # Game loop, score, state machine
+├── Grid/
+│   ├── GridManager.cs      # Manages 4 columns, match/burger detection
+│   └── Column.cs           # Stack of ingredients per column
+├── Ingredients/
+│   ├── IngredientType.cs   # Enum: Meat, Cheese, etc + Buns
+│   ├── Ingredient.cs       # Fall behavior, DOTween animations
+│   └── IngredientSpawner.cs # Periodic random spawning
+├── Chef/
+│   └── ChefController.cs   # Movement, plate swap
+└── Input/
+    └── TouchInputHandler.cs # Touch/mouse input handling
+```
+
+---
+
+## Scene Hierarchy (Current)
+
+```
+Game Scene
+├── Main Camera
+├── GameManager (GameObject)
+│   ├── GameManager.cs
+│   ├── GridManager.cs
+│   └── IngredientSpawner.cs (with Ingredient prefab assigned)
+└── [Need to add: Chef, TouchInputHandler]
+```
+
+---
+
+## Key Constants (in Constants.cs)
+
+- 4 columns, 10 max rows
+- Cell size: 1.2 x 1.0 world units
+- Grid origin: (-1.8, -4.0)
+- Initial spawn interval: 2 seconds
+- Initial fall step: 0.4 seconds
+- Chef has 3 positions (between column pairs)
+
+---
+
+## Sprites Available
+
+Located in `Assets/_Project/Sprites/Ingredients/`:
+- Meat, Cheese, Tomato, Onion, Pickle, Lettuce, Egg
+- Bun Top, Bun Bottom
+
+(Need to assign to IngredientSpawner sprite fields)
+
+---
+
+## Git Commits
+
+1. `37d05ae` - Initial project setup with GDD and architecture docs
+2. `69a29a5` - Phase 1: Core grid system and ingredient spawning
+3. `763f090` - Phase 2: Chef controller and touch input
