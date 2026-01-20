@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git lfs install:*)"
+      "Bash(git lfs install:*)",
+      "Bash(powershell -Command \"Expand-Archive -Path ''DOTween_1_2_790.zip'' -DestinationPath ''Assets/Plugins'' -Force\")",
+      "Bash(dir /s /b)"
     ]
   }
 }
