@@ -19,12 +19,26 @@ namespace DogtorBurguer
         public int CurrentRow => _currentRow;
         public bool IsLanded => _isLanded;
 
+        private void Awake()
+        {
+            if (_spriteRenderer == null)
+            {
+                _spriteRenderer = GetComponent<SpriteRenderer>();
+            }
+        }
+
         public void Initialize(IngredientType type, Column column, Sprite sprite = null)
         {
             _type = type;
             _currentColumn = column;
             _isLanded = false;
             _isFalling = false;
+
+            // Auto-get SpriteRenderer if not assigned
+            if (_spriteRenderer == null)
+            {
+                _spriteRenderer = GetComponent<SpriteRenderer>();
+            }
 
             if (sprite != null && _spriteRenderer != null)
             {
@@ -33,6 +47,8 @@ namespace DogtorBurguer
 
             // Position at spawn point
             transform.position = column.GetSpawnPosition();
+
+            Debug.Log($"[Ingredient] Spawned {type} at column {column.ColumnIndex}, pos: {transform.position}");
         }
 
         public void SetColumnAndRow(Column column, int row)

@@ -53,6 +53,7 @@ namespace DogtorBurguer
         private void Start()
         {
             _spawnTimer = _spawnInterval;
+            Debug.Log($"[Spawner] Started. Interval: {_spawnInterval}s, Spawning: {_isSpawning}");
         }
 
         private void Update()
@@ -96,13 +97,31 @@ namespace DogtorBurguer
         {
             // Pick random column
             int columnIndex = Random.Range(0, Constants.COLUMN_COUNT);
-            Column column = GridManager.Instance?.GetColumn(columnIndex);
 
-            if (column == null || column.IsOverflowing) return;
+            if (GridManager.Instance == null)
+            {
+                Debug.LogError("[Spawner] GridManager.Instance is null!");
+                return;
+            }
+
+            Column column = GridManager.Instance.GetColumn(columnIndex);
+
+            if (column == null)
+            {
+                Debug.LogError($"[Spawner] Column {columnIndex} is null!");
+                return;
+            }
+
+            if (column.IsOverflowing)
+            {
+                Debug.Log($"[Spawner] Column {columnIndex} is overflowing, skipping");
+                return;
+            }
 
             // Decide type
             IngredientType type = GetRandomIngredientType();
 
+            Debug.Log($"[Spawner] Spawning {type} in column {columnIndex}");
             SpawnIngredient(type, column);
         }
 
