@@ -6,86 +6,36 @@
 Assets/
 ├── _Project/
 │   ├── Scenes/
-│   │   ├── MainMenu.unity
-│   │   ├── Game.unity
-│   │   └── GameOver.unity
+│   │   └── Game.unity          # Main game scene
 │   │
 │   ├── Scripts/
 │   │   ├── Core/
-│   │   │   ├── GameManager.cs
-│   │   │   ├── GameState.cs
-│   │   │   └── Constants.cs
+│   │   │   ├── GameManager.cs   # Game loop, score, state machine
+│   │   │   ├── GameState.cs     # Enum: Menu, Playing, Paused, GameOver
+│   │   │   └── Constants.cs     # All game constants
 │   │   │
 │   │   ├── Grid/
-│   │   │   ├── GridManager.cs
-│   │   │   ├── Column.cs
-│   │   │   └── Cell.cs
+│   │   │   ├── GridManager.cs   # Column management, match/burger detection
+│   │   │   └── Column.cs        # Stack of ingredients per column
 │   │   │
 │   │   ├── Ingredients/
-│   │   │   ├── Ingredient.cs
-│   │   │   ├── IngredientType.cs
-│   │   │   ├── IngredientSpawner.cs
-│   │   │   └── IngredientStack.cs
+│   │   │   ├── Ingredient.cs       # Fall behavior, animations
+│   │   │   ├── IngredientType.cs   # Enum + extension methods
+│   │   │   └── IngredientSpawner.cs # Random spawning logic
 │   │   │
 │   │   ├── Chef/
-│   │   │   ├── ChefController.cs
-│   │   │   └── PlateSwapper.cs
+│   │   │   └── ChefController.cs   # Movement, swap trigger
 │   │   │
-│   │   ├── Burger/
-│   │   │   ├── BurgerDetector.cs
-│   │   │   ├── BurgerNameGenerator.cs
-│   │   │   └── BurgerData.cs
-│   │   │
-│   │   ├── Scoring/
-│   │   │   ├── ScoreManager.cs
-│   │   │   └── ComboSystem.cs
-│   │   │
-│   │   ├── UI/
-│   │   │   ├── ScoreDisplay.cs
-│   │   │   ├── GameOverPanel.cs
-│   │   │   └── BurgerNamePopup.cs
-│   │   │
-│   │   ├── Input/
-│   │   │   └── TouchInputHandler.cs
-│   │   │
-│   │   └── Audio/
-│   │       └── AudioManager.cs
+│   │   └── Input/
+│   │       └── TouchInputHandler.cs # New Input System handler
 │   │
 │   ├── Prefabs/
-│   │   ├── Ingredients/
-│   │   │   ├── Ingredient_Meat.prefab
-│   │   │   ├── Ingredient_Cheese.prefab
-│   │   │   ├── Ingredient_Tomato.prefab
-│   │   │   ├── Ingredient_Onion.prefab
-│   │   │   ├── Ingredient_Pickle.prefab
-│   │   │   ├── Ingredient_Lettuce.prefab
-│   │   │   ├── Ingredient_Egg.prefab
-│   │   │   ├── Bun_Top.prefab
-│   │   │   └── Bun_Bottom.prefab
-│   │   │
-│   │   ├── Chef/
-│   │   │   └── Dogtor.prefab
-│   │   │
-│   │   └── UI/
-│   │       └── BurgerNamePopup.prefab
+│   │   └── Ingredients/
+│   │       └── Ingredient.prefab   # Generic ingredient prefab
 │   │
-│   ├── Sprites/
-│   │   ├── Ingredients/
-│   │   ├── Chef/
-│   │   ├── Background/
-│   │   └── UI/
-│   │
-│   ├── Audio/
-│   │   ├── SFX/
-│   │   └── Music/
-│   │
-│   ├── Animations/
-│   │   ├── Ingredients/
-│   │   └── Chef/
-│   │
-│   └── ScriptableObjects/
-│       ├── IngredientData/
-│       └── GameSettings.asset
+│   └── Sprites/
+│       ├── Ingredients/            # All ingredient sprites
+│       └── Chef/                   # Chef sprite
 │
 ├── Plugins/
 │   └── DOTween/
@@ -101,85 +51,82 @@ Assets/
 
 ```
 GridManager (Singleton)
-├── Manages 4 Columns
-├── Handles ingredient placement
-└── Coordinates with ChefController for swaps
+├── Column[] _columns (4 columns)
+├── List<Ingredient> _fallingIngredients
+├── SwapColumns() - Full column swap logic
+├── OnIngredientLanded() - Match/burger detection
+└── Events: OnGameOver, OnMatchEliminated, OnBurgerCompleted
 
 Column
-├── Stack of Ingredients
-├── Max height tracking
-└── Overflow detection (game over condition)
-
-Cell
-├── Visual position in world
-└── Reference to ingredient (if any)
+├── List<Ingredient> _ingredients (stack)
+├── GetNextLandingPosition()
+├── TakeAllIngredients() / SetAllIngredients() - For swaps
+├── CheckForMatch() - Compare top two
+└── CollapseFromRow() - After burger completion
 ```
 
 ### 2. Ingredient System
 
 ```
 IngredientType (Enum)
-├── Meat, Cheese, Tomato, Onion, Pickle, Lettuce, Egg
-├── BunBottom, BunTop
+├── Regular: Meat, Cheese, Tomato, Onion, Pickle, Lettuce, Egg
+├── Buns: BunBottom, BunTop
+└── Extension: IsRegularIngredient(), IsBun()
 
 Ingredient (MonoBehaviour)
-├── Type
-├── Current Column/Row position
-├── Fall animation (DOTween)
-├── Match detection
-└── Destruction animation
+├── Type, CurrentColumn, CurrentRow
+├── IsFalling, IsLanded states
+├── StartFalling() - Begin fall with step animation
+├── SwapToColumn() - Instant X swap, continue falling
+├── AnimateToCurrentPosition() - After stack swap
+└── DestroyWithAnimation() - Scale + rotate out
 
 IngredientSpawner
-├── Spawn rate (increases over time)
-├── Available ingredient pool (starts with 4, grows to 7)
+├── Spawn rate (configurable)
 ├── Random column selection
-└── Bun spawn logic (periodic)
+├── Sprite assignment per type
+└── Spawns via Instantiate + Initialize()
 ```
 
 ### 3. Chef Controller
 
 ```
 ChefController
-├── Current position (0, 1, or 2 = between columns 0-1, 1-2, 2-3)
-├── Movement via touch
-├── Plate swap action (touch on chef)
-└── Animation states
-
-PlateSwapper
-├── Swap two adjacent column tops
-├── Animation during swap
-└── Chain reaction detection after swap
+├── _currentPosition (0, 1, or 2)
+├── LeftColumnIndex / RightColumnIndex properties
+├── MoveToPosition() / MoveLeft() / MoveRight()
+├── SwapPlates() - Triggers GridManager.SwapColumns()
+└── DOTween movement with OutBack ease
 ```
 
-### 4. Match & Burger Detection
+### 4. Input System
 
 ```
-MatchDetector
-├── After each ingredient lands
-├── Check if top 2 of column are same type
-├── If match → destroy both, award points
-
-BurgerDetector
-├── Triggered after ingredient lands
-├── Scan column from top to bottom
-├── Find BunTop → collect ingredients → find BunBottom
-├── If complete → create burger, award points, show name
+TouchInputHandler (New Unity Input System)
+├── EnhancedTouchSupport for mobile
+├── Mouse.current for editor/standalone
+├── HandleMouseInput() / HandleTouchInput()
+├── ProcessTap() - Determines chef move vs swap
+└── Swipe detection for horizontal movement
 ```
 
-### 5. Game Flow
+### 5. Match & Burger Detection (in GridManager)
 
 ```
-GameState (Enum)
-├── Menu
-├── Playing
-├── Paused
-├── GameOver
+CheckAndProcessMatches(Column)
+├── If top two ingredients match (same type, regular only)
+├── Remove both from column
+├── Trigger destruction animation
+├── Award POINTS_MATCH
+└── Recursively check for more matches
 
-GameManager
-├── State machine
-├── Difficulty progression
-├── Game over detection
-└── Restart/Continue logic
+CheckAndProcessBurger(Column)
+├── Scan from top for BunTop
+├── Collect ingredients going down
+├── Find BunBottom to complete
+├── Calculate score + generate name
+├── Destroy all burger ingredients
+└── Collapse remaining ingredients
 ```
 
 ---
@@ -188,49 +135,106 @@ GameManager
 
 ### Ingredient Fall Logic
 ```
-1. Spawn ingredient at column top (off-screen)
-2. DOTween move to next cell position
-3. Wait for step interval
-4. Check if cell below is empty
-   - Yes: continue falling
-   - No: land on current cell
-5. On land:
+1. Spawn at column.GetSpawnPosition() (above screen)
+2. Register in GridManager._fallingIngredients
+3. FallOneStep():
+   - Calculate current visual row from Y position
+   - If at or below target row → Land()
+   - Else → DOMove one cell down, repeat
+4. Land():
+   - Unregister from falling list
    - Add to column stack
-   - Check for matches
-   - Check for burger completion
-   - Check for overflow (game over)
+   - Snap to exact position
+   - Squash animation
+   - Notify GridManager.OnIngredientLanded()
 ```
 
-### Plate Swap Logic
+### Column Swap Logic
 ```
-1. Get top ingredients of columns at chef position
-2. Swap their column references
-3. Animate swap (DOTween)
-4. Update column stacks
-5. Trigger match/burger detection on both columns
+1. ChefController.SwapPlates() called
+2. GridManager.SwapColumns(leftCol, rightCol):
+   a. Calculate threshold Y (higher column top + 20% buffer)
+   b. TakeAllIngredients() from both columns
+   c. SetAllIngredients() swapped
+   d. Animate stacked ingredients to new positions
+   e. For each falling ingredient below threshold:
+      - SwapToColumn() (instant X, resume fall)
+   f. Check matches/burgers on both columns
 ```
 
 ### Burger Completion Logic
 ```
-1. Iterate column from top
-2. If BunTop found:
-   - Start collecting ingredients below
-   - Continue until BunBottom or empty/another BunTop
-3. If BunBottom found:
-   - Burger complete!
-   - Calculate score (10 * ingredient count + bonus)
+1. Scan column from top to bottom
+2. Find BunTop → mark start index
+3. Continue down, collecting ingredients
+4. If BunBottom found → burger complete!
+   - Score = (ingredientCount * 10) + size bonus
    - Generate funny name
-   - Destroy all involved items
-   - Items above fall down
+   - Destroy all ingredients in range
+   - Collapse items above
+5. If another BunTop found → stop (incomplete)
 ```
 
 ---
 
 ## DOTween Usage
 
-- **Ingredient Fall**: `transform.DOMove(targetPos, stepDuration).SetEase(Ease.OutBounce)`
-- **Plate Swap**: `DOTween.Sequence()` with parallel moves
-- **Ingredient Destroy**: `transform.DOScale(0, 0.2f)` + particle effect
-- **Burger Complete**: Screen shake + scale pop
-- **Score Popup**: `DOMove` up + `DOFade` out
-- **Chef Movement**: Instant or short tween between positions
+| Animation | Code | Ease |
+|-----------|------|------|
+| Ingredient fall step | `DOMove(pos, stepDuration)` | Linear |
+| Landing squash | `DOPunchScale(0.2, -0.2)` | Default |
+| Chef movement | `DOMove(pos, 0.15f)` | OutBack |
+| Chef swap action | `DOPunchScale(0.2, 0.2)` | Default |
+| Stack swap | `DOMove(pos, 0.2f)` | OutBack |
+| Ingredient destroy | `DOScale(0) + DORotate(180)` | InBack |
+| Collapse fall | `DOMove(pos, 0.15f)` | OutBounce |
+
+---
+
+## Event Flow
+
+```
+IngredientSpawner.SpawnIngredient()
+    ↓
+Ingredient.Initialize() → StartFalling()
+    ↓
+GridManager.RegisterFallingIngredient()
+    ↓
+Ingredient.FallOneStep() [repeats]
+    ↓
+Ingredient.Land()
+    ↓
+GridManager.UnregisterFallingIngredient()
+    ↓
+Column.AddIngredient()
+    ↓
+GridManager.OnIngredientLanded()
+    ├── CheckAndProcessMatches()
+    │   └── OnMatchEliminated event
+    ├── CheckAndProcessBurger()
+    │   └── OnBurgerCompleted event
+    └── [If overflow] OnGameOver event
+```
+
+---
+
+## Future Systems (Not Yet Implemented)
+
+### Phase 3: Visual Feedback
+- Particle effects on match
+- Score popup floating text
+- Screen shake
+
+### Phase 4: Burger Polish
+- Expanded name generator
+- Celebration animations
+
+### Phase 5: Game Flow
+- DifficultyManager (speed/ingredient progression)
+- Game over screen
+- Restart functionality
+
+### Phase 6+: Polish & Monetization
+- UI system
+- Audio system
+- Ads/IAP
