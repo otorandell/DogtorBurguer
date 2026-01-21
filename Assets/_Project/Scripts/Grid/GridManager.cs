@@ -198,6 +198,82 @@ namespace DogtorBurguer
             SwapColumns(columnA, columnB);
         }
 
+        public void SwapColumnsWithWaveEffect(int columnA, int columnB)
+        {
+            Column colA = GetColumn(columnA);
+            Column colB = GetColumn(columnB);
+
+            if (colA == null || colB == null) return;
+
+            // Get the Y threshold - falling ingredients below this level get swapped too
+            float thresholdY = Mathf.Max(
+                colA.GetNextLandingPosition().y,
+                colB.GetNextLandingPosition().y
+            ) + (Constants.CELL_HEIGHT * 0.2f);
+
+            // Swap all stacked ingredients
+            List<Ingredient> ingredientsA = colA.TakeAllIngredients();
+            List<Ingredient> ingredientsB = colB.TakeAllIngredients();
+
+            colA.SetAllIngredients(ingredientsB);
+            colB.SetAllIngredients(ingredientsA);
+
+            // Wave delay settings
+            const float waveDelayPerRow = 0.04f;
+
+            // Animate with wave effect - stagger by row (bottom to top)
+            foreach (var ing in ingredientsA)
+            {
+                float delay = ing.CurrentRow * waveDelayPerRow;
+                ing.AnimateToCurrentPositionWithWave(delay);
+            }
+            foreach (var ing in ingredientsB)
+            {
+                float delay = ing.CurrentRow * waveDelayPerRow;
+                ing.AnimateToCurrentPositionWithWave(delay);
+            }
+
+            // Swap falling ingredients that are below the threshold
+            foreach (var falling in _fallingIngredients)
+            {
+                if (falling == null || falling.IsLanded) continue;
+
+                if (falling.CurrentY <= thresholdY)
+                {
+                    if (falling.CurrentColumn == colA)
+                    {
+                        falling.SwapToColumn(colB, Constants.INITIAL_FALL_STEP_DURATION);
+                        falling.DoWaveEffect(0f);
+                    }
+                    else if (falling.CurrentColumn == colB)
+                    {
+                        falling.SwapToColumn(colA, Constants.INITIAL_FALL_STEP_DURATION);
+                        falling.DoWaveEffect(0f);
+                    }
+                }
+            }
+
+            // Check for matches and burgers after swap (with slight delay for animation)
+            float maxDelay = Mathf.Max(ingredientsA.Count, ingredientsB.Count) * waveDelayPerRow + 0.3f;
+            StartCoroutine(DelayedMatchCheck(colA, colB, maxDelay));
+        }
+
+        private System.Collections.IEnumerator DelayedMatchCheck(Column colA, Column colB, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
+            if (!colA.IsEmpty)
+            {
+                CheckAndProcessMatches(colA);
+                CheckAndProcessBurger(colA);
+            }
+            if (!colB.IsEmpty)
+            {
+                CheckAndProcessMatches(colB);
+                CheckAndProcessBurger(colB);
+            }
+        }
+
         public void SwapColumns(int columnA, int columnB)
         {
             Column colA = GetColumn(columnA);

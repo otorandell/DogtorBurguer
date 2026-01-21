@@ -149,6 +149,29 @@ namespace DogtorBurguer
         }
 
         /// <summary>
+        /// Wave effect - just visual bounce, no flip
+        /// </summary>
+        public void DoWaveEffect(float delay)
+        {
+            Sequence seq = DOTween.Sequence();
+            seq.SetDelay(delay);
+            seq.Append(transform.DOPunchScale(new Vector3(0.15f, -0.15f, 0), 0.2f, 4, 0.5f));
+        }
+
+        /// <summary>
+        /// Animate to position with wave effect (staggered movement)
+        /// </summary>
+        public void AnimateToCurrentPositionWithWave(float delay)
+        {
+            Vector3 targetPos = _currentColumn.GetWorldPositionForRow(_currentRow);
+
+            Sequence seq = DOTween.Sequence();
+            seq.SetDelay(delay);
+            seq.Append(transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutBack));
+            seq.Join(transform.DOPunchScale(new Vector3(0.15f, -0.15f, 0), 0.25f, 4, 0.5f));
+        }
+
+        /// <summary>
         /// Swaps this falling ingredient to a different column
         /// </summary>
         public void SwapToColumn(Column newColumn, float stepDuration)

@@ -85,12 +85,13 @@ namespace DogtorBurguer
 
             Debug.Log($"[Chef] Swapping columns {LeftColumnIndex} and {RightColumnIndex}");
 
-            // Do a little animation
-            Sequence seq = DOTween.Sequence();
-            seq.Append(transform.DOPunchScale(new Vector3(0.2f, 0.2f, 0), 0.2f, 5, 0.5f));
+            // 2D Flip effect - 180 degree rotation on Y axis
+            float currentY = transform.eulerAngles.y;
+            transform.DORotate(new Vector3(0, currentY + 180, 0), 0.2f, RotateMode.FastBeyond360)
+                .SetEase(Ease.InOutQuad);
 
-            // Tell GridManager to swap
-            GridManager.Instance?.SwapColumnTops(LeftColumnIndex, RightColumnIndex);
+            // Tell GridManager to swap with wave effect
+            GridManager.Instance?.SwapColumnsWithWaveEffect(LeftColumnIndex, RightColumnIndex);
         }
 
         private void OnDestroy()
