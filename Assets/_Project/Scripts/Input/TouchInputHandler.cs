@@ -1,4 +1,7 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 namespace DogtorBurguer
 {
@@ -23,6 +26,16 @@ namespace DogtorBurguer
             }
         }
 
+        private void OnEnable()
+        {
+            EnhancedTouchSupport.Enable();
+        }
+
+        private void OnDisable()
+        {
+            EnhancedTouchSupport.Disable();
+        }
+
         private void Update()
         {
             if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameState.Playing)
@@ -35,54 +48,53 @@ namespace DogtorBurguer
 
         private void HandleInput()
         {
-            // Handle both touch and mouse input
-#if UNITY_EDITOR || UNITY_STANDALONE
-            HandleMouseInput();
-#else
-            HandleTouchInput();
-#endif
-
-            // Also support touch in editor for testing
-            if (Input.touchCount > 0)
+            // Handle touch input first if available
+            if (Touch.activeTouches.Count > 0)
             {
                 HandleTouchInput();
+            }
+            else
+            {
+                // Fall back to mouse input
+                HandleMouseInput();
             }
         }
 
         private void HandleMouseInput()
         {
-            if (Input.GetMouseButtonDown(0))
+            Mouse mouse = Mouse.current;
+            if (mouse == null) return;
+
+            if (mouse.leftButton.wasPressedThisFrame)
             {
-                _touchStartPos = Input.mousePosition;
+                _touchStartPos = mouse.position.ReadValue();
                 _isDragging = true;
             }
-            else if (Input.GetMouseButtonUp(0) && _isDragging)
+            else if (mouse.leftButton.wasReleasedThisFrame && _isDragging)
             {
                 _isDragging = false;
-                Vector2 endPos = Input.mousePosition;
+                Vector2 endPos = mouse.position.ReadValue();
                 ProcessInput(_touchStartPos, endPos);
             }
         }
 
         private void HandleTouchInput()
         {
-            if (Input.touchCount == 0) return;
-
-            Touch touch = Input.GetTouch(0);
+            Touch touch = Touch.activeTouches[0];
 
             switch (touch.phase)
             {
-                case TouchPhase.Began:
-                    _touchStartPos = touch.position;
+                case UnityEngine.InputSystem.TouchPhase.Began:
+                    _touchStartPos = touch.screenPosition;
                     _isDragging = true;
                     break;
 
-                case TouchPhase.Ended:
-                case TouchPhase.Canceled:
+                case UnityEngine.InputSystem.TouchPhase.Ended:
+                case UnityEngine.InputSystem.TouchPhase.Canceled:
                     if (_isDragging)
                     {
                         _isDragging = false;
-                        ProcessInput(_touchStartPos, touch.position);
+                        ProcessInput(_touchStartPos, touch.screenPosition);
                     }
                     break;
             }

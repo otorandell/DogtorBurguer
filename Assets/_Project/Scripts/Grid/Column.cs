@@ -102,6 +102,29 @@ namespace DogtorBurguer
         }
 
         /// <summary>
+        /// Clears all ingredients from this column and returns them
+        /// </summary>
+        public List<Ingredient> TakeAllIngredients()
+        {
+            List<Ingredient> taken = new List<Ingredient>(_ingredients);
+            _ingredients.Clear();
+            return taken;
+        }
+
+        /// <summary>
+        /// Sets all ingredients at once (used during column swap)
+        /// </summary>
+        public void SetAllIngredients(List<Ingredient> ingredients)
+        {
+            _ingredients = new List<Ingredient>(ingredients);
+            // Update each ingredient's column/row reference
+            for (int i = 0; i < _ingredients.Count; i++)
+            {
+                _ingredients[i].SetColumnAndRow(this, i);
+            }
+        }
+
+        /// <summary>
         /// Checks if top two ingredients match and should be eliminated
         /// </summary>
         public bool CheckForMatch(out Ingredient top, out Ingredient second)

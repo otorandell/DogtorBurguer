@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DogtorBurguer
@@ -8,6 +9,8 @@ namespace DogtorBurguer
         public static GridManager Instance { get; private set; }
 
         [SerializeField] private Column[] _columns;
+
+        private List<Ingredient> _fallingIngredients = new List<Ingredient>();
 
         public event Action OnGameOver;
         public event Action<int> OnMatchEliminated;         // Points earned
@@ -53,6 +56,19 @@ namespace DogtorBurguer
         {
             if (index < 0 || index >= _columns.Length) return null;
             return _columns[index];
+        }
+
+        public void RegisterFallingIngredient(Ingredient ingredient)
+        {
+            if (!_fallingIngredients.Contains(ingredient))
+            {
+                _fallingIngredients.Add(ingredient);
+            }
+        }
+
+        public void UnregisterFallingIngredient(Ingredient ingredient)
+        {
+            _fallingIngredients.Remove(ingredient);
         }
 
         public void OnIngredientLanded(Ingredient ingredient)
@@ -179,33 +195,70 @@ namespace DogtorBurguer
 
         public void SwapColumnTops(int columnA, int columnB)
         {
+            SwapColumns(columnA, columnB);
+        }
+
+        public void SwapColumns(int columnA, int columnB)
+        {
             Column colA = GetColumn(columnA);
             Column colB = GetColumn(columnB);
 
             if (colA == null || colB == null) return;
 
-            Ingredient topA = colA.RemoveTopIngredient();
-            Ingredient topB = colB.RemoveTopIngredient();
+            // Get the Y threshold - falling ingredients below this level get swapped too
+            // Use the higher of the two column tops + 20% buffer for forgiveness
+            float thresholdY = Mathf.Max(
+                colA.GetNextLandingPosition().y,
+                colB.GetNextLandingPosition().y
+            ) + (Constants.CELL_HEIGHT * 0.2f);
 
-            // Swap
-            if (topA != null)
+            // Swap all stacked ingredients
+            List<Ingredient> ingredientsA = colA.TakeAllIngredients();
+            List<Ingredient> ingredientsB = colB.TakeAllIngredients();
+
+            colA.SetAllIngredients(ingredientsB);
+            colB.SetAllIngredients(ingredientsA);
+
+            // Animate stacked ingredients to their new positions
+            foreach (var ing in ingredientsA)
             {
-                colB.AddIngredient(topA);
-                topA.AnimateToCurrentPosition();
+                ing.AnimateToCurrentPosition();
             }
-            if (topB != null)
+            foreach (var ing in ingredientsB)
             {
-                colA.AddIngredient(topB);
-                topB.AnimateToCurrentPosition();
+                ing.AnimateToCurrentPosition();
             }
 
-            // Check for matches after swap
-            if (topA != null) CheckAndProcessMatches(colB);
-            if (topB != null) CheckAndProcessMatches(colA);
+            // Swap falling ingredients that are below the threshold
+            foreach (var falling in _fallingIngredients)
+            {
+                if (falling == null || falling.IsLanded) continue;
 
-            // Check for burgers after swap
-            if (topA != null) CheckAndProcessBurger(colB);
-            if (topB != null) CheckAndProcessBurger(colA);
+                // Only swap if the ingredient is below the threshold Y
+                if (falling.CurrentY <= thresholdY)
+                {
+                    if (falling.CurrentColumn == colA)
+                    {
+                        falling.SwapToColumn(colB, Constants.INITIAL_FALL_STEP_DURATION);
+                    }
+                    else if (falling.CurrentColumn == colB)
+                    {
+                        falling.SwapToColumn(colA, Constants.INITIAL_FALL_STEP_DURATION);
+                    }
+                }
+            }
+
+            // Check for matches and burgers after swap
+            if (!colA.IsEmpty)
+            {
+                CheckAndProcessMatches(colA);
+                CheckAndProcessBurger(colA);
+            }
+            if (!colB.IsEmpty)
+            {
+                CheckAndProcessMatches(colB);
+                CheckAndProcessBurger(colB);
+            }
         }
 
 #if UNITY_EDITOR

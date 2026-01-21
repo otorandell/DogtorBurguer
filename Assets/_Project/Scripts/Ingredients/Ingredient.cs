@@ -18,6 +18,7 @@ namespace DogtorBurguer
         public Column CurrentColumn => _currentColumn;
         public int CurrentRow => _currentRow;
         public bool IsLanded => _isLanded;
+        public bool IsFalling => _isFalling;
 
         private void Awake()
         {
@@ -62,6 +63,9 @@ namespace DogtorBurguer
             if (_isFalling) return;
             _isFalling = true;
 
+            // Register as falling ingredient
+            GridManager.Instance?.RegisterFallingIngredient(this);
+
             FallOneStep(stepDuration);
         }
 
@@ -103,6 +107,9 @@ namespace DogtorBurguer
             _isFalling = false;
             _isLanded = true;
 
+            // Unregister as falling ingredient
+            GridManager.Instance?.UnregisterFallingIngredient(this);
+
             // Add to column stack
             _currentColumn.AddIngredient(this);
 
@@ -141,6 +148,34 @@ namespace DogtorBurguer
                 .SetEase(Ease.OutBack);
         }
 
+        /// <summary>
+        /// Swaps this falling ingredient to a different column
+        /// </summary>
+        public void SwapToColumn(Column newColumn, float stepDuration)
+        {
+            // Kill current fall animation to avoid conflicts
+            _currentTween?.Kill();
+
+            _currentColumn = newColumn;
+
+            // Snap X position immediately to new column
+            float targetX = Constants.GRID_ORIGIN_X + (newColumn.ColumnIndex * Constants.CELL_WIDTH);
+            Vector3 pos = transform.position;
+            pos.x = targetX;
+            transform.position = pos;
+
+            // Resume falling
+            if (_isFalling && !_isLanded)
+            {
+                FallOneStep(stepDuration);
+            }
+        }
+
+        /// <summary>
+        /// Gets current Y position in world space
+        /// </summary>
+        public float CurrentY => transform.position.y;
+
         public void DestroyWithAnimation()
         {
             _currentTween?.Kill();
@@ -154,6 +189,8 @@ namespace DogtorBurguer
         private void OnDestroy()
         {
             _currentTween?.Kill();
+            // Ensure we're unregistered from falling list
+            GridManager.Instance?.UnregisterFallingIngredient(this);
         }
     }
 }
