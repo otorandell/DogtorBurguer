@@ -133,7 +133,7 @@ namespace DogtorBurguer
             if (GameManager.Instance != null && GameManager.Instance.TestSettings)
             {
                 if (_spawnCount == 1) type = IngredientType.BunBottom;
-                else if (_spawnCount == 5) type = IngredientType.BunTop;
+                else if (_spawnCount == 8) type = IngredientType.BunTop;
             }
 
             // Show blinking preview

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 namespace DogtorBurguer
 {
@@ -179,7 +180,6 @@ namespace DogtorBurguer
                     bunBottomIndex = i;
                     break;
                 }
-                // If we find another BunTop, stop
                 if (ingredients[i].Type == IngredientType.BunTop)
                 {
                     break;
@@ -188,28 +188,91 @@ namespace DogtorBurguer
 
             if (bunBottomIndex < 0) return;
 
-            // We have a complete burger!
+            // Collect burger ingredients (top to bottom)
+            List<Ingredient> burgerParts = new List<Ingredient>();
+            for (int i = bunTopIndex; i >= bunBottomIndex; i--)
+            {
+                burgerParts.Add(ingredients[i]);
+            }
+
             int ingredientCount = bunTopIndex - bunBottomIndex - 1;
             int points = CalculateBurgerPoints(ingredientCount);
             string burgerName = GenerateBurgerName(ingredientCount);
 
-            // Calculate effect position (center of burger stack)
-            Vector3 effectPos = (ingredients[bunTopIndex].transform.position + ingredients[bunBottomIndex].transform.position) / 2f;
+            StartCoroutine(BurgerCompressAnimation(column, burgerParts, bunBottomIndex, bunTopIndex, points, burgerName));
+        }
 
-            // Destroy all burger ingredients
-            for (int i = bunTopIndex; i >= bunBottomIndex; i--)
+        private System.Collections.IEnumerator BurgerCompressAnimation(
+            Column column, List<Ingredient> burgerParts,
+            int bunBottomIndex, int bunTopIndex,
+            int points, string burgerName)
+        {
+            // Pause spawning during animation
+            GameManager.Instance?.PauseSpawning();
+
+            // burgerParts[0] = top bun, burgerParts[last] = bottom bun
+            Ingredient bottomBun = burgerParts[burgerParts.Count - 1];
+            Vector3 bottomBunPos = bottomBun.transform.position;
+
+            float stepDuration = 0.12f;
+            float travelSpacing = Constants.CELL_VISUAL_HEIGHT * 0.2f;
+            float smackSpacing = Constants.CELL_VISUAL_HEIGHT * 0.15f;
+
+            // Group of ingredients being pushed down (starts with just the top bun)
+            List<Ingredient> movingGroup = new List<Ingredient> { burgerParts[0] };
+
+            // Push through each ingredient until reaching the bottom bun
+            for (int i = 1; i < burgerParts.Count - 1; i++)
             {
-                ingredients[i].DestroyWithFlash();
+                Ingredient target = burgerParts[i];
+                Vector3 targetPos = target.transform.position;
+
+                // Move the group down, each member offset by travel spacing
+                for (int g = 0; g < movingGroup.Count; g++)
+                {
+                    Vector3 dest = targetPos + Vector3.up * ((movingGroup.Count - g) * travelSpacing);
+                    movingGroup[g].transform.DOMove(dest, stepDuration).SetEase(Ease.InQuad);
+                }
+                yield return new WaitForSeconds(stepDuration);
+
+                // This ingredient joins the moving group
+                movingGroup.Add(target);
+
+                // Pause between each compress step
+                yield return new WaitForSeconds(0.1f);
             }
 
-            // Remove from column
-            column.RemoveIngredientsInRange(bunBottomIndex, bunTopIndex);
+            // Group moves down to bottom bun with travel spacing
+            for (int g = 0; g < movingGroup.Count; g++)
+            {
+                Vector3 dest = bottomBunPos + Vector3.up * ((movingGroup.Count - g) * travelSpacing);
+                movingGroup[g].transform.DOMove(dest, stepDuration).SetEase(Ease.InQuad);
+            }
+            yield return new WaitForSeconds(stepDuration);
 
-            // Collapse remaining ingredients
+            // Smack: slam everything tight against bottom bun
+            for (int g = 0; g < movingGroup.Count; g++)
+            {
+                Vector3 dest = bottomBunPos + Vector3.up * ((movingGroup.Count - g) * smackSpacing);
+                movingGroup[g].transform.DOMove(dest, 0.08f).SetEase(Ease.InBack);
+            }
+            yield return new WaitForSeconds(0.08f);
+
+            // Destroy all burger parts at once
+            foreach (var part in burgerParts)
+            {
+                part.DestroyWithFlash();
+            }
+
+            // Remove from column and collapse
+            column.RemoveIngredientsInRange(bunBottomIndex, bunTopIndex);
             column.CollapseFromRow(bunBottomIndex);
 
             OnBurgerCompleted?.Invoke(points, burgerName);
-            OnBurgerEffect?.Invoke(effectPos, points, burgerName);
+            OnBurgerEffect?.Invoke(bottomBunPos, points, burgerName);
+
+            // Resume spawning
+            GameManager.Instance?.ResumeSpawning();
         }
 
         private int CalculateBurgerPoints(int ingredientCount)

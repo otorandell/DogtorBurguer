@@ -121,6 +121,17 @@ namespace DogtorBurguer
             Time.timeScale = 1f;
         }
 
+        public void PauseSpawning()
+        {
+            _spawner?.StopSpawning();
+        }
+
+        public void ResumeSpawning()
+        {
+            if (_currentState == GameState.Playing)
+                _spawner?.StartSpawning();
+        }
+
         public void RestartGame()
         {
             Time.timeScale = 1f;
