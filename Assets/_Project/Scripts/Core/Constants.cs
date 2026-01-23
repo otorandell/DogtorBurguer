@@ -13,7 +13,7 @@ namespace DogtorBurguer
 
         // Grid positioning (bottom-left of grid)
         public const float GRID_ORIGIN_X = -2.1f;
-        public const float GRID_ORIGIN_Y = -4.5f;
+        public const float GRID_ORIGIN_Y = -4.2f;
 
         // Timing (easy start → hard max)
         public const float INITIAL_FALL_STEP_DURATION = 0.3f;
