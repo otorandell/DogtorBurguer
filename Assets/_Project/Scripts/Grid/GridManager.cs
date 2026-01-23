@@ -17,6 +17,7 @@ namespace DogtorBurguer
         public event Action<int, string> OnBurgerCompleted; // Points earned, burger name
         public event Action<Vector3, int> OnMatchEffect;    // Position, points
         public event Action<Vector3, int, string> OnBurgerEffect; // Position, points, name
+        public event Action OnIngredientPlaced;
 
         private void Awake()
         {
@@ -83,6 +84,8 @@ namespace DogtorBurguer
                 OnGameOver?.Invoke();
                 return;
             }
+
+            OnIngredientPlaced?.Invoke();
 
             // Check for matches
             CheckAndProcessMatches(column);

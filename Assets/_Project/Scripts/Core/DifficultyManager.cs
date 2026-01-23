@@ -6,36 +6,45 @@ namespace DogtorBurguer
     public class DifficultyManager : MonoBehaviour
     {
         [SerializeField] private IngredientSpawner _spawner;
+        [SerializeField] private GridManager _gridManager;
 
+        // Ingredients placed required to reach each level (1-10)
         private static readonly int[] LevelThresholds = {
-            0, 50, 120, 200, 300, 450, 650, 900, 1200, 1600
+            0, 3, 7, 12, 18, 25, 33, 42, 52, 64
         };
 
         private int _currentLevel = 1;
+        private int _ingredientsPlaced;
 
         public int CurrentLevel => _currentLevel;
         public event Action<int> OnLevelChanged;
 
         private void Start()
         {
-            if (GameManager.Instance != null)
-                GameManager.Instance.OnScoreChanged += EvaluateLevel;
+            if (_gridManager != null)
+                _gridManager.OnIngredientPlaced += HandleIngredientPlaced;
 
             ApplyDifficulty();
         }
 
         private void OnDestroy()
         {
-            if (GameManager.Instance != null)
-                GameManager.Instance.OnScoreChanged -= EvaluateLevel;
+            if (_gridManager != null)
+                _gridManager.OnIngredientPlaced -= HandleIngredientPlaced;
         }
 
-        private void EvaluateLevel(int score)
+        private void HandleIngredientPlaced()
+        {
+            _ingredientsPlaced++;
+            EvaluateLevel();
+        }
+
+        private void EvaluateLevel()
         {
             int newLevel = 1;
             for (int i = LevelThresholds.Length - 1; i >= 0; i--)
             {
-                if (score >= LevelThresholds[i])
+                if (_ingredientsPlaced >= LevelThresholds[i])
                 {
                     newLevel = i + 1;
                     break;
@@ -47,7 +56,7 @@ namespace DogtorBurguer
                 _currentLevel = newLevel;
                 ApplyDifficulty();
                 OnLevelChanged?.Invoke(_currentLevel);
-                Debug.Log($"[Difficulty] Level up! Now level {_currentLevel}");
+                Debug.Log($"[Difficulty] Level {_currentLevel}! ({_ingredientsPlaced} ingredients placed)");
             }
         }
 
