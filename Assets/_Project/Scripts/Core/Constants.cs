@@ -4,7 +4,7 @@ namespace DogtorBurguer
     {
         // Grid dimensions
         public const int COLUMN_COUNT = 4;
-        public const int MAX_ROWS = 10;
+        public const int MAX_ROWS = 15;
 
         // Cell size in world units
         public const float CELL_WIDTH = 1.2f;
@@ -16,10 +16,10 @@ namespace DogtorBurguer
         public const float GRID_ORIGIN_Y = -4.0f;
 
         // Timing (easy start → hard max)
-        public const float INITIAL_FALL_STEP_DURATION = 0.6f;
-        public const float MIN_FALL_STEP_DURATION = 0.15f;
+        public const float INITIAL_FALL_STEP_DURATION = 0.3f;
+        public const float MIN_FALL_STEP_DURATION = 0.1f;
         public const float SPAWN_INTERVAL_INITIAL = 3.0f;
-        public const float SPAWN_INTERVAL_MIN = 0.8f;
+        public const float SPAWN_INTERVAL_MIN = 1.2f;
 
         // Difficulty levels
         public const int MAX_LEVEL = 10;
