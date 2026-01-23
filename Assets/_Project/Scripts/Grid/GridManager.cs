@@ -190,15 +190,32 @@ namespace DogtorBurguer
 
         private string GenerateBurgerName(int ingredientCount)
         {
-            // Simple name generation - can be expanded later
-            string[] prefixes = { "La", "El", "Super", "Mega", "Ultra", "Doble" };
-            string[] adjectives = { "Explosiva", "Deluxe", "Suprema", "Loca", "Salvaje", "Brutal" };
-            string[] nouns = { "Torre", "Monstruo", "Bestia", "Titan", "Coloso", "Trapo" };
+            string[] smallPrefixes = { "La", "El", "Mini", "Baby" };
+            string[] mediumPrefixes = { "Super", "Gran", "Doble", "Triple" };
+            string[] largePrefixes = { "Mega", "Ultra", "Giga", "Hyper" };
+            string[] megaPrefixes = { "ULTRA", "LEGENDARIA", "EPICA", "BRUTAL" };
 
-            int seed = ingredientCount + Time.frameCount;
-            string prefix = prefixes[seed % prefixes.Length];
-            string adj = adjectives[(seed * 7) % adjectives.Length];
-            string noun = nouns[(seed * 13) % nouns.Length];
+            string[] adjectives = {
+                "Explosiva", "Deluxe", "Suprema", "Loca", "Salvaje",
+                "Brutal", "Infernal", "Cosmica", "Atomica", "Turbo",
+                "Divina", "Furiosa", "Volcanica", "Monstruosa", "Radical"
+            };
+
+            string[] nouns = {
+                "Torre", "Monstruo", "Bestia", "Titan", "Coloso",
+                "Rascacielos", "Tsunami", "Terremoto", "Volcán", "Huracán",
+                "Avalancha", "Tornado", "Meteoro", "Dragón", "Kraken"
+            };
+
+            string[] prefixes;
+            if (ingredientCount <= 2) prefixes = smallPrefixes;
+            else if (ingredientCount <= 4) prefixes = mediumPrefixes;
+            else if (ingredientCount <= 6) prefixes = largePrefixes;
+            else prefixes = megaPrefixes;
+
+            string prefix = prefixes[Random.Range(0, prefixes.Length)];
+            string adj = adjectives[Random.Range(0, adjectives.Length)];
+            string noun = nouns[Random.Range(0, nouns.Length)];
 
             return $"{prefix} {noun} {adj}";
         }
