@@ -131,6 +131,15 @@ namespace DogtorBurguer
             _activeIngredientCount = Mathf.Clamp(count, 1, 7);
         }
 
+        public int ActiveIngredientCount => _activeIngredientCount;
+
+        public Sprite GetSpriteForType(IngredientType type)
+        {
+            if (_spriteMap != null && _spriteMap.TryGetValue(type, out Sprite sprite))
+                return sprite;
+            return null;
+        }
+
         private IEnumerator SpawnWithPreview()
         {
             _spawnCount++;

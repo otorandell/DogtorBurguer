@@ -18,6 +18,7 @@ namespace DogtorBurguer
         public event Action<int, string> OnBurgerCompleted; // Points earned, burger name
         public event Action<Vector3, int> OnMatchEffect;    // Position, points
         public event Action<Vector3, int, string, int> OnBurgerEffect; // Position, points, name, ingredientCount
+        public event Action<Vector3, int, string, int, List<IngredientType>> OnBurgerWithIngredients;
         public event Action OnIngredientPlaced;
 
         private void Awake()
@@ -208,16 +209,25 @@ namespace DogtorBurguer
             }
 
             int ingredientCount = bunTopIndex - bunBottomIndex - 1;
+
+            // Collect ingredient types (excluding buns)
+            List<IngredientType> ingredientTypes = new List<IngredientType>();
+            for (int i = bunBottomIndex + 1; i < bunTopIndex; i++)
+            {
+                ingredientTypes.Add(ingredients[i].Type);
+            }
+
             int points = CalculateBurgerPoints(ingredientCount);
             string burgerName = GenerateBurgerName(ingredientCount);
 
-            StartCoroutine(BurgerCompressAnimation(column, burgerParts, bunBottomIndex, bunTopIndex, points, burgerName, ingredientCount));
+            StartCoroutine(BurgerCompressAnimation(column, burgerParts, bunBottomIndex, bunTopIndex, points, burgerName, ingredientCount, ingredientTypes));
         }
 
         private System.Collections.IEnumerator BurgerCompressAnimation(
             Column column, List<Ingredient> burgerParts,
             int bunBottomIndex, int bunTopIndex,
-            int points, string burgerName, int ingredientCount)
+            int points, string burgerName, int ingredientCount,
+            List<IngredientType> ingredientTypes)
         {
             // Pause spawning during animation
             GameManager.Instance?.PauseSpawning();
@@ -295,6 +305,7 @@ namespace DogtorBurguer
 
             OnBurgerCompleted?.Invoke(points, burgerName);
             OnBurgerEffect?.Invoke(bottomBunPos, points, burgerName, ingredientCount);
+            OnBurgerWithIngredients?.Invoke(bottomBunPos, points, burgerName, ingredientCount, ingredientTypes);
 
             // Resume spawning
             GameManager.Instance?.ResumeSpawning();

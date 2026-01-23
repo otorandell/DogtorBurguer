@@ -55,6 +55,7 @@ namespace DogtorBurguer
             EnsureComponent<GameOverPanel>();
             EnsureComponent<AudioManager>();
             EnsureComponent<GemPackSpawner>();
+            EnsureComponent<BurgerChallenge>();
 
             // Ensure SaveDataManager persists from menu
             if (SaveDataManager.Instance == null)

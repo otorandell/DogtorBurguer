@@ -22,6 +22,7 @@ namespace DogtorBurguer
         private AudioClip _squeezeClip;
         private AudioClip _fastDropClip;
         private AudioClip _earlySpawnClip;
+        private AudioClip _challengeMatchClip;
 
         private const int SAMPLE_RATE = 44100;
 
@@ -124,6 +125,7 @@ namespace DogtorBurguer
             _squeezeClip = GenerateSound("Squeeze", 0.1f, GenerateSqueezeSamples);
             _fastDropClip = GenerateSound("FastDrop", 0.12f, GenerateFastDropSamples);
             _earlySpawnClip = GenerateSound("EarlySpawn", 0.15f, GenerateEarlySpawnSamples);
+            _challengeMatchClip = GenerateSound("ChallengeMatch", 0.35f, GenerateChallengeMatchSamples);
         }
 
         private AudioClip GenerateSound(string name, float duration, Func<float, int, float> sampleFunc)
@@ -319,6 +321,41 @@ namespace DogtorBurguer
         public void PlayEarlySpawn()
         {
             PlayClip(_earlySpawnClip, 0.6f);
+        }
+
+        /// <summary>
+        /// Quick celebratory chord for challenge match (C5+E5+G5 simultaneous, then octave C6)
+        /// </summary>
+        private float GenerateChallengeMatchSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float split = duration * 0.6f;
+            float envelope;
+            float signal;
+
+            if (t < split)
+            {
+                // Major chord hit
+                envelope = (1f - t / split * 0.4f);
+                signal = Mathf.Sin(2f * Mathf.PI * 523f * t) * 0.35f  // C5
+                       + Mathf.Sin(2f * Mathf.PI * 659f * t) * 0.3f   // E5
+                       + Mathf.Sin(2f * Mathf.PI * 784f * t) * 0.25f  // G5
+                       + Mathf.Sin(2f * Mathf.PI * 1047f * t) * 0.1f; // C6 shimmer
+            }
+            else
+            {
+                // Resolve to octave
+                float t2 = (t - split) / (duration - split);
+                envelope = 1f - t2;
+                signal = Mathf.Sin(2f * Mathf.PI * 1047f * t) * 0.5f   // C6
+                       + Mathf.Sin(2f * Mathf.PI * 2093f * t) * 0.2f;  // C7
+            }
+            return signal * envelope * 0.7f;
+        }
+
+        public void PlayChallengeMatch()
+        {
+            PlayClip(_challengeMatchClip, 0.7f);
         }
 
         /// <summary>
