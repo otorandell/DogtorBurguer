@@ -15,6 +15,8 @@ namespace DogtorBurguer
         public event Action OnGameOver;
         public event Action<int> OnMatchEliminated;         // Points earned
         public event Action<int, string> OnBurgerCompleted; // Points earned, burger name
+        public event Action<Vector3, int> OnMatchEffect;    // Position, points
+        public event Action<Vector3, int, string> OnBurgerEffect; // Position, points, name
 
         private void Awake()
         {
@@ -93,16 +95,20 @@ namespace DogtorBurguer
         {
             if (column.CheckForMatch(out Ingredient top, out Ingredient second))
             {
+                // Calculate effect position (midpoint between the two)
+                Vector3 effectPos = (top.transform.position + second.transform.position) / 2f;
+
                 // Remove both ingredients
                 column.RemoveIngredient(top);
                 column.RemoveIngredient(second);
 
-                // Animate destruction
-                top.DestroyWithAnimation();
-                second.DestroyWithAnimation();
+                // Flash then destroy
+                top.DestroyWithFlash();
+                second.DestroyWithFlash();
 
-                // Award points
+                // Award points and fire effect event
                 OnMatchEliminated?.Invoke(Constants.POINTS_MATCH);
+                OnMatchEffect?.Invoke(effectPos, Constants.POINTS_MATCH);
 
                 // Check for more matches after this one
                 CheckAndProcessMatches(column);
@@ -150,10 +156,13 @@ namespace DogtorBurguer
             int points = CalculateBurgerPoints(ingredientCount);
             string burgerName = GenerateBurgerName(ingredientCount);
 
+            // Calculate effect position (center of burger stack)
+            Vector3 effectPos = (ingredients[bunTopIndex].transform.position + ingredients[bunBottomIndex].transform.position) / 2f;
+
             // Destroy all burger ingredients
             for (int i = bunTopIndex; i >= bunBottomIndex; i--)
             {
-                ingredients[i].DestroyWithAnimation();
+                ingredients[i].DestroyWithFlash();
             }
 
             // Remove from column
@@ -163,6 +172,7 @@ namespace DogtorBurguer
             column.CollapseFromRow(bunBottomIndex);
 
             OnBurgerCompleted?.Invoke(points, burgerName);
+            OnBurgerEffect?.Invoke(effectPos, points, burgerName);
         }
 
         private int CalculateBurgerPoints(int ingredientCount)

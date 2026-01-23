@@ -220,6 +220,23 @@ namespace DogtorBurguer
             seq.OnComplete(() => Destroy(gameObject));
         }
 
+        public void DestroyWithFlash()
+        {
+            _currentTween?.Kill();
+            _waveTween?.Kill();
+
+            Sequence seq = DOTween.Sequence();
+            // Blink twice (visible -> invisible -> visible -> invisible -> visible)
+            seq.Append(_spriteRenderer.DOColor(Color.clear, 0.04f));
+            seq.Append(_spriteRenderer.DOColor(Color.white, 0.04f));
+            seq.Append(_spriteRenderer.DOColor(Color.clear, 0.04f));
+            seq.Append(_spriteRenderer.DOColor(Color.white, 0.04f));
+            // Scale out and spin
+            seq.Append(transform.DOScale(Vector3.zero, 0.15f).SetEase(Ease.InBack));
+            seq.Join(transform.DORotate(new Vector3(0, 0, 180), 0.15f, RotateMode.FastBeyond360));
+            seq.OnComplete(() => Destroy(gameObject));
+        }
+
         private void OnDestroy()
         {
             _currentTween?.Kill();
