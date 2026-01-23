@@ -36,5 +36,13 @@ namespace DogtorBurguer
 
         // Chef positions (between columns)
         public const int CHEF_POSITION_COUNT = 3;
+
+        // Monetization
+        public const int CONTINUE_GEM_COST = 50;
+        public const int GEM_REWARD_AD = 25;
+        public const int GEM_PACK_VALUE = 5;
+        public const int INTERSTITIAL_EVERY_N_GAMES = 3;
+        public const float GEM_PACK_SPAWN_CHANCE = 0.08f;
+        public const float GEM_PACK_SPAWN_INTERVAL = 10f;
     }
 }

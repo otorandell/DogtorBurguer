@@ -15,7 +15,15 @@ namespace DogtorBurguer
         private TextMeshProUGUI _titleText;
         private TextMeshProUGUI _scoreText;
         private TextMeshProUGUI _levelText;
+        private Button _continueGemsButton;
+        private Button _continueAdButton;
         private Button _restartButton;
+        private Button _menuButton;
+        private GameObject _continueGemsObj;
+        private GameObject _continueAdObj;
+        private TextMeshProUGUI _continueGemsText;
+
+        private bool _hasContinued;
 
         private void Start()
         {
@@ -62,43 +70,68 @@ namespace DogtorBurguer
             Image overlayImg = overlay.AddComponent<Image>();
             overlayImg.color = new Color(0, 0, 0, 0.7f);
 
-            // Panel
+            // Panel (taller to fit more buttons)
             _panel = new GameObject("Panel");
             _panel.transform.SetParent(canvasObj.transform, false);
             RectTransform panelRect = _panel.AddComponent<RectTransform>();
             panelRect.anchorMin = new Vector2(0.5f, 0.5f);
             panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(400, 350);
+            panelRect.sizeDelta = new Vector2(400, 500);
             Image panelImg = _panel.AddComponent<Image>();
             panelImg.color = new Color(0.15f, 0.15f, 0.2f, 0.95f);
 
             // Title
-            _titleText = CreatePanelText("GAME OVER", 0, 100, 42, FontStyles.Bold);
+            _titleText = CreatePanelText("GAME OVER", 0, 200, 42, FontStyles.Bold);
 
             // Score
-            _scoreText = CreatePanelText("Score: 0", 0, 20, 30, FontStyles.Normal);
+            _scoreText = CreatePanelText("Score: 0", 0, 140, 30, FontStyles.Normal);
 
             // Level
-            _levelText = CreatePanelText("Level: 1", 0, -30, 24, FontStyles.Normal);
+            _levelText = CreatePanelText("Level: 1", 0, 100, 24, FontStyles.Normal);
+
+            // Continue with gems button
+            _continueGemsObj = CreateButton("ContinueGemsBtn", 0, 30,
+                new Color(0.9f, 0.7f, 0.1f, 1f), $"Continue ({Constants.CONTINUE_GEM_COST} gems)",
+                OnContinueGemsClicked, out _continueGemsButton, out _continueGemsText);
+
+            // Continue with ad button
+            _continueAdObj = CreateButton("ContinueAdBtn", 0, -45,
+                new Color(0.3f, 0.5f, 0.9f, 1f), "Watch Ad to Continue",
+                OnContinueAdClicked, out _continueAdButton, out _);
 
             // Restart button
-            GameObject btnObj = new GameObject("RestartButton");
+            CreateButton("RestartBtn", 0, -120,
+                new Color(0.2f, 0.7f, 0.3f, 1f), "Restart",
+                OnRestartClicked, out _restartButton, out _);
+
+            // Main Menu button
+            CreateButton("MenuBtn", 0, -195,
+                new Color(0.5f, 0.5f, 0.5f, 1f), "Main Menu",
+                OnMenuClicked, out _menuButton, out _);
+        }
+
+        private GameObject CreateButton(string name, float x, float y, Color color, string label,
+            UnityEngine.Events.UnityAction onClick, out Button button, out TextMeshProUGUI text)
+        {
+            GameObject btnObj = new GameObject(name);
             btnObj.transform.SetParent(_panel.transform, false);
             RectTransform btnRect = btnObj.AddComponent<RectTransform>();
             btnRect.anchorMin = new Vector2(0.5f, 0.5f);
             btnRect.anchorMax = new Vector2(0.5f, 0.5f);
-            btnRect.anchoredPosition = new Vector2(0, -110);
-            btnRect.sizeDelta = new Vector2(200, 60);
+            btnRect.anchoredPosition = new Vector2(x, y);
+            btnRect.sizeDelta = new Vector2(320, 55);
 
             Image btnImg = btnObj.AddComponent<Image>();
-            btnImg.color = new Color(0.2f, 0.7f, 0.3f, 1f);
+            btnImg.color = color;
 
-            _restartButton = btnObj.AddComponent<Button>();
-            _restartButton.targetGraphic = btnImg;
-            _restartButton.onClick.AddListener(OnRestartClicked);
+            button = btnObj.AddComponent<Button>();
+            button.targetGraphic = btnImg;
+            button.onClick.AddListener(onClick);
 
-            TextMeshProUGUI btnText = CreateChildText(btnObj, "Restart", 0, 0, 24, FontStyles.Bold);
-            btnText.color = Color.white;
+            text = CreateChildText(btnObj, label, 0, 0, 20, FontStyles.Bold);
+            text.color = Color.white;
+
+            return btnObj;
         }
 
         private TextMeshProUGUI CreatePanelText(string text, float x, float y, float size, FontStyles style)
@@ -146,6 +179,8 @@ namespace DogtorBurguer
         {
             if (state == GameState.GameOver)
                 Show();
+            else if (state == GameState.Playing)
+                Hide();
         }
 
         private void Show()
@@ -156,6 +191,22 @@ namespace DogtorBurguer
 
             _scoreText.text = $"Score: {score}";
             _levelText.text = $"Level: {level}";
+
+            // Update high score
+            if (SaveDataManager.Instance != null)
+                SaveDataManager.Instance.SetHighScore(score);
+
+            // Show/hide continue buttons based on whether already used
+            _continueGemsObj.SetActive(!_hasContinued);
+            _continueAdObj.SetActive(!_hasContinued);
+
+            // Update gem button text with current balance
+            if (!_hasContinued && SaveDataManager.Instance != null)
+            {
+                int gems = SaveDataManager.Instance.Gems;
+                _continueGemsButton.interactable = gems >= Constants.CONTINUE_GEM_COST;
+                _continueGemsText.text = $"Continue ({Constants.CONTINUE_GEM_COST} gems)";
+            }
 
             _canvas.gameObject.SetActive(true);
             _canvasGroup.alpha = 0;
@@ -172,9 +223,48 @@ namespace DogtorBurguer
             _canvas.gameObject.SetActive(false);
         }
 
+        private void OnContinueGemsClicked()
+        {
+            if (SaveDataManager.Instance == null) return;
+            if (!SaveDataManager.Instance.SpendGems(Constants.CONTINUE_GEM_COST)) return;
+
+            _hasContinued = true;
+            GameManager.Instance?.ContinueGame();
+        }
+
+        private void OnContinueAdClicked()
+        {
+            if (AdManager.Instance == null) return;
+
+            AdManager.Instance.ShowRewarded((success) =>
+            {
+                if (success)
+                {
+                    _hasContinued = true;
+                    GameManager.Instance?.ContinueGame();
+                }
+            });
+        }
+
         private void OnRestartClicked()
         {
-            GameManager.Instance?.RestartGame();
+            // Show interstitial if applicable
+            if (SaveDataManager.Instance != null && SaveDataManager.Instance.ShouldShowInterstitial())
+            {
+                AdManager.Instance?.ShowInterstitial(() =>
+                {
+                    GameManager.Instance?.RestartGame();
+                });
+            }
+            else
+            {
+                GameManager.Instance?.RestartGame();
+            }
+        }
+
+        private void OnMenuClicked()
+        {
+            SceneLoader.LoadMainMenu();
         }
 
         private void OnDestroy()

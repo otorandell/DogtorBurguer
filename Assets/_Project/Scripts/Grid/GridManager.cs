@@ -367,6 +367,37 @@ namespace DogtorBurguer
             }
         }
 
+        /// <summary>
+        /// Clears the top half of all columns (used for continue after game over)
+        /// </summary>
+        public void ClearTopHalf()
+        {
+            for (int c = 0; c < _columns.Length; c++)
+            {
+                Column col = _columns[c];
+                int height = col.StackHeight;
+                if (height <= 1) continue;
+
+                int removeFrom = height / 2;
+                // Destroy ingredients from top down
+                for (int r = height - 1; r >= removeFrom; r--)
+                {
+                    Ingredient ingredient = col.GetIngredientAtRow(r);
+                    if (ingredient != null)
+                        ingredient.DestroyWithAnimation();
+                }
+                col.RemoveIngredientsInRange(removeFrom, height - 1);
+            }
+
+            // Also kill any currently falling ingredients
+            foreach (Ingredient falling in new List<Ingredient>(_fallingIngredients))
+            {
+                if (falling != null)
+                    falling.DestroyWithAnimation();
+            }
+            _fallingIngredients.Clear();
+        }
+
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {

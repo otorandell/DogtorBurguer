@@ -8,6 +8,7 @@ namespace DogtorBurguer
     {
         private TextMeshProUGUI _scoreText;
         private TextMeshProUGUI _levelText;
+        private TextMeshProUGUI _gemText;
         private Canvas _canvas;
 
         private void Start()
@@ -46,6 +47,13 @@ namespace DogtorBurguer
             // Level text (top-right)
             _levelText = CreateText("LevelText", new Vector2(-20, -20), TextAlignmentOptions.TopRight);
             _levelText.fontSize = 24;
+
+            // Gem counter (top-center)
+            _gemText = CreateText("GemText", new Vector2(0, -20), TextAlignmentOptions.Top);
+            _gemText.fontSize = 20;
+            _gemText.color = new Color(1f, 0.85f, 0f);
+            int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
+            _gemText.text = $"Gems: {gems}";
         }
 
         private TextMeshProUGUI CreateText(string name, Vector2 offset, TextAlignmentOptions alignment)
@@ -60,6 +68,12 @@ namespace DogtorBurguer
                 rect.anchorMin = new Vector2(0, 1);
                 rect.anchorMax = new Vector2(0, 1);
                 rect.pivot = new Vector2(0, 1);
+            }
+            else if (alignment == TextAlignmentOptions.Top)
+            {
+                rect.anchorMin = new Vector2(0.5f, 1);
+                rect.anchorMax = new Vector2(0.5f, 1);
+                rect.pivot = new Vector2(0.5f, 1);
             }
             else
             {
@@ -87,6 +101,9 @@ namespace DogtorBurguer
             DifficultyManager dm = FindAnyObjectByType<DifficultyManager>();
             if (dm != null)
                 dm.OnLevelChanged += UpdateLevel;
+
+            if (SaveDataManager.Instance != null)
+                SaveDataManager.Instance.OnGemsChanged += UpdateGems;
         }
 
         private void UpdateScore(int score)
@@ -99,6 +116,12 @@ namespace DogtorBurguer
             _levelText.text = $"Lv.{level}";
         }
 
+        private void UpdateGems(int gems)
+        {
+            if (_gemText != null)
+                _gemText.text = $"Gems: {gems}";
+        }
+
         private void OnDestroy()
         {
             if (GameManager.Instance != null)
@@ -107,6 +130,9 @@ namespace DogtorBurguer
             DifficultyManager dm = FindAnyObjectByType<DifficultyManager>();
             if (dm != null)
                 dm.OnLevelChanged -= UpdateLevel;
+
+            if (SaveDataManager.Instance != null)
+                SaveDataManager.Instance.OnGemsChanged -= UpdateGems;
         }
     }
 }

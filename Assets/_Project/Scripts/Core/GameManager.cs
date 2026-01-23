@@ -44,10 +44,21 @@ namespace DogtorBurguer
             if (_difficultyManager == null)
                 _difficultyManager = FindAnyObjectByType<DifficultyManager>();
 
-            // Ensure UI and audio components exist
+            // Ensure UI, audio, and monetization components exist
             EnsureComponent<GameHUD>();
             EnsureComponent<GameOverPanel>();
             EnsureComponent<AudioManager>();
+            EnsureComponent<GemPackSpawner>();
+
+            // Ensure SaveDataManager persists from menu
+            if (SaveDataManager.Instance == null)
+            {
+                GameObject saveObj = new GameObject("SaveDataManager");
+                saveObj.AddComponent<SaveDataManager>();
+            }
+
+            // Apply sound setting
+            AudioListener.volume = SaveDataManager.Instance.SoundOn ? 1f : 0f;
 
             // Subscribe to events
             if (_gridManager != null)
@@ -105,9 +116,24 @@ namespace DogtorBurguer
         public void RestartGame()
         {
             Time.timeScale = 1f;
+
+            if (SaveDataManager.Instance != null)
+                SaveDataManager.Instance.IncrementGamesPlayed();
+
             UnityEngine.SceneManagement.SceneManager.LoadScene(
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
             );
+        }
+
+        public void ContinueGame()
+        {
+            if (_gridManager != null)
+                _gridManager.ClearTopHalf();
+
+            SetState(GameState.Playing);
+            _spawner?.StartSpawning();
+
+            Debug.Log("[GameManager] Continued! Columns cleared.");
         }
 
         private void HandleGameOver()
