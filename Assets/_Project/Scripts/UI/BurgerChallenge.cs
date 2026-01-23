@@ -12,7 +12,7 @@ namespace DogtorBurguer
         [SerializeField] private Vector2 _panelCenter = new Vector2(1.35f, 2.4f);
 
         [Header("Burger Display")]
-        [SerializeField] private float _ingredientSpacing = 0.22f;
+        [SerializeField] private float _ingredientSpacing = 0.08f;
         [SerializeField] private float _ingredientScale = 0.5f;
         [SerializeField] private int _sortingOrder = 60;
 
@@ -174,24 +174,24 @@ namespace DogtorBurguer
             if (spawner == null) return;
 
             float startY = -(_targetIngredients.Count + 1) * _ingredientSpacing * 0.5f;
-            int order = 0;
+            int bunOrder = _sortingOrder + 10; // Buns render on top of ingredients
 
             // Bottom bun
-            CreateIngredientVisual(IngredientType.BunBottom, startY, spawner, order++);
+            CreateIngredientVisual(IngredientType.BunBottom, startY, spawner, bunOrder);
 
-            // Ingredients
+            // Ingredients (ascending order, behind buns)
             for (int i = 0; i < _targetIngredients.Count; i++)
             {
                 float y = startY + (i + 1) * _ingredientSpacing;
-                CreateIngredientVisual(_targetIngredients[i], y, spawner, order++);
+                CreateIngredientVisual(_targetIngredients[i], y, spawner, _sortingOrder + 2 + i);
             }
 
             // Top bun
             float topY = startY + (_targetIngredients.Count + 1) * _ingredientSpacing;
-            CreateIngredientVisual(IngredientType.BunTop, topY, spawner, order++);
+            CreateIngredientVisual(IngredientType.BunTop, topY, spawner, bunOrder + 1);
         }
 
-        private void CreateIngredientVisual(IngredientType type, float localY, IngredientSpawner spawner, int orderIndex)
+        private void CreateIngredientVisual(IngredientType type, float localY, IngredientSpawner spawner, int order)
         {
             Sprite sprite = spawner.GetSpriteForType(type);
             if (sprite == null) return;
@@ -203,7 +203,7 @@ namespace DogtorBurguer
 
             SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
             sr.sprite = sprite;
-            sr.sortingOrder = _sortingOrder + 2 + orderIndex;
+            sr.sortingOrder = order;
 
             _burgerVisuals.Add(obj);
         }

@@ -238,7 +238,7 @@ namespace DogtorBurguer
 
             float stepDuration = 0.12f;
             float travelSpacing = Constants.CELL_VISUAL_HEIGHT * 0.2f;
-            float smackSpacing = Constants.CELL_VISUAL_HEIGHT * 0.3f;
+            float smackSpacing = Constants.CELL_VISUAL_HEIGHT * 0.15f;
 
             // Group of ingredients being pushed down (starts with just the top bun)
             List<Ingredient> movingGroup = new List<Ingredient> { burgerParts[0] };
