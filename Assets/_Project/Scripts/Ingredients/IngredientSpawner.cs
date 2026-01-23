@@ -120,14 +120,41 @@ namespace DogtorBurguer
         {
             _spawnCount++;
 
-            int columnIndex = Random.Range(0, Constants.COLUMN_COUNT);
-
             if (GridManager.Instance == null) yield break;
 
+            int columnIndex;
+            IngredientType type;
+
+            // Test burger column mode: all spawns on rightmost column
+            if (GameManager.Instance != null && GameManager.Instance.TestBurgerColumn)
+            {
+                columnIndex = Constants.COLUMN_COUNT - 1;
+                Column testCol = GridManager.Instance.GetColumn(columnIndex);
+                if (testCol == null || testCol.IsOverflowing) yield break;
+
+                if (_spawnCount == 1)
+                    type = IngredientType.BunBottom;
+                else if (_spawnCount >= Constants.MAX_ROWS)
+                    type = IngredientType.BunTop;
+                else
+                    type = (_spawnCount % 2 == 0) ? IngredientType.Meat : IngredientType.Cheese;
+
+                GameObject testPreview = CreatePreview(type, testCol);
+                if (testPreview != null)
+                {
+                    yield return StartCoroutine(BlinkPreview(testPreview));
+                    Destroy(testPreview);
+                }
+                if (!_isSpawning) yield break;
+                SpawnIngredient(type, testCol);
+                yield break;
+            }
+
+            columnIndex = Random.Range(0, Constants.COLUMN_COUNT);
             Column column = GridManager.Instance.GetColumn(columnIndex);
             if (column == null || column.IsOverflowing) yield break;
 
-            IngredientType type = GetSpawnType();
+            type = GetSpawnType();
 
             // Test settings override
             if (GameManager.Instance != null && GameManager.Instance.TestSettings)

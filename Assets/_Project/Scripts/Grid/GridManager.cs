@@ -79,6 +79,26 @@ namespace DogtorBurguer
         {
             Column column = ingredient.CurrentColumn;
 
+            // Top bun: check burger before overflow
+            if (ingredient.Type == IngredientType.BunTop)
+            {
+                if (ColumnHasBunBelow(column, ingredient))
+                {
+                    OnIngredientPlaced?.Invoke();
+                    CheckAndProcessBurger(column);
+                    return;
+                }
+                else
+                {
+                    // No bottom bun below — destroy top bun
+                    Vector3 pos = ingredient.transform.position;
+                    column.RemoveIngredient(ingredient);
+                    ingredient.DestroyWithFlash();
+                    FloatingText.Spawn(pos, "Too bad!", Color.red, 4f);
+                    return;
+                }
+            }
+
             // Check for overflow (game over condition)
             if (column.IsOverflowing)
             {
@@ -87,19 +107,6 @@ namespace DogtorBurguer
             }
 
             OnIngredientPlaced?.Invoke();
-
-            // Top bun validation: destroy if no bottom bun below
-            if (ingredient.Type == IngredientType.BunTop)
-            {
-                if (!ColumnHasBunBelow(column, ingredient))
-                {
-                    Vector3 pos = ingredient.transform.position;
-                    column.RemoveIngredient(ingredient);
-                    ingredient.DestroyWithFlash();
-                    FloatingText.Spawn(pos, "Too bad!", Color.red, 4f);
-                    return;
-                }
-            }
 
             // Check for matches (includes bottom bun cancellation)
             CheckAndProcessMatches(column);
@@ -221,6 +228,12 @@ namespace DogtorBurguer
             // Group of ingredients being pushed down (starts with just the top bun)
             List<Ingredient> movingGroup = new List<Ingredient> { burgerParts[0] };
 
+            // Pitch scaling: total squeeze steps = middle ingredients + 1 (smack)
+            int totalSteps = burgerParts.Count - 1; // all steps including smack
+            float pitchStart = 0.6f;
+            float pitchEnd = 1.8f;
+            int stepIndex = 0;
+
             // Push through each ingredient until reaching the bottom bun
             for (int i = 1; i < burgerParts.Count - 1; i++)
             {
@@ -238,8 +251,10 @@ namespace DogtorBurguer
                 // This ingredient joins the moving group
                 movingGroup.Add(target);
 
-                // Squeeze sound
-                AudioManager.Instance?.PlaySqueeze();
+                // Squeeze sound with rising pitch
+                float pitch = Mathf.Lerp(pitchStart, pitchEnd, (float)stepIndex / (totalSteps - 1));
+                AudioManager.Instance?.PlaySqueeze(pitch);
+                stepIndex++;
 
                 // Pause between each compress step
                 yield return new WaitForSeconds(0.1f);
@@ -253,8 +268,9 @@ namespace DogtorBurguer
             }
             yield return new WaitForSeconds(stepDuration);
 
-            // Smack: slam everything tight against bottom bun
-            AudioManager.Instance?.PlaySqueeze();
+            // Smack: highest pitch
+            float smackPitch = Mathf.Lerp(pitchStart, pitchEnd, (float)stepIndex / (totalSteps - 1));
+            AudioManager.Instance?.PlaySqueeze(smackPitch);
             for (int g = 0; g < movingGroup.Count; g++)
             {
                 Vector3 dest = bottomBunPos + Vector3.up * ((movingGroup.Count - g) * smackSpacing);

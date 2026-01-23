@@ -8,6 +8,7 @@ namespace DogtorBurguer
         public static AudioManager Instance { get; private set; }
 
         private AudioSource _sfxSource;
+        private AudioSource _squeezSource;
 
         private AudioClip _matchClip;
         private AudioClip _burgerClip;
@@ -38,6 +39,9 @@ namespace DogtorBurguer
 
             _sfxSource = gameObject.AddComponent<AudioSource>();
             _sfxSource.playOnAwake = false;
+
+            _squeezSource = gameObject.AddComponent<AudioSource>();
+            _squeezSource.playOnAwake = false;
 
             GenerateClips();
             SubscribeEvents();
@@ -168,9 +172,15 @@ namespace DogtorBurguer
             return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * 0.7f;
         }
 
-        public void PlaySqueeze()
+        public void PlaySqueeze(float pitch = 1f)
         {
-            PlayClip(_squeezeClip, 0.5f);
+            if (_squeezeClip != null && _squeezSource != null)
+            {
+                _squeezSource.pitch = pitch;
+                _squeezSource.clip = _squeezeClip;
+                _squeezSource.volume = 0.5f;
+                _squeezSource.Play();
+            }
         }
 
         /// <summary>
