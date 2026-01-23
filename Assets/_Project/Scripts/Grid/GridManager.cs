@@ -17,7 +17,7 @@ namespace DogtorBurguer
         public event Action<int> OnMatchEliminated;         // Points earned
         public event Action<int, string> OnBurgerCompleted; // Points earned, burger name
         public event Action<Vector3, int> OnMatchEffect;    // Position, points
-        public event Action<Vector3, int, string> OnBurgerEffect; // Position, points, name
+        public event Action<Vector3, int, string, int> OnBurgerEffect; // Position, points, name, ingredientCount
         public event Action OnIngredientPlaced;
 
         private void Awake()
@@ -211,13 +211,13 @@ namespace DogtorBurguer
             int points = CalculateBurgerPoints(ingredientCount);
             string burgerName = GenerateBurgerName(ingredientCount);
 
-            StartCoroutine(BurgerCompressAnimation(column, burgerParts, bunBottomIndex, bunTopIndex, points, burgerName));
+            StartCoroutine(BurgerCompressAnimation(column, burgerParts, bunBottomIndex, bunTopIndex, points, burgerName, ingredientCount));
         }
 
         private System.Collections.IEnumerator BurgerCompressAnimation(
             Column column, List<Ingredient> burgerParts,
             int bunBottomIndex, int bunTopIndex,
-            int points, string burgerName)
+            int points, string burgerName, int ingredientCount)
         {
             // Pause spawning during animation
             GameManager.Instance?.PauseSpawning();
@@ -294,7 +294,7 @@ namespace DogtorBurguer
             column.CollapseFromRow(bunBottomIndex);
 
             OnBurgerCompleted?.Invoke(points, burgerName);
-            OnBurgerEffect?.Invoke(bottomBunPos, points, burgerName);
+            OnBurgerEffect?.Invoke(bottomBunPos, points, burgerName, ingredientCount);
 
             // Resume spawning
             GameManager.Instance?.ResumeSpawning();
@@ -308,13 +308,17 @@ namespace DogtorBurguer
             if (ingredientCount <= 2) bonus = Constants.BONUS_SMALL_BURGER;
             else if (ingredientCount <= 4) bonus = Constants.BONUS_MEDIUM_BURGER;
             else if (ingredientCount <= 6) bonus = Constants.BONUS_LARGE_BURGER;
-            else bonus = Constants.BONUS_MEGA_BURGER;
+            else if (ingredientCount <= 8) bonus = Constants.BONUS_MEGA_BURGER;
+            else bonus = Constants.BONUS_MAX_BURGER;
 
             return basePoints + bonus;
         }
 
         private string GenerateBurgerName(int ingredientCount)
         {
+            if (ingredientCount >= 9)
+                return "\u00a1DOKTOR BURGUER!";
+
             string[] smallPrefixes = { "The", "Lil'", "Mini", "Baby" };
             string[] mediumPrefixes = { "Super", "Big", "Double", "Triple" };
             string[] largePrefixes = { "Mega", "Ultra", "Giga", "Hyper" };

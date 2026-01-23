@@ -11,7 +11,11 @@ namespace DogtorBurguer
         private AudioSource _squeezSource;
 
         private AudioClip _matchClip;
-        private AudioClip _burgerClip;
+        private AudioClip _burgerSmallClip;
+        private AudioClip _burgerMediumClip;
+        private AudioClip _burgerLargeClip;
+        private AudioClip _burgerMegaClip;
+        private AudioClip _burgerMaxClip;
         private AudioClip _levelUpClip;
         private AudioClip _gameOverClip;
         private AudioClip _squeezeClip;
@@ -74,9 +78,16 @@ namespace DogtorBurguer
             PlayClip(_matchClip, 0.5f);
         }
 
-        private void HandleBurger(Vector3 pos, int points, string name)
+        private void HandleBurger(Vector3 pos, int points, string name, int ingredientCount)
         {
-            PlayClip(_burgerClip, 0.7f);
+            AudioClip clip;
+            if (ingredientCount >= 9) clip = _burgerMaxClip;
+            else if (ingredientCount >= 7) clip = _burgerMegaClip;
+            else if (ingredientCount >= 5) clip = _burgerLargeClip;
+            else if (ingredientCount >= 3) clip = _burgerMediumClip;
+            else clip = _burgerSmallClip;
+
+            PlayClip(clip, 0.7f);
         }
 
         private void HandleLevelUp(int level)
@@ -100,7 +111,11 @@ namespace DogtorBurguer
         private void GenerateClips()
         {
             _matchClip = GenerateSound("Match", 0.15f, GenerateMatchSamples);
-            _burgerClip = GenerateSound("Burger", 0.4f, GenerateBurgerSamples);
+            _burgerSmallClip = GenerateSound("BurgerSmall", 0.25f, GenerateBurgerSmallSamples);
+            _burgerMediumClip = GenerateSound("BurgerMedium", 0.4f, GenerateBurgerMediumSamples);
+            _burgerLargeClip = GenerateSound("BurgerLarge", 0.5f, GenerateBurgerLargeSamples);
+            _burgerMegaClip = GenerateSound("BurgerMega", 0.6f, GenerateBurgerMegaSamples);
+            _burgerMaxClip = GenerateSound("BurgerMax", 0.8f, GenerateBurgerMaxSamples);
             _levelUpClip = GenerateSound("LevelUp", 0.5f, GenerateLevelUpSamples);
             _gameOverClip = GenerateSound("GameOver", 0.8f, GenerateGameOverSamples);
             _squeezeClip = GenerateSound("Squeeze", 0.1f, GenerateSqueezeSamples);
@@ -135,9 +150,24 @@ namespace DogtorBurguer
         }
 
         /// <summary>
-        /// Ascending arpeggio for burger completion (C5, E5, G5, C6)
+        /// Small burger: 2 quick ascending notes (C5, G5)
         /// </summary>
-        private float GenerateBurgerSamples(float duration, int i)
+        private float GenerateBurgerSmallSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float[] notes = { 523f, 784f };
+            float noteLength = duration / notes.Length;
+            int noteIndex = Mathf.Min((int)(t / noteLength), notes.Length - 1);
+            float noteT = (t - noteIndex * noteLength) / noteLength;
+            float envelope = 1f - noteT * 0.6f;
+            float freq = notes[noteIndex];
+            return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * 0.7f;
+        }
+
+        /// <summary>
+        /// Medium burger: ascending arpeggio (C5, E5, G5, C6)
+        /// </summary>
+        private float GenerateBurgerMediumSamples(float duration, int i)
         {
             float t = (float)i / SAMPLE_RATE;
             float[] notes = { 523f, 659f, 784f, 1047f };
@@ -147,6 +177,60 @@ namespace DogtorBurguer
             float envelope = 1f - noteT * 0.5f;
             float freq = notes[noteIndex];
             return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * 0.8f;
+        }
+
+        /// <summary>
+        /// Large burger: richer arpeggio with harmonics (C5, E5, G5, B5, C6)
+        /// </summary>
+        private float GenerateBurgerLargeSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float[] notes = { 523f, 659f, 784f, 988f, 1047f };
+            float noteLength = duration / notes.Length;
+            int noteIndex = Mathf.Min((int)(t / noteLength), notes.Length - 1);
+            float noteT = (t - noteIndex * noteLength) / noteLength;
+            float envelope = (1f - noteT * 0.4f) * (1f - t / duration * 0.3f);
+            float freq = notes[noteIndex];
+            return (Mathf.Sin(2f * Mathf.PI * freq * t) * 0.7f
+                  + Mathf.Sin(2f * Mathf.PI * freq * 2f * t) * 0.3f) * envelope * 0.8f;
+        }
+
+        /// <summary>
+        /// Mega burger: two-octave arpeggio with harmonics (C5, E5, G5, C6, E6, G6)
+        /// </summary>
+        private float GenerateBurgerMegaSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float[] notes = { 523f, 659f, 784f, 1047f, 1319f, 1568f };
+            float noteLength = duration / notes.Length;
+            int noteIndex = Mathf.Min((int)(t / noteLength), notes.Length - 1);
+            float noteT = (t - noteIndex * noteLength) / noteLength;
+            float envelope = (1f - noteT * 0.3f) * (1f - t / duration * 0.2f);
+            float freq = notes[noteIndex];
+            return (Mathf.Sin(2f * Mathf.PI * freq * t) * 0.6f
+                  + Mathf.Sin(2f * Mathf.PI * freq * 2f * t) * 0.25f
+                  + Mathf.Sin(2f * Mathf.PI * freq * 3f * t) * 0.15f) * envelope * 0.8f;
+        }
+
+        /// <summary>
+        /// Max burger (DOKTOR BURGUER): triumphant fanfare with full harmonics
+        /// (C5, G5, C6, E6, G6, C7) layered with octave and fifth
+        /// </summary>
+        private float GenerateBurgerMaxSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float[] notes = { 523f, 784f, 1047f, 1319f, 1568f, 2093f };
+            float noteLength = duration / notes.Length;
+            int noteIndex = Mathf.Min((int)(t / noteLength), notes.Length - 1);
+            float noteT = (t - noteIndex * noteLength) / noteLength;
+            float envelope = (1f - noteT * 0.2f) * (1f - t / duration * 0.15f);
+            float freq = notes[noteIndex];
+            // Rich layered sound: fundamental + octave + fifth + two octaves
+            float signal = Mathf.Sin(2f * Mathf.PI * freq * t) * 0.4f
+                         + Mathf.Sin(2f * Mathf.PI * freq * 2f * t) * 0.25f
+                         + Mathf.Sin(2f * Mathf.PI * freq * 1.5f * t) * 0.2f
+                         + Mathf.Sin(2f * Mathf.PI * freq * 4f * t) * 0.15f;
+            return signal * envelope * 0.85f;
         }
 
         /// <summary>

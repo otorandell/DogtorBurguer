@@ -29,6 +29,13 @@ namespace DogtorBurguer
             if (_gridManager != null)
                 _gridManager.OnIngredientPlaced += HandleIngredientPlaced;
 
+            // Start at high level for dual column test mode
+            if (GameManager.Instance != null && GameManager.Instance.TestDualColumn)
+            {
+                _currentLevel = Mathf.Clamp(GameManager.Instance.TestDualColumnLevel, 1, Constants.MAX_LEVEL);
+                OnLevelChanged?.Invoke(_currentLevel);
+            }
+
             ApplyDifficulty();
         }
 

@@ -32,7 +32,8 @@ namespace DogtorBurguer
         public const int BONUS_SMALL_BURGER = 20;    // 1-2 ingredients
         public const int BONUS_MEDIUM_BURGER = 50;   // 3-4 ingredients
         public const int BONUS_LARGE_BURGER = 100;   // 5-6 ingredients
-        public const int BONUS_MEGA_BURGER = 200;    // 7+ ingredients
+        public const int BONUS_MEGA_BURGER = 200;    // 7-8 ingredients
+        public const int BONUS_MAX_BURGER = 500;     // 9+ ingredients
 
         // Chef positions (between columns)
         public const int CHEF_POSITION_COUNT = 3;

@@ -16,9 +16,13 @@ namespace DogtorBurguer
         [SerializeField] private bool _autoStartGame = true;
         [SerializeField] private bool _testSettings = false;
         [SerializeField] private bool _testBurgerColumn = false;
+        [SerializeField] private bool _testDualColumn = false;
+        [SerializeField] private int _testDualColumnLevel = 8;
 
         public bool TestSettings => _testSettings;
         public bool TestBurgerColumn => _testBurgerColumn;
+        public bool TestDualColumn => _testDualColumn;
+        public int TestDualColumnLevel => _testDualColumnLevel;
 
         private GameState _currentState = GameState.Menu;
         private int _score;

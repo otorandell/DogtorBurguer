@@ -89,7 +89,7 @@ namespace DogtorBurguer
             ShakeCamera(_matchShakeStrength);
         }
 
-        private void HandleBurgerEffect(Vector3 position, int points, string burgerName)
+        private void HandleBurgerEffect(Vector3 position, int points, string burgerName, int ingredientCount)
         {
             SpawnBurgerPopup(position, points, burgerName);
             ShakeCamera(_burgerShakeStrength);

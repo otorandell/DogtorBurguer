@@ -50,6 +50,11 @@ namespace DogtorBurguer
         private int _spawnsSinceLastBun;
         private int _currentLevel = 1;
 
+        // Dual column test state
+        private bool _dualColumnLeftTurn = true;
+        private bool _dualColumnFirstBunSpawned;
+        private bool _dualColumnMeatNext = true;
+
         // Preview state for early spawn
         private GameObject _activePreview;
         private Column _previewColumn;
@@ -159,6 +164,46 @@ namespace DogtorBurguer
                 }
                 if (!_isSpawning || _previewTapped) yield break;
                 SpawnIngredient(type, testCol);
+                yield break;
+            }
+
+            // Test dual column mode: left column = ingredients, right column = buns
+            if (GameManager.Instance != null && GameManager.Instance.TestDualColumn)
+            {
+                if (_dualColumnLeftTurn)
+                {
+                    columnIndex = 0;
+                    type = _dualColumnMeatNext ? IngredientType.Meat : IngredientType.Cheese;
+                    _dualColumnMeatNext = !_dualColumnMeatNext;
+                }
+                else
+                {
+                    columnIndex = Constants.COLUMN_COUNT - 1;
+                    if (!_dualColumnFirstBunSpawned)
+                    {
+                        type = IngredientType.BunBottom;
+                        _dualColumnFirstBunSpawned = true;
+                    }
+                    else
+                    {
+                        type = IngredientType.BunTop;
+                    }
+                }
+                _dualColumnLeftTurn = !_dualColumnLeftTurn;
+
+                Column dualCol = GridManager.Instance.GetColumn(columnIndex);
+                if (dualCol == null || dualCol.IsOverflowing) yield break;
+
+                _previewColumn = dualCol;
+                _previewType = type;
+                GameObject dualPreview = CreatePreview(type, dualCol);
+                if (dualPreview != null)
+                {
+                    yield return StartCoroutine(BlinkPreview(dualPreview));
+                    if (dualPreview != null) Destroy(dualPreview);
+                }
+                if (!_isSpawning || _previewTapped) yield break;
+                SpawnIngredient(type, dualCol);
                 yield break;
             }
 
