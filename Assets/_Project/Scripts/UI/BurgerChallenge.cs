@@ -212,7 +212,13 @@ namespace DogtorBurguer
         {
             foreach (var obj in _burgerVisuals)
             {
-                if (obj != null) Destroy(obj);
+                if (obj != null)
+                {
+                    obj.transform.DOKill();
+                    SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
+                    if (sr != null) sr.DOKill();
+                    Destroy(obj);
+                }
             }
             _burgerVisuals.Clear();
         }
