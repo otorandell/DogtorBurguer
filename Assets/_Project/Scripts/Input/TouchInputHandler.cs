@@ -48,6 +48,9 @@ namespace DogtorBurguer
 
         private void HandleInput()
         {
+            // Keyboard input (always checked)
+            HandleKeyboardInput();
+
             // Handle touch input first if available
             if (Touch.activeTouches.Count > 0)
             {
@@ -58,6 +61,20 @@ namespace DogtorBurguer
                 // Fall back to mouse input
                 HandleMouseInput();
             }
+        }
+
+        private void HandleKeyboardInput()
+        {
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard == null || _chef == null) return;
+
+            if (keyboard.aKey.wasPressedThisFrame)
+                _chef.MoveLeft();
+            else if (keyboard.dKey.wasPressedThisFrame)
+                _chef.MoveRight();
+
+            if (keyboard.spaceKey.wasPressedThisFrame)
+                _chef.SwapPlates();
         }
 
         private void HandleMouseInput()

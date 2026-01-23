@@ -57,6 +57,8 @@ namespace DogtorBurguer
         {
             _currentColumn = column;
             _currentRow = row;
+            if (_spriteRenderer != null)
+                _spriteRenderer.sortingOrder = row;
         }
 
         public void StartFalling(float stepDuration)
@@ -77,9 +79,9 @@ namespace DogtorBurguer
             int targetRow = _currentColumn.StackHeight;
             Vector3 currentPos = transform.position;
 
-            // Calculate the row we're currently at (based on position)
+            // Calculate the row we're currently at (based on visual height)
             int currentVisualRow = Mathf.RoundToInt(
-                (currentPos.y - Constants.GRID_ORIGIN_Y) / Constants.CELL_HEIGHT
+                (currentPos.y - Constants.GRID_ORIGIN_Y) / Constants.CELL_VISUAL_HEIGHT
             );
 
             // If we've reached the target row, land
@@ -89,10 +91,10 @@ namespace DogtorBurguer
                 return;
             }
 
-            // Fall one step down
+            // Fall one step down (visual height)
             Vector3 targetPos = new Vector3(
                 currentPos.x,
-                currentPos.y - Constants.CELL_HEIGHT,
+                currentPos.y - Constants.CELL_VISUAL_HEIGHT,
                 currentPos.z
             );
 

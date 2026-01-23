@@ -45,7 +45,7 @@ namespace DogtorBurguer
             float x = (leftX + rightX) / 2f;
 
             // Y position is below the grid
-            float y = Constants.GRID_ORIGIN_Y - Constants.CELL_HEIGHT * 0.8f;
+            float y = Constants.GRID_ORIGIN_Y - Constants.CELL_VISUAL_HEIGHT * 0.8f;
 
             return new Vector3(x, y, 0);
         }

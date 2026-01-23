@@ -239,7 +239,7 @@ namespace DogtorBurguer
             float thresholdY = Mathf.Max(
                 colA.GetNextLandingPosition().y,
                 colB.GetNextLandingPosition().y
-            ) + (Constants.CELL_HEIGHT * 0.2f);
+            ) + (Constants.CELL_VISUAL_HEIGHT * 0.2f);
 
             // Swap all stacked ingredients
             List<Ingredient> ingredientsA = colA.TakeAllIngredients();
@@ -316,7 +316,7 @@ namespace DogtorBurguer
             float thresholdY = Mathf.Max(
                 colA.GetNextLandingPosition().y,
                 colB.GetNextLandingPosition().y
-            ) + (Constants.CELL_HEIGHT * 0.2f);
+            ) + (Constants.CELL_VISUAL_HEIGHT * 0.2f);
 
             // Swap all stacked ingredients
             List<Ingredient> ingredientsA = colA.TakeAllIngredients();
@@ -378,9 +378,9 @@ namespace DogtorBurguer
                 for (int row = 0; row <= Constants.MAX_ROWS; row++)
                 {
                     float x = Constants.GRID_ORIGIN_X + (col * Constants.CELL_WIDTH);
-                    float y = Constants.GRID_ORIGIN_Y + (row * Constants.CELL_HEIGHT);
+                    float y = Constants.GRID_ORIGIN_Y + (row * Constants.CELL_VISUAL_HEIGHT);
                     Vector3 pos = new Vector3(x, y, 0);
-                    Gizmos.DrawWireCube(pos, new Vector3(Constants.CELL_WIDTH * 0.9f, Constants.CELL_HEIGHT * 0.9f, 0.1f));
+                    Gizmos.DrawWireCube(pos, new Vector3(Constants.CELL_WIDTH * 0.9f, Constants.CELL_VISUAL_HEIGHT * 0.9f, 0.1f));
                 }
             }
         }
