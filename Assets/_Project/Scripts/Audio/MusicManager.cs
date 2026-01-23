@@ -8,8 +8,10 @@ namespace DogtorBurguer
         public static MusicManager Instance { get; private set; }
 
         private AudioSource _source;
-        private AudioClip _menuTrack;
-        private AudioClip _gameTrack;
+        private AudioClip[] _menuTracks;
+        private AudioClip[] _gameTracks;
+        private bool _playingMenuCategory;
+        private bool _playingGameCategory;
 
         private void Awake()
         {
@@ -27,8 +29,8 @@ namespace DogtorBurguer
             _source.playOnAwake = false;
             _source.volume = 0.5f;
 
-            _menuTrack = Resources.Load<AudioClip>("Music/MenuTrack");
-            _gameTrack = Resources.Load<AudioClip>("Music/GameTrack");
+            _menuTracks = Resources.LoadAll<AudioClip>("Music/MenuTrack");
+            _gameTracks = Resources.LoadAll<AudioClip>("Music/GameTrack");
 
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
@@ -51,20 +53,28 @@ namespace DogtorBurguer
         private void PlayTrackForCurrentScene()
         {
             string sceneName = SceneManager.GetActiveScene().name;
-            AudioClip target = sceneName == SceneLoader.SCENE_MAIN_MENU ? _menuTrack : _gameTrack;
+            bool isMenu = sceneName == SceneLoader.SCENE_MAIN_MENU;
+            AudioClip[] tracks = isMenu ? _menuTracks : _gameTracks;
 
-            if (target == null)
+            if (tracks == null || tracks.Length == 0)
             {
-                Debug.LogWarning($"[MusicManager] No track found for scene '{sceneName}'");
+                Debug.LogWarning($"[MusicManager] No tracks found in Resources/Music/{(isMenu ? "MenuTrack" : "GameTrack")}/");
                 return;
             }
 
-            // Don't restart if the same track is already playing
-            if (_source.clip == target && _source.isPlaying)
+            // Don't restart if already playing from the same category
+            if (isMenu && _playingMenuCategory && _source.isPlaying)
+                return;
+            if (!isMenu && _playingGameCategory && _source.isPlaying)
                 return;
 
+            // Pick a random track
+            AudioClip target = tracks[Random.Range(0, tracks.Length)];
             _source.clip = target;
             _source.Play();
+
+            _playingMenuCategory = isMenu;
+            _playingGameCategory = !isMenu;
         }
 
         public void SetVolume(float volume)
