@@ -50,67 +50,61 @@ Player can tap to move chef, tap chef to swap entire columns.
 
 ---
 
-## Phase 3: Match Detection Polish (NEXT)
+## Phase 3: Match Detection Polish ✅
 **Goal: Visual feedback and juice**
 
-### Scripts to Create:
-1. `ScorePopup.cs` - Floating score text
-2. `MatchEffects.cs` - Particle/visual effects (optional)
+### Scripts Created:
+- [x] `ScorePopup.cs` - Floating score text (TMPro + DOTween)
+- [x] `FeedbackManager.cs` - Centralized effect spawning
 
-### Features to Implement:
-- [ ] Score popup when match occurs (+10 floating text)
-- [ ] Visual flash/highlight on matching ingredients
-- [ ] Screen shake on match (subtle)
-- [ ] Particle effect on destruction (optional)
+### Features Implemented:
+- [x] Score popup when match occurs (+N floating text)
+- [x] Visual blink on matching ingredients (DestroyWithFlash)
+- [x] Screen shake on match (subtle, stronger for burgers)
+- [x] Position-aware events (OnMatchEffect, OnBurgerEffect)
 
-### Milestone:
+### Milestone: ✅
 Matching ingredients have satisfying visual feedback.
 
 ---
 
-## Phase 4: Burger Completion Polish
+## Phase 4: Burger Completion Polish ✅
 **Goal: Celebrate burger completion**
 
-### Scripts to Modify:
-1. `GridManager.cs` - Expand GenerateBurgerName()
+### Scripts Created:
+- [x] `BurgerPopup.cs` - Scale-pop name + score display
 
-### Scripts to Create:
-1. `BurgerPopup.cs` - Shows burger name with animation
+### Features Implemented:
+- [x] Expanded funny names pool (60+ English combos, size-aware)
+- [x] Burger name popup display with scale-pop animation
+- [x] Screen flash celebration (runtime white sprite)
+- [x] Bonus score visual feedback (orange colored popup)
 
-### Features to Implement:
-- [ ] Expanded funny names pool (20+ names)
-- [ ] Burger name popup display
-- [ ] Celebration animation (screen flash, scale pop)
-- [ ] Bonus score visual feedback
-
-### Milestone:
+### Milestone: ✅
 Complete burgers are celebrated with funny name and effects.
 
 ---
 
-## Phase 5: Game Flow & Difficulty
+## Phase 5: Game Flow & Difficulty ✅
 **Goal: Complete game loop with progression**
 
-### Scripts to Create:
-1. `DifficultyManager.cs` - Speed/ingredient progression
+### Scripts Created:
+- [x] `DifficultyManager.cs` - 10-level ingredient-based progression
 
-### Scripts to Modify:
-1. `IngredientSpawner.cs` - Variable speed, ingredient pool
-2. `GameManager.cs` - Game over handling, restart
+### Features Implemented:
+- [x] Speed increases based on ingredients placed
+- [x] Start with 3 ingredients, unlock up to 7
+- [x] 10 levels with score thresholds (3, 7, 12, 18, 25, 33, 42, 52, 64)
+- [x] Game over detection (column overflow) + restart
+- [x] Level display in HUD
+- [x] Auto-resolving references
 
-### Features to Implement:
-- [ ] Speed increases over time
-- [ ] Start with 4 ingredients, unlock more
-- [ ] Game over detection (column overflow)
-- [ ] Game over screen with final score
-- [ ] Restart functionality
-
-### Milestone:
-Game starts, speeds up, ends when column overflows, can restart.
+### Milestone: ✅
+Game starts easy, speeds up by level, ends when column overflows, can restart.
 
 ---
 
-## Phase 6: UI & Polish
+## Phase 6: UI & Polish (NEXT)
 **Goal: Full UI, feedback, juice**
 
 ### Scripts to Create:
@@ -158,16 +152,16 @@ Polished game feel with UI and audio feedback.
 ## Implementation Order Summary
 
 ```
-Phase 1 ✅ ──► Phase 2 ✅ ──► Phase 3 ──► Phase 4
-   │             │              │           │
-   ▼             ▼              ▼           ▼
- Grid          Chef          Matches     Burgers
- Spawn         Move          Polish      Polish
+Phase 1 ✅ ──► Phase 2 ✅ ──► Phase 3 ✅ ──► Phase 4 ✅
+   │             │              │              │
+   ▼             ▼              ▼              ▼
+ Grid          Chef          Matches        Burgers
+ Spawn         Move          Polish         Polish
 
-         ──► Phase 5 ──► Phase 6 ──► Phase 7 ──► Phase 8
-                │           │           │           │
-                ▼           ▼           ▼           ▼
-            Game Loop     UI/UX       Art        Launch
+         ──► Phase 5 ✅ ──► Phase 6 ──► Phase 7 ──► Phase 8
+                │              │           │           │
+                ▼              ▼           ▼           ▼
+            Difficulty       UI/UX       Art        Launch
 ```
 
 ---

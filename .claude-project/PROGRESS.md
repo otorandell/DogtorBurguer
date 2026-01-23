@@ -1,8 +1,8 @@
 # Dogtor Burguer! - Development Progress
 
-## Current Status: Phase 2 Complete ✅ - Ready for Phase 3
+## Current Status: Phase 5 Complete ✅ - Ready for Phase 6
 
-**Last Session:** 2025-01-21
+**Last Session:** 2026-01-23
 
 ---
 
@@ -21,34 +21,52 @@
 ### Phase 2: Chef Controller & Input ✅
 - `ChefController.cs` - 3 positions, movement with DOTween
 - `TouchInputHandler.cs` - New Unity Input System (touch + mouse)
-- **Full column swap mechanic:**
-  - All stacked ingredients swap between columns
-  - Falling ingredients swap if below column top + 20% buffer
-  - Falling ingredient tracking in GridManager
-- Chef GameObject in scene with sprite
-- Input tested and working
+- Full column swap mechanic with wave effects
+- Falling ingredient swap below threshold
+- Chef 180° flip animation on swap
+
+### Phase 3: Match Detection Polish ✅
+- `ScorePopup.cs` - Floating "+N" text that rises and fades
+- `FeedbackManager.cs` - Centralized effect manager
+- Ingredient blink effect before destruction (DestroyWithFlash)
+- Camera shake on matches (subtle)
+- Position-aware events (OnMatchEffect, OnBurgerEffect)
+
+### Phase 4: Burger Completion Polish ✅
+- `BurgerPopup.cs` - Scale-pop name + score display
+- Expanded burger name generator (60+ English combos, size-aware)
+- Screen flash on burger completion (runtime white sprite)
+- Stronger camera shake for burgers
+
+### Phase 5: Game Flow & Difficulty ✅
+- `DifficultyManager.cs` - 10-level progression based on ingredients placed
+- Easier starting difficulty (3s spawn, 0.6s fall, 3 ingredient types)
+- Ramps to max difficulty (0.8s spawn, 0.15s fall, 7 types)
+- Level thresholds: 0, 3, 7, 12, 18, 25, 33, 42, 52, 64 ingredients
+- Level display in HUD
+- Game over label + restart button (visible in builds)
+- Auto-resolving references (no manual inspector wiring needed)
 
 ---
 
 ## What's Next: Resume Here
 
-### Phase 3 - Match Detection Polish
-- Visual feedback when ingredients match (particles, flash)
-- Score popups (floating text with DOTween)
-- Screen shake on match
+### Phase 6 - UI & Polish
+- Proper Canvas-based HUD (score, level) replacing OnGUI
+- Game over panel with animation
+- Audio manager & sound effects (placeholder beeps ok)
 
-### Phase 4 - Burger Completion Polish
-- Expand BurgerNameGenerator with larger funny names pool
-- Burger completion celebration animation
-- Burger name popup display
+### Phase 7 - Art & Audio Integration
+- Final sprites (cartoon style)
+- Sprite animations (idle wobble, land squash)
+- Background art
+- Music & sound effects
 
-### Phase 5 - Game Flow
-- Difficulty progression (speed increases over time)
-- More ingredients unlock over time (start 4, grow to 7)
-- Game over screen with final score
-- Restart functionality
-
-### Phase 6+ - UI, Art, Audio, Monetization
+### Phase 8 - Monetization & Menus
+- Ad integration
+- Gems/currency system
+- Main menu
+- Continue-with-ad functionality
 
 ---
 
@@ -57,20 +75,25 @@
 ```
 Assets/_Project/Scripts/
 ├── Core/
-│   ├── Constants.cs        # Grid size, timing, scoring values
-│   ├── GameState.cs        # Enum: Menu, Playing, Paused, GameOver
-│   └── GameManager.cs      # Game loop, score, state machine
+│   ├── Constants.cs           # Grid size, timing, scoring, difficulty
+│   ├── GameState.cs           # Enum: Menu, Playing, Paused, GameOver
+│   ├── GameManager.cs         # Game loop, score, state machine, HUD
+│   ├── DifficultyManager.cs   # Level progression, spawner control
+│   └── FeedbackManager.cs     # Score popups, burger popups, shake, flash
 ├── Grid/
-│   ├── GridManager.cs      # Manages columns, match/burger detection, swap logic
-│   └── Column.cs           # Stack of ingredients, swap helpers
+│   ├── GridManager.cs         # Columns, match/burger detection, swap, events
+│   └── Column.cs              # Stack of ingredients, swap helpers
 ├── Ingredients/
-│   ├── IngredientType.cs   # Enum: Meat, Cheese, etc + Buns
-│   ├── Ingredient.cs       # Fall behavior, column swap, DOTween animations
-│   └── IngredientSpawner.cs # Periodic random spawning
+│   ├── IngredientType.cs      # Enum: Meat, Cheese, etc + Buns
+│   ├── Ingredient.cs          # Fall, animations, DestroyWithFlash
+│   └── IngredientSpawner.cs   # Periodic spawning, difficulty-controlled
 ├── Chef/
-│   └── ChefController.cs   # Movement between 3 positions, triggers swap
-└── Input/
-    └── TouchInputHandler.cs # New Input System (EnhancedTouch)
+│   └── ChefController.cs      # Movement, flip animation, triggers swap
+├── Input/
+│   └── TouchInputHandler.cs   # New Input System (EnhancedTouch)
+└── UI/
+    ├── ScorePopup.cs          # Floating score text (TMPro + DOTween)
+    └── BurgerPopup.cs         # Burger name + score display
 ```
 
 ---
@@ -80,11 +103,14 @@ Assets/_Project/Scripts/
 ```
 Game Scene
 ├── Main Camera
+│   └── ScreenFlash (auto-created by FeedbackManager)
 ├── GameManager (GameObject)
 │   ├── GameManager.cs
 │   ├── GridManager.cs
 │   ├── IngredientSpawner.cs
-│   └── TouchInputHandler.cs
+│   ├── TouchInputHandler.cs
+│   ├── FeedbackManager.cs
+│   └── DifficultyManager.cs
 ├── Chef (GameObject)
 │   ├── SpriteRenderer
 │   └── ChefController.cs
@@ -93,63 +119,49 @@ Game Scene
 
 ---
 
-## Key Mechanics Implemented
-
-### Column Swap (Chef Action)
-1. Chef taps → `ChefController.SwapPlates()`
-2. `GridManager.SwapColumns()` called with left/right column indices
-3. All stacked ingredients swap between columns
-4. Falling ingredients below threshold also swap
-5. Match/burger detection runs on both columns after swap
-
-### Falling Ingredient Tracking
-- `GridManager._fallingIngredients` list tracks all falling ingredients
-- Ingredients register when starting fall, unregister on land/destroy
-- Used for swap detection on falling ingredients
-
----
-
 ## Key Constants (in Constants.cs)
 
 - 4 columns, 10 max rows
 - Cell size: 1.2 x 1.0 world units
 - Grid origin: (-1.8, -4.0)
-- Initial spawn interval: 2 seconds
-- Initial fall step: 0.4 seconds
+- Starting spawn interval: 3.0 seconds (was 2.0)
+- Starting fall step: 0.6 seconds (was 0.4)
+- Min spawn interval: 0.8 seconds (level 10)
+- Min fall step: 0.15 seconds (level 10)
+- Starting ingredients: 3 types, max 7
+- 10 difficulty levels
 - Chef has 3 positions (between column pairs)
-- Swap threshold: column top Y + 20% cell height
-
----
-
-## Sprites Available
-
-Located in `Assets/_Project/Sprites/`:
-- **Ingredients/**: Meat, Cheese, Tomato, Onion, Pickle, Lettuce, Egg, Bun Top, Bun Bottom
-- **Chef/**: Dogtor chef character sprite
-
----
-
-## Git Commits
-
-1. `37d05ae` - Initial project setup with GDD and architecture docs
-2. `69a29a5` - Phase 1: Core grid system and ingredient spawning
-3. `763f090` - Phase 2: Chef controller and touch input
-4. `dc8f225` - Update progress documentation for session end
-5. `84d4cf5` - Fix input system and implement full column swap mechanic
 
 ---
 
 ## Technical Notes
 
+### Difficulty System
+- Level based on ingredients placed (not score)
+- DifficultyManager lerps between initial/min Constants values
+- Auto-finds GridManager and IngredientSpawner references
+
+### Feedback System
+- FeedbackManager subscribes to GridManager events (OnMatchEffect, OnBurgerEffect)
+- ScorePopup: world-space TextMeshPro, rises and fades
+- BurgerPopup: scale-pop with name + score, holds 1s, fades
+- Screen flash: runtime-generated white sprite on camera
+- Camera shake: DOShakePosition, resets to original pos
+
 ### Input System
-- Using Unity's **new Input System** package (not legacy Input class)
-- `EnhancedTouchSupport` enabled for touch on mobile
-- `Mouse.current` for editor/standalone mouse input
-- Supports tap (move/swap) and swipe (move) gestures
+- Unity's new Input System (not legacy)
+- EnhancedTouchSupport for mobile
+- Mouse.current for editor/standalone
+- Tap (move/swap) and swipe (move) gestures
 
 ### DOTween Usage
-- Ingredient fall: step-by-step `DOMove` with Linear ease
-- Landing: `DOPunchScale` squash effect
-- Column swap: ingredients `DOMove` to new positions with OutBack ease
-- Chef movement: `DOMove` with OutBack ease
-- Destruction: `DOScale` to zero + `DORotate`
+- Ingredient fall: step-by-step DOMove with Linear ease
+- Landing: DOPunchScale squash effect
+- Column swap: DOMove with wave delay + DOPunchScale
+- Chef movement: DOMove with OutBack ease
+- Chef flip: DORotate Y 180° on swap
+- Destruction: blink (DOColor clear/white) + DOScale + DORotate
+- Score popup: DOMove up + alpha fade + DOScale
+- Burger popup: DOScale overshoot + hold + fade
+- Screen flash: DOColor clear with OutQuad
+- Camera shake: DOShakePosition
