@@ -104,7 +104,7 @@ namespace DogtorBurguer
             TextMeshPro tmp = popupObj.AddComponent<TextMeshPro>();
             tmp.fontSize = _popupFontSize;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.enableWordWrapping = false;
+            tmp.textWrappingMode = TextWrappingModes.NoWrap;
             tmp.overflowMode = TextOverflowModes.Overflow;
             tmp.sortingOrder = 100;
             tmp.rectTransform.sizeDelta = new Vector2(4f, 2f);
@@ -126,7 +126,7 @@ namespace DogtorBurguer
         {
             if (_flashRenderer == null) return;
 
-            _flashRenderer.DOKill();
+            DOTween.Kill(_flashRenderer);
             _flashRenderer.color = _flashColor;
             _flashRenderer.DOColor(Color.clear, _flashDuration).SetEase(Ease.OutQuad);
         }
@@ -143,7 +143,8 @@ namespace DogtorBurguer
         private void OnDestroy()
         {
             _shakeTween?.Kill();
-            _flashRenderer?.DOKill();
+            if (_flashRenderer != null)
+                DOTween.Kill(_flashRenderer);
             if (_mainCamera != null)
                 _mainCamera.transform.position = _cameraOriginalPos;
         }

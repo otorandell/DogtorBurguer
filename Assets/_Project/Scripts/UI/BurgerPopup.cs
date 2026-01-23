@@ -27,7 +27,7 @@ namespace DogtorBurguer
             _nameText.fontSize = 4f;
             _nameText.color = nameColor;
             _nameText.alignment = TextAlignmentOptions.Center;
-            _nameText.enableWordWrapping = false;
+            _nameText.textWrappingMode = TextWrappingModes.NoWrap;
             _nameText.overflowMode = TextOverflowModes.Overflow;
             _nameText.fontStyle = FontStyles.Bold;
             _nameText.sortingOrder = 110;
@@ -43,7 +43,7 @@ namespace DogtorBurguer
             _scoreText.fontSize = 3.5f;
             _scoreText.color = Color.white;
             _scoreText.alignment = TextAlignmentOptions.Center;
-            _scoreText.enableWordWrapping = false;
+            _scoreText.textWrappingMode = TextWrappingModes.NoWrap;
             _scoreText.overflowMode = TextOverflowModes.Overflow;
             _scoreText.sortingOrder = 110;
             _scoreText.rectTransform.sizeDelta = new Vector2(4f, 1.5f);

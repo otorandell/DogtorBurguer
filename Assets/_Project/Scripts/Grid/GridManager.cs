@@ -190,21 +190,21 @@ namespace DogtorBurguer
 
         private string GenerateBurgerName(int ingredientCount)
         {
-            string[] smallPrefixes = { "La", "El", "Mini", "Baby" };
-            string[] mediumPrefixes = { "Super", "Gran", "Doble", "Triple" };
+            string[] smallPrefixes = { "The", "Lil'", "Mini", "Baby" };
+            string[] mediumPrefixes = { "Super", "Big", "Double", "Triple" };
             string[] largePrefixes = { "Mega", "Ultra", "Giga", "Hyper" };
-            string[] megaPrefixes = { "ULTRA", "LEGENDARIA", "EPICA", "BRUTAL" };
+            string[] megaPrefixes = { "ULTRA", "LEGENDARY", "EPIC", "GODLIKE" };
 
             string[] adjectives = {
-                "Explosiva", "Deluxe", "Suprema", "Loca", "Salvaje",
-                "Brutal", "Infernal", "Cosmica", "Atomica", "Turbo",
-                "Divina", "Furiosa", "Volcanica", "Monstruosa", "Radical"
+                "Explosive", "Deluxe", "Supreme", "Wild", "Savage",
+                "Brutal", "Infernal", "Cosmic", "Atomic", "Turbo",
+                "Divine", "Furious", "Volcanic", "Radical", "Blazing"
             };
 
             string[] nouns = {
-                "Torre", "Monstruo", "Bestia", "Titan", "Coloso",
-                "Rascacielos", "Tsunami", "Terremoto", "Volcán", "Huracán",
-                "Avalancha", "Tornado", "Meteoro", "Dragón", "Kraken"
+                "Tower", "Monster", "Beast", "Titan", "Colossus",
+                "Skyscraper", "Tsunami", "Quake", "Volcano", "Hurricane",
+                "Avalanche", "Tornado", "Meteor", "Dragon", "Kraken"
             };
 
             string[] prefixes;
@@ -213,9 +213,9 @@ namespace DogtorBurguer
             else if (ingredientCount <= 6) prefixes = largePrefixes;
             else prefixes = megaPrefixes;
 
-            string prefix = prefixes[Random.Range(0, prefixes.Length)];
-            string adj = adjectives[Random.Range(0, adjectives.Length)];
-            string noun = nouns[Random.Range(0, nouns.Length)];
+            string prefix = prefixes[UnityEngine.Random.Range(0, prefixes.Length)];
+            string adj = adjectives[UnityEngine.Random.Range(0, adjectives.Length)];
+            string noun = nouns[UnityEngine.Random.Range(0, nouns.Length)];
 
             return $"{prefix} {noun} {adj}";
         }
