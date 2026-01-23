@@ -149,7 +149,15 @@ Full menu system, gem economy, and ad integration (mock).
 
 ---
 
-## Phase 8: Art & Audio Integration (NEXT)
+## Phase 8: Polish (NEXT)
+**Goal: Game rules, missing elements, and improvements**
+
+### Tasks:
+- [ ] (To be defined by user)
+
+---
+
+## Phase 9: Art & Audio Integration
 **Goal: Replace placeholders with final assets**
 
 ### Tasks:
@@ -170,10 +178,10 @@ Phase 1 ✅ ──► Phase 2 ✅ ──► Phase 3 ✅ ──► Phase 4 ✅
  Grid          Chef          Matches        Burgers
  Spawn         Move          Polish         Polish
 
-    ──► Phase 5 ✅ ──► Phase 6 ✅ ──► Phase 7 ✅ ──► Phase 8
-           │              │              │              │
-           ▼              ▼              ▼              ▼
-       Difficulty       UI/UX       Monetize          Art
+    ──► Phase 5 ✅ ──► Phase 6 ✅ ──► Phase 7 ✅ ──► Phase 8 ──► Phase 9
+           │              │              │              │            │
+           ▼              ▼              ▼              ▼            ▼
+       Difficulty       UI/UX       Monetize        Polish         Art
 ```
 
 ---
