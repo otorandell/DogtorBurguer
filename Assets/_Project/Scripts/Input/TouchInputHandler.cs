@@ -150,14 +150,11 @@ namespace DogtorBurguer
         {
             if (_chef == null) return;
 
-            // Check if tapped on a preview or falling ingredient first
+            // Check if tapped on a falling ingredient first
             if (_camera != null)
             {
                 Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 10f));
                 worldPos.z = 0;
-
-                if (_spawner != null && _spawner.TryTapPreview(worldPos))
-                    return;
 
                 if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos))
                     return;

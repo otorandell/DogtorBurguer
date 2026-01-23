@@ -18,8 +18,6 @@ namespace DogtorBurguer
         // Timing (easy start → hard max)
         public const float INITIAL_FALL_STEP_DURATION = 0.5f;
         public const float MIN_FALL_STEP_DURATION = 0.1f;
-        public const float SPAWN_INTERVAL_INITIAL = 3.0f;
-        public const float SPAWN_INTERVAL_MIN = 1.2f;
 
         // Difficulty levels
         public const int MAX_LEVEL = 20;

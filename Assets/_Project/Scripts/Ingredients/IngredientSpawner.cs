@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
@@ -22,39 +21,27 @@ namespace DogtorBurguer
         [SerializeField] private Sprite _spriteBunTop;
 
         [Header("Settings")]
-        [SerializeField] private float _spawnInterval = Constants.SPAWN_INTERVAL_INITIAL;
         [SerializeField] private float _fallStepDuration = Constants.INITIAL_FALL_STEP_DURATION;
         [SerializeField] private int _activeIngredientCount = Constants.STARTING_INGREDIENT_COUNT;
+
         [Header("Forced Bun Spawn")]
         [SerializeField] private bool _enableForcedBunSpawn = true;
         [SerializeField] private float _forceBunMultiplier = 1.5f;
 
+        [Header("Wave Settings")]
+        [SerializeField] private float _initialDelay = 1.5f;
 
-        [Header("Preview")]
-        [SerializeField] private float _previewDuration = 0.8f;
-        [SerializeField] private int _previewBlinks = 3;
-
-        [Header("Early Spawn Bonus")]
-        [SerializeField] private int _earlySpawnMaxBonus = 15;
-
-        private float _spawnTimer;
-        private bool _isSpawning = true;
+        private bool _isSpawning;
         private Dictionary<IngredientType, Sprite> _spriteMap;
-        private int _spawnCount;
         private int _spawnsSinceLastBun;
         private int _currentLevel = 1;
 
-        // Dual column test state
-        private bool _dualColumnLeftTurn = true;
-        private bool _dualColumnFirstBunSpawned;
-        private bool _dualColumnMeatNext = true;
-
-        // Preview state for early spawn
-        private GameObject _activePreview;
-        private Column _previewColumn;
-        private IngredientType _previewType;
-        private bool _previewTapped;
-        private float _previewTimeRemaining;
+        // Wave state
+        private List<Ingredient> _currentWaveIngredients = new();
+        private List<(IngredientType type, int columnIndex)> _nextWaveData = new();
+        private List<GameObject> _nextWavePreviews = new();
+        private bool _waitingForWaveLand;
+        private float _delayTimer;
 
         private void Awake()
         {
@@ -77,21 +64,25 @@ namespace DogtorBurguer
             };
         }
 
-        private void Start()
-        {
-            _spawnTimer = _spawnInterval;
-            Debug.Log($"[Spawner] Started. Interval: {_spawnInterval}s, Spawning: {_isSpawning}");
-        }
-
         private void Update()
         {
             if (!_isSpawning) return;
 
-            _spawnTimer -= Time.deltaTime;
-            if (_spawnTimer <= 0)
+            if (!_waitingForWaveLand)
             {
-                StartCoroutine(SpawnWithPreview());
-                _spawnTimer = _spawnInterval;
+                // Initial delay or between-wave delay
+                _delayTimer -= Time.deltaTime;
+                if (_delayTimer <= 0)
+                {
+                    SpawnNextWave();
+                }
+                return;
+            }
+
+            // Check if all current wave ingredients have landed
+            if (AllCurrentWaveLanded())
+            {
+                SpawnNextWave();
             }
         }
 
@@ -103,7 +94,11 @@ namespace DogtorBurguer
         public void StartSpawning()
         {
             _isSpawning = true;
-            _spawnTimer = _spawnInterval;
+            _delayTimer = _initialDelay;
+            _waitingForWaveLand = false;
+            _currentWaveIngredients.Clear();
+            _nextWaveData.Clear();
+            ClearNextWavePreviews();
         }
 
         public void StopSpawning()
@@ -111,9 +106,9 @@ namespace DogtorBurguer
             _isSpawning = false;
         }
 
-        public void SetSpawnInterval(float interval)
+        public void ResumeSpawning()
         {
-            _spawnInterval = Mathf.Max(interval, Constants.SPAWN_INTERVAL_MIN);
+            _isSpawning = true;
         }
 
         public void SetFallSpeed(float stepDuration)
@@ -135,148 +130,70 @@ namespace DogtorBurguer
             return null;
         }
 
-        private IEnumerator SpawnWithPreview()
+        private void SpawnNextWave()
         {
-            _spawnCount++;
+            if (GridManager.Instance == null) return;
 
-            if (GridManager.Instance == null) yield break;
+            ClearNextWavePreviews();
 
-            int columnIndex;
-            IngredientType type;
+            // Spawn from pre-rolled data if available, otherwise roll fresh
+            var waveData = _nextWaveData.Count > 0 ? _nextWaveData : RollWaveData();
 
-            // Test burger column mode: all spawns on rightmost column
-            if (GameManager.Instance != null && GameManager.Instance.TestBurgerColumn)
+            _currentWaveIngredients.Clear();
+            foreach (var (type, colIdx) in waveData)
             {
-                columnIndex = Constants.COLUMN_COUNT - 1;
-                Column testCol = GridManager.Instance.GetColumn(columnIndex);
-                if (testCol == null || testCol.IsOverflowing) yield break;
-
-                if (_spawnCount == 1)
-                    type = IngredientType.BunBottom;
-                else if (_spawnCount >= Constants.MAX_ROWS)
-                    type = IngredientType.BunTop;
-                else
-                    type = (_spawnCount % 2 == 0) ? IngredientType.Meat : IngredientType.Cheese;
-
-                _previewColumn = testCol;
-                _previewType = type;
-                GameObject testPreview = CreatePreview(type, testCol);
-                if (testPreview != null)
-                {
-                    yield return StartCoroutine(BlinkPreview(testPreview));
-                    if (testPreview != null) Destroy(testPreview);
-                }
-                if (!_isSpawning || _previewTapped) yield break;
-                SpawnIngredient(type, testCol);
-                yield break;
+                Column col = GridManager.Instance.GetColumn(colIdx);
+                if (col == null || col.IsOverflowing) continue;
+                Ingredient ing = SpawnIngredient(type, col);
+                if (ing != null)
+                    _currentWaveIngredients.Add(ing);
             }
 
-            // Test dual column mode: left column = ingredients, right column = buns
-            if (GameManager.Instance != null && GameManager.Instance.TestDualColumn)
-            {
-                if (_dualColumnLeftTurn)
-                {
-                    columnIndex = 0;
-                    type = _dualColumnMeatNext ? IngredientType.Meat : IngredientType.Cheese;
-                    _dualColumnMeatNext = !_dualColumnMeatNext;
-                }
-                else
-                {
-                    columnIndex = Constants.COLUMN_COUNT - 1;
-                    if (!_dualColumnFirstBunSpawned)
-                    {
-                        type = IngredientType.BunBottom;
-                        _dualColumnFirstBunSpawned = true;
-                    }
-                    else
-                    {
-                        type = IngredientType.BunTop;
-                    }
-                }
-                _dualColumnLeftTurn = !_dualColumnLeftTurn;
+            // Pre-roll next wave and show previews immediately
+            _nextWaveData = RollWaveData();
+            ShowNextWavePreviews();
 
-                Column dualCol = GridManager.Instance.GetColumn(columnIndex);
-                if (dualCol == null || dualCol.IsOverflowing) yield break;
-
-                _previewColumn = dualCol;
-                _previewType = type;
-                GameObject dualPreview = CreatePreview(type, dualCol);
-                if (dualPreview != null)
-                {
-                    yield return StartCoroutine(BlinkPreview(dualPreview));
-                    if (dualPreview != null) Destroy(dualPreview);
-                }
-                if (!_isSpawning || _previewTapped) yield break;
-                SpawnIngredient(type, dualCol);
-                yield break;
-            }
-
-            columnIndex = Random.Range(0, Constants.COLUMN_COUNT);
-            Column column = GridManager.Instance.GetColumn(columnIndex);
-            if (column == null || column.IsOverflowing) yield break;
-
-            type = GetSpawnType();
-
-            // Test settings override
-            if (GameManager.Instance != null && GameManager.Instance.TestSettings)
-            {
-                if (_spawnCount == 1) type = IngredientType.BunBottom;
-                else if (_spawnCount == 8) type = IngredientType.BunTop;
-            }
-
-            // Show blinking preview
-            _previewColumn = column;
-            _previewType = type;
-            GameObject preview = CreatePreview(type, column);
-            if (preview != null)
-            {
-                yield return StartCoroutine(BlinkPreview(preview));
-                if (preview != null) Destroy(preview);
-            }
-
-            if (!_isSpawning || _previewTapped) yield break;
-
-            SpawnIngredient(type, column);
-
-            // Multi-spawn at higher levels (each in a different column)
-            int extraCount = GetExtraSpawnCount();
-            if (extraCount > 0)
-            {
-                List<int> usedColumns = new List<int> { columnIndex };
-                for (int i = 0; i < extraCount; i++)
-                {
-                    int extraCol = GetUnusedColumn(usedColumns);
-                    if (extraCol < 0) break;
-                    usedColumns.Add(extraCol);
-                    Column extraColumn = GridManager.Instance.GetColumn(extraCol);
-                    if (extraColumn != null && !extraColumn.IsOverflowing)
-                    {
-                        IngredientType extraType = GetSpawnType();
-                        SpawnIngredient(extraType, extraColumn);
-                    }
-                }
-            }
+            _waitingForWaveLand = true;
         }
 
-        private int GetExtraSpawnCount()
+        private bool AllCurrentWaveLanded()
         {
-            if (_currentLevel <= 1) return 0;
-
-            // Chance for at least 2: ramps from 0% at level 1 to 75% at level 20
-            float t = (_currentLevel - 1f) / (Constants.MAX_LEVEL - 1f);
-            float doubleChance = t * 0.75f;
-
-            if (Random.value >= doubleChance) return 0;
-
-            // Got a double — check for triple (starts at level 12, up to 20% at level 20)
-            if (_currentLevel >= 12)
+            foreach (var ing in _currentWaveIngredients)
             {
-                float tripleT = (_currentLevel - 12f) / (Constants.MAX_LEVEL - 12f);
-                float tripleChance = tripleT * 0.2f;
-                if (Random.value < tripleChance) return 2;
+                if (ing == null) continue; // destroyed
+                if (!ing.IsLanded) return false;
             }
+            return true;
+        }
 
-            return 1;
+        private List<(IngredientType type, int columnIndex)> RollWaveData()
+        {
+            int waveSize = GetWaveSize();
+            var data = new List<(IngredientType, int)>();
+            var usedColumns = new List<int>();
+
+            for (int i = 0; i < waveSize; i++)
+            {
+                int col = GetUnusedColumn(usedColumns);
+                if (col < 0) break;
+                usedColumns.Add(col);
+                IngredientType type = GetSpawnType();
+                data.Add((type, col));
+            }
+            return data;
+        }
+
+        private int GetWaveSize()
+        {
+            // Always at least 2 (pairs)
+            // Triple chance scales with level (starts at level 8, up to 35% at level 20)
+            if (_currentLevel >= 8)
+            {
+                float tripleT = (_currentLevel - 8f) / (Constants.MAX_LEVEL - 8f);
+                float tripleChance = tripleT * 0.35f;
+                if (Random.value < tripleChance) return 3;
+            }
+            return 2;
         }
 
         private int GetUnusedColumn(List<int> usedColumns)
@@ -290,6 +207,61 @@ namespace DogtorBurguer
             if (available.Count == 0) return -1;
             return available[Random.Range(0, available.Count)];
         }
+
+        private void ShowNextWavePreviews()
+        {
+            foreach (var (type, colIdx) in _nextWaveData)
+            {
+                Column col = GridManager.Instance?.GetColumn(colIdx);
+                if (col == null) continue;
+
+                GameObject preview = CreatePreview(type, col);
+                if (preview != null)
+                {
+                    _nextWavePreviews.Add(preview);
+                    SpriteRenderer sr = preview.GetComponent<SpriteRenderer>();
+                    if (sr != null)
+                    {
+                        sr.DOFade(0.3f, 0.25f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+                    }
+                }
+            }
+        }
+
+        private void ClearNextWavePreviews()
+        {
+            foreach (var preview in _nextWavePreviews)
+            {
+                if (preview != null)
+                {
+                    preview.transform.DOKill();
+                    SpriteRenderer sr = preview.GetComponent<SpriteRenderer>();
+                    if (sr != null) sr.DOKill();
+                    Destroy(preview);
+                }
+            }
+            _nextWavePreviews.Clear();
+        }
+
+        private GameObject CreatePreview(IngredientType type, Column column)
+        {
+            Sprite sprite = null;
+            _spriteMap?.TryGetValue(type, out sprite);
+            if (sprite == null) return null;
+
+            GameObject preview = new GameObject("WavePreview");
+            float x = Constants.GRID_ORIGIN_X + (column.ColumnIndex * Constants.CELL_WIDTH);
+            float y = Constants.GRID_ORIGIN_Y + (Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT);
+            preview.transform.position = new Vector3(x, y, 0);
+
+            SpriteRenderer sr = preview.AddComponent<SpriteRenderer>();
+            sr.sprite = sprite;
+            sr.sortingOrder = 90;
+            sr.color = new Color(1f, 1f, 1f, 0.8f);
+
+            return preview;
+        }
+
 
         private IngredientType GetSpawnType()
         {
@@ -365,116 +337,6 @@ namespace DogtorBurguer
             return false;
         }
 
-
-        private GameObject CreatePreview(IngredientType type, Column column)
-        {
-            Sprite sprite = null;
-            _spriteMap?.TryGetValue(type, out sprite);
-            if (sprite == null) return null;
-
-            GameObject preview = new GameObject("SpawnPreview");
-            // Position at top of the column (just above the grid area)
-            float x = Constants.GRID_ORIGIN_X + (column.ColumnIndex * Constants.CELL_WIDTH);
-            float y = Constants.GRID_ORIGIN_Y + (Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT);
-            preview.transform.position = new Vector3(x, y, 0);
-
-            SpriteRenderer sr = preview.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.sortingOrder = 90;
-            sr.color = new Color(1f, 1f, 1f, 0.5f);
-
-            return preview;
-        }
-
-        private IEnumerator BlinkPreview(GameObject preview)
-        {
-            if (preview == null) yield break;
-
-            SpriteRenderer sr = preview.GetComponent<SpriteRenderer>();
-            if (sr == null) yield break;
-
-            _activePreview = preview;
-            _previewTapped = false;
-            _previewTimeRemaining = _previewDuration;
-
-            // Create countdown text showing available bonus
-            GameObject countdownObj = new GameObject("BonusCountdown");
-            countdownObj.transform.position = preview.transform.position + Vector3.up * 0.5f;
-            TMPro.TextMeshPro countdownTmp = countdownObj.AddComponent<TMPro.TextMeshPro>();
-            countdownTmp.fontSize = 3f;
-            countdownTmp.color = Color.green;
-            countdownTmp.alignment = TMPro.TextAlignmentOptions.Center;
-            countdownTmp.sortingOrder = 91;
-            RectTransform countRect = countdownTmp.GetComponent<RectTransform>();
-            countRect.sizeDelta = new Vector2(2f, 1f);
-
-            float blinkInterval = _previewDuration / (_previewBlinks * 2f);
-
-            for (int i = 0; i < _previewBlinks && !_previewTapped; i++)
-            {
-                sr.enabled = true;
-                float waited = 0f;
-                while (waited < blinkInterval && !_previewTapped)
-                {
-                    yield return null;
-                    waited += Time.deltaTime;
-                    _previewTimeRemaining -= Time.deltaTime;
-                    UpdateCountdown(countdownTmp);
-                }
-                if (_previewTapped) break;
-
-                sr.enabled = false;
-                waited = 0f;
-                while (waited < blinkInterval && !_previewTapped)
-                {
-                    yield return null;
-                    waited += Time.deltaTime;
-                    _previewTimeRemaining -= Time.deltaTime;
-                    UpdateCountdown(countdownTmp);
-                }
-            }
-
-            if (countdownObj != null) Destroy(countdownObj);
-            _activePreview = null;
-        }
-
-        private void UpdateCountdown(TMPro.TextMeshPro tmp)
-        {
-            if (tmp == null) return;
-            float earlyRatio = Mathf.Clamp01(_previewTimeRemaining / _previewDuration);
-            int bonus = Mathf.RoundToInt(earlyRatio * _earlySpawnMaxBonus);
-            tmp.text = $"+{bonus}";
-        }
-
-        public bool TryTapPreview(Vector2 worldPos)
-        {
-            if (_activePreview == null) return false;
-
-            float dist = Vector2.Distance(worldPos, _activePreview.transform.position);
-            if (dist > Constants.CELL_WIDTH * 0.8f) return false;
-
-            _previewTapped = true;
-
-            // Award bonus based on how early the tap was
-            float earlyRatio = Mathf.Clamp01(_previewTimeRemaining / _previewDuration);
-            int bonus = Mathf.RoundToInt(earlyRatio * _earlySpawnMaxBonus);
-            if (bonus > 0)
-            {
-                GameManager.Instance?.AddExtraScore(bonus);
-                FloatingText.Spawn(_activePreview.transform.position, $"+{bonus}", Color.green, 3f);
-            }
-
-            // Spawn immediately
-            Destroy(_activePreview);
-            _activePreview = null;
-
-            if (_previewColumn != null && !_previewColumn.IsOverflowing)
-                SpawnIngredient(_previewType, _previewColumn);
-
-            AudioManager.Instance?.PlayEarlySpawn();
-            return true;
-        }
-
         public bool TryTapFallingIngredient(Vector2 worldPos)
         {
             if (GridManager.Instance == null) return false;
@@ -522,9 +384,11 @@ namespace DogtorBurguer
             return ingredient;
         }
 
-        /// <summary>
-        /// Spawns a specific ingredient for testing
-        /// </summary>
+        private void OnDestroy()
+        {
+            ClearNextWavePreviews();
+        }
+
         public void SpawnSpecificIngredient(IngredientType type, int columnIndex)
         {
             Column column = GridManager.Instance?.GetColumn(columnIndex);

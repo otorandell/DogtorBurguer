@@ -79,11 +79,9 @@ namespace DogtorBurguer
 
             float t = (_currentLevel - 1f) / (Constants.MAX_LEVEL - 1f);
 
-            float spawnInterval = Mathf.Lerp(Constants.SPAWN_INTERVAL_INITIAL, Constants.SPAWN_INTERVAL_MIN, t);
             float fallStep = Mathf.Lerp(Constants.INITIAL_FALL_STEP_DURATION, Constants.MIN_FALL_STEP_DURATION, t);
             int ingredientCount = Mathf.RoundToInt(Mathf.Lerp(Constants.STARTING_INGREDIENT_COUNT, Constants.MAX_INGREDIENT_COUNT, t));
 
-            _spawner.SetSpawnInterval(spawnInterval);
             _spawner.SetFallSpeed(fallStep);
             _spawner.SetActiveIngredientCount(ingredientCount);
             _spawner.SetCurrentLevel(_currentLevel);

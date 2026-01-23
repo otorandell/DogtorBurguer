@@ -136,7 +136,7 @@ namespace DogtorBurguer
         public void ResumeSpawning()
         {
             if (_currentState == GameState.Playing)
-                _spawner?.StartSpawning();
+                _spawner?.ResumeSpawning();
         }
 
         public void RestartGame()
