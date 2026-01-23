@@ -13,7 +13,6 @@ namespace DogtorBurguer
         [SerializeField] private IngredientSpawner _spawner;
 
         [Header("Settings")]
-        [SerializeField] private float _chefTapRadius = 1.0f;
         [SerializeField] private float _swipeThreshold = 50f; // pixels
 
         private Vector2 _touchStartPos;
@@ -21,6 +20,8 @@ namespace DogtorBurguer
 
         private void Awake()
         {
+            if (_chef == null)
+                _chef = FindAnyObjectByType<ChefController>();
             if (_camera == null)
                 _camera = Camera.main;
             if (_spawner == null)
@@ -147,68 +148,28 @@ namespace DogtorBurguer
 
         private void ProcessTap(Vector2 screenPos)
         {
-            if (_camera == null || _chef == null) return;
+            if (_chef == null) return;
 
-            Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 10f));
-            worldPos.z = 0;
-
-            // Check if tapped on spawn preview (early spawn)
-            if (_spawner != null && _spawner.TryTapPreview(worldPos))
-                return;
-
-            // Check if tapped on a falling ingredient (fast drop)
-            if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos))
-                return;
-
-            // Check if tapped on the chef
-            float distanceToChef = Vector2.Distance(worldPos, _chef.transform.position);
-
-            if (distanceToChef < _chefTapRadius)
+            // Check if tapped on a preview or falling ingredient first
+            if (_camera != null)
             {
-                _chef.SwapPlates();
-                return;
+                Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 10f));
+                worldPos.z = 0;
+
+                if (_spawner != null && _spawner.TryTapPreview(worldPos))
+                    return;
+
+                if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos))
+                    return;
             }
 
-            // Forgiving position detection: horizontal thirds of the screen
-            float chefY = _chef.transform.position.y;
-            float verticalTolerance = 2.5f;
-
-            if (Mathf.Abs(worldPos.y - chefY) < verticalTolerance)
-            {
-                float screenThird = Screen.width / 3f;
-                int position;
-
-                if (screenPos.x < screenThird)
-                    position = 0;
-                else if (screenPos.x < screenThird * 2f)
-                    position = 1;
-                else
-                    position = 2;
-
-                _chef.MoveToPosition(position);
-            }
-        }
-
-        // Alternative: Use position buttons (for more precise control)
-        public void OnPositionButtonPressed(int position)
-        {
-            _chef?.MoveToPosition(position);
+            // Any other tap → swap
+            _chef.SwapPlates();
         }
 
         public void OnSwapButtonPressed()
         {
             _chef?.SwapPlates();
         }
-
-#if UNITY_EDITOR
-        private void OnDrawGizmos()
-        {
-            if (_chef == null) return;
-
-            // Draw tap radius around chef
-            Gizmos.color = new Color(1f, 1f, 0f, 0.3f);
-            Gizmos.DrawWireSphere(_chef.transform.position, _chefTapRadius);
-        }
-#endif
     }
 }

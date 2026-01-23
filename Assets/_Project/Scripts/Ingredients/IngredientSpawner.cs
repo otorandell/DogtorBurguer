@@ -29,10 +29,6 @@ namespace DogtorBurguer
         [SerializeField] private bool _enableForcedBunSpawn = true;
         [SerializeField] private float _forceBunMultiplier = 1.5f;
 
-        [Header("Double Spawn")]
-        [SerializeField] private float _doubleSpawnMinLevel = 4f;
-        [SerializeField] private float _doubleSpawnMaxChance = 0.3f;
-        [SerializeField] private float _doubleSpawnDelay = 0.4f;
 
         [Header("Preview")]
         [SerializeField] private float _previewDuration = 0.8f;
@@ -107,6 +103,7 @@ namespace DogtorBurguer
         public void StartSpawning()
         {
             _isSpawning = true;
+            _spawnTimer = _spawnInterval;
         }
 
         public void StopSpawning()
@@ -241,20 +238,57 @@ namespace DogtorBurguer
 
             SpawnIngredient(type, column);
 
-            // Double spawn chance at higher levels
-            if (ShouldDoubleSpawn())
+            // Multi-spawn at higher levels (each in a different column)
+            int extraCount = GetExtraSpawnCount();
+            if (extraCount > 0)
             {
-                yield return new WaitForSeconds(_doubleSpawnDelay);
-                if (!_isSpawning) yield break;
-
-                int col2 = Random.Range(0, Constants.COLUMN_COUNT);
-                Column column2 = GridManager.Instance.GetColumn(col2);
-                if (column2 != null && !column2.IsOverflowing)
+                List<int> usedColumns = new List<int> { columnIndex };
+                for (int i = 0; i < extraCount; i++)
                 {
-                    IngredientType type2 = GetSpawnType();
-                    SpawnIngredient(type2, column2);
+                    int extraCol = GetUnusedColumn(usedColumns);
+                    if (extraCol < 0) break;
+                    usedColumns.Add(extraCol);
+                    Column extraColumn = GridManager.Instance.GetColumn(extraCol);
+                    if (extraColumn != null && !extraColumn.IsOverflowing)
+                    {
+                        IngredientType extraType = GetSpawnType();
+                        SpawnIngredient(extraType, extraColumn);
+                    }
                 }
             }
+        }
+
+        private int GetExtraSpawnCount()
+        {
+            if (_currentLevel <= 1) return 0;
+
+            // Chance for at least 2: ramps from 0% at level 1 to 75% at level 20
+            float t = (_currentLevel - 1f) / (Constants.MAX_LEVEL - 1f);
+            float doubleChance = t * 0.75f;
+
+            if (Random.value >= doubleChance) return 0;
+
+            // Got a double — check for triple (starts at level 12, up to 20% at level 20)
+            if (_currentLevel >= 12)
+            {
+                float tripleT = (_currentLevel - 12f) / (Constants.MAX_LEVEL - 12f);
+                float tripleChance = tripleT * 0.2f;
+                if (Random.value < tripleChance) return 2;
+            }
+
+            return 1;
+        }
+
+        private int GetUnusedColumn(List<int> usedColumns)
+        {
+            List<int> available = new List<int>();
+            for (int i = 0; i < Constants.COLUMN_COUNT; i++)
+            {
+                if (!usedColumns.Contains(i))
+                    available.Add(i);
+            }
+            if (available.Count == 0) return -1;
+            return available[Random.Range(0, available.Count)];
         }
 
         private IngredientType GetSpawnType()
@@ -331,13 +365,6 @@ namespace DogtorBurguer
             return false;
         }
 
-        private bool ShouldDoubleSpawn()
-        {
-            if (_currentLevel < _doubleSpawnMinLevel) return false;
-            float t = (_currentLevel - _doubleSpawnMinLevel) / (Constants.MAX_LEVEL - _doubleSpawnMinLevel);
-            float chance = Mathf.Lerp(0f, _doubleSpawnMaxChance, t);
-            return Random.value < chance;
-        }
 
         private GameObject CreatePreview(IngredientType type, Column column)
         {

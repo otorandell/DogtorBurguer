@@ -239,8 +239,13 @@ namespace DogtorBurguer
                 }
             }
 
-            // Pause spawning during animation
+            // Pause spawning and freeze falling ingredients during animation
             GameManager.Instance?.PauseSpawning();
+            foreach (var falling in new List<Ingredient>(_fallingIngredients))
+            {
+                if (falling != null)
+                    falling.PauseFalling();
+            }
 
             // burgerParts[0] = top bun, burgerParts[last] = bottom bun
             Ingredient bottomBun = burgerParts[burgerParts.Count - 1];
@@ -263,6 +268,11 @@ namespace DogtorBurguer
                 OnBurgerCompleted?.Invoke(points, burgerName);
                 OnBurgerEffect?.Invoke(bottomBunPos, points, burgerName, ingredientCount);
                 OnBurgerWithIngredients?.Invoke(bottomBunPos, points, burgerName, ingredientCount, ingredientTypes);
+                foreach (var falling in new List<Ingredient>(_fallingIngredients))
+                {
+                    if (falling != null)
+                        falling.ResumeFalling();
+                }
                 GameManager.Instance?.ResumeSpawning();
                 yield break;
             }
@@ -336,7 +346,12 @@ namespace DogtorBurguer
             OnBurgerEffect?.Invoke(bottomBunPos, points, burgerName, ingredientCount);
             OnBurgerWithIngredients?.Invoke(bottomBunPos, points, burgerName, ingredientCount, ingredientTypes);
 
-            // Resume spawning
+            // Resume falling ingredients and spawning
+            foreach (var falling in new List<Ingredient>(_fallingIngredients))
+            {
+                if (falling != null)
+                    falling.ResumeFalling();
+            }
             GameManager.Instance?.ResumeSpawning();
         }
 

@@ -76,6 +76,16 @@ namespace DogtorBurguer
             FallOneStep(stepDuration);
         }
 
+        public void PauseFalling()
+        {
+            _currentTween?.Pause();
+        }
+
+        public void ResumeFalling()
+        {
+            _currentTween?.Play();
+        }
+
         private void FallOneStep(float stepDuration)
         {
             if (_isLanded || !_isFalling) return;
@@ -248,19 +258,33 @@ namespace DogtorBurguer
         public void DestroyWithAnimation()
         {
             _currentTween?.Kill();
+            _waveTween?.Kill();
+            transform.DOKill();
+
+            if (this == null || gameObject == null) return;
 
             Sequence seq = DOTween.Sequence();
+            seq.SetTarget(gameObject);
             seq.Append(transform.DOScale(Vector3.zero, 0.2f).SetEase(Ease.InBack));
             seq.Join(transform.DORotate(new Vector3(0, 0, 180), 0.2f, RotateMode.FastBeyond360));
-            seq.OnComplete(() => Destroy(gameObject));
+            seq.OnComplete(() =>
+            {
+                if (this != null && gameObject != null)
+                    Destroy(gameObject);
+            });
         }
 
         public void DestroyWithFlash()
         {
             _currentTween?.Kill();
             _waveTween?.Kill();
+            transform.DOKill();
+            if (_spriteRenderer != null) _spriteRenderer.DOKill();
+
+            if (this == null || gameObject == null) return;
 
             Sequence seq = DOTween.Sequence();
+            seq.SetTarget(gameObject);
             // Blink twice (visible -> invisible -> visible -> invisible -> visible)
             seq.Append(_spriteRenderer.DOColor(Color.clear, 0.04f));
             seq.Append(_spriteRenderer.DOColor(Color.white, 0.04f));
@@ -269,13 +293,18 @@ namespace DogtorBurguer
             // Scale out and spin
             seq.Append(transform.DOScale(Vector3.zero, 0.15f).SetEase(Ease.InBack));
             seq.Join(transform.DORotate(new Vector3(0, 0, 180), 0.15f, RotateMode.FastBeyond360));
-            seq.OnComplete(() => Destroy(gameObject));
+            seq.OnComplete(() =>
+            {
+                if (this != null && gameObject != null)
+                    Destroy(gameObject);
+            });
         }
 
         private void OnDestroy()
         {
             _currentTween?.Kill();
             _waveTween?.Kill();
+            DOTween.Kill(gameObject);
             // Ensure we're unregistered from falling list
             GridManager.Instance?.UnregisterFallingIngredient(this);
         }

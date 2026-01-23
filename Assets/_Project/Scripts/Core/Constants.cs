@@ -16,13 +16,13 @@ namespace DogtorBurguer
         public const float GRID_ORIGIN_Y = -4.2f;
 
         // Timing (easy start → hard max)
-        public const float INITIAL_FALL_STEP_DURATION = 0.3f;
+        public const float INITIAL_FALL_STEP_DURATION = 0.5f;
         public const float MIN_FALL_STEP_DURATION = 0.1f;
         public const float SPAWN_INTERVAL_INITIAL = 3.0f;
         public const float SPAWN_INTERVAL_MIN = 1.2f;
 
         // Difficulty levels
-        public const int MAX_LEVEL = 10;
+        public const int MAX_LEVEL = 20;
         public const int STARTING_INGREDIENT_COUNT = 3;
         public const int MAX_INGREDIENT_COUNT = 7;
 
