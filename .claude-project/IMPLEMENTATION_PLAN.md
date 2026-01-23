@@ -104,25 +104,52 @@ Game starts easy, speeds up by level, ends when column overflows, can restart.
 
 ---
 
-## Phase 6: UI & Polish (NEXT)
-**Goal: Full UI, feedback, juice**
+## Phase 6: UI & Polish ✅
 
-### Scripts to Create:
-1. `ScoreDisplay.cs` - Live score UI
-2. `GameOverPanel.cs` - End screen
-3. `AudioManager.cs` - Sound effects
+### Scripts Created:
+- [x] `GameHUD.cs` - Live score + level + gem counter UI
+- [x] `GameOverPanel.cs` - End screen with continue/restart/menu
+- [x] `AudioManager.cs` - Procedural sound effects (match, burger, level up, game over)
 
-### Editor Setup:
-- [ ] UI Canvas setup
-- [ ] TextMeshPro for texts
-- [ ] Sound effects (placeholder beeps ok)
+### Features Implemented:
+- [x] Programmatic UI Canvas (no prefabs)
+- [x] TextMeshPro score, level, and gem displays
+- [x] Procedural audio via AudioClip.Create + SetData
+- [x] EventSystem + InputSystemUIInputModule for button input
 
-### Milestone:
+### Milestone: ✅
 Polished game feel with UI and audio feedback.
 
 ---
 
-## Phase 7: Art & Audio Integration
+## Phase 7: Monetization & Menus ✅
+**Goal: Gem economy, ads, menus**
+
+### Scripts Created:
+- [x] `SaveDataManager.cs` - PlayerPrefs persistence (gems, high score, sound, games played)
+- [x] `AdManager.cs` - Mock Unity Ads (interstitial + rewarded)
+- [x] `GemPackSpawner.cs` - Timer-based flying collectible spawner
+- [x] `GemPack.cs` - Tappable flying gem collectible with DOTween path
+- [x] `SceneLoader.cs` - Static scene navigation utility
+- [x] `MainMenuUI.cs` - Full main menu (Play, Shop, Settings, Leaderboard, Credits)
+- [x] `ShopPanel.cs` - Watch ad / buy gems (IAP placeholder)
+- [x] `SettingsPanel.cs` - Sound toggle
+
+### Features Implemented:
+- [x] MainMenu scene (scene 0) with programmatic UI
+- [x] Gem currency persists across sessions
+- [x] Continue after game over (spend gems or watch ad)
+- [x] Interstitial ads every 3rd game
+- [x] Flying gem packs during gameplay (8% spawn chance)
+- [x] Sound on/off toggle with AudioListener.volume
+- [x] High score tracking and display
+
+### Milestone: ✅
+Full menu system, gem economy, and ad integration (mock).
+
+---
+
+## Phase 8: Art & Audio Integration (NEXT)
 **Goal: Replace placeholders with final assets**
 
 ### Tasks:
@@ -131,21 +158,6 @@ Polished game feel with UI and audio feedback.
 - [ ] Background art
 - [ ] Final sound effects
 - [ ] Music track
-
----
-
-## Phase 8: Monetization & Menus
-**Goal: Complete product**
-
-### Scripts to Create:
-1. `AdsManager.cs` - Ad integration
-2. `CurrencyManager.cs` - Gems system
-3. `MainMenuController.cs` - Main menu logic
-4. `ContinuePanel.cs` - Watch ad to continue
-
-### Editor Setup:
-- [ ] Main menu scene
-- [ ] Ad SDK integration
 
 ---
 
@@ -158,10 +170,10 @@ Phase 1 ✅ ──► Phase 2 ✅ ──► Phase 3 ✅ ──► Phase 4 ✅
  Grid          Chef          Matches        Burgers
  Spawn         Move          Polish         Polish
 
-         ──► Phase 5 ✅ ──► Phase 6 ──► Phase 7 ──► Phase 8
-                │              │           │           │
-                ▼              ▼           ▼           ▼
-            Difficulty       UI/UX       Art        Launch
+    ──► Phase 5 ✅ ──► Phase 6 ✅ ──► Phase 7 ✅ ──► Phase 8
+           │              │              │              │
+           ▼              ▼              ▼              ▼
+       Difficulty       UI/UX       Monetize          Art
 ```
 
 ---
