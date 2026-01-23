@@ -238,6 +238,9 @@ namespace DogtorBurguer
                 // This ingredient joins the moving group
                 movingGroup.Add(target);
 
+                // Squeeze sound
+                AudioManager.Instance?.PlaySqueeze();
+
                 // Pause between each compress step
                 yield return new WaitForSeconds(0.1f);
             }
@@ -251,6 +254,7 @@ namespace DogtorBurguer
             yield return new WaitForSeconds(stepDuration);
 
             // Smack: slam everything tight against bottom bun
+            AudioManager.Instance?.PlaySqueeze();
             for (int g = 0; g < movingGroup.Count; g++)
             {
                 Vector3 dest = bottomBunPos + Vector3.up * ((movingGroup.Count - g) * smackSpacing);

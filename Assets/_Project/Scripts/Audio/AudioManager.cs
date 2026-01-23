@@ -13,6 +13,7 @@ namespace DogtorBurguer
         private AudioClip _burgerClip;
         private AudioClip _levelUpClip;
         private AudioClip _gameOverClip;
+        private AudioClip _squeezeClip;
 
         private const int SAMPLE_RATE = 44100;
 
@@ -96,6 +97,7 @@ namespace DogtorBurguer
             _burgerClip = GenerateSound("Burger", 0.4f, GenerateBurgerSamples);
             _levelUpClip = GenerateSound("LevelUp", 0.5f, GenerateLevelUpSamples);
             _gameOverClip = GenerateSound("GameOver", 0.8f, GenerateGameOverSamples);
+            _squeezeClip = GenerateSound("Squeeze", 0.1f, GenerateSqueezeSamples);
         }
 
         private AudioClip GenerateSound(string name, float duration, Func<float, int, float> sampleFunc)
@@ -153,6 +155,22 @@ namespace DogtorBurguer
             float freq = notes[noteIndex];
             return (Mathf.Sin(2f * Mathf.PI * freq * t) * 0.7f
                   + Mathf.Sin(2f * Mathf.PI * freq * 2f * t) * 0.3f) * envelope * 0.7f;
+        }
+
+        /// <summary>
+        /// Short descending beep for burger squeeze
+        /// </summary>
+        private float GenerateSqueezeSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float freq = Mathf.Lerp(800f, 500f, t / duration);
+            float envelope = 1f - (t / duration);
+            return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * 0.7f;
+        }
+
+        public void PlaySqueeze()
+        {
+            PlayClip(_squeezeClip, 0.5f);
         }
 
         /// <summary>
