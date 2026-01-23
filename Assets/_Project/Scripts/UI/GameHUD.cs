@@ -39,54 +39,40 @@ namespace DogtorBurguer
 
         private void CreateHUDElements()
         {
-            // Score text (top-left)
-            _scoreText = CreateText("ScoreText", new Vector2(20, -20), TextAlignmentOptions.TopLeft);
-            _scoreText.fontSize = 28;
+            // All HUD text goes inside the top-left panel area
+            // Stacked vertically: Score, Level, Gems
+            float startY = -90f;
+            float lineSpacing = 35f;
+
+            _scoreText = CreatePanelText("ScoreText", startY);
+            _scoreText.fontSize = 24;
             _scoreText.fontStyle = FontStyles.Bold;
 
-            // Level text (top-right)
-            _levelText = CreateText("LevelText", new Vector2(-20, -20), TextAlignmentOptions.TopRight);
-            _levelText.fontSize = 24;
+            _levelText = CreatePanelText("LevelText", startY - lineSpacing);
+            _levelText.fontSize = 20;
 
-            // Gem counter (top-center)
-            _gemText = CreateText("GemText", new Vector2(0, -20), TextAlignmentOptions.Top);
-            _gemText.fontSize = 20;
+            _gemText = CreatePanelText("GemText", startY - lineSpacing * 2);
+            _gemText.fontSize = 18;
             _gemText.color = new Color(1f, 0.85f, 0f);
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
             _gemText.text = $"Gems: {gems}";
         }
 
-        private TextMeshProUGUI CreateText(string name, Vector2 offset, TextAlignmentOptions alignment)
+        private TextMeshProUGUI CreatePanelText(string name, float yOffset)
         {
             GameObject textObj = new GameObject(name);
             textObj.transform.SetParent(_canvas.transform, false);
 
             RectTransform rect = textObj.AddComponent<RectTransform>();
-
-            if (alignment == TextAlignmentOptions.TopLeft)
-            {
-                rect.anchorMin = new Vector2(0, 1);
-                rect.anchorMax = new Vector2(0, 1);
-                rect.pivot = new Vector2(0, 1);
-            }
-            else if (alignment == TextAlignmentOptions.Top)
-            {
-                rect.anchorMin = new Vector2(0.5f, 1);
-                rect.anchorMax = new Vector2(0.5f, 1);
-                rect.pivot = new Vector2(0.5f, 1);
-            }
-            else
-            {
-                rect.anchorMin = new Vector2(1, 1);
-                rect.anchorMax = new Vector2(1, 1);
-                rect.pivot = new Vector2(1, 1);
-            }
-
-            rect.anchoredPosition = offset;
-            rect.sizeDelta = new Vector2(200, 50);
+            // Anchor to top-left area (within top-left panel region)
+            rect.anchorMin = new Vector2(0.03f, 0.75f);
+            rect.anchorMax = new Vector2(0.47f, 0.75f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(15f, yOffset);
+            rect.sizeDelta = new Vector2(0, 40);
 
             TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
-            tmp.alignment = alignment;
+            tmp.alignment = TextAlignmentOptions.Left;
             tmp.color = Color.white;
             tmp.enableWordWrapping = false;
 
