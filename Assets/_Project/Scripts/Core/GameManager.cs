@@ -39,6 +39,11 @@ namespace DogtorBurguer
 
         private void Start()
         {
+            if (_difficultyManager == null)
+                _difficultyManager = GetComponent<DifficultyManager>();
+            if (_difficultyManager == null)
+                _difficultyManager = FindAnyObjectByType<DifficultyManager>();
+
             // Subscribe to events
             if (_gridManager != null)
             {

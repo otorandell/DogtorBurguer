@@ -21,6 +21,11 @@ namespace DogtorBurguer
 
         private void Start()
         {
+            if (_gridManager == null)
+                _gridManager = GridManager.Instance;
+            if (_spawner == null)
+                _spawner = FindAnyObjectByType<IngredientSpawner>();
+
             if (_gridManager != null)
                 _gridManager.OnIngredientPlaced += HandleIngredientPlaced;
 
