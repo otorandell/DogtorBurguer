@@ -638,6 +638,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DogtorBurguer.Background
   _backgroundSprite: {fileID: 0}
   _type: 1
+  _filterOpacity: 0.35
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

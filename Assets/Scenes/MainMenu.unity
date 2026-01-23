@@ -253,7 +253,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DogtorBurguer.MainMenuUI
 --- !u!1 &300000000
 GameObject:
@@ -297,10 +297,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DogtorBurguer.Background
-  _backgroundSprite: {fileID: 0}
+  _backgroundSprite: {fileID: 3516072126645539818, guid: 8fabde4c6307f094eb6a117fc1dd92a1, type: 3}
   _type: 0
+  _filterOpacity: 0.35
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
