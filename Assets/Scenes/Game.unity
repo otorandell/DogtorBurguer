@@ -503,6 +503,14 @@ MonoBehaviour:
   _fallStepDuration: 0.4
   _activeIngredientCount: 4
   _bunSpawnChance: 0.15
+  _enableForcedBunSpawn: 1
+  _forceBunMultiplier: 2
+  _doubleSpawnMinLevel: 4
+  _doubleSpawnMaxChance: 0.3
+  _doubleSpawnDelay: 0.4
+  _previewDuration: 0.8
+  _previewBlinks: 3
+  _earlySpawnMaxBonus: 15
 --- !u!114 &1509865694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -532,7 +540,10 @@ MonoBehaviour:
   _spawner: {fileID: 1509865693}
   _difficultyManager: {fileID: 0}
   _autoStartGame: 1
-  _testSettings: 1
+  _testSettings: 0
+  _testBurgerColumn: 0
+  _testDualColumn: 0
+  _testDualColumnLevel: 8
 --- !u!114 &1509865696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -676,6 +687,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DogtorBurguer.TouchInputHandler
   _chef: {fileID: 2127115019}
   _camera: {fileID: 519420031}
+  _spawner: {fileID: 0}
   _chefTapRadius: 1
   _swipeThreshold: 50
 --- !u!114 &2127115019
@@ -693,6 +705,9 @@ MonoBehaviour:
   _moveSpeed: 0.15
   _startPosition: 1
   _spriteRenderer: {fileID: 2127115016}
+  _bubbleRadius: 0.5
+  _bubbleColor: {r: 1, g: 1, b: 1, a: 0.25}
+  _bubbleActiveColor: {r: 1, g: 1, b: 1, a: 0.45}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

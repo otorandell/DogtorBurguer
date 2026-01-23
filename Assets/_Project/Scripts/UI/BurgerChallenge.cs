@@ -12,7 +12,7 @@ namespace DogtorBurguer
         [SerializeField] private Vector2 _panelCenter = new Vector2(1.35f, 2.4f);
 
         [Header("Burger Display")]
-        [SerializeField] private float _ingredientSpacing = 0.08f;
+        [SerializeField] private float _ingredientSpacing = 0.18f;
         [SerializeField] private float _ingredientScale = 1.0f;
         [SerializeField] private int _sortingOrder = 60;
 
@@ -26,6 +26,8 @@ namespace DogtorBurguer
         private int _challengeLevel = 1;
         private int _challengeProgress;
         private string _challengeName;
+        private HashSet<string> _usedCombinations = new HashSet<string>();
+        private int _lastTargetCount = -1;
 
         // Visual elements
         private List<GameObject> _burgerVisuals = new List<GameObject>();
@@ -128,10 +130,37 @@ namespace DogtorBurguer
             int targetCount = GetTargetIngredientCount();
             int activeCount = GetActiveIngredientCount();
 
-            for (int i = 0; i < targetCount; i++)
+            // Reset used combinations when target count or active count changes
+            if (targetCount != _lastTargetCount)
             {
-                int typeIndex = Random.Range(0, activeCount);
-                _targetIngredients.Add((IngredientType)typeIndex);
+                _usedCombinations.Clear();
+                _lastTargetCount = targetCount;
+            }
+
+            // Generate a unique combination (no repeats until all exhausted)
+            int maxAttempts = 200;
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                _targetIngredients.Clear();
+                for (int i = 0; i < targetCount; i++)
+                {
+                    int typeIndex = Random.Range(0, activeCount);
+                    _targetIngredients.Add((IngredientType)typeIndex);
+                }
+
+                string key = GetCombinationKey(_targetIngredients);
+                if (!_usedCombinations.Contains(key))
+                {
+                    _usedCombinations.Add(key);
+                    break;
+                }
+
+                // All combinations exhausted, reset and accept this one
+                if (attempt == maxAttempts - 1)
+                {
+                    _usedCombinations.Clear();
+                    _usedCombinations.Add(key);
+                }
             }
 
             _challengeName = GenerateChallengeName(targetCount);
@@ -140,6 +169,22 @@ namespace DogtorBurguer
             CreateBurgerVisual();
             UpdateMeter();
             UpdateLevelText();
+        }
+
+        private string GetCombinationKey(List<IngredientType> ingredients)
+        {
+            List<int> sorted = new List<int>(ingredients.Count);
+            foreach (var ing in ingredients)
+                sorted.Add((int)ing);
+            sorted.Sort();
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            for (int i = 0; i < sorted.Count; i++)
+            {
+                if (i > 0) sb.Append(',');
+                sb.Append(sorted[i]);
+            }
+            return sb.ToString();
         }
 
         private int GetTargetIngredientCount()
@@ -248,13 +293,16 @@ namespace DogtorBurguer
             if (isMatch)
             {
                 _challengeProgress++;
-                UpdateMeter();
                 AudioManager.Instance?.PlayChallengeMatch();
                 FlashPanel();
 
                 if (_challengeProgress >= _challengeLevel + 1)
                 {
                     LevelUp();
+                }
+                else
+                {
+                    GenerateNewChallenge();
                 }
             }
         }
@@ -289,12 +337,43 @@ namespace DogtorBurguer
             _challengeLevel++;
             _challengeProgress = 0;
 
-            // Animate level text
-            _levelText.transform.DOPunchScale(Vector3.one * 0.3f, 0.4f);
-
-            GenerateNewChallenge();
+            StartCoroutine(LevelUpEffect());
 
             Debug.Log($"[BurgerChallenge] Level up! Now level {_challengeLevel}");
+        }
+
+        private System.Collections.IEnumerator LevelUpEffect()
+        {
+            if (_meterFill == null) yield break;
+
+            float meterX = 0.9f;
+            float meterY = -0.2f;
+
+            // Fill meter to 100%
+            float fullBottom = meterY - _meterHeight * 0.5f + _meterHeight * 0.5f;
+            _meterFill.transform.DOLocalMove(new Vector3(meterX, fullBottom, 0f), 0.15f).SetEase(Ease.OutQuad);
+            _meterFill.transform.DOScale(new Vector3(_meterWidth, _meterHeight, 1f), 0.15f).SetEase(Ease.OutQuad);
+            yield return new WaitForSeconds(0.15f);
+
+            // Flash gold and punch scale
+            Color originalColor = _meterFillColor;
+            Color gold = new Color(1f, 0.85f, 0f, 1f);
+            _meterFill.color = gold;
+            _meterFill.transform.DOPunchScale(Vector3.one * 0.15f, 0.3f, 6);
+            _meterBg.transform.DOPunchScale(Vector3.one * 0.1f, 0.3f, 6);
+            _levelText.transform.DOPunchScale(Vector3.one * 0.4f, 0.4f);
+
+            yield return new WaitForSeconds(0.35f);
+
+            // Fade back to normal color and shrink to 0
+            _meterFill.DOColor(originalColor, 0.2f);
+            float emptyBottom = meterY - _meterHeight * 0.5f;
+            _meterFill.transform.DOLocalMove(new Vector3(meterX, emptyBottom, 0f), 0.25f).SetEase(Ease.InQuad);
+            _meterFill.transform.DOScale(new Vector3(_meterWidth, 0f, 1f), 0.25f).SetEase(Ease.InQuad);
+
+            yield return new WaitForSeconds(0.3f);
+
+            GenerateNewChallenge();
         }
 
         private void UpdateMeter()

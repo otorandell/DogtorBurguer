@@ -229,6 +229,16 @@ namespace DogtorBurguer
             int points, string burgerName, int ingredientCount,
             List<IngredientType> ingredientTypes)
         {
+            // Validate all parts still exist (may have been destroyed by a match)
+            foreach (var part in burgerParts)
+            {
+                if (part == null)
+                {
+                    GameManager.Instance?.ResumeSpawning();
+                    yield break;
+                }
+            }
+
             // Pause spawning during animation
             GameManager.Instance?.PauseSpawning();
 
@@ -267,11 +277,13 @@ namespace DogtorBurguer
             for (int i = 1; i < burgerParts.Count - 1; i++)
             {
                 Ingredient target = burgerParts[i];
+                if (target == null) break;
                 Vector3 targetPos = target.transform.position;
 
                 // Move the group down, each member offset by travel spacing
                 for (int g = 0; g < movingGroup.Count; g++)
                 {
+                    if (movingGroup[g] == null) continue;
                     Vector3 dest = targetPos + Vector3.up * ((movingGroup.Count - g) * travelSpacing);
                     movingGroup[g].transform.DOMove(dest, stepDuration).SetEase(Ease.InQuad);
                 }
@@ -292,6 +304,7 @@ namespace DogtorBurguer
             // Group moves down to bottom bun with travel spacing
             for (int g = 0; g < movingGroup.Count; g++)
             {
+                if (movingGroup[g] == null) continue;
                 Vector3 dest = bottomBunPos + Vector3.up * ((movingGroup.Count - g) * travelSpacing);
                 movingGroup[g].transform.DOMove(dest, stepDuration).SetEase(Ease.InQuad);
             }
@@ -302,6 +315,7 @@ namespace DogtorBurguer
             AudioManager.Instance?.PlaySqueeze(smackPitch);
             for (int g = 0; g < movingGroup.Count; g++)
             {
+                if (movingGroup[g] == null) continue;
                 Vector3 dest = bottomBunPos + Vector3.up * ((movingGroup.Count - g) * smackSpacing);
                 movingGroup[g].transform.DOMove(dest, 0.08f).SetEase(Ease.InBack);
             }
@@ -310,7 +324,8 @@ namespace DogtorBurguer
             // Destroy all burger parts at once
             foreach (var part in burgerParts)
             {
-                part.DestroyWithFlash();
+                if (part != null)
+                    part.DestroyWithFlash();
             }
 
             // Remove from column and collapse
