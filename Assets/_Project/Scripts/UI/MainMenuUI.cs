@@ -32,8 +32,16 @@ namespace DogtorBurguer
                 adObj.AddComponent<AdManager>();
             }
 
+            // Ensure MusicManager exists
+            if (MusicManager.Instance == null)
+            {
+                GameObject musicObj = new GameObject("MusicManager");
+                musicObj.AddComponent<MusicManager>();
+            }
+
             // Apply sound setting
             AudioListener.volume = SaveDataManager.Instance.SoundOn ? 1f : 0f;
+            MusicManager.Instance?.ApplySoundSetting();
 
             CreateUI();
 

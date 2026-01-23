@@ -152,6 +152,8 @@ namespace DogtorBurguer
 
             bool newState = !SaveDataManager.Instance.SoundOn;
             SaveDataManager.Instance.SetSoundOn(newState);
+            AudioListener.volume = newState ? 1f : 0f;
+            MusicManager.Instance?.ApplySoundSetting();
             UpdateSoundLabel();
         }
 
