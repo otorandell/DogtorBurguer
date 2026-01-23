@@ -66,6 +66,10 @@ namespace DogtorBurguer
             if (_isFalling) return;
             _isFalling = true;
 
+            // Falling ingredients render in front of stacked ones
+            if (_spriteRenderer != null)
+                _spriteRenderer.sortingOrder = Constants.MAX_ROWS + 1;
+
             // Register as falling ingredient
             GridManager.Instance?.RegisterFallingIngredient(this);
 
