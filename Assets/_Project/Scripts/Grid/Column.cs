@@ -33,8 +33,10 @@ namespace DogtorBurguer
 
         public Vector3 GetSpawnPosition()
         {
-            // Spawn above the visible area (extra offset for flattened grid)
-            return GetWorldPositionForRow(Constants.MAX_ROWS + 3);
+            // Spawn well above the visible area
+            float x = Constants.GRID_ORIGIN_X + (_columnIndex * Constants.CELL_WIDTH);
+            float y = Constants.GRID_ORIGIN_Y + 10f;
+            return new Vector3(x, y, 0);
         }
 
         public void AddIngredient(Ingredient ingredient)
