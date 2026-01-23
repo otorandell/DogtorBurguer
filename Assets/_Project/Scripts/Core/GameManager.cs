@@ -10,6 +10,7 @@ namespace DogtorBurguer
         [Header("References")]
         [SerializeField] private GridManager _gridManager;
         [SerializeField] private IngredientSpawner _spawner;
+        [SerializeField] private DifficultyManager _difficultyManager;
 
         [Header("Debug")]
         [SerializeField] private bool _autoStartGame = true;
@@ -129,16 +130,17 @@ namespace DogtorBurguer
             Debug.Log($"[GameManager] State changed to: {_currentState}");
         }
 
-#if UNITY_EDITOR
         private void OnGUI()
         {
-            // Debug GUI
-            GUILayout.BeginArea(new Rect(10, 10, 200, 150));
-            GUILayout.Label($"State: {_currentState}");
+            GUILayout.BeginArea(new Rect(10, 10, 200, 180));
+
+            int level = _difficultyManager != null ? _difficultyManager.CurrentLevel : 1;
+            GUILayout.Label($"Level: {level}");
             GUILayout.Label($"Score: {_score}");
 
             if (_currentState == GameState.GameOver)
             {
+                GUILayout.Label("GAME OVER!");
                 if (GUILayout.Button("Restart"))
                 {
                     RestartGame();
@@ -161,6 +163,5 @@ namespace DogtorBurguer
 
             GUILayout.EndArea();
         }
-#endif
     }
 }

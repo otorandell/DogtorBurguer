@@ -22,7 +22,7 @@ namespace DogtorBurguer
         [Header("Settings")]
         [SerializeField] private float _spawnInterval = Constants.SPAWN_INTERVAL_INITIAL;
         [SerializeField] private float _fallStepDuration = Constants.INITIAL_FALL_STEP_DURATION;
-        [SerializeField] private int _activeIngredientCount = 4;
+        [SerializeField] private int _activeIngredientCount = Constants.STARTING_INGREDIENT_COUNT;
         [SerializeField] private float _bunSpawnChance = 0.15f;
 
         private float _spawnTimer;
