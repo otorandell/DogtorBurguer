@@ -4,7 +4,7 @@ namespace DogtorBurguer
     {
         // Grid dimensions
         public const int COLUMN_COUNT = 4;
-        public const int MAX_ROWS = 13;
+        public const int MAX_ROWS = 11;
 
         // Cell size in world units
         public const float CELL_WIDTH = 1.4f;
