@@ -189,7 +189,7 @@ namespace DogtorBurguer
 
         private int GetTargetIngredientCount()
         {
-            return Mathf.Min(5, (_challengeLevel + 1) / 2);
+            return Mathf.Min(5, _challengeLevel);
         }
 
         private int GetActiveIngredientCount()

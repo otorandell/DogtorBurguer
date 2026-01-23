@@ -25,11 +25,9 @@ namespace DogtorBurguer
         [SerializeField] private float _spawnInterval = Constants.SPAWN_INTERVAL_INITIAL;
         [SerializeField] private float _fallStepDuration = Constants.INITIAL_FALL_STEP_DURATION;
         [SerializeField] private int _activeIngredientCount = Constants.STARTING_INGREDIENT_COUNT;
-        [SerializeField] private float _bunSpawnChance = 0.15f;
-
         [Header("Forced Bun Spawn")]
         [SerializeField] private bool _enableForcedBunSpawn = true;
-        [SerializeField] private int _forceBunMultiplier = 2;
+        [SerializeField] private float _forceBunMultiplier = 1.5f;
 
         [Header("Double Spawn")]
         [SerializeField] private float _doubleSpawnMinLevel = 4f;
@@ -264,35 +262,54 @@ namespace DogtorBurguer
             // Force bun spawn if threshold reached
             if (_enableForcedBunSpawn)
             {
-                int threshold = _activeIngredientCount * _forceBunMultiplier;
+                int threshold = (int)(_activeIngredientCount * _forceBunMultiplier);
                 if (_spawnsSinceLastBun >= threshold)
                 {
                     _spawnsSinceLastBun = 0;
-                    // Force bottom bun if none on grid, otherwise either
-                    if (!GridHasBottomBun())
-                        return IngredientType.BunBottom;
-                    return Random.value < 0.5f ? IngredientType.BunBottom : IngredientType.BunTop;
+                    return GetBunType();
                 }
             }
 
-            // Chance to spawn a bun
-            if (Random.value < _bunSpawnChance)
+            // Unified pool: regular ingredients + bun as one slot
+            int roll = Random.Range(0, _activeIngredientCount + 1);
+            if (roll < _activeIngredientCount)
             {
-                IngredientType bunType = Random.value < 0.5f ? IngredientType.BunBottom : IngredientType.BunTop;
-
-                // Top buns cannot spawn if no bottom buns on grid
-                if (bunType == IngredientType.BunTop && !GridHasBottomBun())
-                    bunType = IngredientType.BunBottom;
-
-                _spawnsSinceLastBun = 0;
-                return bunType;
+                _spawnsSinceLastBun++;
+                return (IngredientType)roll;
             }
 
-            _spawnsSinceLastBun++;
+            // Bun selected
+            _spawnsSinceLastBun = 0;
+            return GetBunType();
+        }
 
-            // Spawn regular ingredient from active pool
-            int typeIndex = Random.Range(0, _activeIngredientCount);
-            return (IngredientType)typeIndex;
+        private IngredientType GetBunType()
+        {
+            if (!GridHasBottomBun())
+                return IngredientType.BunBottom;
+
+            int bottomCount = CountBottomBunsOnGrid();
+            float topChance = Mathf.Min(0.5f + bottomCount * 0.08f, 0.8f);
+            return Random.value < topChance ? IngredientType.BunTop : IngredientType.BunBottom;
+        }
+
+        private int CountBottomBunsOnGrid()
+        {
+            if (GridManager.Instance == null) return 0;
+
+            int count = 0;
+            for (int c = 0; c < Constants.COLUMN_COUNT; c++)
+            {
+                Column col = GridManager.Instance.GetColumn(c);
+                if (col == null) continue;
+
+                foreach (var ing in col.GetAllIngredients())
+                {
+                    if (ing.Type == IngredientType.BunBottom)
+                        count++;
+                }
+            }
+            return count;
         }
 
         private bool GridHasBottomBun()
