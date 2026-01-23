@@ -15,6 +15,8 @@ namespace DogtorBurguer
         private int _currentPosition; // 0, 1, or 2 (between column pairs)
         private bool _isMoving;
         private Tween _moveTween;
+        private Tween _flipTween;
+        private bool _isFlipped;
 
         public int CurrentPosition => _currentPosition;
         public int LeftColumnIndex => _currentPosition;
@@ -85,9 +87,14 @@ namespace DogtorBurguer
 
             Debug.Log($"[Chef] Swapping columns {LeftColumnIndex} and {RightColumnIndex}");
 
+            // Kill any existing flip and snap to clean state
+            _flipTween?.Kill();
+            float targetY = _isFlipped ? 0f : 180f;
+            transform.rotation = Quaternion.Euler(0, _isFlipped ? 180f : 0f, 0);
+
             // 2D Flip effect - 180 degree rotation on Y axis
-            float currentY = transform.eulerAngles.y;
-            transform.DORotate(new Vector3(0, currentY + 180, 0), 0.2f, RotateMode.FastBeyond360)
+            _isFlipped = !_isFlipped;
+            _flipTween = transform.DORotate(new Vector3(0, targetY, 0), 0.2f)
                 .SetEase(Ease.InOutQuad);
 
             // Tell GridManager to swap with wave effect
@@ -97,6 +104,7 @@ namespace DogtorBurguer
         private void OnDestroy()
         {
             _moveTween?.Kill();
+            _flipTween?.Kill();
         }
 
 #if UNITY_EDITOR

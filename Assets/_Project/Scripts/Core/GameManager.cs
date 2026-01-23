@@ -13,6 +13,9 @@ namespace DogtorBurguer
 
         [Header("Debug")]
         [SerializeField] private bool _autoStartGame = true;
+        [SerializeField] private bool _testSettings = false;
+
+        public bool TestSettings => _testSettings;
 
         private GameState _currentState = GameState.Menu;
         private int _score;

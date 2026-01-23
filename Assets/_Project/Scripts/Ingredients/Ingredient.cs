@@ -13,6 +13,7 @@ namespace DogtorBurguer
         private bool _isLanded;
         private bool _isFalling;
         private Tween _currentTween;
+        private Tween _waveTween;
 
         public IngredientType Type => _type;
         public Column CurrentColumn => _currentColumn;
@@ -153,9 +154,14 @@ namespace DogtorBurguer
         /// </summary>
         public void DoWaveEffect(float delay)
         {
+            // Kill existing wave and reset scale
+            _waveTween?.Kill();
+            transform.localScale = Vector3.one;
+
             Sequence seq = DOTween.Sequence();
             seq.SetDelay(delay);
             seq.Append(transform.DOPunchScale(new Vector3(0.15f, -0.15f, 0), 0.2f, 4, 0.5f));
+            _waveTween = seq;
         }
 
         /// <summary>
@@ -163,12 +169,17 @@ namespace DogtorBurguer
         /// </summary>
         public void AnimateToCurrentPositionWithWave(float delay)
         {
+            // Kill existing wave and reset scale
+            _waveTween?.Kill();
+            transform.localScale = Vector3.one;
+
             Vector3 targetPos = _currentColumn.GetWorldPositionForRow(_currentRow);
 
             Sequence seq = DOTween.Sequence();
             seq.SetDelay(delay);
             seq.Append(transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutBack));
             seq.Join(transform.DOPunchScale(new Vector3(0.15f, -0.15f, 0), 0.25f, 4, 0.5f));
+            _waveTween = seq;
         }
 
         /// <summary>
@@ -212,6 +223,7 @@ namespace DogtorBurguer
         private void OnDestroy()
         {
             _currentTween?.Kill();
+            _waveTween?.Kill();
             // Ensure we're unregistered from falling list
             GridManager.Instance?.UnregisterFallingIngredient(this);
         }

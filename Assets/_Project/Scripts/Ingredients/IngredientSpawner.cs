@@ -28,6 +28,7 @@ namespace DogtorBurguer
         private float _spawnTimer;
         private bool _isSpawning = true;
         private Dictionary<IngredientType, Sprite> _spriteMap;
+        private int _spawnCount;
 
         private void Awake()
         {
@@ -95,6 +96,8 @@ namespace DogtorBurguer
 
         private void SpawnRandomIngredient()
         {
+            _spawnCount++;
+
             // Pick random column
             int columnIndex = Random.Range(0, Constants.COLUMN_COUNT);
 
@@ -120,6 +123,19 @@ namespace DogtorBurguer
 
             // Decide type
             IngredientType type = GetRandomIngredientType();
+
+            // Test settings override: 1st = BunBottom, 5th = BunTop
+            if (GameManager.Instance != null && GameManager.Instance.TestSettings)
+            {
+                if (_spawnCount == 1)
+                {
+                    type = IngredientType.BunBottom;
+                }
+                else if (_spawnCount == 5)
+                {
+                    type = IngredientType.BunTop;
+                }
+            }
 
             Debug.Log($"[Spawner] Spawning {type} in column {columnIndex}");
             SpawnIngredient(type, column);
