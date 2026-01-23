@@ -33,9 +33,9 @@ namespace DogtorBurguer
 
         public Vector3 GetSpawnPosition()
         {
-            // Spawn well above the visible area
+            // Spawn at the top of the grid (same as preview indicator)
             float x = Constants.GRID_ORIGIN_X + (_columnIndex * Constants.CELL_WIDTH);
-            float y = Constants.GRID_ORIGIN_Y + 10f;
+            float y = Constants.GRID_ORIGIN_Y + (Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT);
             return new Vector3(x, y, 0);
         }
 
@@ -139,11 +139,15 @@ namespace DogtorBurguer
             top = _ingredients[_ingredients.Count - 1];
             second = _ingredients[_ingredients.Count - 2];
 
-            // Only regular ingredients can match (not buns)
-            if (!top.Type.IsRegularIngredient() || !second.Type.IsRegularIngredient())
-                return false;
+            // Regular ingredients match each other
+            if (top.Type.IsRegularIngredient() && second.Type.IsRegularIngredient())
+                return top.Type == second.Type;
 
-            return top.Type == second.Type;
+            // Bottom buns cancel each other
+            if (top.Type == IngredientType.BunBottom && second.Type == IngredientType.BunBottom)
+                return true;
+
+            return false;
         }
 
         /// <summary>

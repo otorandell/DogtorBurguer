@@ -87,19 +87,45 @@ namespace DogtorBurguer
 
             OnIngredientPlaced?.Invoke();
 
-            // Check for matches
+            // Top bun validation: destroy if no bottom bun below
+            if (ingredient.Type == IngredientType.BunTop)
+            {
+                if (!ColumnHasBunBelow(column, ingredient))
+                {
+                    Vector3 pos = ingredient.transform.position;
+                    column.RemoveIngredient(ingredient);
+                    ingredient.DestroyWithFlash();
+                    FloatingText.Spawn(pos, "Too bad!", Color.red, 4f);
+                    return;
+                }
+            }
+
+            // Check for matches (includes bottom bun cancellation)
             CheckAndProcessMatches(column);
 
             // Check for burger completion
             CheckAndProcessBurger(column);
         }
 
+        private bool ColumnHasBunBelow(Column column, Ingredient topBun)
+        {
+            var ingredients = column.GetAllIngredients();
+            int topBunIndex = ingredients.IndexOf(topBun);
+
+            for (int i = topBunIndex - 1; i >= 0; i--)
+            {
+                if (ingredients[i].Type == IngredientType.BunBottom)
+                    return true;
+            }
+            return false;
+        }
+
         private void CheckAndProcessMatches(Column column)
         {
             if (column.CheckForMatch(out Ingredient top, out Ingredient second))
             {
-                // Calculate effect position (midpoint between the two)
                 Vector3 effectPos = (top.transform.position + second.transform.position) / 2f;
+                bool isBunMatch = top.Type == IngredientType.BunBottom;
 
                 // Remove both ingredients
                 column.RemoveIngredient(top);
@@ -109,9 +135,17 @@ namespace DogtorBurguer
                 top.DestroyWithFlash();
                 second.DestroyWithFlash();
 
-                // Award points and fire effect event
-                OnMatchEliminated?.Invoke(Constants.POINTS_MATCH);
-                OnMatchEffect?.Invoke(effectPos, Constants.POINTS_MATCH);
+                if (isBunMatch)
+                {
+                    // Bottom buns cancel each other - no score
+                    FloatingText.Spawn(effectPos, "Too bad!", Color.red, 4f);
+                }
+                else
+                {
+                    // Award points and fire effect event
+                    OnMatchEliminated?.Invoke(Constants.POINTS_MATCH);
+                    OnMatchEffect?.Invoke(effectPos, Constants.POINTS_MATCH);
+                }
 
                 // Check for more matches after this one
                 CheckAndProcessMatches(column);

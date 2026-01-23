@@ -78,6 +78,7 @@ namespace DogtorBurguer
             _spawner.SetSpawnInterval(spawnInterval);
             _spawner.SetFallSpeed(fallStep);
             _spawner.SetActiveIngredientCount(ingredientCount);
+            _spawner.SetCurrentLevel(_currentLevel);
         }
     }
 }
