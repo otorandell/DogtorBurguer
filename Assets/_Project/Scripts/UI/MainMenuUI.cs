@@ -66,16 +66,6 @@ namespace DogtorBurguer
                 eventSystemObj.AddComponent<InputSystemUIInputModule>();
             }
 
-            // Background
-            GameObject bg = new GameObject("Background");
-            bg.transform.SetParent(canvasObj.transform, false);
-            RectTransform bgRect = bg.AddComponent<RectTransform>();
-            bgRect.anchorMin = Vector2.zero;
-            bgRect.anchorMax = Vector2.one;
-            bgRect.sizeDelta = Vector2.zero;
-            Image bgImg = bg.AddComponent<Image>();
-            bgImg.color = new Color(0.12f, 0.12f, 0.18f, 1f);
-
             // Title
             CreateText(canvasObj, "Dogtor Burguer!", 0, 300, 48, FontStyles.Bold,
                 new Color(1f, 0.85f, 0.2f));
