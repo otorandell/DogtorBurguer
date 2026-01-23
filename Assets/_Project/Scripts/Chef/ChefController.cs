@@ -12,13 +12,21 @@ namespace DogtorBurguer
         [Header("Visual")]
         [SerializeField] private SpriteRenderer _spriteRenderer;
 
+        [Header("Position Bubbles")]
+        [SerializeField] private float _bubbleRadius = 0.5f;
+        [SerializeField] private Color _bubbleColor = new Color(1f, 1f, 1f, 0.25f);
+        [SerializeField] private Color _bubbleActiveColor = new Color(1f, 1f, 1f, 0.45f);
+
         private int _currentPosition; // 0, 1, or 2 (between column pairs)
         private bool _isMoving;
         private Tween _moveTween;
         private Tween _flipTween;
         private bool _isFlipped;
+        private GameObject[] _bubbles;
+        private SpriteRenderer[] _bubbleRenderers;
 
         public int CurrentPosition => _currentPosition;
+        public bool IsMoving => _isMoving;
         public int LeftColumnIndex => _currentPosition;
         public int RightColumnIndex => _currentPosition + 1;
 
@@ -34,6 +42,8 @@ namespace DogtorBurguer
         {
             _currentPosition = Mathf.Clamp(_startPosition, 0, Constants.CHEF_POSITION_COUNT - 1);
             transform.position = GetWorldPosition(_currentPosition);
+            CreatePositionBubbles();
+            UpdateBubbleColors();
             Debug.Log($"[Chef] Started at position {_currentPosition}");
         }
 
@@ -61,14 +71,13 @@ namespace DogtorBurguer
             _isMoving = true;
 
             Vector3 targetPos = GetWorldPosition(_currentPosition);
+            UpdateBubbleColors();
 
             _moveTween?.Kill();
             _moveTween = transform
                 .DOMove(targetPos, _moveSpeed)
                 .SetEase(Ease.OutBack)
                 .OnComplete(() => _isMoving = false);
-
-            Debug.Log($"[Chef] Moving to position {_currentPosition}");
         }
 
         public void MoveLeft()
@@ -99,6 +108,71 @@ namespace DogtorBurguer
 
             // Tell GridManager to swap with wave effect
             GridManager.Instance?.SwapColumnsWithWaveEffect(LeftColumnIndex, RightColumnIndex);
+        }
+
+        public Vector3 GetPositionWorldPos(int position)
+        {
+            return GetWorldPosition(position);
+        }
+
+        public float BubbleRadius => _bubbleRadius;
+
+        private void CreatePositionBubbles()
+        {
+            Sprite circleSprite = GenerateCircleSprite();
+
+            _bubbles = new GameObject[Constants.CHEF_POSITION_COUNT];
+            _bubbleRenderers = new SpriteRenderer[Constants.CHEF_POSITION_COUNT];
+
+            for (int i = 0; i < Constants.CHEF_POSITION_COUNT; i++)
+            {
+                GameObject bubble = new GameObject($"PositionBubble_{i}");
+                bubble.transform.position = GetWorldPosition(i);
+                bubble.transform.localScale = Vector3.one * (_bubbleRadius * 2f);
+
+                SpriteRenderer sr = bubble.AddComponent<SpriteRenderer>();
+                sr.sprite = circleSprite;
+                sr.sortingOrder = -1;
+
+                _bubbles[i] = bubble;
+                _bubbleRenderers[i] = sr;
+            }
+        }
+
+        private void UpdateBubbleColors()
+        {
+            if (_bubbleRenderers == null) return;
+
+            for (int i = 0; i < _bubbleRenderers.Length; i++)
+            {
+                _bubbleRenderers[i].color = (i == _currentPosition) ? _bubbleActiveColor : _bubbleColor;
+            }
+        }
+
+        private Sprite GenerateCircleSprite()
+        {
+            int size = 64;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            float center = size / 2f;
+            float radius = center - 1f;
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+                    if (dist <= radius)
+                        tex.SetPixel(x, y, Color.white);
+                    else
+                        tex.SetPixel(x, y, Color.clear);
+                }
+            }
+
+            tex.Apply();
+            tex.filterMode = FilterMode.Bilinear;
+
+            return Sprite.Create(tex, new Rect(0, 0, size, size),
+                new Vector2(0.5f, 0.5f), size);
         }
 
         private void OnDestroy()

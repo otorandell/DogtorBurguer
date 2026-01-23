@@ -156,23 +156,27 @@ namespace DogtorBurguer
 
             if (distanceToChef < _chefTapRadius)
             {
-                // Tapped on chef - swap plates
                 _chef.SwapPlates();
-                Debug.Log("[Input] Tapped chef - swapping");
+                return;
             }
-            else
+
+            // Forgiving position detection: horizontal thirds of the screen
+            float chefY = _chef.transform.position.y;
+            float verticalTolerance = 2.5f;
+
+            if (Mathf.Abs(worldPos.y - chefY) < verticalTolerance)
             {
-                // Tapped elsewhere - check if left or right of chef
-                if (worldPos.x < _chef.transform.position.x)
-                {
-                    _chef.MoveLeft();
-                    Debug.Log("[Input] Tapped left - moving left");
-                }
+                float screenThird = Screen.width / 3f;
+                int position;
+
+                if (screenPos.x < screenThird)
+                    position = 0;
+                else if (screenPos.x < screenThird * 2f)
+                    position = 1;
                 else
-                {
-                    _chef.MoveRight();
-                    Debug.Log("[Input] Tapped right - moving right");
-                }
+                    position = 2;
+
+                _chef.MoveToPosition(position);
             }
         }
 
