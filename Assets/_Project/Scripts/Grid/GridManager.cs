@@ -243,6 +243,20 @@ namespace DogtorBurguer
             // Group of ingredients being pushed down (starts with just the top bun)
             List<Ingredient> movingGroup = new List<Ingredient> { burgerParts[0] };
 
+            // Skip compress for "Just Bread" (no ingredients between buns)
+            if (burgerParts.Count <= 2)
+            {
+                foreach (var part in burgerParts)
+                    part.DestroyWithFlash();
+                column.RemoveIngredientsInRange(bunBottomIndex, bunTopIndex);
+                column.CollapseFromRow(bunBottomIndex);
+                OnBurgerCompleted?.Invoke(points, burgerName);
+                OnBurgerEffect?.Invoke(bottomBunPos, points, burgerName, ingredientCount);
+                OnBurgerWithIngredients?.Invoke(bottomBunPos, points, burgerName, ingredientCount, ingredientTypes);
+                GameManager.Instance?.ResumeSpawning();
+                yield break;
+            }
+
             // Pitch scaling: total squeeze steps = middle ingredients + 1 (smack)
             int totalSteps = burgerParts.Count - 1; // all steps including smack
             float pitchStart = 0.6f;
