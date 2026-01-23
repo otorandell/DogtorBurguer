@@ -264,7 +264,7 @@ namespace DogtorBurguer
             }
 
             // Swap falling ingredients that are below the threshold
-            foreach (var falling in _fallingIngredients)
+            foreach (var falling in new List<Ingredient>(_fallingIngredients))
             {
                 if (falling == null || falling.IsLanded) continue;
 
@@ -336,7 +336,7 @@ namespace DogtorBurguer
             }
 
             // Swap falling ingredients that are below the threshold
-            foreach (var falling in _fallingIngredients)
+            foreach (var falling in new List<Ingredient>(_fallingIngredients))
             {
                 if (falling == null || falling.IsLanded) continue;
 
