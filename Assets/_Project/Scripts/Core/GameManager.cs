@@ -44,6 +44,11 @@ namespace DogtorBurguer
             if (_difficultyManager == null)
                 _difficultyManager = FindAnyObjectByType<DifficultyManager>();
 
+            // Ensure UI and audio components exist
+            EnsureComponent<GameHUD>();
+            EnsureComponent<GameOverPanel>();
+            EnsureComponent<AudioManager>();
+
             // Subscribe to events
             if (_gridManager != null)
             {
@@ -135,38 +140,14 @@ namespace DogtorBurguer
             Debug.Log($"[GameManager] State changed to: {_currentState}");
         }
 
-        private void OnGUI()
+        private void EnsureComponent<T>() where T : MonoBehaviour
         {
-            GUILayout.BeginArea(new Rect(10, 10, 200, 180));
-
-            int level = _difficultyManager != null ? _difficultyManager.CurrentLevel : 1;
-            GUILayout.Label($"Level: {level}");
-            GUILayout.Label($"Score: {_score}");
-
-            if (_currentState == GameState.GameOver)
+            if (FindAnyObjectByType<T>() == null)
             {
-                GUILayout.Label("GAME OVER!");
-                if (GUILayout.Button("Restart"))
-                {
-                    RestartGame();
-                }
+                GameObject obj = new GameObject(typeof(T).Name);
+                obj.AddComponent<T>();
             }
-            else if (_currentState == GameState.Playing)
-            {
-                if (GUILayout.Button("Pause"))
-                {
-                    PauseGame();
-                }
-            }
-            else if (_currentState == GameState.Paused)
-            {
-                if (GUILayout.Button("Resume"))
-                {
-                    ResumeGame();
-                }
-            }
-
-            GUILayout.EndArea();
         }
+
     }
 }

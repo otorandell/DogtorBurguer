@@ -353,6 +353,7 @@ GameObject:
   - component: {fileID: 1509865694}
   - component: {fileID: 1509865693}
   - component: {fileID: 1509865696}
+  - component: {fileID: 1509865697}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -428,6 +429,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DogtorBurguer.GameManager
   _gridManager: {fileID: 1509865694}
   _spawner: {fileID: 1509865693}
+  _difficultyManager: {fileID: 0}
   _autoStartGame: 1
   _testSettings: 1
 --- !u!114 &1509865696
@@ -450,6 +452,22 @@ MonoBehaviour:
   _matchShakeStrength: 0.15
   _burgerShakeStrength: 0.3
   _shakeDuration: 0.2
+  _flashColor: {r: 1, g: 1, b: 1, a: 0.6}
+  _flashDuration: 0.3
+--- !u!114 &1509865697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1509865691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de4b244d98ab5d642bd6f1da647d2f20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DogtorBurguer.DifficultyManager
+  _spawner: {fileID: 1509865693}
+  _gridManager: {fileID: 1509865694}
 --- !u!1 &2127115015
 GameObject:
   m_ObjectHideFlags: 0
