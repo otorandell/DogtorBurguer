@@ -29,6 +29,7 @@ namespace DogtorBurguer
         // Scoring
         public const int POINTS_MATCH = 10;
         public const int POINTS_PER_INGREDIENT = 10;
+        public const int BONUS_POOR_BURGER = 5;      // 0 ingredients
         public const int BONUS_SMALL_BURGER = 20;    // 1-2 ingredients
         public const int BONUS_MEDIUM_BURGER = 50;   // 3-4 ingredients
         public const int BONUS_LARGE_BURGER = 100;   // 5-6 ingredients

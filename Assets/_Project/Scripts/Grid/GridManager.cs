@@ -305,7 +305,8 @@ namespace DogtorBurguer
             int basePoints = ingredientCount * Constants.POINTS_PER_INGREDIENT;
             int bonus;
 
-            if (ingredientCount <= 2) bonus = Constants.BONUS_SMALL_BURGER;
+            if (ingredientCount == 0) bonus = Constants.BONUS_POOR_BURGER;
+            else if (ingredientCount <= 2) bonus = Constants.BONUS_SMALL_BURGER;
             else if (ingredientCount <= 4) bonus = Constants.BONUS_MEDIUM_BURGER;
             else if (ingredientCount <= 6) bonus = Constants.BONUS_LARGE_BURGER;
             else if (ingredientCount <= 8) bonus = Constants.BONUS_MEGA_BURGER;
@@ -316,6 +317,8 @@ namespace DogtorBurguer
 
         private string GenerateBurgerName(int ingredientCount)
         {
+            if (ingredientCount == 0)
+                return "Just Bread...";
             if (ingredientCount >= 9)
                 return "\u00a1DOKTOR BURGUER!";
 

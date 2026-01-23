@@ -11,6 +11,7 @@ namespace DogtorBurguer
         private AudioSource _squeezSource;
 
         private AudioClip _matchClip;
+        private AudioClip _burgerPoorClip;
         private AudioClip _burgerSmallClip;
         private AudioClip _burgerMediumClip;
         private AudioClip _burgerLargeClip;
@@ -85,7 +86,8 @@ namespace DogtorBurguer
             else if (ingredientCount >= 7) clip = _burgerMegaClip;
             else if (ingredientCount >= 5) clip = _burgerLargeClip;
             else if (ingredientCount >= 3) clip = _burgerMediumClip;
-            else clip = _burgerSmallClip;
+            else if (ingredientCount >= 1) clip = _burgerSmallClip;
+            else clip = _burgerPoorClip;
 
             PlayClip(clip, 0.7f);
         }
@@ -111,6 +113,7 @@ namespace DogtorBurguer
         private void GenerateClips()
         {
             _matchClip = GenerateSound("Match", 0.15f, GenerateMatchSamples);
+            _burgerPoorClip = GenerateSound("BurgerPoor", 0.3f, GenerateBurgerPoorSamples);
             _burgerSmallClip = GenerateSound("BurgerSmall", 0.25f, GenerateBurgerSmallSamples);
             _burgerMediumClip = GenerateSound("BurgerMedium", 0.4f, GenerateBurgerMediumSamples);
             _burgerLargeClip = GenerateSound("BurgerLarge", 0.5f, GenerateBurgerLargeSamples);
@@ -147,6 +150,21 @@ namespace DogtorBurguer
             float freq = Mathf.Lerp(600f, 900f, t / duration);
             float envelope = 1f - (t / duration);
             return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope;
+        }
+
+        /// <summary>
+        /// Poor burger (just bread): sad descending "wah wah" (E4, C4)
+        /// </summary>
+        private float GenerateBurgerPoorSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float[] notes = { 330f, 262f };
+            float noteLength = duration / notes.Length;
+            int noteIndex = Mathf.Min((int)(t / noteLength), notes.Length - 1);
+            float noteT = (t - noteIndex * noteLength) / noteLength;
+            float envelope = (1f - noteT * 0.7f) * (1f - t / duration * 0.5f);
+            float freq = notes[noteIndex];
+            return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * 0.5f;
         }
 
         /// <summary>
