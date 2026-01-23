@@ -13,7 +13,7 @@ namespace DogtorBurguer
 
         [Header("Burger Display")]
         [SerializeField] private float _ingredientSpacing = 0.08f;
-        [SerializeField] private float _ingredientScale = 0.5f;
+        [SerializeField] private float _ingredientScale = 1.0f;
         [SerializeField] private int _sortingOrder = 60;
 
         [Header("Meter")]
