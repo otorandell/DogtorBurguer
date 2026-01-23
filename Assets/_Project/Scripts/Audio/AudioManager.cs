@@ -15,6 +15,8 @@ namespace DogtorBurguer
         private AudioClip _levelUpClip;
         private AudioClip _gameOverClip;
         private AudioClip _squeezeClip;
+        private AudioClip _fastDropClip;
+        private AudioClip _earlySpawnClip;
 
         private const int SAMPLE_RATE = 44100;
 
@@ -102,6 +104,8 @@ namespace DogtorBurguer
             _levelUpClip = GenerateSound("LevelUp", 0.5f, GenerateLevelUpSamples);
             _gameOverClip = GenerateSound("GameOver", 0.8f, GenerateGameOverSamples);
             _squeezeClip = GenerateSound("Squeeze", 0.1f, GenerateSqueezeSamples);
+            _fastDropClip = GenerateSound("FastDrop", 0.12f, GenerateFastDropSamples);
+            _earlySpawnClip = GenerateSound("EarlySpawn", 0.15f, GenerateEarlySpawnSamples);
         }
 
         private AudioClip GenerateSound(string name, float duration, Func<float, int, float> sampleFunc)
@@ -181,6 +185,38 @@ namespace DogtorBurguer
                 _squeezSource.volume = 0.5f;
                 _squeezSource.Play();
             }
+        }
+
+        /// <summary>
+        /// Quick descending whoosh for fast drop
+        /// </summary>
+        private float GenerateFastDropSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float freq = Mathf.Lerp(1200f, 300f, t / duration);
+            float envelope = 1f - (t / duration);
+            return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * 0.6f;
+        }
+
+        public void PlayFastDrop()
+        {
+            PlayClip(_fastDropClip, 0.5f);
+        }
+
+        /// <summary>
+        /// Quick pop for early spawn
+        /// </summary>
+        private float GenerateEarlySpawnSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float freq = Mathf.Lerp(500f, 1000f, t / duration);
+            float envelope = (1f - t / duration) * (1f - t / duration);
+            return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * 0.6f;
+        }
+
+        public void PlayEarlySpawn()
+        {
+            PlayClip(_earlySpawnClip, 0.6f);
         }
 
         /// <summary>

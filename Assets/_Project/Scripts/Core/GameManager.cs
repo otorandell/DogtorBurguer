@@ -171,6 +171,11 @@ namespace DogtorBurguer
             Debug.Log($"[GameManager] Burger completed: {burgerName} (+{points} pts)");
         }
 
+        public void AddExtraScore(int points)
+        {
+            AddScore(points);
+        }
+
         private void AddScore(int points)
         {
             _score += points;

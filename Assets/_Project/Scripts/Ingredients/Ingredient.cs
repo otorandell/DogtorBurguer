@@ -216,6 +216,35 @@ namespace DogtorBurguer
         /// </summary>
         public float CurrentY => transform.position.y;
 
+        public void FastDrop()
+        {
+            if (!_isFalling || _isLanded) return;
+
+            // Calculate distance remaining
+            float landingY = Constants.GRID_ORIGIN_Y + (_currentColumn.StackHeight * Constants.CELL_VISUAL_HEIGHT);
+            float distanceToLand = transform.position.y - landingY;
+
+            // Award points based on distance
+            int points = Mathf.RoundToInt(distanceToLand * 2f);
+            if (points > 0)
+            {
+                GameManager.Instance?.AddExtraScore(points);
+                FloatingText.Spawn(transform.position, $"+{points}", Color.cyan, 3f);
+            }
+
+            // Cancel current fall and drop fast
+            _currentTween?.Kill();
+            Vector3 targetPos = new Vector3(transform.position.x, landingY, transform.position.z);
+            _currentTween = transform
+                .DOMove(targetPos, 0.08f)
+                .SetEase(Ease.InQuad)
+                .OnComplete(() => Land());
+
+            // Visual: brief stretch effect
+            transform.DOScaleY(1.4f, 0.04f).OnComplete(() =>
+                transform.DOScaleY(1f, 0.04f));
+        }
+
         public void DestroyWithAnimation()
         {
             _currentTween?.Kill();

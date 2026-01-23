@@ -10,6 +10,7 @@ namespace DogtorBurguer
         [Header("References")]
         [SerializeField] private ChefController _chef;
         [SerializeField] private Camera _camera;
+        [SerializeField] private IngredientSpawner _spawner;
 
         [Header("Settings")]
         [SerializeField] private float _chefTapRadius = 1.0f;
@@ -21,9 +22,9 @@ namespace DogtorBurguer
         private void Awake()
         {
             if (_camera == null)
-            {
                 _camera = Camera.main;
-            }
+            if (_spawner == null)
+                _spawner = FindAnyObjectByType<IngredientSpawner>();
         }
 
         private void OnEnable()
@@ -150,6 +151,14 @@ namespace DogtorBurguer
 
             Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 10f));
             worldPos.z = 0;
+
+            // Check if tapped on spawn preview (early spawn)
+            if (_spawner != null && _spawner.TryTapPreview(worldPos))
+                return;
+
+            // Check if tapped on a falling ingredient (fast drop)
+            if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos))
+                return;
 
             // Check if tapped on the chef
             float distanceToChef = Vector2.Distance(worldPos, _chef.transform.position);

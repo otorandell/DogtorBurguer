@@ -40,12 +40,22 @@ namespace DogtorBurguer
         [SerializeField] private float _previewDuration = 0.8f;
         [SerializeField] private int _previewBlinks = 3;
 
+        [Header("Early Spawn Bonus")]
+        [SerializeField] private int _earlySpawnMaxBonus = 15;
+
         private float _spawnTimer;
         private bool _isSpawning = true;
         private Dictionary<IngredientType, Sprite> _spriteMap;
         private int _spawnCount;
         private int _spawnsSinceLastBun;
         private int _currentLevel = 1;
+
+        // Preview state for early spawn
+        private GameObject _activePreview;
+        private Column _previewColumn;
+        private IngredientType _previewType;
+        private bool _previewTapped;
+        private float _previewTimeRemaining;
 
         private void Awake()
         {
@@ -139,13 +149,15 @@ namespace DogtorBurguer
                 else
                     type = (_spawnCount % 2 == 0) ? IngredientType.Meat : IngredientType.Cheese;
 
+                _previewColumn = testCol;
+                _previewType = type;
                 GameObject testPreview = CreatePreview(type, testCol);
                 if (testPreview != null)
                 {
                     yield return StartCoroutine(BlinkPreview(testPreview));
-                    Destroy(testPreview);
+                    if (testPreview != null) Destroy(testPreview);
                 }
-                if (!_isSpawning) yield break;
+                if (!_isSpawning || _previewTapped) yield break;
                 SpawnIngredient(type, testCol);
                 yield break;
             }
@@ -164,14 +176,16 @@ namespace DogtorBurguer
             }
 
             // Show blinking preview
+            _previewColumn = column;
+            _previewType = type;
             GameObject preview = CreatePreview(type, column);
             if (preview != null)
             {
                 yield return StartCoroutine(BlinkPreview(preview));
-                Destroy(preview);
+                if (preview != null) Destroy(preview);
             }
 
-            if (!_isSpawning) yield break;
+            if (!_isSpawning || _previewTapped) yield break;
 
             SpawnIngredient(type, column);
 
@@ -281,15 +295,106 @@ namespace DogtorBurguer
             SpriteRenderer sr = preview.GetComponent<SpriteRenderer>();
             if (sr == null) yield break;
 
+            _activePreview = preview;
+            _previewTapped = false;
+            _previewTimeRemaining = _previewDuration;
+
+            // Create countdown text showing available bonus
+            GameObject countdownObj = new GameObject("BonusCountdown");
+            countdownObj.transform.position = preview.transform.position + Vector3.up * 0.5f;
+            TMPro.TextMeshPro countdownTmp = countdownObj.AddComponent<TMPro.TextMeshPro>();
+            countdownTmp.fontSize = 3f;
+            countdownTmp.color = Color.green;
+            countdownTmp.alignment = TMPro.TextAlignmentOptions.Center;
+            countdownTmp.sortingOrder = 91;
+            RectTransform countRect = countdownTmp.GetComponent<RectTransform>();
+            countRect.sizeDelta = new Vector2(2f, 1f);
+
             float blinkInterval = _previewDuration / (_previewBlinks * 2f);
 
-            for (int i = 0; i < _previewBlinks; i++)
+            for (int i = 0; i < _previewBlinks && !_previewTapped; i++)
             {
                 sr.enabled = true;
-                yield return new WaitForSeconds(blinkInterval);
+                float waited = 0f;
+                while (waited < blinkInterval && !_previewTapped)
+                {
+                    yield return null;
+                    waited += Time.deltaTime;
+                    _previewTimeRemaining -= Time.deltaTime;
+                    UpdateCountdown(countdownTmp);
+                }
+                if (_previewTapped) break;
+
                 sr.enabled = false;
-                yield return new WaitForSeconds(blinkInterval);
+                waited = 0f;
+                while (waited < blinkInterval && !_previewTapped)
+                {
+                    yield return null;
+                    waited += Time.deltaTime;
+                    _previewTimeRemaining -= Time.deltaTime;
+                    UpdateCountdown(countdownTmp);
+                }
             }
+
+            if (countdownObj != null) Destroy(countdownObj);
+            _activePreview = null;
+        }
+
+        private void UpdateCountdown(TMPro.TextMeshPro tmp)
+        {
+            if (tmp == null) return;
+            float earlyRatio = Mathf.Clamp01(_previewTimeRemaining / _previewDuration);
+            int bonus = Mathf.RoundToInt(earlyRatio * _earlySpawnMaxBonus);
+            tmp.text = $"+{bonus}";
+        }
+
+        public bool TryTapPreview(Vector2 worldPos)
+        {
+            if (_activePreview == null) return false;
+
+            float dist = Vector2.Distance(worldPos, _activePreview.transform.position);
+            if (dist > Constants.CELL_WIDTH * 0.8f) return false;
+
+            _previewTapped = true;
+
+            // Award bonus based on how early the tap was
+            float earlyRatio = Mathf.Clamp01(_previewTimeRemaining / _previewDuration);
+            int bonus = Mathf.RoundToInt(earlyRatio * _earlySpawnMaxBonus);
+            if (bonus > 0)
+            {
+                GameManager.Instance?.AddExtraScore(bonus);
+                FloatingText.Spawn(_activePreview.transform.position, $"+{bonus}", Color.green, 3f);
+            }
+
+            // Spawn immediately
+            Destroy(_activePreview);
+            _activePreview = null;
+
+            if (_previewColumn != null && !_previewColumn.IsOverflowing)
+                SpawnIngredient(_previewType, _previewColumn);
+
+            AudioManager.Instance?.PlayEarlySpawn();
+            return true;
+        }
+
+        public bool TryTapFallingIngredient(Vector2 worldPos)
+        {
+            if (GridManager.Instance == null) return false;
+
+            // Check all falling ingredients
+            foreach (var ingredient in GridManager.Instance.GetFallingIngredients())
+            {
+                if (ingredient == null || ingredient.IsLanded) continue;
+
+                float dist = Vector2.Distance(worldPos, ingredient.transform.position);
+                if (dist < Constants.CELL_WIDTH * 0.6f)
+                {
+                    ingredient.FastDrop();
+                    AudioManager.Instance?.PlayFastDrop();
+                    return true;
+                }
+            }
+            return false;
         }
 
         public Ingredient SpawnIngredient(IngredientType type, Column column)

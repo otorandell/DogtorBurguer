@@ -62,6 +62,11 @@ namespace DogtorBurguer
             return _columns[index];
         }
 
+        public List<Ingredient> GetFallingIngredients()
+        {
+            return _fallingIngredients;
+        }
+
         public void RegisterFallingIngredient(Ingredient ingredient)
         {
             if (!_fallingIngredients.Contains(ingredient))
