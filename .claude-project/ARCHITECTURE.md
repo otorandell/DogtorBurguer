@@ -5,37 +5,61 @@
 ```
 Assets/
 ├── _Project/
-│   ├── Scenes/
-│   │   └── Game.unity          # Main game scene
-│   │
 │   ├── Scripts/
 │   │   ├── Core/
-│   │   │   ├── GameManager.cs   # Game loop, score, state machine
-│   │   │   ├── GameState.cs     # Enum: Menu, Playing, Paused, GameOver
-│   │   │   └── Constants.cs     # All game constants
+│   │   │   ├── GameManager.cs       # Game loop, score, state, test toggles
+│   │   │   ├── GameState.cs         # Enum: Menu, Playing, Paused, GameOver
+│   │   │   ├── Constants.cs         # All game constants
+│   │   │   ├── DifficultyManager.cs # Level progression
+│   │   │   ├── FeedbackManager.cs   # Popups, shake, flash
+│   │   │   └── SceneLoader.cs       # Scene transitions
 │   │   │
 │   │   ├── Grid/
-│   │   │   ├── GridManager.cs   # Column management, match/burger detection
-│   │   │   └── Column.cs        # Stack of ingredients per column
+│   │   │   ├── GridManager.cs       # Columns, match/burger/compress
+│   │   │   └── Column.cs            # Ingredient stack per column
 │   │   │
 │   │   ├── Ingredients/
-│   │   │   ├── Ingredient.cs       # Fall behavior, animations
-│   │   │   ├── IngredientType.cs   # Enum + extension methods
-│   │   │   └── IngredientSpawner.cs # Random spawning logic
+│   │   │   ├── Ingredient.cs        # Fall, land, FastDrop, animations
+│   │   │   ├── IngredientType.cs    # Enum + extensions
+│   │   │   └── IngredientSpawner.cs # Spawning, preview, test modes
 │   │   │
 │   │   ├── Chef/
-│   │   │   └── ChefController.cs   # Movement, swap trigger
+│   │   │   └── ChefController.cs    # Movement, bubbles, swap trigger
 │   │   │
-│   │   └── Input/
-│   │       └── TouchInputHandler.cs # New Input System handler
+│   │   ├── Input/
+│   │   │   └── TouchInputHandler.cs # Touch/mouse/keyboard input
+│   │   │
+│   │   ├── Audio/
+│   │   │   ├── AudioManager.cs      # Procedural SFX
+│   │   │   └── MusicManager.cs      # Per-scene background music
+│   │   │
+│   │   ├── UI/
+│   │   │   ├── GameHUD.cs           # Score/level/gems overlay
+│   │   │   ├── GameOverPanel.cs     # End screen
+│   │   │   ├── GameLayout.cs        # Rounded-rect panel borders
+│   │   │   ├── FloatingText.cs      # World-space floating text
+│   │   │   └── MainMenuController.cs # Menu UI
+│   │   │
+│   │   └── Monetization/
+│   │       ├── SaveDataManager.cs   # PlayerPrefs persistence
+│   │       └── GemPackSpawner.cs    # In-game gem drops
 │   │
 │   ├── Prefabs/
 │   │   └── Ingredients/
-│   │       └── Ingredient.prefab   # Generic ingredient prefab
+│   │       └── Ingredient.prefab
 │   │
 │   └── Sprites/
-│       ├── Ingredients/            # All ingredient sprites
-│       └── Chef/                   # Chef sprite
+│       ├── Ingredients/
+│       └── Chef/
+│
+├── Resources/
+│   └── Music/
+│       ├── MenuTrack/              # Menu background music files
+│       └── GameTrack/              # Game background music files
+│
+├── Scenes/
+│   ├── MainMenu.unity
+│   └── Game.unity
 │
 ├── Plugins/
 │   └── DOTween/
@@ -45,7 +69,7 @@ Assets/
 
 ---
 
-## Core Systems Architecture
+## Core Systems
 
 ### 1. Grid System
 
@@ -53,39 +77,58 @@ Assets/
 GridManager (Singleton)
 ├── Column[] _columns (4 columns)
 ├── List<Ingredient> _fallingIngredients
-├── SwapColumns() - Full column swap logic
-├── OnIngredientLanded() - Match/burger detection
-└── Events: OnGameOver, OnMatchEliminated, OnBurgerCompleted
+├── OnIngredientLanded() - Match/burger detection + overflow check
+│   ├── BunTop special handling (burger check before overflow)
+│   ├── BunTop without BunBottom below = destroy ("Too bad!")
+│   └── BunBottom match = both cancel ("Too bad!")
+├── CheckAndProcessBurger() - Finds and scores burgers
+├── BurgerCompressAnimation() - Coroutine squeeze animation
+├── SwapColumnsWithWaveEffect() - Full column swap
+├── GetFallingIngredients() - For tap detection
+├── ClearTopHalf() - For continue feature
+└── Events:
+    ├── OnGameOver
+    ├── OnMatchEliminated(int points)
+    ├── OnBurgerCompleted(int points, string name)
+    ├── OnBurgerEffect(Vector3 pos, int points, string name, int ingredientCount)
+    ├── OnMatchEffect(Vector3 pos, int points)
+    └── OnIngredientPlaced
 
 Column
 ├── List<Ingredient> _ingredients (stack)
+├── IsOverflowing property (stack >= MAX_ROWS)
 ├── GetNextLandingPosition()
+├── GetSpawnPosition() - Top of column (preview position)
 ├── TakeAllIngredients() / SetAllIngredients() - For swaps
-├── CheckForMatch() - Compare top two
-└── CollapseFromRow() - After burger completion
+├── CheckForMatch() - Top two same type (including BunBottom pairs)
+├── RemoveIngredientsInRange() - For burger completion
+└── CollapseFromRow() - After removal
 ```
 
 ### 2. Ingredient System
 
 ```
 IngredientType (Enum)
-├── Regular: Meat, Cheese, Tomato, Onion, Pickle, Lettuce, Egg
-├── Buns: BunBottom, BunTop
-└── Extension: IsRegularIngredient(), IsBun()
+├── Regular: Meat(0), Cheese(1), Tomato(2), Onion(3), Pickle(4), Lettuce(5), Egg(6)
+└── Buns: BunBottom(7), BunTop(8)
 
 Ingredient (MonoBehaviour)
-├── Type, CurrentColumn, CurrentRow
-├── IsFalling, IsLanded states
-├── StartFalling() - Begin fall with step animation
-├── SwapToColumn() - Instant X swap, continue falling
+├── Type, CurrentColumn, CurrentRow, IsLanded, IsFalling
+├── Initialize(type, column, sprite)
+├── StartFalling(stepDuration) - Begin step-by-step fall
+├── FastDrop() - Tap to instant-land with bonus
+├── SwapToColumn() - Instant X swap during column swap
 ├── AnimateToCurrentPosition() - After stack swap
-└── DestroyWithAnimation() - Scale + rotate out
+└── DestroyWithAnimation() - Blink + scale out
 
 IngredientSpawner
-├── Spawn rate (configurable)
-├── Random column selection
-├── Sprite assignment per type
-└── Spawns via Instantiate + Initialize()
+├── SpawnWithPreview() - Coroutine: preview blink then spawn
+├── GetSpawnType() - Random with bun rules + forced bun logic
+├── TryTapPreview() - Early spawn with bonus
+├── TryTapFallingIngredient() - Fast drop delegation
+├── Test modes: TestBurgerColumn, TestDualColumn
+├── Configurable: spawn interval, fall speed, active count
+└── Double spawn at higher levels
 ```
 
 ### 3. Chef Controller
@@ -95,7 +138,10 @@ ChefController
 ├── _currentPosition (0, 1, or 2)
 ├── LeftColumnIndex / RightColumnIndex properties
 ├── MoveToPosition() / MoveLeft() / MoveRight()
-├── SwapPlates() - Triggers GridManager.SwapColumns()
+├── SwapPlates() - Triggers GridManager swap
+├── Position bubbles (semi-transparent circles)
+│   ├── GenerateCircleSprite() - Runtime texture
+│   └── Active position highlighted (0.45 vs 0.25 alpha)
 └── DOTween movement with OutBack ease
 ```
 
@@ -104,98 +150,92 @@ ChefController
 ```
 TouchInputHandler (New Unity Input System)
 ├── EnhancedTouchSupport for mobile
-├── Mouse.current for editor/standalone
-├── HandleMouseInput() / HandleTouchInput()
-├── ProcessTap() - Determines chef move vs swap
-└── Swipe detection for horizontal movement
+├── Mouse.current + Keyboard.current for editor
+├── Tap priority:
+│   1. Spawn preview (early spawn)
+│   2. Falling ingredient (fast drop)
+│   3. Chef (swap plates)
+│   4. Screen thirds (position movement)
+├── Swipe detection (horizontal only)
+└── Keyboard: A/D movement, Space swap
 ```
 
-### 5. Match & Burger Detection (in GridManager)
+### 5. Audio System
 
 ```
-CheckAndProcessMatches(Column)
-├── If top two ingredients match (same type, regular only)
-├── Remove both from column
-├── Trigger destruction animation
-├── Award POINTS_MATCH
-└── Recursively check for more matches
+AudioManager (Singleton)
+├── Procedural generation via AudioClip.Create() + SetData()
+├── SFX clips (all sine-wave based):
+│   ├── Match: ascending 600-900Hz
+│   ├── Burger Poor: descending E4-C4
+│   ├── Burger Small: C5-G5
+│   ├── Burger Medium: C5-E5-G5-C6
+│   ├── Burger Large: C5-E5-G5-B5-C6 + harmonics
+│   ├── Burger Mega: C5-E5-G5-C6-E6-G6 + 3 harmonics
+│   ├── Burger Max: C5-G5-C6-E6-G6-C7 + 4 harmonics
+│   ├── Level Up: A4-C#5-E5-A5-C#6
+│   ├── Game Over: A4-F#4-Eb4-C4
+│   ├── Squeeze: 800-500Hz (dedicated pitched AudioSource)
+│   ├── Fast Drop: 1200-300Hz whoosh
+│   └── Early Spawn: 500-1000Hz pop
+└── Event-driven: subscribes to GridManager/DifficultyManager/GameManager
 
-CheckAndProcessBurger(Column)
-├── Scan from top for BunTop
-├── Collect ingredients going down
-├── Find BunBottom to complete
-├── Calculate score + generate name
-├── Destroy all burger ingredients
-└── Collapse remaining ingredients
+MusicManager (Singleton, DontDestroyOnLoad)
+├── Resources.LoadAll<AudioClip>() from Music/ subfolders
+├── Random track selection per category
+├── Separate menu vs game tracks
+└── Respects SaveDataManager sound toggle
 ```
 
----
+### 6. Layout System
 
-## Key Algorithms
-
-### Ingredient Fall Logic
 ```
-1. Spawn at column.GetSpawnPosition() (above screen)
-2. Register in GridManager._fallingIngredients
-3. FallOneStep():
-   - Calculate current visual row from Y position
-   - If at or below target row → Land()
-   - Else → DOMove one cell down, repeat
-4. Land():
-   - Unregister from falling list
-   - Add to column stack
-   - Snap to exact position
-   - Squash animation
-   - Notify GridManager.OnIngredientLanded()
+GameLayout (MonoBehaviour)
+├── Generate9SliceSprite() - Runtime rounded-rect texture
+│   └── DistanceInside() - SDF for corner rounding
+├── CreatePanel(name, center, size) - SpriteRenderer with Sliced draw mode
+├── Panels:
+│   ├── GridPanel: (0, -1.9), size (5.2, 5.8)
+│   ├── TopLeftPanel: (-1.35, 2.4), size (2.5, 2.6) - HUD
+│   └── TopRightPanel: (1.35, 2.4), size (2.5, 2.6) - Challenge
+└── Configurable: border color, fill color, border width, corner radius
 ```
 
-### Column Swap Logic
-```
-1. ChefController.SwapPlates() called
-2. GridManager.SwapColumns(leftCol, rightCol):
-   a. Calculate threshold Y (higher column top + 20% buffer)
-   b. TakeAllIngredients() from both columns
-   c. SetAllIngredients() swapped
-   d. Animate stacked ingredients to new positions
-   e. For each falling ingredient below threshold:
-      - SwapToColumn() (instant X, resume fall)
-   f. Check matches/burgers on both columns
-```
+### 7. Difficulty System
 
-### Burger Completion Logic
 ```
-1. Scan column from top to bottom
-2. Find BunTop → mark start index
-3. Continue down, collecting ingredients
-4. If BunBottom found → burger complete!
-   - Score = (ingredientCount * 10) + size bonus
-   - Generate funny name
-   - Destroy all ingredients in range
-   - Collapse items above
-5. If another BunTop found → stop (incomplete)
+DifficultyManager
+├── Level thresholds: [0, 3, 7, 12, 18, 25, 33, 42, 52, 64]
+├── Lerps between initial and max values:
+│   ├── Spawn interval: 3.0s → 1.2s
+│   ├── Fall step: 0.3s → 0.1s
+│   └── Ingredient count: 3 → 7
+├── TestDualColumn override: starts at configured level
+└── Event: OnLevelChanged(int level)
 ```
 
 ---
 
-## DOTween Usage
+## Burger Scoring
 
-| Animation | Code | Ease |
-|-----------|------|------|
-| Ingredient fall step | `DOMove(pos, stepDuration)` | Linear |
-| Landing squash | `DOPunchScale(0.2, -0.2)` | Default |
-| Chef movement | `DOMove(pos, 0.15f)` | OutBack |
-| Chef swap action | `DOPunchScale(0.2, 0.2)` | Default |
-| Stack swap | `DOMove(pos, 0.2f)` | OutBack |
-| Ingredient destroy | `DOScale(0) + DORotate(180)` | InBack |
-| Collapse fall | `DOMove(pos, 0.15f)` | OutBounce |
+| Tier | Ingredients | Bonus | Name | Sound |
+|------|-------------|-------|------|-------|
+| Poor | 0 | 5 | "Just Bread..." | Sad descending |
+| Small | 1-2 | 20 | Random | 2-note |
+| Medium | 3-4 | 50 | Random | 4-note arpeggio |
+| Large | 5-6 | 100 | Random | 5-note + harmonics |
+| Mega | 7-8 | 200 | Random | 6-note two-octave |
+| Max | 9+ | 500 | "DOKTOR BURGUER!" | Fanfare |
+
+Formula: `points = ingredientCount * 10 + bonus`
 
 ---
 
 ## Event Flow
 
 ```
-IngredientSpawner.SpawnIngredient()
-    ↓
+IngredientSpawner.SpawnWithPreview() [coroutine]
+    ↓ (blink preview)
 Ingredient.Initialize() → StartFalling()
     ↓
 GridManager.RegisterFallingIngredient()
@@ -204,37 +244,54 @@ Ingredient.FallOneStep() [repeats]
     ↓
 Ingredient.Land()
     ↓
-GridManager.UnregisterFallingIngredient()
-    ↓
-Column.AddIngredient()
-    ↓
 GridManager.OnIngredientLanded()
+    ├── [BunTop] → CheckAndProcessBurger() first
+    │   └── BurgerCompressAnimation() [coroutine]
+    │       ├── Pause spawning
+    │       ├── Squeeze steps with rising pitch
+    │       ├── Smack to bottom bun
+    │       ├── Remove + collapse
+    │       ├── OnBurgerCompleted / OnBurgerEffect
+    │       └── Resume spawning
     ├── CheckAndProcessMatches()
-    │   └── OnMatchEliminated event
-    ├── CheckAndProcessBurger()
-    │   └── OnBurgerCompleted event
-    └── [If overflow] OnGameOver event
+    │   └── OnMatchEliminated / OnMatchEffect
+    ├── OnIngredientPlaced
+    └── [If overflow] OnGameOver
 ```
 
 ---
 
-## Future Systems (Not Yet Implemented)
+## Test Modes (GameManager toggles)
 
-### Phase 3: Visual Feedback
-- Particle effects on match
-- Score popup floating text
-- Screen shake
+| Toggle | Behavior |
+|--------|----------|
+| TestSettings | Spawn 1 = BunBottom, Spawn 8 = BunTop |
+| TestBurgerColumn | All on rightmost: BunBottom, Meat/Cheese alt, BunTop at MAX_ROWS |
+| TestDualColumn | Left = Meat/Cheese alt, Right = BunBottom then BunTop, high start level |
 
-### Phase 4: Burger Polish
-- Expanded name generator
-- Celebration animations
+---
 
-### Phase 5: Game Flow
-- DifficultyManager (speed/ingredient progression)
-- Game over screen
-- Restart functionality
+## Scene Hierarchy
 
-### Phase 6+: Polish & Monetization
-- UI system
-- Audio system
-- Ads/IAP
+```
+Game Scene
+├── Main Camera (ortho size 5, pos 0,-0.46,-10)
+├── Layout (GameLayout.cs → creates 3 panel sprites)
+├── GameManager (GameObject)
+│   ├── GameManager.cs
+│   ├── GridManager.cs
+│   ├── IngredientSpawner.cs
+│   ├── TouchInputHandler.cs
+│   ├── FeedbackManager.cs
+│   └── DifficultyManager.cs
+├── Chef (GameObject)
+│   ├── SpriteRenderer
+│   └── ChefController.cs (creates position bubbles)
+├── Column_0..3 (auto-generated)
+└── [Runtime created:]
+    ├── HUD_Canvas (GameHUD)
+    ├── AudioManager
+    ├── MusicManager (DontDestroyOnLoad)
+    ├── SaveDataManager (DontDestroyOnLoad)
+    └── GemPackSpawner
+```
