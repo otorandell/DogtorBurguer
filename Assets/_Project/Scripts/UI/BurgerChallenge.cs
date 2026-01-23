@@ -174,24 +174,24 @@ namespace DogtorBurguer
             if (spawner == null) return;
 
             float startY = -(_targetIngredients.Count + 1) * _ingredientSpacing * 0.5f;
-            int bunOrder = _sortingOrder + 10; // Buns render on top of ingredients
+            int order = 0;
 
             // Bottom bun
-            CreateIngredientVisual(IngredientType.BunBottom, startY, spawner, bunOrder);
+            CreateIngredientVisual(IngredientType.BunBottom, startY, spawner, order++);
 
-            // Ingredients (ascending order, behind buns)
+            // Ingredients
             for (int i = 0; i < _targetIngredients.Count; i++)
             {
                 float y = startY + (i + 1) * _ingredientSpacing;
-                CreateIngredientVisual(_targetIngredients[i], y, spawner, _sortingOrder + 2 + i);
+                CreateIngredientVisual(_targetIngredients[i], y, spawner, order++);
             }
 
             // Top bun
             float topY = startY + (_targetIngredients.Count + 1) * _ingredientSpacing;
-            CreateIngredientVisual(IngredientType.BunTop, topY, spawner, bunOrder + 1);
+            CreateIngredientVisual(IngredientType.BunTop, topY, spawner, order++);
         }
 
-        private void CreateIngredientVisual(IngredientType type, float localY, IngredientSpawner spawner, int order)
+        private void CreateIngredientVisual(IngredientType type, float localY, IngredientSpawner spawner, int orderIndex)
         {
             Sprite sprite = spawner.GetSpriteForType(type);
             if (sprite == null) return;
@@ -203,7 +203,7 @@ namespace DogtorBurguer
 
             SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
             sr.sprite = sprite;
-            sr.sortingOrder = order;
+            sr.sortingOrder = _sortingOrder + 2 + orderIndex;
 
             _burgerVisuals.Add(obj);
         }
