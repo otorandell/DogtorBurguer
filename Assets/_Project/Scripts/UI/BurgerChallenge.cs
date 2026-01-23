@@ -252,7 +252,7 @@ namespace DogtorBurguer
                 AudioManager.Instance?.PlayChallengeMatch();
                 FlashPanel();
 
-                if (_challengeProgress >= _challengeLevel)
+                if (_challengeProgress >= _challengeLevel + 1)
                 {
                     LevelUp();
                 }
@@ -299,7 +299,7 @@ namespace DogtorBurguer
 
         private void UpdateMeter()
         {
-            float fill = (float)_challengeProgress / _challengeLevel;
+            float fill = (float)_challengeProgress / (_challengeLevel + 1);
             float fillHeight = _meterHeight * fill;
 
             if (_meterFill != null)
