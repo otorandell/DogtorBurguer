@@ -683,17 +683,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::DogtorBurguer.GameLayout
-  _gridPanelCenter: {x: 0, y: -1.5}
-  _gridPanelSize: {x: 4.6, y: 6.2}
-  _topLeftCenter: {x: -1.2, y: 2.5}
-  _topLeftSize: {x: 2.2, y: 1.7}
-  _topRightCenter: {x: 1.2, y: 2.5}
-  _topRightSize: {x: 2.2, y: 1.7}
-  _borderColor: {r: 1, g: 1, b: 1, a: 0.6}
-  _fillColor: {r: 0, g: 0, b: 0, a: 0.2}
-  _borderWidth: 3
-  _cornerRadius: 20
-  _textureResolution: 128
+  _gridPanelCenter: {x: 0, y: -1.9}
+  _gridPanelSize: {x: 5.2, y: 5.8}
+  _topLeftCenter: {x: -1.35, y: 2.4}
+  _topLeftSize: {x: 2.5, y: 2.6}
+  _topRightCenter: {x: 1.35, y: 2.4}
+  _topRightSize: {x: 2.5, y: 2.6}
+  _borderColor: {r: 0, g: 0, b: 0, a: 0.8}
+  _fillColor: {r: 0, g: 0, b: 0, a: 0.15}
+  _borderWidth: 4
+  _cornerRadius: 24
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -4,15 +4,15 @@ namespace DogtorBurguer
     {
         // Grid dimensions
         public const int COLUMN_COUNT = 4;
-        public const int MAX_ROWS = 15;
+        public const int MAX_ROWS = 13;
 
         // Cell size in world units
-        public const float CELL_WIDTH = 1.2f;
+        public const float CELL_WIDTH = 1.4f;
         public const float CELL_HEIGHT = 1.0f;
         public const float CELL_VISUAL_HEIGHT = 0.40f; // 60% overlap between rows
 
         // Grid positioning (bottom-left of grid)
-        public const float GRID_ORIGIN_X = -1.8f;
+        public const float GRID_ORIGIN_X = -2.1f;
         public const float GRID_ORIGIN_Y = -4.5f;
 
         // Timing (easy start → hard max)
