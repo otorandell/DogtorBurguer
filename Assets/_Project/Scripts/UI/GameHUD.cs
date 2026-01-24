@@ -53,7 +53,7 @@ namespace DogtorBurguer
 
             _gemText = CreatePanelText("GemText", startY - lineSpacing * 2);
             _gemText.fontSize = 16;
-            _gemText.color = new Color(1f, 0.85f, 0f);
+            _gemText.color = Color.black;
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
             _gemText.text = $"Gems: {gems}";
         }
@@ -73,8 +73,10 @@ namespace DogtorBurguer
 
             TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
             tmp.alignment = TextAlignmentOptions.Left;
-            tmp.color = Color.white;
+            tmp.color = Color.black;
             tmp.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
+            tmp.outlineWidth = 0.2f;
+            tmp.outlineColor = new Color32(0, 0, 0, 255);
 
             return tmp;
         }

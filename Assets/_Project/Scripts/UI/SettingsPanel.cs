@@ -9,6 +9,7 @@ namespace DogtorBurguer
         private GameObject _panel;
         private Canvas _canvas;
         private TextMeshProUGUI _soundLabel;
+        private TextMeshProUGUI _controlLabel;
 
         public void Show()
         {
@@ -16,6 +17,7 @@ namespace DogtorBurguer
             {
                 _panel.SetActive(true);
                 UpdateSoundLabel();
+                UpdateControlLabel();
                 return;
             }
 
@@ -49,17 +51,20 @@ namespace DogtorBurguer
             RectTransform innerRect = inner.AddComponent<RectTransform>();
             innerRect.anchorMin = new Vector2(0.5f, 0.5f);
             innerRect.anchorMax = new Vector2(0.5f, 0.5f);
-            innerRect.sizeDelta = new Vector2(350, 280);
+            innerRect.sizeDelta = new Vector2(350, 350);
             Image innerImg = inner.AddComponent<Image>();
             innerImg.color = new Color(0.18f, 0.18f, 0.25f, 1f);
 
             // Title
-            CreateText(inner, "Settings", 0, 100, 36, FontStyles.Bold, Color.white);
+            CreateText(inner, "Settings", 0, 130, 36, FontStyles.Bold, Color.white);
 
             // Sound toggle button
-            bool soundOn = SaveDataManager.Instance != null ? SaveDataManager.Instance.SoundOn : true;
-            CreateSettingsButton(inner, 0, 20, OnSoundToggleClicked, out _soundLabel);
+            CreateSettingsButton(inner, 0, 50, OnSoundToggleClicked, out _soundLabel);
             UpdateSoundLabel();
+
+            // Control mode toggle button
+            CreateSettingsButton(inner, 0, -20, OnControlToggleClicked, out _controlLabel);
+            UpdateControlLabel();
 
             // Close button
             GameObject closeObj = new GameObject("CloseBtn");
@@ -67,7 +72,7 @@ namespace DogtorBurguer
             RectTransform closeRect = closeObj.AddComponent<RectTransform>();
             closeRect.anchorMin = new Vector2(0.5f, 0.5f);
             closeRect.anchorMax = new Vector2(0.5f, 0.5f);
-            closeRect.anchoredPosition = new Vector2(0, -80);
+            closeRect.anchoredPosition = new Vector2(0, -110);
             closeRect.sizeDelta = new Vector2(200, 50);
 
             Image closeImg = closeObj.AddComponent<Image>();
@@ -89,12 +94,14 @@ namespace DogtorBurguer
             closeTmp.fontStyle = FontStyles.Bold;
             closeTmp.color = Color.white;
             closeTmp.alignment = TextAlignmentOptions.Center;
+            closeTmp.outlineWidth = 0.2f;
+            closeTmp.outlineColor = new Color32(0, 0, 0, 255);
         }
 
         private void CreateSettingsButton(GameObject parent, float x, float y,
             UnityEngine.Events.UnityAction onClick, out TextMeshProUGUI label)
         {
-            GameObject btnObj = new GameObject("SoundBtn");
+            GameObject btnObj = new GameObject("SettingsBtn");
             btnObj.transform.SetParent(parent.transform, false);
 
             RectTransform btnRect = btnObj.AddComponent<RectTransform>();
@@ -122,6 +129,8 @@ namespace DogtorBurguer
             label.fontStyle = FontStyles.Bold;
             label.color = Color.white;
             label.alignment = TextAlignmentOptions.Center;
+            label.outlineWidth = 0.2f;
+            label.outlineColor = new Color32(0, 0, 0, 255);
         }
 
         private TextMeshProUGUI CreateText(GameObject parent, string text, float x, float y,
@@ -142,6 +151,8 @@ namespace DogtorBurguer
             tmp.fontStyle = style;
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.Center;
+            tmp.outlineWidth = 0.2f;
+            tmp.outlineColor = new Color32(0, 0, 0, 255);
 
             return tmp;
         }
@@ -162,6 +173,25 @@ namespace DogtorBurguer
             if (_soundLabel == null) return;
             bool soundOn = SaveDataManager.Instance != null ? SaveDataManager.Instance.SoundOn : true;
             _soundLabel.text = soundOn ? "Sound: ON" : "Sound: OFF";
+        }
+
+        private void OnControlToggleClicked()
+        {
+            if (SaveDataManager.Instance == null) return;
+
+            ControlMode current = SaveDataManager.Instance.ControlMode;
+            ControlMode next = current == ControlMode.Drag ? ControlMode.Tap : ControlMode.Drag;
+            SaveDataManager.Instance.SetControlMode(next);
+            UpdateControlLabel();
+        }
+
+        private void UpdateControlLabel()
+        {
+            if (_controlLabel == null) return;
+            ControlMode mode = SaveDataManager.Instance != null
+                ? SaveDataManager.Instance.ControlMode
+                : ControlMode.Drag;
+            _controlLabel.text = mode == ControlMode.Drag ? "Controls: Drag" : "Controls: Tap";
         }
     }
 }

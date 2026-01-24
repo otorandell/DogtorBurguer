@@ -28,7 +28,7 @@ namespace DogtorBurguer
             _collider = col;
 
             // Fly across with sine wobble
-            float midY = (startPos.y + endPos.y) * 0.5f + UnityEngine.Random.Range(-1f, 1f);
+            float midY = (startPos.y + endPos.y) * 0.5f + Rng.Range(-1f, 1f);
             Vector3 midPos = new Vector3(
                 (startPos.x + endPos.x) * 0.5f,
                 midY,

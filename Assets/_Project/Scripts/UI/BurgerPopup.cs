@@ -31,6 +31,8 @@ namespace DogtorBurguer
             _nameText.overflowMode = TextOverflowModes.Overflow;
             _nameText.fontStyle = FontStyles.Bold;
             _nameText.sortingOrder = 110;
+            _nameText.outlineWidth = 0.25f;
+            _nameText.outlineColor = new Color32(0, 0, 0, 255);
             _nameText.rectTransform.sizeDelta = new Vector2(6f, 2f);
 
             // Score text (child object, below name)
@@ -46,6 +48,8 @@ namespace DogtorBurguer
             _scoreText.textWrappingMode = TextWrappingModes.NoWrap;
             _scoreText.overflowMode = TextOverflowModes.Overflow;
             _scoreText.sortingOrder = 110;
+            _scoreText.outlineWidth = 0.25f;
+            _scoreText.outlineColor = new Color32(0, 0, 0, 255);
             _scoreText.rectTransform.sizeDelta = new Vector2(4f, 1.5f);
         }
 

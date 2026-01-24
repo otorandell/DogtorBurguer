@@ -19,6 +19,8 @@ namespace DogtorBurguer
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.sortingOrder = 100;
+            tmp.outlineWidth = 0.25f;
+            tmp.outlineColor = new Color32(0, 0, 0, 255);
 
             RectTransform rect = tmp.GetComponent<RectTransform>();
             rect.sizeDelta = new Vector2(4f, 1f);

@@ -69,7 +69,7 @@ namespace DogtorBurguer
                 return;
 
             // Pick a random track
-            AudioClip target = tracks[Random.Range(0, tracks.Length)];
+            AudioClip target = tracks[Rng.Range(0, tracks.Length)];
             _source.clip = target;
             _source.Play();
 

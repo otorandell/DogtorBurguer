@@ -3,7 +3,15 @@
     "allow": [
       "Bash(git lfs install:*)",
       "Bash(powershell -Command \"Expand-Archive -Path ''DOTween_1_2_790.zip'' -DestinationPath ''Assets/Plugins'' -Force\")",
-      "Bash(dir /s /b)"
+      "Bash(dir /s /b)",
+      "Bash(git -C \"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\" show --name-status 37d05ae)",
+      "Bash(git -C \"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\" log --oneline --all)",
+      "Bash(git -C \"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\" diff HEAD)",
+      "Bash(git -C \"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\" show e116bb4 --stat)",
+      "Bash(tree:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(python generate_sfx.py:*)"
     ]
   }
 }

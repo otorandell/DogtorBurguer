@@ -123,16 +123,30 @@ namespace DogtorBurguer
         {
             if (_chef == null) return;
 
-            // Check if it's a swipe or a tap
-            float swipeDistance = Vector2.Distance(startScreenPos, endScreenPos);
+            ControlMode mode = SaveDataManager.Instance != null
+                ? SaveDataManager.Instance.ControlMode
+                : ControlMode.Drag;
 
-            if (swipeDistance > _swipeThreshold)
+            float swipeDistance = Vector2.Distance(startScreenPos, endScreenPos);
+            bool isSwipe = swipeDistance > _swipeThreshold;
+
+            if (mode == ControlMode.Drag)
             {
-                // It's a swipe - determine direction
+                ProcessDragMode(startScreenPos, endScreenPos, isSwipe);
+            }
+            else
+            {
+                ProcessTapMode(startScreenPos, endScreenPos, isSwipe);
+            }
+        }
+
+        private void ProcessDragMode(Vector2 startScreenPos, Vector2 endScreenPos, bool isSwipe)
+        {
+            if (isSwipe)
+            {
                 Vector2 swipeDir = endScreenPos - startScreenPos;
                 if (Mathf.Abs(swipeDir.x) > Mathf.Abs(swipeDir.y))
                 {
-                    // Horizontal swipe
                     if (swipeDir.x > 0)
                         _chef.MoveRight();
                     else
@@ -141,8 +155,52 @@ namespace DogtorBurguer
             }
             else
             {
-                // It's a tap - check what was tapped
                 ProcessTap(startScreenPos);
+            }
+        }
+
+        private void ProcessTapMode(Vector2 startScreenPos, Vector2 endScreenPos, bool isSwipe)
+        {
+            if (isSwipe)
+            {
+                // Swipe = move
+                Vector2 swipeDir = endScreenPos - startScreenPos;
+                if (Mathf.Abs(swipeDir.x) > Mathf.Abs(swipeDir.y))
+                {
+                    if (swipeDir.x > 0)
+                        _chef.MoveRight();
+                    else
+                        _chef.MoveLeft();
+                }
+            }
+            else
+            {
+                if (_camera == null) return;
+
+                Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(startScreenPos.x, startScreenPos.y, 10f));
+                worldPos.z = 0;
+
+                // Check preview tap
+                if (_spawner != null && _spawner.TryTapPreview(worldPos))
+                    return;
+
+                // Check falling ingredient tap
+                if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos))
+                    return;
+
+                // Check if tapped on/near the chef → swap
+                float chefDist = Vector2.Distance(worldPos, _chef.transform.position);
+                if (chefDist < _chef.BubbleRadius * 2f)
+                {
+                    _chef.SwapPlates();
+                    return;
+                }
+
+                // Tap left/right of chef = move
+                if (worldPos.x < _chef.transform.position.x)
+                    _chef.MoveLeft();
+                else
+                    _chef.MoveRight();
             }
         }
 
@@ -150,11 +208,14 @@ namespace DogtorBurguer
         {
             if (_chef == null) return;
 
-            // Check if tapped on a falling ingredient first
+            // Check if tapped on a falling ingredient or preview first
             if (_camera != null)
             {
                 Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 10f));
                 worldPos.z = 0;
+
+                if (_spawner != null && _spawner.TryTapPreview(worldPos))
+                    return;
 
                 if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos))
                     return;

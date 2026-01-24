@@ -11,6 +11,7 @@ namespace DogtorBurguer
         private const string KEY_HIGH_SCORE = "highScore";
         private const string KEY_SOUND_ON = "soundOn";
         private const string KEY_GAMES_PLAYED = "gamesPlayed";
+        private const string KEY_CONTROL_MODE = "controlMode";
 
         public event Action<int> OnGemsChanged;
 
@@ -18,6 +19,7 @@ namespace DogtorBurguer
         public int HighScore { get; private set; }
         public bool SoundOn { get; private set; }
         public int GamesPlayed { get; private set; }
+        public ControlMode ControlMode { get; private set; }
 
         private void Awake()
         {
@@ -38,6 +40,7 @@ namespace DogtorBurguer
             HighScore = PlayerPrefs.GetInt(KEY_HIGH_SCORE, 0);
             SoundOn = PlayerPrefs.GetInt(KEY_SOUND_ON, 1) == 1;
             GamesPlayed = PlayerPrefs.GetInt(KEY_GAMES_PLAYED, 0);
+            ControlMode = (ControlMode)PlayerPrefs.GetInt(KEY_CONTROL_MODE, (int)ControlMode.Drag);
         }
 
         public void AddGems(int amount)
@@ -80,6 +83,13 @@ namespace DogtorBurguer
         {
             GamesPlayed++;
             PlayerPrefs.SetInt(KEY_GAMES_PLAYED, GamesPlayed);
+            PlayerPrefs.Save();
+        }
+
+        public void SetControlMode(ControlMode mode)
+        {
+            ControlMode = mode;
+            PlayerPrefs.SetInt(KEY_CONTROL_MODE, (int)mode);
             PlayerPrefs.Save();
         }
 

@@ -81,6 +81,8 @@ namespace DogtorBurguer
             _nameText.color = Color.white;
             _nameText.alignment = TMPro.TextAlignmentOptions.Center;
             _nameText.sortingOrder = _sortingOrder + 1;
+            _nameText.outlineWidth = 0.2f;
+            _nameText.outlineColor = new Color32(0, 0, 0, 255);
             RectTransform nameRect = _nameText.GetComponent<RectTransform>();
             nameRect.sizeDelta = new Vector2(2.2f, 0.5f);
 
@@ -118,6 +120,8 @@ namespace DogtorBurguer
             _levelText.color = Color.white;
             _levelText.alignment = TMPro.TextAlignmentOptions.Center;
             _levelText.sortingOrder = _sortingOrder + 1;
+            _levelText.outlineWidth = 0.2f;
+            _levelText.outlineColor = new Color32(0, 0, 0, 255);
             RectTransform levelRect = _levelText.GetComponent<RectTransform>();
             levelRect.sizeDelta = new Vector2(1f, 0.4f);
         }
@@ -144,7 +148,7 @@ namespace DogtorBurguer
                 _targetIngredients.Clear();
                 for (int i = 0; i < targetCount; i++)
                 {
-                    int typeIndex = Random.Range(0, activeCount);
+                    int typeIndex = Rng.Range(0, activeCount);
                     _targetIngredients.Add((IngredientType)typeIndex);
                 }
 
@@ -206,9 +210,9 @@ namespace DogtorBurguer
             string[] adjectives = { "Spicy", "Wild", "Crazy", "Hot", "Cool", "Epic", "Tasty", "Zesty" };
             string[] nouns = { "Bite", "Stack", "Tower", "Combo", "Special", "Delight", "Dream", "Feast" };
 
-            string prefix = prefixes[Random.Range(0, prefixes.Length)];
-            string adj = adjectives[Random.Range(0, adjectives.Length)];
-            string noun = nouns[Random.Range(0, nouns.Length)];
+            string prefix = prefixes[Rng.Range(0, prefixes.Length)];
+            string adj = adjectives[Rng.Range(0, adjectives.Length)];
+            string noun = nouns[Rng.Range(0, nouns.Length)];
 
             return $"{prefix} {adj} {noun}";
         }

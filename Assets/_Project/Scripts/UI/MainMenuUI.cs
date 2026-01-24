@@ -75,17 +75,15 @@ namespace DogtorBurguer
             }
 
             // Title
-            CreateText(canvasObj, "Dogtor Burguer!", 0, 300, 48, FontStyles.Bold,
-                new Color(1f, 0.85f, 0.2f));
+            CreateText(canvasObj, "Dogtor Burguer!", 0, 300, 48, FontStyles.Bold, Color.black);
 
             // High Score
             int highScore = SaveDataManager.Instance != null ? SaveDataManager.Instance.HighScore : 0;
-            _highScoreText = CreateText(canvasObj, $"Best: {highScore}", 0, 230, 24, FontStyles.Normal, Color.gray);
+            _highScoreText = CreateText(canvasObj, $"Best: {highScore}", 0, 230, 24, FontStyles.Normal, Color.black);
 
             // Gem counter (top-right)
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
-            _gemText = CreateText(canvasObj, $"Gems: {gems}", 0, 400, 22, FontStyles.Bold,
-                new Color(1f, 0.85f, 0f));
+            _gemText = CreateText(canvasObj, $"Gems: {gems}", 0, 400, 22, FontStyles.Bold, Color.black);
             RectTransform gemRect = _gemText.GetComponent<RectTransform>();
             gemRect.anchorMin = new Vector2(1f, 1f);
             gemRect.anchorMax = new Vector2(1f, 1f);
@@ -127,6 +125,8 @@ namespace DogtorBurguer
             tmp.fontStyle = style;
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.Center;
+            tmp.outlineWidth = 0.2f;
+            tmp.outlineColor = new Color32(0, 0, 0, 255);
 
             return tmp;
         }
@@ -163,6 +163,8 @@ namespace DogtorBurguer
             tmp.fontStyle = FontStyles.Bold;
             tmp.color = Color.white;
             tmp.alignment = TextAlignmentOptions.Center;
+            tmp.outlineWidth = 0.2f;
+            tmp.outlineColor = new Color32(0, 0, 0, 255);
         }
 
         private void UpdateGemDisplay(int gems)

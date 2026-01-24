@@ -151,6 +151,8 @@ namespace DogtorBurguer
             tmp.fontStyle = style;
             tmp.color = Color.white;
             tmp.alignment = TextAlignmentOptions.Center;
+            tmp.outlineWidth = 0.2f;
+            tmp.outlineColor = new Color32(0, 0, 0, 255);
 
             return tmp;
         }
@@ -171,6 +173,8 @@ namespace DogtorBurguer
             tmp.fontStyle = style;
             tmp.color = Color.white;
             tmp.alignment = TextAlignmentOptions.Center;
+            tmp.outlineWidth = 0.2f;
+            tmp.outlineColor = new Color32(0, 0, 0, 255);
 
             return tmp;
         }

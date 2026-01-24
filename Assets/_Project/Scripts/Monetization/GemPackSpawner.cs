@@ -32,7 +32,7 @@ namespace DogtorBurguer
 
         private void TrySpawnGemPack()
         {
-            if (UnityEngine.Random.value > Constants.GEM_PACK_SPAWN_CHANCE) return;
+            if (Rng.Value > Constants.GEM_PACK_SPAWN_CHANCE) return;
 
             SpawnGemPack();
         }
@@ -40,15 +40,15 @@ namespace DogtorBurguer
         private void SpawnGemPack()
         {
             // Determine direction (left-to-right or right-to-left)
-            bool fromLeft = UnityEngine.Random.value > 0.5f;
+            bool fromLeft = Rng.Value > 0.5f;
 
             float screenEdge = 5f; // Off-screen X position
-            float yPos = UnityEngine.Random.Range(0f, 3f); // Upper area of screen
+            float yPos = Rng.Range(0f, 3f); // Upper area of screen
 
             Vector3 startPos = new Vector3(fromLeft ? -screenEdge : screenEdge, yPos, 0f);
-            Vector3 endPos = new Vector3(fromLeft ? screenEdge : -screenEdge, yPos + UnityEngine.Random.Range(-1f, 1f), 0f);
+            Vector3 endPos = new Vector3(fromLeft ? screenEdge : -screenEdge, yPos + Rng.Range(-1f, 1f), 0f);
 
-            float duration = UnityEngine.Random.Range(3f, 5f);
+            float duration = Rng.Range(3f, 5f);
 
             GameObject packObj = new GameObject("GemPack");
             GemPack pack = packObj.AddComponent<GemPack>();

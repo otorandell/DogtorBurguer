@@ -41,6 +41,7 @@ namespace DogtorBurguer
         private List<(IngredientType type, int columnIndex)> _nextWaveData = new();
         private List<GameObject> _nextWavePreviews = new();
         private bool _waitingForWaveLand;
+        private bool _previewsShown;
         private float _delayTimer;
 
         private void Awake()
@@ -77,6 +78,13 @@ namespace DogtorBurguer
                     SpawnNextWave();
                 }
                 return;
+            }
+
+            // Show previews once wave ingredients have cleared the top cell
+            if (!_previewsShown && WaveClearedTop())
+            {
+                ShowNextWavePreviews();
+                _previewsShown = true;
             }
 
             // Check if all current wave ingredients have landed
@@ -149,9 +157,9 @@ namespace DogtorBurguer
                     _currentWaveIngredients.Add(ing);
             }
 
-            // Pre-roll next wave and show previews immediately
+            // Pre-roll next wave (previews shown once wave clears top)
             _nextWaveData = RollWaveData();
-            ShowNextWavePreviews();
+            _previewsShown = false;
 
             _waitingForWaveLand = true;
         }
@@ -162,6 +170,17 @@ namespace DogtorBurguer
             {
                 if (ing == null) continue; // destroyed
                 if (!ing.IsLanded) return false;
+            }
+            return true;
+        }
+
+        private bool WaveClearedTop()
+        {
+            float threshold = Constants.GRID_ORIGIN_Y + ((Constants.MAX_ROWS - 1) * Constants.CELL_VISUAL_HEIGHT);
+            foreach (var ing in _currentWaveIngredients)
+            {
+                if (ing == null) continue;
+                if (ing.CurrentY > threshold) return false;
             }
             return true;
         }
@@ -191,7 +210,7 @@ namespace DogtorBurguer
             {
                 float tripleT = (_currentLevel - 8f) / (Constants.MAX_LEVEL - 8f);
                 float tripleChance = tripleT * 0.35f;
-                if (Random.value < tripleChance) return 3;
+                if (Rng.Value < tripleChance) return 3;
             }
             return 2;
         }
@@ -205,7 +224,7 @@ namespace DogtorBurguer
                     available.Add(i);
             }
             if (available.Count == 0) return -1;
-            return available[Random.Range(0, available.Count)];
+            return available[Rng.Range(0, available.Count)];
         }
 
         private void ShowNextWavePreviews()
@@ -277,7 +296,7 @@ namespace DogtorBurguer
             }
 
             // Unified pool: regular ingredients + bun as one slot
-            int roll = Random.Range(0, _activeIngredientCount + 1);
+            int roll = Rng.Range(0, _activeIngredientCount + 1);
             if (roll < _activeIngredientCount)
             {
                 _spawnsSinceLastBun++;
@@ -296,7 +315,7 @@ namespace DogtorBurguer
 
             int bottomCount = CountBottomBunsOnGrid();
             float topChance = Mathf.Min(0.5f + bottomCount * 0.08f, 0.8f);
-            return Random.value < topChance ? IngredientType.BunTop : IngredientType.BunBottom;
+            return Rng.Value < topChance ? IngredientType.BunTop : IngredientType.BunBottom;
         }
 
         private int CountBottomBunsOnGrid()
@@ -332,6 +351,42 @@ namespace DogtorBurguer
                 {
                     if (ing.Type == IngredientType.BunBottom)
                         return true;
+                }
+            }
+            return false;
+        }
+
+        public bool TryTapPreview(Vector2 worldPos)
+        {
+            if (!_previewsShown || _nextWavePreviews.Count == 0) return false;
+
+            for (int i = 0; i < _nextWavePreviews.Count; i++)
+            {
+                GameObject preview = _nextWavePreviews[i];
+                if (preview == null) continue;
+
+                float dist = Vector2.Distance(worldPos, preview.transform.position);
+                if (dist < Constants.CELL_WIDTH * 0.7f)
+                {
+                    // Spawn this preview's ingredient
+                    var (type, colIdx) = _nextWaveData[i];
+                    Column col = GridManager.Instance?.GetColumn(colIdx);
+                    if (col != null && !col.IsOverflowing)
+                    {
+                        Ingredient ing = SpawnIngredient(type, col);
+                        if (ing != null)
+                            _currentWaveIngredients.Add(ing);
+                    }
+
+                    // Remove this entry from next wave data and previews
+                    preview.transform.DOKill();
+                    SpriteRenderer sr = preview.GetComponent<SpriteRenderer>();
+                    if (sr != null) sr.DOKill();
+                    Destroy(preview);
+                    _nextWavePreviews.RemoveAt(i);
+                    _nextWaveData.RemoveAt(i);
+
+                    return true;
                 }
             }
             return false;

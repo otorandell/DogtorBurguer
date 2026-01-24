@@ -400,9 +400,9 @@ namespace DogtorBurguer
             else if (ingredientCount <= 6) prefixes = largePrefixes;
             else prefixes = megaPrefixes;
 
-            string prefix = prefixes[UnityEngine.Random.Range(0, prefixes.Length)];
-            string adj = adjectives[UnityEngine.Random.Range(0, adjectives.Length)];
-            string noun = nouns[UnityEngine.Random.Range(0, nouns.Length)];
+            string prefix = prefixes[Rng.Range(0, prefixes.Length)];
+            string adj = adjectives[Rng.Range(0, adjectives.Length)];
+            string noun = nouns[Rng.Range(0, nouns.Length)];
 
             return $"{prefix} {noun} {adj}";
         }

@@ -110,6 +110,8 @@ namespace DogtorBurguer
             tmp.fontStyle = FontStyles.Bold;
             tmp.color = Color.white;
             tmp.alignment = TextAlignmentOptions.Center;
+            tmp.outlineWidth = 0.2f;
+            tmp.outlineColor = new Color32(0, 0, 0, 255);
         }
 
         private TextMeshProUGUI CreateText(GameObject parent, string text, float x, float y,
@@ -130,6 +132,8 @@ namespace DogtorBurguer
             tmp.fontStyle = style;
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.Center;
+            tmp.outlineWidth = 0.2f;
+            tmp.outlineColor = new Color32(0, 0, 0, 255);
 
             return tmp;
         }

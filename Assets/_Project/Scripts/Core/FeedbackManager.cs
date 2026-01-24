@@ -107,6 +107,8 @@ namespace DogtorBurguer
             tmp.textWrappingMode = TextWrappingModes.NoWrap;
             tmp.overflowMode = TextOverflowModes.Overflow;
             tmp.sortingOrder = 100;
+            tmp.outlineWidth = 0.25f;
+            tmp.outlineColor = new Color32(0, 0, 0, 255);
             tmp.rectTransform.sizeDelta = new Vector2(4f, 2f);
 
             ScorePopup popup = popupObj.AddComponent<ScorePopup>();
