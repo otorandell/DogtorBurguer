@@ -20,7 +20,7 @@ Assets/_Project/Scripts/
   Input/         TouchInputHandler
   UI/            MainMenuUI, GameHUD, GameOverPanel, SettingsPanel, ShopPanel,
                  BurgerChallenge, BurgerPopup, FloatingText, ScorePopup,
-                 Background, GameLayout
+                 Background, GameLayout, UIFactory
   Audio/         AudioManager, MusicManager
   Monetization/  AdManager, GemPack, GemPackSpawner
 ```
@@ -131,7 +131,7 @@ Active work to improve AI maintainability:
 1. ~~**Centralize config values**~~ DONE -- `GameplayConfig.cs`, `UIStyles.cs`, `AnimConfig.cs` alongside `Constants.cs`
 2. ~~**Split GridManager**~~ DONE -- `MatchDetector` (static, match/burger detection), `BurgerAnimator` (compress animation, scoring, naming), `GridManager` (column state, events, orchestration)
 3. ~~**Split IngredientSpawner**~~ DONE -- `WavePreviewManager` (preview display/tap), `SpawnerState` enum replaces boolean flags
-4. **Restructure UI code** -- Separate layout/construction from behavior/logic in all UI scripts, reference UIStyles for visual properties
+4. ~~**Restructure UI code**~~ DONE -- `UIFactory` static utility for shared canvas/text/button/panel/overlay construction, all UI scripts use it
 
 ## Pending Features
 - Text outline shader fix

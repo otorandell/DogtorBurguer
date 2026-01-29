@@ -28,114 +28,38 @@ namespace DogtorBurguer
 
         private void CreatePanel()
         {
-            // Find existing canvas or create one
             _canvas = FindAnyObjectByType<Canvas>();
 
             // Overlay container
-            _panel = new GameObject("ShopPanel");
-            _panel.transform.SetParent(_canvas.transform, false);
-
-            RectTransform panelRect = _panel.AddComponent<RectTransform>();
-            panelRect.anchorMin = Vector2.zero;
-            panelRect.anchorMax = Vector2.one;
-            panelRect.sizeDelta = Vector2.zero;
-
-            // Dark background
-            Image bgImg = _panel.AddComponent<Image>();
-            bgImg.color = UIStyles.OVERLAY_DARK;
+            _panel = UIFactory.CreateOverlay(_canvas.transform, UIStyles.OVERLAY_DARK);
 
             // Inner panel
-            GameObject inner = new GameObject("Inner");
-            inner.transform.SetParent(_panel.transform, false);
-            RectTransform innerRect = inner.AddComponent<RectTransform>();
-            innerRect.anchorMin = new Vector2(0.5f, 0.5f);
-            innerRect.anchorMax = new Vector2(0.5f, 0.5f);
-            innerRect.sizeDelta = UIStyles.SHOP_PANEL_SIZE;
-            Image innerImg = inner.AddComponent<Image>();
-            innerImg.color = UIStyles.INNER_PANEL_BG;
+            GameObject inner = UIFactory.CreatePanel(_panel.transform, UIStyles.SHOP_PANEL_SIZE, UIStyles.INNER_PANEL_BG);
 
             // Title
-            CreateText(inner, "Shop", 0, 160, UIStyles.PANEL_TITLE_SIZE, FontStyles.Bold, UIStyles.GOLD);
+            UIFactory.CreateText(inner.transform, "Shop", new Vector2(0, 160), new Vector2(350, 50),
+                UIStyles.PANEL_TITLE_SIZE, FontStyles.Bold, UIStyles.GOLD);
 
             // Gem balance
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
-            CreateText(inner, $"Your gems: {gems}", 0, 110, UIStyles.SETTINGS_BUTTON_TEXT_SIZE, FontStyles.Normal, UIStyles.TEXT_UI);
+            UIFactory.CreateText(inner.transform, $"Your gems: {gems}", new Vector2(0, 110), new Vector2(350, 50),
+                UIStyles.SETTINGS_BUTTON_TEXT_SIZE);
 
             // Watch Ad button
-            CreateShopButton(inner, "Watch Ad (+25 gems)", 0, 40,
-                UIStyles.BTN_SHOP_AD, OnWatchAdClicked);
+            UIFactory.CreateButton(inner.transform, "Watch Ad (+25 gems)", new Vector2(0, 40),
+                UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_SHOP_AD, UIStyles.PANEL_BUTTON_TEXT_SIZE, OnWatchAdClicked);
 
             // Buy 100 gems
-            CreateShopButton(inner, "Buy 100 gems - $0.99", 0, -40,
-                UIStyles.BTN_SHOP_BUY, OnBuy100Clicked);
+            UIFactory.CreateButton(inner.transform, "Buy 100 gems - $0.99", new Vector2(0, -40),
+                UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_SHOP_BUY, UIStyles.PANEL_BUTTON_TEXT_SIZE, OnBuy100Clicked);
 
             // Buy 500 gems
-            CreateShopButton(inner, "Buy 500 gems - $3.99", 0, -120,
-                UIStyles.BTN_SHOP_BUY, OnBuy500Clicked);
+            UIFactory.CreateButton(inner.transform, "Buy 500 gems - $3.99", new Vector2(0, -120),
+                UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_SHOP_BUY, UIStyles.PANEL_BUTTON_TEXT_SIZE, OnBuy500Clicked);
 
             // Close button
-            CreateShopButton(inner, "Close", 0, -190,
-                UIStyles.BTN_CLOSE, Hide);
-        }
-
-        private void CreateShopButton(GameObject parent, string label, float x, float y,
-            Color color, UnityEngine.Events.UnityAction onClick)
-        {
-            GameObject btnObj = new GameObject(label);
-            btnObj.transform.SetParent(parent.transform, false);
-
-            RectTransform btnRect = btnObj.AddComponent<RectTransform>();
-            btnRect.anchorMin = new Vector2(0.5f, 0.5f);
-            btnRect.anchorMax = new Vector2(0.5f, 0.5f);
-            btnRect.anchoredPosition = new Vector2(x, y);
-            btnRect.sizeDelta = UIStyles.SHOP_BUTTON_SIZE;
-
-            Image btnImg = btnObj.AddComponent<Image>();
-            btnImg.color = color;
-
-            Button btn = btnObj.AddComponent<Button>();
-            btn.targetGraphic = btnImg;
-            btn.onClick.AddListener(onClick);
-
-            GameObject textObj = new GameObject("Text");
-            textObj.transform.SetParent(btnObj.transform, false);
-            RectTransform textRect = textObj.AddComponent<RectTransform>();
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.sizeDelta = Vector2.zero;
-
-            TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = label;
-            tmp.fontSize = UIStyles.PANEL_BUTTON_TEXT_SIZE;
-            tmp.fontStyle = FontStyles.Bold;
-            tmp.color = UIStyles.TEXT_UI;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
-            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
-        }
-
-        private TextMeshProUGUI CreateText(GameObject parent, string text, float x, float y,
-            float size, FontStyles style, Color color)
-        {
-            GameObject textObj = new GameObject(text);
-            textObj.transform.SetParent(parent.transform, false);
-
-            RectTransform rect = textObj.AddComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = new Vector2(x, y);
-            rect.sizeDelta = new Vector2(350, 50);
-
-            TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = text;
-            tmp.fontSize = size;
-            tmp.fontStyle = style;
-            tmp.color = color;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
-            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
-
-            return tmp;
+            UIFactory.CreateButton(inner.transform, "Close", new Vector2(0, -190),
+                UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_CLOSE, UIStyles.PANEL_BUTTON_TEXT_SIZE, Hide);
         }
 
         private void OnWatchAdClicked()
@@ -154,17 +78,13 @@ namespace DogtorBurguer
 
         private void OnBuy100Clicked()
         {
-            // Placeholder for IAP
             Debug.Log("[Shop] IAP not implemented - would buy 100 gems for $0.99");
-            // For testing, grant the gems anyway
             SaveDataManager.Instance?.AddGems(100);
         }
 
         private void OnBuy500Clicked()
         {
-            // Placeholder for IAP
             Debug.Log("[Shop] IAP not implemented - would buy 500 gems for $3.99");
-            // For testing, grant the gems anyway
             SaveDataManager.Instance?.AddGems(500);
         }
     }

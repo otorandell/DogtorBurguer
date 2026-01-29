@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
 using TMPro;
 using DG.Tweening;
 
@@ -12,13 +10,9 @@ namespace DogtorBurguer
         private Canvas _canvas;
         private CanvasGroup _canvasGroup;
         private GameObject _panel;
-        private TextMeshProUGUI _titleText;
         private TextMeshProUGUI _scoreText;
         private TextMeshProUGUI _levelText;
         private Button _continueGemsButton;
-        private Button _continueAdButton;
-        private Button _restartButton;
-        private Button _menuButton;
         private GameObject _continueGemsObj;
         private GameObject _continueAdObj;
         private TextMeshProUGUI _continueGemsText;
@@ -36,147 +30,49 @@ namespace DogtorBurguer
 
         private void CreateUI()
         {
-            // Canvas
-            GameObject canvasObj = new GameObject("GameOver_Canvas");
-            canvasObj.transform.SetParent(transform);
-
-            _canvas = canvasObj.AddComponent<Canvas>();
-            _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _canvas.sortingOrder = 100;
-
-            CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = UIStyles.REFERENCE_RESOLUTION;
-            scaler.matchWidthOrHeight = UIStyles.MATCH_WIDTH_OR_HEIGHT;
-
-            canvasObj.AddComponent<GraphicRaycaster>();
-            _canvasGroup = canvasObj.AddComponent<CanvasGroup>();
-
-            // Ensure EventSystem exists for button input
-            if (FindAnyObjectByType<EventSystem>() == null)
-            {
-                GameObject eventSystemObj = new GameObject("EventSystem");
-                eventSystemObj.AddComponent<EventSystem>();
-                eventSystemObj.AddComponent<InputSystemUIInputModule>();
-            }
+            _canvas = UIFactory.CreateCanvas(transform, "GameOver_Canvas", 100);
+            _canvasGroup = _canvas.gameObject.AddComponent<CanvasGroup>();
+            UIFactory.EnsureEventSystem();
 
             // Dark overlay
-            GameObject overlay = new GameObject("Overlay");
-            overlay.transform.SetParent(canvasObj.transform, false);
-            RectTransform overlayRect = overlay.AddComponent<RectTransform>();
-            overlayRect.anchorMin = Vector2.zero;
-            overlayRect.anchorMax = Vector2.one;
-            overlayRect.sizeDelta = Vector2.zero;
-            Image overlayImg = overlay.AddComponent<Image>();
-            overlayImg.color = UIStyles.OVERLAY_DIM;
+            UIFactory.CreateOverlay(_canvas.transform, UIStyles.OVERLAY_DIM);
 
             // Panel
-            _panel = new GameObject("Panel");
-            _panel.transform.SetParent(canvasObj.transform, false);
-            RectTransform panelRect = _panel.AddComponent<RectTransform>();
-            panelRect.anchorMin = new Vector2(0.5f, 0.5f);
-            panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = UIStyles.GAMEOVER_PANEL_SIZE;
-            Image panelImg = _panel.AddComponent<Image>();
-            panelImg.color = UIStyles.PANEL_BG;
+            _panel = UIFactory.CreatePanel(_canvas.transform, UIStyles.GAMEOVER_PANEL_SIZE, UIStyles.PANEL_BG);
 
-            // Title
-            _titleText = CreatePanelText("GAME OVER", 0, 200, UIStyles.GAMEOVER_TITLE_SIZE, FontStyles.Bold);
+            // Title, score, level
+            UIFactory.CreateText(_panel.transform, "GAME OVER", new Vector2(0, 200), new Vector2(350, 50),
+                UIStyles.GAMEOVER_TITLE_SIZE, FontStyles.Bold);
 
-            // Score
-            _scoreText = CreatePanelText("Score: 0", 0, 140, UIStyles.PANEL_SCORE_SIZE, FontStyles.Normal);
+            _scoreText = UIFactory.CreateText(_panel.transform, "Score: 0", new Vector2(0, 140), new Vector2(350, 50),
+                UIStyles.PANEL_SCORE_SIZE);
 
-            // Level
-            _levelText = CreatePanelText("Level: 1", 0, 100, UIStyles.PANEL_LEVEL_SIZE, FontStyles.Normal);
+            _levelText = UIFactory.CreateText(_panel.transform, "Level: 1", new Vector2(0, 100), new Vector2(350, 50),
+                UIStyles.PANEL_LEVEL_SIZE);
 
             // Continue with gems button
-            _continueGemsObj = CreateButton("ContinueGemsBtn", 0, 30,
-                UIStyles.BTN_CONTINUE_GEMS, $"Continue ({Constants.CONTINUE_GEM_COST} gems)",
-                OnContinueGemsClicked, out _continueGemsButton, out _continueGemsText);
+            var gemsBtn = UIFactory.CreateButton(_panel.transform, $"Continue ({Constants.CONTINUE_GEM_COST} gems)",
+                new Vector2(0, 30), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CONTINUE_GEMS,
+                UIStyles.PANEL_BUTTON_TEXT_SIZE, OnContinueGemsClicked);
+            _continueGemsObj = gemsBtn.obj;
+            _continueGemsButton = gemsBtn.button;
+            _continueGemsText = gemsBtn.label;
 
             // Continue with ad button
-            _continueAdObj = CreateButton("ContinueAdBtn", 0, -45,
-                UIStyles.BTN_CONTINUE_AD, "Watch Ad to Continue",
-                OnContinueAdClicked, out _continueAdButton, out _);
+            var adBtn = UIFactory.CreateButton(_panel.transform, "Watch Ad to Continue",
+                new Vector2(0, -45), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CONTINUE_AD,
+                UIStyles.PANEL_BUTTON_TEXT_SIZE, OnContinueAdClicked);
+            _continueAdObj = adBtn.obj;
 
             // Restart button
-            CreateButton("RestartBtn", 0, -120,
-                UIStyles.BTN_RESTART, "Restart",
-                OnRestartClicked, out _restartButton, out _);
+            UIFactory.CreateButton(_panel.transform, "Restart",
+                new Vector2(0, -120), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_RESTART,
+                UIStyles.PANEL_BUTTON_TEXT_SIZE, OnRestartClicked);
 
             // Main Menu button
-            CreateButton("MenuBtn", 0, -195,
-                UIStyles.BTN_CLOSE, "Main Menu",
-                OnMenuClicked, out _menuButton, out _);
-        }
-
-        private GameObject CreateButton(string name, float x, float y, Color color, string label,
-            UnityEngine.Events.UnityAction onClick, out Button button, out TextMeshProUGUI text)
-        {
-            GameObject btnObj = new GameObject(name);
-            btnObj.transform.SetParent(_panel.transform, false);
-            RectTransform btnRect = btnObj.AddComponent<RectTransform>();
-            btnRect.anchorMin = new Vector2(0.5f, 0.5f);
-            btnRect.anchorMax = new Vector2(0.5f, 0.5f);
-            btnRect.anchoredPosition = new Vector2(x, y);
-            btnRect.sizeDelta = UIStyles.PANEL_BUTTON_SIZE;
-
-            Image btnImg = btnObj.AddComponent<Image>();
-            btnImg.color = color;
-
-            button = btnObj.AddComponent<Button>();
-            button.targetGraphic = btnImg;
-            button.onClick.AddListener(onClick);
-
-            text = CreateChildText(btnObj, label, 0, 0, UIStyles.PANEL_BUTTON_TEXT_SIZE, FontStyles.Bold);
-            text.color = UIStyles.TEXT_UI;
-
-            return btnObj;
-        }
-
-        private TextMeshProUGUI CreatePanelText(string text, float x, float y, float size, FontStyles style)
-        {
-            GameObject textObj = new GameObject(text);
-            textObj.transform.SetParent(_panel.transform, false);
-
-            RectTransform rect = textObj.AddComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = new Vector2(x, y);
-            rect.sizeDelta = new Vector2(350, 50);
-
-            TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = text;
-            tmp.fontSize = size;
-            tmp.fontStyle = style;
-            tmp.color = UIStyles.TEXT_UI;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
-            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
-
-            return tmp;
-        }
-
-        private TextMeshProUGUI CreateChildText(GameObject parent, string text, float x, float y, float size, FontStyles style)
-        {
-            GameObject textObj = new GameObject("Text");
-            textObj.transform.SetParent(parent.transform, false);
-
-            RectTransform rect = textObj.AddComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.sizeDelta = Vector2.zero;
-
-            TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = text;
-            tmp.fontSize = size;
-            tmp.fontStyle = style;
-            tmp.color = UIStyles.TEXT_UI;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
-            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
-
-            return tmp;
+            UIFactory.CreateButton(_panel.transform, "Main Menu",
+                new Vector2(0, -195), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CLOSE,
+                UIStyles.PANEL_BUTTON_TEXT_SIZE, OnMenuClicked);
         }
 
         private void HandleStateChanged(GameState state)
@@ -196,15 +92,12 @@ namespace DogtorBurguer
             _scoreText.text = $"Score: {score}";
             _levelText.text = $"Level: {level}";
 
-            // Update high score
             if (SaveDataManager.Instance != null)
                 SaveDataManager.Instance.SetHighScore(score);
 
-            // Show/hide continue buttons based on whether already used
             _continueGemsObj.SetActive(!_hasContinued);
             _continueAdObj.SetActive(!_hasContinued);
 
-            // Update gem button text with current balance
             if (!_hasContinued && SaveDataManager.Instance != null)
             {
                 int gems = SaveDataManager.Instance.Gems;
@@ -252,7 +145,6 @@ namespace DogtorBurguer
 
         private void OnRestartClicked()
         {
-            // Show interstitial if applicable
             if (SaveDataManager.Instance != null && SaveDataManager.Instance.ShouldShowInterstitial())
             {
                 AdManager.Instance?.ShowInterstitial(() =>

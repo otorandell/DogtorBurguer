@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 namespace DogtorBurguer
@@ -13,49 +12,32 @@ namespace DogtorBurguer
 
         private void Start()
         {
-            CreateCanvas();
+            _canvas = UIFactory.CreateCanvas(transform, "HUD_Canvas", 50);
             CreateHUDElements();
             SubscribeEvents();
             UpdateScore(0);
             UpdateLevel(1);
         }
 
-        private void CreateCanvas()
-        {
-            GameObject canvasObj = new GameObject("HUD_Canvas");
-            canvasObj.transform.SetParent(transform);
-
-            _canvas = canvasObj.AddComponent<Canvas>();
-            _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _canvas.sortingOrder = 50;
-
-            CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = UIStyles.REFERENCE_RESOLUTION;
-            scaler.matchWidthOrHeight = UIStyles.MATCH_WIDTH_OR_HEIGHT;
-
-            canvasObj.AddComponent<GraphicRaycaster>();
-        }
-
         private void CreateHUDElements()
         {
             float startY = -10f;
 
-            _scoreText = CreatePanelText("ScoreText", startY);
+            _scoreText = CreateHUDText("ScoreText", startY);
             _scoreText.fontSize = UIStyles.HUD_SCORE_SIZE;
             _scoreText.fontStyle = FontStyles.Bold;
 
-            _levelText = CreatePanelText("LevelText", startY - UIStyles.HUD_LINE_SPACING);
+            _levelText = CreateHUDText("LevelText", startY - UIStyles.HUD_LINE_SPACING);
             _levelText.fontSize = UIStyles.HUD_LEVEL_SIZE;
 
-            _gemText = CreatePanelText("GemText", startY - UIStyles.HUD_LINE_SPACING * 2);
+            _gemText = CreateHUDText("GemText", startY - UIStyles.HUD_LINE_SPACING * 2);
             _gemText.fontSize = UIStyles.HUD_GEM_SIZE;
             _gemText.color = UIStyles.TEXT_HUD;
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
             _gemText.text = $"Gems: {gems}";
         }
 
-        private TextMeshProUGUI CreatePanelText(string name, float yOffset)
+        private TextMeshProUGUI CreateHUDText(string name, float yOffset)
         {
             GameObject textObj = new GameObject(name);
             textObj.transform.SetParent(_canvas.transform, false);
@@ -70,7 +52,7 @@ namespace DogtorBurguer
             TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
             tmp.alignment = TextAlignmentOptions.Left;
             tmp.color = UIStyles.TEXT_HUD;
-            tmp.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
+            tmp.textWrappingMode = TextWrappingModes.NoWrap;
             tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
             tmp.outlineColor = UIStyles.OUTLINE_COLOR;
 

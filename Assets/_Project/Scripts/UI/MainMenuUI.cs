@@ -1,9 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
 using TMPro;
-using DG.Tweening;
 
 namespace DogtorBurguer
 {
@@ -14,32 +10,29 @@ namespace DogtorBurguer
         private TextMeshProUGUI _highScoreText;
         private ShopPanel _shopPanel;
         private SettingsPanel _settingsPanel;
-        private GameObject _creditsOverlay;
+        private UnityEngine.GameObject _creditsOverlay;
 
         private void Start()
         {
-            // Ensure SaveDataManager exists
+            // Ensure managers exist
             if (SaveDataManager.Instance == null)
             {
                 GameObject saveObj = new GameObject("SaveDataManager");
                 saveObj.AddComponent<SaveDataManager>();
             }
 
-            // Ensure AdManager exists
             if (AdManager.Instance == null)
             {
                 GameObject adObj = new GameObject("AdManager");
                 adObj.AddComponent<AdManager>();
             }
 
-            // Ensure MusicManager exists
             if (MusicManager.Instance == null)
             {
                 GameObject musicObj = new GameObject("MusicManager");
                 musicObj.AddComponent<MusicManager>();
             }
 
-            // Apply sound setting
             AudioListener.volume = SaveDataManager.Instance.SoundOn ? 1f : 0f;
             MusicManager.Instance?.ApplySoundSetting();
 
@@ -51,119 +44,49 @@ namespace DogtorBurguer
 
         private void CreateUI()
         {
-            // Canvas
-            GameObject canvasObj = new GameObject("Menu_Canvas");
-            canvasObj.transform.SetParent(transform);
-
-            _canvas = canvasObj.AddComponent<Canvas>();
-            _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _canvas.sortingOrder = 10;
-
-            CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = UIStyles.REFERENCE_RESOLUTION;
-            scaler.matchWidthOrHeight = UIStyles.MATCH_WIDTH_OR_HEIGHT;
-
-            canvasObj.AddComponent<GraphicRaycaster>();
-
-            // EventSystem
-            if (FindAnyObjectByType<EventSystem>() == null)
-            {
-                GameObject eventSystemObj = new GameObject("EventSystem");
-                eventSystemObj.AddComponent<EventSystem>();
-                eventSystemObj.AddComponent<InputSystemUIInputModule>();
-            }
+            _canvas = UIFactory.CreateCanvas(transform, "Menu_Canvas", 10);
+            UIFactory.EnsureEventSystem();
 
             // Title
-            CreateText(canvasObj, "Dogtor Burguer!", 0, 300, UIStyles.MENU_TITLE_SIZE, FontStyles.Bold, UIStyles.TEXT_HUD);
+            UIFactory.CreateText(_canvas.transform, "Dogtor Burguer!", new Vector2(0, 300), new Vector2(400, 60),
+                UIStyles.MENU_TITLE_SIZE, TMPro.FontStyles.Bold, UIStyles.TEXT_HUD);
 
             // High Score
             int highScore = SaveDataManager.Instance != null ? SaveDataManager.Instance.HighScore : 0;
-            _highScoreText = CreateText(canvasObj, $"Best: {highScore}", 0, 230, UIStyles.MENU_HIGHSCORE_SIZE, FontStyles.Normal, UIStyles.TEXT_HUD);
+            _highScoreText = UIFactory.CreateText(_canvas.transform, $"Best: {highScore}", new Vector2(0, 230), new Vector2(400, 60),
+                UIStyles.MENU_HIGHSCORE_SIZE, color: UIStyles.TEXT_HUD);
 
             // Gem counter (top-right)
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
-            _gemText = CreateText(canvasObj, $"Gems: {gems}", 0, 400, UIStyles.MENU_GEM_SIZE, FontStyles.Bold, UIStyles.TEXT_HUD);
+            _gemText = UIFactory.CreateText(_canvas.transform, $"Gems: {gems}", new Vector2(0, 400), new Vector2(200, 40),
+                UIStyles.MENU_GEM_SIZE, TMPro.FontStyles.Bold, UIStyles.TEXT_HUD);
             RectTransform gemRect = _gemText.GetComponent<RectTransform>();
             gemRect.anchorMin = new Vector2(1f, 1f);
             gemRect.anchorMax = new Vector2(1f, 1f);
             gemRect.pivot = new Vector2(1f, 1f);
             gemRect.anchoredPosition = new Vector2(-20, -20);
-            gemRect.sizeDelta = new Vector2(200, 40);
-            _gemText.alignment = TextAlignmentOptions.TopRight;
+            _gemText.alignment = TMPro.TextAlignmentOptions.TopRight;
 
             // Buttons
             float btnY = 80f;
+            UIFactory.CreateButton(_canvas.transform, "Play", new Vector2(0, btnY),
+                UIStyles.MENU_BUTTON_SIZE, UIStyles.BTN_PLAY, UIStyles.MENU_BUTTON_TEXT_SIZE, OnPlayClicked);
 
-            CreateMenuButton(canvasObj, "Play", btnY, UIStyles.BTN_PLAY, OnPlayClicked);
-            CreateMenuButton(canvasObj, "Shop", btnY + UIStyles.MENU_BUTTON_SPACING, UIStyles.BTN_SHOP, OnShopClicked);
-            CreateMenuButton(canvasObj, "Settings", btnY + UIStyles.MENU_BUTTON_SPACING * 2, UIStyles.BTN_SETTINGS, OnSettingsClicked);
-            CreateMenuButton(canvasObj, "Leaderboard", btnY + UIStyles.MENU_BUTTON_SPACING * 3, UIStyles.BTN_LEADERBOARD, OnLeaderboardClicked);
-            CreateMenuButton(canvasObj, "Credits", btnY + UIStyles.MENU_BUTTON_SPACING * 4, UIStyles.BTN_CLOSE, OnCreditsClicked);
+            UIFactory.CreateButton(_canvas.transform, "Shop", new Vector2(0, btnY + UIStyles.MENU_BUTTON_SPACING),
+                UIStyles.MENU_BUTTON_SIZE, UIStyles.BTN_SHOP, UIStyles.MENU_BUTTON_TEXT_SIZE, OnShopClicked);
 
-            // Create sub-panels (hidden initially)
+            UIFactory.CreateButton(_canvas.transform, "Settings", new Vector2(0, btnY + UIStyles.MENU_BUTTON_SPACING * 2),
+                UIStyles.MENU_BUTTON_SIZE, UIStyles.BTN_SETTINGS, UIStyles.MENU_BUTTON_TEXT_SIZE, OnSettingsClicked);
+
+            UIFactory.CreateButton(_canvas.transform, "Leaderboard", new Vector2(0, btnY + UIStyles.MENU_BUTTON_SPACING * 3),
+                UIStyles.MENU_BUTTON_SIZE, UIStyles.BTN_LEADERBOARD, UIStyles.MENU_BUTTON_TEXT_SIZE, OnLeaderboardClicked);
+
+            UIFactory.CreateButton(_canvas.transform, "Credits", new Vector2(0, btnY + UIStyles.MENU_BUTTON_SPACING * 4),
+                UIStyles.MENU_BUTTON_SIZE, UIStyles.BTN_CLOSE, UIStyles.MENU_BUTTON_TEXT_SIZE, OnCreditsClicked);
+
+            // Sub-panels
             _shopPanel = gameObject.AddComponent<ShopPanel>();
             _settingsPanel = gameObject.AddComponent<SettingsPanel>();
-        }
-
-        private TextMeshProUGUI CreateText(GameObject parent, string text, float x, float y,
-            float size, FontStyles style, Color color)
-        {
-            GameObject textObj = new GameObject(text);
-            textObj.transform.SetParent(parent.transform, false);
-
-            RectTransform rect = textObj.AddComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = new Vector2(x, y);
-            rect.sizeDelta = new Vector2(400, 60);
-
-            TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = text;
-            tmp.fontSize = size;
-            tmp.fontStyle = style;
-            tmp.color = color;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
-            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
-
-            return tmp;
-        }
-
-        private void CreateMenuButton(GameObject parent, string label, float y, Color color, UnityEngine.Events.UnityAction onClick)
-        {
-            GameObject btnObj = new GameObject($"{label}Button");
-            btnObj.transform.SetParent(parent.transform, false);
-
-            RectTransform btnRect = btnObj.AddComponent<RectTransform>();
-            btnRect.anchorMin = new Vector2(0.5f, 0.5f);
-            btnRect.anchorMax = new Vector2(0.5f, 0.5f);
-            btnRect.anchoredPosition = new Vector2(0, y);
-            btnRect.sizeDelta = UIStyles.MENU_BUTTON_SIZE;
-
-            Image btnImg = btnObj.AddComponent<Image>();
-            btnImg.color = color;
-
-            Button btn = btnObj.AddComponent<Button>();
-            btn.targetGraphic = btnImg;
-            btn.onClick.AddListener(onClick);
-
-            // Button text
-            GameObject textObj = new GameObject("Text");
-            textObj.transform.SetParent(btnObj.transform, false);
-            RectTransform textRect = textObj.AddComponent<RectTransform>();
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.sizeDelta = Vector2.zero;
-
-            TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = label;
-            tmp.fontSize = UIStyles.MENU_BUTTON_TEXT_SIZE;
-            tmp.fontStyle = FontStyles.Bold;
-            tmp.color = UIStyles.TEXT_UI;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
-            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
         }
 
         private void UpdateGemDisplay(int gems)
@@ -200,23 +123,15 @@ namespace DogtorBurguer
                 return;
             }
 
-            _creditsOverlay = new GameObject("Credits");
-            _creditsOverlay.transform.SetParent(_canvas.transform, false);
+            _creditsOverlay = UIFactory.CreateOverlay(_canvas.transform, UIStyles.OVERLAY_DARK);
 
-            RectTransform overlayRect = _creditsOverlay.AddComponent<RectTransform>();
-            overlayRect.anchorMin = Vector2.zero;
-            overlayRect.anchorMax = Vector2.one;
-            overlayRect.sizeDelta = Vector2.zero;
-
-            Image overlayImg = _creditsOverlay.AddComponent<Image>();
-            overlayImg.color = UIStyles.OVERLAY_DARK;
-
-            Button closeBtn = _creditsOverlay.AddComponent<Button>();
+            UnityEngine.UI.Button closeBtn = _creditsOverlay.AddComponent<UnityEngine.UI.Button>();
             closeBtn.onClick.AddListener(() => { Destroy(_creditsOverlay); _creditsOverlay = null; });
 
-            TextMeshProUGUI creditsTmp = CreateText(_creditsOverlay,
+            UIFactory.CreateText(_creditsOverlay.transform,
                 "Dogtor Burguer!\n\nA game by Oscar\n\nPowered by Unity\n\nTap to close",
-                0, 0, UIStyles.CREDITS_TEXT_SIZE, FontStyles.Normal, UIStyles.TEXT_UI);
+                Vector2.zero, new Vector2(400, 300),
+                UIStyles.CREDITS_TEXT_SIZE);
         }
 
         private void OnDestroy()
