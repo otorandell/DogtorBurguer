@@ -26,10 +26,10 @@ namespace DogtorBurguer
 
         [Header("Forced Bun Spawn")]
         [SerializeField] private bool _enableForcedBunSpawn = true;
-        [SerializeField] private float _forceBunMultiplier = 1.5f;
+        [SerializeField] private float _forceBunMultiplier = GameplayConfig.FORCED_BUN_MULTIPLIER;
 
         [Header("Wave Settings")]
-        [SerializeField] private float _initialDelay = 1.5f;
+        [SerializeField] private float _initialDelay = GameplayConfig.INITIAL_SPAWN_DELAY;
 
         private bool _isSpawning;
         private Dictionary<IngredientType, Sprite> _spriteMap;
@@ -205,11 +205,11 @@ namespace DogtorBurguer
         private int GetWaveSize()
         {
             // Always at least 2 (pairs)
-            // Triple chance scales with level (starts at level 8, up to 35% at level 20)
-            if (_currentLevel >= 8)
+            // Triple chance scales with level
+            if (_currentLevel >= GameplayConfig.TRIPLE_WAVE_START_LEVEL)
             {
-                float tripleT = (_currentLevel - 8f) / (Constants.MAX_LEVEL - 8f);
-                float tripleChance = tripleT * 0.35f;
+                float tripleT = (_currentLevel - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL) / (Constants.MAX_LEVEL - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL);
+                float tripleChance = tripleT * GameplayConfig.TRIPLE_WAVE_MAX_CHANCE;
                 if (Rng.Value < tripleChance) return 3;
             }
             return 2;
@@ -241,7 +241,7 @@ namespace DogtorBurguer
                     SpriteRenderer sr = preview.GetComponent<SpriteRenderer>();
                     if (sr != null)
                     {
-                        sr.DOFade(0.3f, 0.25f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+                        sr.DOFade(AnimConfig.PREVIEW_FADE_MIN, AnimConfig.PREVIEW_FADE_DURATION).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
                     }
                 }
             }
@@ -276,7 +276,7 @@ namespace DogtorBurguer
             SpriteRenderer sr = preview.AddComponent<SpriteRenderer>();
             sr.sprite = sprite;
             sr.sortingOrder = 90;
-            sr.color = new Color(1f, 1f, 1f, 0.8f);
+            sr.color = new Color(1f, 1f, 1f, AnimConfig.PREVIEW_INITIAL_ALPHA);
 
             return preview;
         }
@@ -314,7 +314,7 @@ namespace DogtorBurguer
                 return IngredientType.BunBottom;
 
             int bottomCount = CountBottomBunsOnGrid();
-            float topChance = Mathf.Min(0.5f + bottomCount * 0.08f, 0.8f);
+            float topChance = Mathf.Min(GameplayConfig.BUN_TOP_BASE_CHANCE + bottomCount * GameplayConfig.BUN_TOP_CHANCE_PER_BOTTOM, GameplayConfig.BUN_TOP_CHANCE_CAP);
             return Rng.Value < topChance ? IngredientType.BunTop : IngredientType.BunBottom;
         }
 
@@ -366,7 +366,7 @@ namespace DogtorBurguer
                 if (preview == null) continue;
 
                 float dist = Vector2.Distance(worldPos, preview.transform.position);
-                if (dist < Constants.CELL_WIDTH * 0.7f)
+                if (dist < Constants.CELL_WIDTH * GameplayConfig.PREVIEW_TAP_RADIUS_MULT)
                 {
                     // Spawn this preview's ingredient
                     var (type, colIdx) = _nextWaveData[i];
@@ -402,7 +402,7 @@ namespace DogtorBurguer
                 if (ingredient == null || ingredient.IsLanded) continue;
 
                 float dist = Vector2.Distance(worldPos, ingredient.transform.position);
-                if (dist < Constants.CELL_WIDTH * 0.6f)
+                if (dist < Constants.CELL_WIDTH * GameplayConfig.FALLING_TAP_RADIUS_MULT)
                 {
                     ingredient.FastDrop();
                     AudioManager.Instance?.PlayFastDrop();

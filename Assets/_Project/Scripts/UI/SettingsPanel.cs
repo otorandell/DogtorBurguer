@@ -43,7 +43,7 @@ namespace DogtorBurguer
             panelRect.sizeDelta = Vector2.zero;
 
             Image bgImg = _panel.AddComponent<Image>();
-            bgImg.color = new Color(0, 0, 0, 0.85f);
+            bgImg.color = UIStyles.OVERLAY_DARK;
 
             // Inner panel
             GameObject inner = new GameObject("Inner");
@@ -51,12 +51,12 @@ namespace DogtorBurguer
             RectTransform innerRect = inner.AddComponent<RectTransform>();
             innerRect.anchorMin = new Vector2(0.5f, 0.5f);
             innerRect.anchorMax = new Vector2(0.5f, 0.5f);
-            innerRect.sizeDelta = new Vector2(350, 350);
+            innerRect.sizeDelta = UIStyles.SETTINGS_PANEL_SIZE;
             Image innerImg = inner.AddComponent<Image>();
-            innerImg.color = new Color(0.18f, 0.18f, 0.25f, 1f);
+            innerImg.color = UIStyles.INNER_PANEL_BG;
 
             // Title
-            CreateText(inner, "Settings", 0, 130, 36, FontStyles.Bold, Color.white);
+            CreateText(inner, "Settings", 0, 130, UIStyles.PANEL_TITLE_SIZE, FontStyles.Bold, UIStyles.TEXT_UI);
 
             // Sound toggle button
             CreateSettingsButton(inner, 0, 50, OnSoundToggleClicked, out _soundLabel);
@@ -73,10 +73,10 @@ namespace DogtorBurguer
             closeRect.anchorMin = new Vector2(0.5f, 0.5f);
             closeRect.anchorMax = new Vector2(0.5f, 0.5f);
             closeRect.anchoredPosition = new Vector2(0, -110);
-            closeRect.sizeDelta = new Vector2(200, 50);
+            closeRect.sizeDelta = UIStyles.CLOSE_BUTTON_SIZE;
 
             Image closeImg = closeObj.AddComponent<Image>();
-            closeImg.color = new Color(0.5f, 0.5f, 0.5f);
+            closeImg.color = UIStyles.BTN_CLOSE;
 
             Button closeBtn = closeObj.AddComponent<Button>();
             closeBtn.targetGraphic = closeImg;
@@ -90,12 +90,12 @@ namespace DogtorBurguer
             closeTextRect.sizeDelta = Vector2.zero;
             TextMeshProUGUI closeTmp = closeTextObj.AddComponent<TextMeshProUGUI>();
             closeTmp.text = "Close";
-            closeTmp.fontSize = 22;
+            closeTmp.fontSize = UIStyles.SETTINGS_BUTTON_TEXT_SIZE;
             closeTmp.fontStyle = FontStyles.Bold;
-            closeTmp.color = Color.white;
+            closeTmp.color = UIStyles.TEXT_UI;
             closeTmp.alignment = TextAlignmentOptions.Center;
-            closeTmp.outlineWidth = 0.2f;
-            closeTmp.outlineColor = new Color32(0, 0, 0, 255);
+            closeTmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            closeTmp.outlineColor = UIStyles.OUTLINE_COLOR;
         }
 
         private void CreateSettingsButton(GameObject parent, float x, float y,
@@ -108,10 +108,10 @@ namespace DogtorBurguer
             btnRect.anchorMin = new Vector2(0.5f, 0.5f);
             btnRect.anchorMax = new Vector2(0.5f, 0.5f);
             btnRect.anchoredPosition = new Vector2(x, y);
-            btnRect.sizeDelta = new Vector2(280, 55);
+            btnRect.sizeDelta = UIStyles.SETTINGS_BUTTON_SIZE;
 
             Image btnImg = btnObj.AddComponent<Image>();
-            btnImg.color = new Color(0.3f, 0.5f, 0.7f);
+            btnImg.color = UIStyles.BTN_SETTINGS_TOGGLE;
 
             Button btn = btnObj.AddComponent<Button>();
             btn.targetGraphic = btnImg;
@@ -125,12 +125,12 @@ namespace DogtorBurguer
             textRect.sizeDelta = Vector2.zero;
 
             label = textObj.AddComponent<TextMeshProUGUI>();
-            label.fontSize = 22;
+            label.fontSize = UIStyles.SETTINGS_BUTTON_TEXT_SIZE;
             label.fontStyle = FontStyles.Bold;
-            label.color = Color.white;
+            label.color = UIStyles.TEXT_UI;
             label.alignment = TextAlignmentOptions.Center;
-            label.outlineWidth = 0.2f;
-            label.outlineColor = new Color32(0, 0, 0, 255);
+            label.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            label.outlineColor = UIStyles.OUTLINE_COLOR;
         }
 
         private TextMeshProUGUI CreateText(GameObject parent, string text, float x, float y,
@@ -151,8 +151,8 @@ namespace DogtorBurguer
             tmp.fontStyle = style;
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = 0.2f;
-            tmp.outlineColor = new Color32(0, 0, 0, 255);
+            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
 
             return tmp;
         }

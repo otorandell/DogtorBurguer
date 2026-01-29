@@ -17,10 +17,10 @@ namespace DogtorBurguer
             // Create sprite
             _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             _spriteRenderer.sortingOrder = 100;
-            _spriteRenderer.color = new Color(1f, 0.85f, 0f); // Gold color
+            _spriteRenderer.color = UIStyles.BTN_GEM_PACK;
 
             // Create a simple diamond shape via scale
-            transform.localScale = Vector3.one * 0.5f;
+            transform.localScale = Vector3.one * AnimConfig.GEM_START_SCALE;
 
             // Add collider for tap detection
             CircleCollider2D col = gameObject.AddComponent<CircleCollider2D>();
@@ -50,7 +50,7 @@ namespace DogtorBurguer
                 .SetEase(Ease.Linear);
 
             // Pulse scale
-            transform.DOScale(Vector3.one * 0.6f, 0.4f)
+            transform.DOScale(Vector3.one * AnimConfig.GEM_PULSE_MAX_SCALE, AnimConfig.GEM_PULSE_DURATION)
                 .SetLoops(-1, LoopType.Yoyo)
                 .SetEase(Ease.InOutSine);
         }
@@ -76,8 +76,8 @@ namespace DogtorBurguer
             DOTween.Kill(transform);
 
             Sequence seq = DOTween.Sequence();
-            seq.Append(transform.DOScale(Vector3.one * 1.2f, 0.15f).SetEase(Ease.OutBack));
-            seq.Append(transform.DOScale(Vector3.zero, 0.2f).SetEase(Ease.InBack));
+            seq.Append(transform.DOScale(Vector3.one * AnimConfig.GEM_COLLECT_SCALE_UP, AnimConfig.GEM_COLLECT_SCALE_UP_DURATION).SetEase(Ease.OutBack));
+            seq.Append(transform.DOScale(Vector3.zero, AnimConfig.GEM_COLLECT_SCALE_DOWN_DURATION).SetEase(Ease.InBack));
             seq.OnComplete(() => Destroy(gameObject));
         }
 

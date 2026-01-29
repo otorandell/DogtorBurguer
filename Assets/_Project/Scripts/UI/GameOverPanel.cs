@@ -46,8 +46,8 @@ namespace DogtorBurguer
 
             CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(540, 960);
-            scaler.matchWidthOrHeight = 0.5f;
+            scaler.referenceResolution = UIStyles.REFERENCE_RESOLUTION;
+            scaler.matchWidthOrHeight = UIStyles.MATCH_WIDTH_OR_HEIGHT;
 
             canvasObj.AddComponent<GraphicRaycaster>();
             _canvasGroup = canvasObj.AddComponent<CanvasGroup>();
@@ -68,45 +68,45 @@ namespace DogtorBurguer
             overlayRect.anchorMax = Vector2.one;
             overlayRect.sizeDelta = Vector2.zero;
             Image overlayImg = overlay.AddComponent<Image>();
-            overlayImg.color = new Color(0, 0, 0, 0.7f);
+            overlayImg.color = UIStyles.OVERLAY_DIM;
 
-            // Panel (taller to fit more buttons)
+            // Panel
             _panel = new GameObject("Panel");
             _panel.transform.SetParent(canvasObj.transform, false);
             RectTransform panelRect = _panel.AddComponent<RectTransform>();
             panelRect.anchorMin = new Vector2(0.5f, 0.5f);
             panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(400, 500);
+            panelRect.sizeDelta = UIStyles.GAMEOVER_PANEL_SIZE;
             Image panelImg = _panel.AddComponent<Image>();
-            panelImg.color = new Color(0.15f, 0.15f, 0.2f, 0.95f);
+            panelImg.color = UIStyles.PANEL_BG;
 
             // Title
-            _titleText = CreatePanelText("GAME OVER", 0, 200, 42, FontStyles.Bold);
+            _titleText = CreatePanelText("GAME OVER", 0, 200, UIStyles.GAMEOVER_TITLE_SIZE, FontStyles.Bold);
 
             // Score
-            _scoreText = CreatePanelText("Score: 0", 0, 140, 30, FontStyles.Normal);
+            _scoreText = CreatePanelText("Score: 0", 0, 140, UIStyles.PANEL_SCORE_SIZE, FontStyles.Normal);
 
             // Level
-            _levelText = CreatePanelText("Level: 1", 0, 100, 24, FontStyles.Normal);
+            _levelText = CreatePanelText("Level: 1", 0, 100, UIStyles.PANEL_LEVEL_SIZE, FontStyles.Normal);
 
             // Continue with gems button
             _continueGemsObj = CreateButton("ContinueGemsBtn", 0, 30,
-                new Color(0.9f, 0.7f, 0.1f, 1f), $"Continue ({Constants.CONTINUE_GEM_COST} gems)",
+                UIStyles.BTN_CONTINUE_GEMS, $"Continue ({Constants.CONTINUE_GEM_COST} gems)",
                 OnContinueGemsClicked, out _continueGemsButton, out _continueGemsText);
 
             // Continue with ad button
             _continueAdObj = CreateButton("ContinueAdBtn", 0, -45,
-                new Color(0.3f, 0.5f, 0.9f, 1f), "Watch Ad to Continue",
+                UIStyles.BTN_CONTINUE_AD, "Watch Ad to Continue",
                 OnContinueAdClicked, out _continueAdButton, out _);
 
             // Restart button
             CreateButton("RestartBtn", 0, -120,
-                new Color(0.2f, 0.7f, 0.3f, 1f), "Restart",
+                UIStyles.BTN_RESTART, "Restart",
                 OnRestartClicked, out _restartButton, out _);
 
             // Main Menu button
             CreateButton("MenuBtn", 0, -195,
-                new Color(0.5f, 0.5f, 0.5f, 1f), "Main Menu",
+                UIStyles.BTN_CLOSE, "Main Menu",
                 OnMenuClicked, out _menuButton, out _);
         }
 
@@ -119,7 +119,7 @@ namespace DogtorBurguer
             btnRect.anchorMin = new Vector2(0.5f, 0.5f);
             btnRect.anchorMax = new Vector2(0.5f, 0.5f);
             btnRect.anchoredPosition = new Vector2(x, y);
-            btnRect.sizeDelta = new Vector2(320, 55);
+            btnRect.sizeDelta = UIStyles.PANEL_BUTTON_SIZE;
 
             Image btnImg = btnObj.AddComponent<Image>();
             btnImg.color = color;
@@ -128,8 +128,8 @@ namespace DogtorBurguer
             button.targetGraphic = btnImg;
             button.onClick.AddListener(onClick);
 
-            text = CreateChildText(btnObj, label, 0, 0, 20, FontStyles.Bold);
-            text.color = Color.white;
+            text = CreateChildText(btnObj, label, 0, 0, UIStyles.PANEL_BUTTON_TEXT_SIZE, FontStyles.Bold);
+            text.color = UIStyles.TEXT_UI;
 
             return btnObj;
         }
@@ -149,10 +149,10 @@ namespace DogtorBurguer
             tmp.text = text;
             tmp.fontSize = size;
             tmp.fontStyle = style;
-            tmp.color = Color.white;
+            tmp.color = UIStyles.TEXT_UI;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = 0.2f;
-            tmp.outlineColor = new Color32(0, 0, 0, 255);
+            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
 
             return tmp;
         }
@@ -171,10 +171,10 @@ namespace DogtorBurguer
             tmp.text = text;
             tmp.fontSize = size;
             tmp.fontStyle = style;
-            tmp.color = Color.white;
+            tmp.color = UIStyles.TEXT_UI;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = 0.2f;
-            tmp.outlineColor = new Color32(0, 0, 0, 255);
+            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
 
             return tmp;
         }
@@ -214,11 +214,11 @@ namespace DogtorBurguer
 
             _canvas.gameObject.SetActive(true);
             _canvasGroup.alpha = 0;
-            _panel.transform.localScale = Vector3.one * 0.5f;
+            _panel.transform.localScale = Vector3.one * AnimConfig.GAMEOVER_START_SCALE;
 
             DOTween.Sequence()
-                .Append(DOTween.To(() => _canvasGroup.alpha, x => _canvasGroup.alpha = x, 1f, 0.3f))
-                .Join(_panel.transform.DOScale(1f, 0.4f).SetEase(Ease.OutBack))
+                .Append(DOTween.To(() => _canvasGroup.alpha, x => _canvasGroup.alpha = x, 1f, AnimConfig.GAMEOVER_FADE_DURATION))
+                .Join(_panel.transform.DOScale(1f, AnimConfig.GAMEOVER_SCALE_DURATION).SetEase(Ease.OutBack))
                 .SetUpdate(true);
         }
 

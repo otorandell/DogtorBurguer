@@ -52,13 +52,13 @@ namespace DogtorBurguer
 
             if (_type == BackgroundType.Menu)
             {
-                topColor = new Color(0.08f, 0.06f, 0.18f);
-                bottomColor = new Color(0.18f, 0.08f, 0.25f);
+                topColor = UIStyles.BG_MENU_TOP;
+                bottomColor = UIStyles.BG_MENU_BOTTOM;
             }
             else
             {
-                topColor = new Color(0.04f, 0.08f, 0.14f);
-                bottomColor = new Color(0.06f, 0.14f, 0.18f);
+                topColor = UIStyles.BG_GAME_TOP;
+                bottomColor = UIStyles.BG_GAME_BOTTOM;
             }
 
             for (int y = 0; y < height; y++)

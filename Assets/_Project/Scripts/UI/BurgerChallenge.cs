@@ -37,6 +37,10 @@ namespace DogtorBurguer
         private SpriteRenderer _meterFill;
         private GameObject _displayRoot;
 
+        // Cached meter positions
+        private float _meterX = 0.9f;
+        private float _meterY = -0.2f;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -77,22 +81,19 @@ namespace DogtorBurguer
             nameObj.transform.SetParent(_displayRoot.transform, false);
             nameObj.transform.localPosition = new Vector3(0f, 1.05f, 0f);
             _nameText = nameObj.AddComponent<TMPro.TextMeshPro>();
-            _nameText.fontSize = 2.2f;
-            _nameText.color = Color.white;
+            _nameText.fontSize = UIStyles.WORLD_CHALLENGE_NAME_SIZE;
+            _nameText.color = UIStyles.TEXT_UI;
             _nameText.alignment = TMPro.TextAlignmentOptions.Center;
             _nameText.sortingOrder = _sortingOrder + 1;
-            _nameText.outlineWidth = 0.2f;
-            _nameText.outlineColor = new Color32(0, 0, 0, 255);
+            _nameText.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            _nameText.outlineColor = UIStyles.OUTLINE_COLOR;
             RectTransform nameRect = _nameText.GetComponent<RectTransform>();
             nameRect.sizeDelta = new Vector2(2.2f, 0.5f);
 
             // Meter background
-            float meterX = 0.9f;
-            float meterY = -0.2f;
-
             GameObject meterBgObj = new GameObject("MeterBg");
             meterBgObj.transform.SetParent(_displayRoot.transform, false);
-            meterBgObj.transform.localPosition = new Vector3(meterX, meterY, 0f);
+            meterBgObj.transform.localPosition = new Vector3(_meterX, _meterY, 0f);
             _meterBg = meterBgObj.AddComponent<SpriteRenderer>();
             _meterBg.sprite = GenerateRectSprite();
             _meterBg.color = _meterBgColor;
@@ -102,26 +103,26 @@ namespace DogtorBurguer
             // Meter fill
             GameObject meterFillObj = new GameObject("MeterFill");
             meterFillObj.transform.SetParent(_displayRoot.transform, false);
-            meterFillObj.transform.localPosition = new Vector3(meterX, meterY - _meterHeight * 0.5f, 0f);
+            meterFillObj.transform.localPosition = new Vector3(_meterX, _meterY - _meterHeight * 0.5f, 0f);
             _meterFill = meterFillObj.AddComponent<SpriteRenderer>();
             _meterFill.sprite = GenerateRectSprite();
             _meterFill.color = _meterFillColor;
             _meterFill.sortingOrder = _sortingOrder + 1;
             meterFillObj.transform.localScale = new Vector3(_meterWidth, 0f, 1f);
             // Pivot at bottom: offset the sprite renderer
-            _meterFill.transform.localPosition = new Vector3(meterX, meterY - _meterHeight * 0.5f, 0f);
+            _meterFill.transform.localPosition = new Vector3(_meterX, _meterY - _meterHeight * 0.5f, 0f);
 
             // Level text
             GameObject levelObj = new GameObject("ChallengeLevel");
             levelObj.transform.SetParent(_displayRoot.transform, false);
-            levelObj.transform.localPosition = new Vector3(meterX, meterY - _meterHeight * 0.5f - 0.2f, 0f);
+            levelObj.transform.localPosition = new Vector3(_meterX, _meterY - _meterHeight * 0.5f - 0.2f, 0f);
             _levelText = levelObj.AddComponent<TMPro.TextMeshPro>();
-            _levelText.fontSize = 2f;
-            _levelText.color = Color.white;
+            _levelText.fontSize = UIStyles.WORLD_CHALLENGE_LEVEL_SIZE;
+            _levelText.color = UIStyles.TEXT_UI;
             _levelText.alignment = TMPro.TextAlignmentOptions.Center;
             _levelText.sortingOrder = _sortingOrder + 1;
-            _levelText.outlineWidth = 0.2f;
-            _levelText.outlineColor = new Color32(0, 0, 0, 255);
+            _levelText.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            _levelText.outlineColor = UIStyles.OUTLINE_COLOR;
             RectTransform levelRect = _levelText.GetComponent<RectTransform>();
             levelRect.sizeDelta = new Vector2(1f, 0.4f);
         }
@@ -142,8 +143,7 @@ namespace DogtorBurguer
             }
 
             // Generate a unique combination (no repeats until all exhausted)
-            int maxAttempts = 200;
-            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            for (int attempt = 0; attempt < GameplayConfig.CHALLENGE_COMBO_MAX_ATTEMPTS; attempt++)
             {
                 _targetIngredients.Clear();
                 for (int i = 0; i < targetCount; i++)
@@ -160,7 +160,7 @@ namespace DogtorBurguer
                 }
 
                 // All combinations exhausted, reset and accept this one
-                if (attempt == maxAttempts - 1)
+                if (attempt == GameplayConfig.CHALLENGE_COMBO_MAX_ATTEMPTS - 1)
                 {
                     _usedCombinations.Clear();
                     _usedCombinations.Add(key);
@@ -193,7 +193,7 @@ namespace DogtorBurguer
 
         private int GetTargetIngredientCount()
         {
-            return Mathf.Min(5, _challengeLevel);
+            return Mathf.Min(GameplayConfig.MAX_CHALLENGE_INGREDIENTS, _challengeLevel);
         }
 
         private int GetActiveIngredientCount()
@@ -278,7 +278,7 @@ namespace DogtorBurguer
 
             bool isMatch = CheckMatch(ingredients);
             int globalMult = GetGlobalMultiplier();
-            int challengeMult = isMatch ? 3 : 1;
+            int challengeMult = isMatch ? GameplayConfig.CHALLENGE_MATCH_MULTIPLIER : 1;
             int finalPoints = basePoints * globalMult * challengeMult;
 
             // Award the extra score (beyond base already given)
@@ -290,8 +290,8 @@ namespace DogtorBurguer
             if (globalMult > 1 || isMatch)
             {
                 string multText = $"x{globalMult * challengeMult}";
-                Color textColor = isMatch ? new Color(1f, 0.85f, 0f) : Color.white;
-                FloatingText.Spawn(pos + Vector3.up * 0.5f, multText, textColor, 4f);
+                Color textColor = isMatch ? UIStyles.GOLD : UIStyles.TEXT_UI;
+                FloatingText.Spawn(pos + Vector3.up * 0.5f, multText, textColor, UIStyles.WORLD_FLOATING_TEXT_SIZE);
             }
 
             if (isMatch)
@@ -333,7 +333,7 @@ namespace DogtorBurguer
 
         public int GetGlobalMultiplier()
         {
-            return 1 + (_challengeLevel - 1) * 5;
+            return 1 + (_challengeLevel - 1) * GameplayConfig.CHALLENGE_GLOBAL_MULT_PER_LEVEL;
         }
 
         private void LevelUp()
@@ -350,32 +350,28 @@ namespace DogtorBurguer
         {
             if (_meterFill == null) yield break;
 
-            float meterX = 0.9f;
-            float meterY = -0.2f;
-
             // Fill meter to 100%
-            float fullBottom = meterY - _meterHeight * 0.5f + _meterHeight * 0.5f;
-            _meterFill.transform.DOLocalMove(new Vector3(meterX, fullBottom, 0f), 0.15f).SetEase(Ease.OutQuad);
-            _meterFill.transform.DOScale(new Vector3(_meterWidth, _meterHeight, 1f), 0.15f).SetEase(Ease.OutQuad);
-            yield return new WaitForSeconds(0.15f);
+            float fullBottom = _meterY - _meterHeight * 0.5f + _meterHeight * 0.5f;
+            _meterFill.transform.DOLocalMove(new Vector3(_meterX, fullBottom, 0f), AnimConfig.LEVELUP_FILL_DURATION).SetEase(Ease.OutQuad);
+            _meterFill.transform.DOScale(new Vector3(_meterWidth, _meterHeight, 1f), AnimConfig.LEVELUP_FILL_DURATION).SetEase(Ease.OutQuad);
+            yield return new WaitForSeconds(AnimConfig.LEVELUP_FILL_DURATION);
 
             // Flash gold and punch scale
             Color originalColor = _meterFillColor;
-            Color gold = new Color(1f, 0.85f, 0f, 1f);
-            _meterFill.color = gold;
-            _meterFill.transform.DOPunchScale(Vector3.one * 0.15f, 0.3f, 6);
-            _meterBg.transform.DOPunchScale(Vector3.one * 0.1f, 0.3f, 6);
-            _levelText.transform.DOPunchScale(Vector3.one * 0.4f, 0.4f);
+            _meterFill.color = UIStyles.GOLD;
+            _meterFill.transform.DOPunchScale(Vector3.one * AnimConfig.LEVELUP_PUNCH_SCALE, AnimConfig.LEVELUP_PUNCH_DURATION, 6);
+            _meterBg.transform.DOPunchScale(Vector3.one * AnimConfig.LEVELUP_BG_PUNCH_SCALE, AnimConfig.LEVELUP_PUNCH_DURATION, 6);
+            _levelText.transform.DOPunchScale(Vector3.one * AnimConfig.LEVELUP_TEXT_PUNCH_SCALE, AnimConfig.LEVELUP_TEXT_PUNCH_DURATION);
 
-            yield return new WaitForSeconds(0.35f);
+            yield return new WaitForSeconds(AnimConfig.LEVELUP_HOLD);
 
             // Fade back to normal color and shrink to 0
-            _meterFill.DOColor(originalColor, 0.2f);
-            float emptyBottom = meterY - _meterHeight * 0.5f;
-            _meterFill.transform.DOLocalMove(new Vector3(meterX, emptyBottom, 0f), 0.25f).SetEase(Ease.InQuad);
-            _meterFill.transform.DOScale(new Vector3(_meterWidth, 0f, 1f), 0.25f).SetEase(Ease.InQuad);
+            _meterFill.DOColor(originalColor, AnimConfig.LEVELUP_FADE_COLOR_DURATION);
+            float emptyBottom = _meterY - _meterHeight * 0.5f;
+            _meterFill.transform.DOLocalMove(new Vector3(_meterX, emptyBottom, 0f), AnimConfig.LEVELUP_SHRINK_DURATION).SetEase(Ease.InQuad);
+            _meterFill.transform.DOScale(new Vector3(_meterWidth, 0f, 1f), AnimConfig.LEVELUP_SHRINK_DURATION).SetEase(Ease.InQuad);
 
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(AnimConfig.LEVELUP_WAIT);
 
             GenerateNewChallenge();
         }
@@ -388,11 +384,9 @@ namespace DogtorBurguer
             if (_meterFill != null)
             {
                 // Scale Y to fill amount, position at bottom of meter
-                float meterX = 0.9f;
-                float meterY = -0.2f;
-                float bottomY = meterY - _meterHeight * 0.5f + fillHeight * 0.5f;
+                float bottomY = _meterY - _meterHeight * 0.5f + fillHeight * 0.5f;
 
-                _meterFill.transform.localPosition = new Vector3(meterX, bottomY, 0f);
+                _meterFill.transform.localPosition = new Vector3(_meterX, bottomY, 0f);
                 _meterFill.transform.localScale = new Vector3(_meterWidth, fillHeight, 1f);
             }
         }
@@ -413,7 +407,7 @@ namespace DogtorBurguer
                 if (sr != null)
                 {
                     Color original = sr.color;
-                    sr.color = new Color(1f, 0.85f, 0f);
+                    sr.color = UIStyles.GOLD;
                     sr.DOColor(original, 0.4f);
                 }
             }

@@ -61,8 +61,8 @@ namespace DogtorBurguer
 
             CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(540, 960);
-            scaler.matchWidthOrHeight = 0.5f;
+            scaler.referenceResolution = UIStyles.REFERENCE_RESOLUTION;
+            scaler.matchWidthOrHeight = UIStyles.MATCH_WIDTH_OR_HEIGHT;
 
             canvasObj.AddComponent<GraphicRaycaster>();
 
@@ -75,15 +75,15 @@ namespace DogtorBurguer
             }
 
             // Title
-            CreateText(canvasObj, "Dogtor Burguer!", 0, 300, 48, FontStyles.Bold, Color.black);
+            CreateText(canvasObj, "Dogtor Burguer!", 0, 300, UIStyles.MENU_TITLE_SIZE, FontStyles.Bold, UIStyles.TEXT_HUD);
 
             // High Score
             int highScore = SaveDataManager.Instance != null ? SaveDataManager.Instance.HighScore : 0;
-            _highScoreText = CreateText(canvasObj, $"Best: {highScore}", 0, 230, 24, FontStyles.Normal, Color.black);
+            _highScoreText = CreateText(canvasObj, $"Best: {highScore}", 0, 230, UIStyles.MENU_HIGHSCORE_SIZE, FontStyles.Normal, UIStyles.TEXT_HUD);
 
             // Gem counter (top-right)
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
-            _gemText = CreateText(canvasObj, $"Gems: {gems}", 0, 400, 22, FontStyles.Bold, Color.black);
+            _gemText = CreateText(canvasObj, $"Gems: {gems}", 0, 400, UIStyles.MENU_GEM_SIZE, FontStyles.Bold, UIStyles.TEXT_HUD);
             RectTransform gemRect = _gemText.GetComponent<RectTransform>();
             gemRect.anchorMin = new Vector2(1f, 1f);
             gemRect.anchorMax = new Vector2(1f, 1f);
@@ -94,13 +94,12 @@ namespace DogtorBurguer
 
             // Buttons
             float btnY = 80f;
-            float btnSpacing = -85f;
 
-            CreateMenuButton(canvasObj, "Play", btnY, new Color(0.2f, 0.8f, 0.3f), OnPlayClicked);
-            CreateMenuButton(canvasObj, "Shop", btnY + btnSpacing, new Color(0.9f, 0.7f, 0.1f), OnShopClicked);
-            CreateMenuButton(canvasObj, "Settings", btnY + btnSpacing * 2, new Color(0.4f, 0.6f, 0.9f), OnSettingsClicked);
-            CreateMenuButton(canvasObj, "Leaderboard", btnY + btnSpacing * 3, new Color(0.6f, 0.4f, 0.8f), OnLeaderboardClicked);
-            CreateMenuButton(canvasObj, "Credits", btnY + btnSpacing * 4, new Color(0.5f, 0.5f, 0.5f), OnCreditsClicked);
+            CreateMenuButton(canvasObj, "Play", btnY, UIStyles.BTN_PLAY, OnPlayClicked);
+            CreateMenuButton(canvasObj, "Shop", btnY + UIStyles.MENU_BUTTON_SPACING, UIStyles.BTN_SHOP, OnShopClicked);
+            CreateMenuButton(canvasObj, "Settings", btnY + UIStyles.MENU_BUTTON_SPACING * 2, UIStyles.BTN_SETTINGS, OnSettingsClicked);
+            CreateMenuButton(canvasObj, "Leaderboard", btnY + UIStyles.MENU_BUTTON_SPACING * 3, UIStyles.BTN_LEADERBOARD, OnLeaderboardClicked);
+            CreateMenuButton(canvasObj, "Credits", btnY + UIStyles.MENU_BUTTON_SPACING * 4, UIStyles.BTN_CLOSE, OnCreditsClicked);
 
             // Create sub-panels (hidden initially)
             _shopPanel = gameObject.AddComponent<ShopPanel>();
@@ -125,8 +124,8 @@ namespace DogtorBurguer
             tmp.fontStyle = style;
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = 0.2f;
-            tmp.outlineColor = new Color32(0, 0, 0, 255);
+            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
 
             return tmp;
         }
@@ -140,7 +139,7 @@ namespace DogtorBurguer
             btnRect.anchorMin = new Vector2(0.5f, 0.5f);
             btnRect.anchorMax = new Vector2(0.5f, 0.5f);
             btnRect.anchoredPosition = new Vector2(0, y);
-            btnRect.sizeDelta = new Vector2(300, 65);
+            btnRect.sizeDelta = UIStyles.MENU_BUTTON_SIZE;
 
             Image btnImg = btnObj.AddComponent<Image>();
             btnImg.color = color;
@@ -159,12 +158,12 @@ namespace DogtorBurguer
 
             TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
             tmp.text = label;
-            tmp.fontSize = 28;
+            tmp.fontSize = UIStyles.MENU_BUTTON_TEXT_SIZE;
             tmp.fontStyle = FontStyles.Bold;
-            tmp.color = Color.white;
+            tmp.color = UIStyles.TEXT_UI;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = 0.2f;
-            tmp.outlineColor = new Color32(0, 0, 0, 255);
+            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
         }
 
         private void UpdateGemDisplay(int gems)
@@ -210,14 +209,14 @@ namespace DogtorBurguer
             overlayRect.sizeDelta = Vector2.zero;
 
             Image overlayImg = _creditsOverlay.AddComponent<Image>();
-            overlayImg.color = new Color(0, 0, 0, 0.85f);
+            overlayImg.color = UIStyles.OVERLAY_DARK;
 
             Button closeBtn = _creditsOverlay.AddComponent<Button>();
             closeBtn.onClick.AddListener(() => { Destroy(_creditsOverlay); _creditsOverlay = null; });
 
             TextMeshProUGUI creditsTmp = CreateText(_creditsOverlay,
                 "Dogtor Burguer!\n\nA game by Oscar\n\nPowered by Unity\n\nTap to close",
-                0, 0, 24, FontStyles.Normal, Color.white);
+                0, 0, UIStyles.CREDITS_TEXT_SIZE, FontStyles.Normal, UIStyles.TEXT_UI);
         }
 
         private void OnDestroy()

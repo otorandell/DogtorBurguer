@@ -31,29 +31,26 @@ namespace DogtorBurguer
 
             CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(540, 960);
-            scaler.matchWidthOrHeight = 0.5f;
+            scaler.referenceResolution = UIStyles.REFERENCE_RESOLUTION;
+            scaler.matchWidthOrHeight = UIStyles.MATCH_WIDTH_OR_HEIGHT;
 
             canvasObj.AddComponent<GraphicRaycaster>();
         }
 
         private void CreateHUDElements()
         {
-            // All HUD text inside the top-left panel
-            // Panel in viewport: X 0.04-0.48, Y 0.69-0.95
             float startY = -10f;
-            float lineSpacing = 40f;
 
             _scoreText = CreatePanelText("ScoreText", startY);
-            _scoreText.fontSize = 22;
+            _scoreText.fontSize = UIStyles.HUD_SCORE_SIZE;
             _scoreText.fontStyle = FontStyles.Bold;
 
-            _levelText = CreatePanelText("LevelText", startY - lineSpacing);
-            _levelText.fontSize = 18;
+            _levelText = CreatePanelText("LevelText", startY - UIStyles.HUD_LINE_SPACING);
+            _levelText.fontSize = UIStyles.HUD_LEVEL_SIZE;
 
-            _gemText = CreatePanelText("GemText", startY - lineSpacing * 2);
-            _gemText.fontSize = 16;
-            _gemText.color = Color.black;
+            _gemText = CreatePanelText("GemText", startY - UIStyles.HUD_LINE_SPACING * 2);
+            _gemText.fontSize = UIStyles.HUD_GEM_SIZE;
+            _gemText.color = UIStyles.TEXT_HUD;
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
             _gemText.text = $"Gems: {gems}";
         }
@@ -64,7 +61,6 @@ namespace DogtorBurguer
             textObj.transform.SetParent(_canvas.transform, false);
 
             RectTransform rect = textObj.AddComponent<RectTransform>();
-            // Anchor near top of the top-left panel region
             rect.anchorMin = new Vector2(0.06f, 0.93f);
             rect.anchorMax = new Vector2(0.46f, 0.93f);
             rect.pivot = new Vector2(0f, 1f);
@@ -73,10 +69,10 @@ namespace DogtorBurguer
 
             TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
             tmp.alignment = TextAlignmentOptions.Left;
-            tmp.color = Color.black;
+            tmp.color = UIStyles.TEXT_HUD;
             tmp.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
-            tmp.outlineWidth = 0.2f;
-            tmp.outlineColor = new Color32(0, 0, 0, 255);
+            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
 
             return tmp;
         }

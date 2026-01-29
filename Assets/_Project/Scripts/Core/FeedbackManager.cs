@@ -10,20 +10,6 @@ namespace DogtorBurguer
         [SerializeField] private GridManager _gridManager;
         [SerializeField] private Camera _mainCamera;
 
-        [Header("Score Popup")]
-        [SerializeField] private Color _matchColor = Color.yellow;
-        [SerializeField] private Color _burgerColor = new Color(1f, 0.5f, 0f); // Orange
-        [SerializeField] private float _popupFontSize = 5f;
-
-        [Header("Screen Shake")]
-        [SerializeField] private float _matchShakeStrength = 0.15f;
-        [SerializeField] private float _burgerShakeStrength = 0.3f;
-        [SerializeField] private float _shakeDuration = 0.2f;
-
-        [Header("Screen Flash")]
-        [SerializeField] private Color _flashColor = new Color(1f, 1f, 1f, 0.6f);
-        [SerializeField] private float _flashDuration = 0.3f;
-
         private Tween _shakeTween;
         private Vector3 _cameraOriginalPos;
         private SpriteRenderer _flashRenderer;
@@ -85,14 +71,14 @@ namespace DogtorBurguer
 
         private void HandleMatchEffect(Vector3 position, int points)
         {
-            SpawnScorePopup(position, points, _matchColor);
-            ShakeCamera(_matchShakeStrength);
+            SpawnScorePopup(position, points, UIStyles.SCORE_POPUP);
+            ShakeCamera(AnimConfig.MATCH_SHAKE_STRENGTH);
         }
 
         private void HandleBurgerEffect(Vector3 position, int points, string burgerName, int ingredientCount)
         {
             SpawnBurgerPopup(position, points, burgerName);
-            ShakeCamera(_burgerShakeStrength);
+            ShakeCamera(AnimConfig.BURGER_SHAKE_STRENGTH);
             FlashScreen();
         }
 
@@ -102,13 +88,13 @@ namespace DogtorBurguer
             popupObj.transform.position = position;
 
             TextMeshPro tmp = popupObj.AddComponent<TextMeshPro>();
-            tmp.fontSize = _popupFontSize;
+            tmp.fontSize = UIStyles.WORLD_SCORE_POPUP_SIZE;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.textWrappingMode = TextWrappingModes.NoWrap;
             tmp.overflowMode = TextOverflowModes.Overflow;
             tmp.sortingOrder = 100;
-            tmp.outlineWidth = 0.25f;
-            tmp.outlineColor = new Color32(0, 0, 0, 255);
+            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_WORLD;
+            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
             tmp.rectTransform.sizeDelta = new Vector2(4f, 2f);
 
             ScorePopup popup = popupObj.AddComponent<ScorePopup>();
@@ -121,7 +107,7 @@ namespace DogtorBurguer
             popupObj.transform.position = position + Vector3.up * 0.5f;
 
             BurgerPopup popup = popupObj.AddComponent<BurgerPopup>();
-            popup.Initialize(burgerName, points, _burgerColor);
+            popup.Initialize(burgerName, points, UIStyles.BURGER_POPUP);
         }
 
         private void FlashScreen()
@@ -129,8 +115,8 @@ namespace DogtorBurguer
             if (_flashRenderer == null) return;
 
             DOTween.Kill(_flashRenderer);
-            _flashRenderer.color = _flashColor;
-            _flashRenderer.DOColor(Color.clear, _flashDuration).SetEase(Ease.OutQuad);
+            _flashRenderer.color = UIStyles.SCREEN_FLASH;
+            _flashRenderer.DOColor(Color.clear, AnimConfig.SCREEN_FLASH_DURATION).SetEase(Ease.OutQuad);
         }
 
         private void ShakeCamera(float strength)
@@ -138,7 +124,7 @@ namespace DogtorBurguer
             _shakeTween?.Kill();
             _mainCamera.transform.position = _cameraOriginalPos;
             _shakeTween = _mainCamera.transform
-                .DOShakePosition(_shakeDuration, strength, 10, 90, false)
+                .DOShakePosition(AnimConfig.SCREEN_SHAKE_DURATION, strength, 10, 90, false)
                 .OnComplete(() => _mainCamera.transform.position = _cameraOriginalPos);
         }
 

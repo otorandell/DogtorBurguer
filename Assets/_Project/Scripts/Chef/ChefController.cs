@@ -6,16 +6,14 @@ namespace DogtorBurguer
     public class ChefController : MonoBehaviour
     {
         [Header("Settings")]
-        [SerializeField] private float _moveSpeed = 0.15f;
+        [SerializeField] private float _moveSpeed = AnimConfig.CHEF_MOVE_DURATION;
         [SerializeField] private int _startPosition = 1; // Middle position
 
         [Header("Visual")]
         [SerializeField] private SpriteRenderer _spriteRenderer;
 
         [Header("Position Bubbles")]
-        [SerializeField] private float _bubbleRadius = 0.5f;
-        [SerializeField] private Color _bubbleColor = new Color(1f, 1f, 1f, 0.25f);
-        [SerializeField] private Color _bubbleActiveColor = new Color(1f, 1f, 1f, 0.45f);
+        [SerializeField] private float _bubbleRadius = UIStyles.BUBBLE_RADIUS;
 
         private int _currentPosition; // 0, 1, or 2 (between column pairs)
         private bool _isMoving;
@@ -103,7 +101,7 @@ namespace DogtorBurguer
 
             // 2D Flip effect - 180 degree rotation on Y axis
             _isFlipped = !_isFlipped;
-            _flipTween = transform.DORotate(new Vector3(0, targetY, 0), 0.2f)
+            _flipTween = transform.DORotate(new Vector3(0, targetY, 0), AnimConfig.CHEF_FLIP_DURATION)
                 .SetEase(Ease.InOutQuad);
 
             // Tell GridManager to swap with wave effect
@@ -145,7 +143,7 @@ namespace DogtorBurguer
 
             for (int i = 0; i < _bubbleRenderers.Length; i++)
             {
-                _bubbleRenderers[i].color = (i == _currentPosition) ? _bubbleActiveColor : _bubbleColor;
+                _bubbleRenderers[i].color = (i == _currentPosition) ? UIStyles.BUBBLE_ACTIVE : UIStyles.BUBBLE_INACTIVE;
             }
         }
 

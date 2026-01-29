@@ -42,7 +42,7 @@ namespace DogtorBurguer
 
             // Dark background
             Image bgImg = _panel.AddComponent<Image>();
-            bgImg.color = new Color(0, 0, 0, 0.85f);
+            bgImg.color = UIStyles.OVERLAY_DARK;
 
             // Inner panel
             GameObject inner = new GameObject("Inner");
@@ -50,32 +50,32 @@ namespace DogtorBurguer
             RectTransform innerRect = inner.AddComponent<RectTransform>();
             innerRect.anchorMin = new Vector2(0.5f, 0.5f);
             innerRect.anchorMax = new Vector2(0.5f, 0.5f);
-            innerRect.sizeDelta = new Vector2(380, 420);
+            innerRect.sizeDelta = UIStyles.SHOP_PANEL_SIZE;
             Image innerImg = inner.AddComponent<Image>();
-            innerImg.color = new Color(0.18f, 0.18f, 0.25f, 1f);
+            innerImg.color = UIStyles.INNER_PANEL_BG;
 
             // Title
-            CreateText(inner, "Shop", 0, 160, 36, FontStyles.Bold, new Color(1f, 0.85f, 0f));
+            CreateText(inner, "Shop", 0, 160, UIStyles.PANEL_TITLE_SIZE, FontStyles.Bold, UIStyles.GOLD);
 
             // Gem balance
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
-            CreateText(inner, $"Your gems: {gems}", 0, 110, 22, FontStyles.Normal, Color.white);
+            CreateText(inner, $"Your gems: {gems}", 0, 110, UIStyles.SETTINGS_BUTTON_TEXT_SIZE, FontStyles.Normal, UIStyles.TEXT_UI);
 
             // Watch Ad button
             CreateShopButton(inner, "Watch Ad (+25 gems)", 0, 40,
-                new Color(0.3f, 0.5f, 0.9f), OnWatchAdClicked);
+                UIStyles.BTN_SHOP_AD, OnWatchAdClicked);
 
             // Buy 100 gems
             CreateShopButton(inner, "Buy 100 gems - $0.99", 0, -40,
-                new Color(0.2f, 0.7f, 0.3f), OnBuy100Clicked);
+                UIStyles.BTN_SHOP_BUY, OnBuy100Clicked);
 
             // Buy 500 gems
             CreateShopButton(inner, "Buy 500 gems - $3.99", 0, -120,
-                new Color(0.2f, 0.7f, 0.3f), OnBuy500Clicked);
+                UIStyles.BTN_SHOP_BUY, OnBuy500Clicked);
 
             // Close button
             CreateShopButton(inner, "Close", 0, -190,
-                new Color(0.5f, 0.5f, 0.5f), Hide);
+                UIStyles.BTN_CLOSE, Hide);
         }
 
         private void CreateShopButton(GameObject parent, string label, float x, float y,
@@ -88,7 +88,7 @@ namespace DogtorBurguer
             btnRect.anchorMin = new Vector2(0.5f, 0.5f);
             btnRect.anchorMax = new Vector2(0.5f, 0.5f);
             btnRect.anchoredPosition = new Vector2(x, y);
-            btnRect.sizeDelta = new Vector2(300, 55);
+            btnRect.sizeDelta = UIStyles.SHOP_BUTTON_SIZE;
 
             Image btnImg = btnObj.AddComponent<Image>();
             btnImg.color = color;
@@ -106,12 +106,12 @@ namespace DogtorBurguer
 
             TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
             tmp.text = label;
-            tmp.fontSize = 20;
+            tmp.fontSize = UIStyles.PANEL_BUTTON_TEXT_SIZE;
             tmp.fontStyle = FontStyles.Bold;
-            tmp.color = Color.white;
+            tmp.color = UIStyles.TEXT_UI;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = 0.2f;
-            tmp.outlineColor = new Color32(0, 0, 0, 255);
+            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
         }
 
         private TextMeshProUGUI CreateText(GameObject parent, string text, float x, float y,
@@ -132,8 +132,8 @@ namespace DogtorBurguer
             tmp.fontStyle = style;
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = 0.2f;
-            tmp.outlineColor = new Color32(0, 0, 0, 255);
+            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
 
             return tmp;
         }

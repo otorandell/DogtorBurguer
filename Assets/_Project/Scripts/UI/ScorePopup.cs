@@ -8,9 +8,6 @@ namespace DogtorBurguer
     {
         [SerializeField] private TextMeshPro _text;
 
-        private const float RISE_DISTANCE = 1.5f;
-        private const float DURATION = 0.8f;
-
         public void Initialize(int points, Color color)
         {
             if (_text == null)
@@ -25,12 +22,12 @@ namespace DogtorBurguer
 
         private void Animate()
         {
-            Vector3 targetPos = transform.position + Vector3.up * RISE_DISTANCE;
+            Vector3 targetPos = transform.position + Vector3.up * AnimConfig.POPUP_RISE_DISTANCE;
 
             Sequence seq = DOTween.Sequence();
-            seq.Append(transform.DOMove(targetPos, DURATION).SetEase(Ease.OutCubic));
-            seq.Join(DOTween.To(() => _text.alpha, x => _text.alpha = x, 0f, DURATION).SetEase(Ease.InQuad));
-            seq.Join(transform.DOScale(0.8f, DURATION).SetEase(Ease.InQuad));
+            seq.Append(transform.DOMove(targetPos, AnimConfig.POPUP_DURATION).SetEase(Ease.OutCubic));
+            seq.Join(DOTween.To(() => _text.alpha, x => _text.alpha = x, 0f, AnimConfig.POPUP_DURATION).SetEase(Ease.InQuad));
+            seq.Join(transform.DOScale(0.8f, AnimConfig.POPUP_DURATION).SetEase(Ease.InQuad));
             seq.OnComplete(() => Destroy(gameObject));
         }
     }

@@ -138,7 +138,7 @@ namespace DogtorBurguer
             _currentTween?.Kill();
             transform.localScale = Vector3.one;
             _currentTween = transform
-                .DOPunchScale(new Vector3(0.2f, -0.2f, 0), 0.2f, 5, 0.5f);
+                .DOPunchScale(new Vector3(AnimConfig.LAND_PUNCH_SCALE, -AnimConfig.LAND_PUNCH_SCALE, 0), AnimConfig.LAND_PUNCH_DURATION, AnimConfig.LAND_PUNCH_VIBRATO, AnimConfig.LAND_PUNCH_ELASTICITY);
 
             // Notify grid manager
             GridManager.Instance?.OnIngredientLanded(this);
@@ -151,7 +151,7 @@ namespace DogtorBurguer
 
             _currentTween?.Kill();
             _currentTween = transform
-                .DOMove(targetPos, 0.15f)
+                .DOMove(targetPos, AnimConfig.COLLAPSE_DURATION)
                 .SetEase(Ease.OutBounce);
         }
 
@@ -161,7 +161,7 @@ namespace DogtorBurguer
 
             _currentTween?.Kill();
             _currentTween = transform
-                .DOMove(targetPos, 0.2f)
+                .DOMove(targetPos, AnimConfig.MOVE_TO_POSITION_DURATION)
                 .SetEase(Ease.OutBack);
         }
 
@@ -176,7 +176,7 @@ namespace DogtorBurguer
 
             Sequence seq = DOTween.Sequence();
             seq.SetDelay(delay);
-            seq.Append(transform.DOPunchScale(new Vector3(0.15f, -0.15f, 0), 0.2f, 4, 0.5f));
+            seq.Append(transform.DOPunchScale(new Vector3(AnimConfig.WAVE_PUNCH_SCALE, -AnimConfig.WAVE_PUNCH_SCALE, 0), AnimConfig.WAVE_PUNCH_DURATION, AnimConfig.WAVE_PUNCH_VIBRATO, AnimConfig.LAND_PUNCH_ELASTICITY));
             _waveTween = seq;
         }
 
@@ -193,8 +193,8 @@ namespace DogtorBurguer
 
             Sequence seq = DOTween.Sequence();
             seq.SetDelay(delay);
-            seq.Append(transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutBack));
-            seq.Join(transform.DOPunchScale(new Vector3(0.15f, -0.15f, 0), 0.25f, 4, 0.5f));
+            seq.Append(transform.DOMove(targetPos, AnimConfig.WAVE_MOVE_DURATION).SetEase(Ease.OutBack));
+            seq.Join(transform.DOPunchScale(new Vector3(AnimConfig.WAVE_PUNCH_SCALE, -AnimConfig.WAVE_PUNCH_SCALE, 0), AnimConfig.WAVE_COMBINED_PUNCH_DURATION, AnimConfig.WAVE_PUNCH_VIBRATO, AnimConfig.LAND_PUNCH_ELASTICITY));
             _waveTween = seq;
         }
 
@@ -235,24 +235,24 @@ namespace DogtorBurguer
             float distanceToLand = transform.position.y - landingY;
 
             // Award points based on distance
-            int points = Mathf.RoundToInt(distanceToLand * 2f);
+            int points = Mathf.RoundToInt(distanceToLand * GameplayConfig.FAST_DROP_POINTS_PER_UNIT);
             if (points > 0)
             {
                 GameManager.Instance?.AddExtraScore(points);
-                FloatingText.Spawn(transform.position, $"+{points}", Color.cyan, 3f);
+                FloatingText.Spawn(transform.position, $"+{points}", UIStyles.TEXT_FAST_DROP, 3f);
             }
 
             // Cancel current fall and drop fast
             _currentTween?.Kill();
             Vector3 targetPos = new Vector3(transform.position.x, landingY, transform.position.z);
             _currentTween = transform
-                .DOMove(targetPos, 0.08f)
+                .DOMove(targetPos, AnimConfig.FAST_DROP_DURATION)
                 .SetEase(Ease.InQuad)
                 .OnComplete(() => Land());
 
             // Visual: brief stretch effect
-            transform.DOScaleY(1.4f, 0.04f).OnComplete(() =>
-                transform.DOScaleY(1f, 0.04f));
+            transform.DOScaleY(AnimConfig.FAST_DROP_STRETCH_Y, AnimConfig.FAST_DROP_STRETCH_DURATION).OnComplete(() =>
+                transform.DOScaleY(1f, AnimConfig.FAST_DROP_STRETCH_DURATION));
         }
 
         public void DestroyWithAnimation()
@@ -265,8 +265,8 @@ namespace DogtorBurguer
 
             Sequence seq = DOTween.Sequence();
             seq.SetTarget(gameObject);
-            seq.Append(transform.DOScale(Vector3.zero, 0.2f).SetEase(Ease.InBack));
-            seq.Join(transform.DORotate(new Vector3(0, 0, 180), 0.2f, RotateMode.FastBeyond360));
+            seq.Append(transform.DOScale(Vector3.zero, AnimConfig.DESTROY_SPIN_DURATION).SetEase(Ease.InBack));
+            seq.Join(transform.DORotate(new Vector3(0, 0, 180), AnimConfig.DESTROY_SPIN_DURATION, RotateMode.FastBeyond360));
             seq.OnComplete(() =>
             {
                 if (this != null && gameObject != null)
@@ -286,13 +286,13 @@ namespace DogtorBurguer
             Sequence seq = DOTween.Sequence();
             seq.SetTarget(gameObject);
             // Blink twice (visible -> invisible -> visible -> invisible -> visible)
-            seq.Append(_spriteRenderer.DOColor(Color.clear, 0.04f));
-            seq.Append(_spriteRenderer.DOColor(Color.white, 0.04f));
-            seq.Append(_spriteRenderer.DOColor(Color.clear, 0.04f));
-            seq.Append(_spriteRenderer.DOColor(Color.white, 0.04f));
+            seq.Append(_spriteRenderer.DOColor(Color.clear, AnimConfig.FLASH_BLINK_DURATION));
+            seq.Append(_spriteRenderer.DOColor(Color.white, AnimConfig.FLASH_BLINK_DURATION));
+            seq.Append(_spriteRenderer.DOColor(Color.clear, AnimConfig.FLASH_BLINK_DURATION));
+            seq.Append(_spriteRenderer.DOColor(Color.white, AnimConfig.FLASH_BLINK_DURATION));
             // Scale out and spin
-            seq.Append(transform.DOScale(Vector3.zero, 0.15f).SetEase(Ease.InBack));
-            seq.Join(transform.DORotate(new Vector3(0, 0, 180), 0.15f, RotateMode.FastBeyond360));
+            seq.Append(transform.DOScale(Vector3.zero, AnimConfig.FLASH_SCALE_OUT_DURATION).SetEase(Ease.InBack));
+            seq.Join(transform.DORotate(new Vector3(0, 0, 180), AnimConfig.FLASH_SCALE_OUT_DURATION, RotateMode.FastBeyond360));
             seq.OnComplete(() =>
             {
                 if (this != null && gameObject != null)

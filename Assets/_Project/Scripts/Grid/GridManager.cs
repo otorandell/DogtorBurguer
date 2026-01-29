@@ -100,7 +100,7 @@ namespace DogtorBurguer
                     Vector3 pos = ingredient.transform.position;
                     column.RemoveIngredient(ingredient);
                     ingredient.DestroyWithFlash();
-                    FloatingText.Spawn(pos, "Too bad!", Color.red, 4f);
+                    FloatingText.Spawn(pos, "Too bad!", UIStyles.TEXT_TOO_BAD, UIStyles.WORLD_FLOATING_TEXT_SIZE);
                     return;
                 }
             }
@@ -152,7 +152,7 @@ namespace DogtorBurguer
                 if (isBunMatch)
                 {
                     // Bottom buns cancel each other - no score
-                    FloatingText.Spawn(effectPos, "Too bad!", Color.red, 4f);
+                    FloatingText.Spawn(effectPos, "Too bad!", UIStyles.TEXT_TOO_BAD, UIStyles.WORLD_FLOATING_TEXT_SIZE);
                 }
                 else
                 {
@@ -251,9 +251,8 @@ namespace DogtorBurguer
             Ingredient bottomBun = burgerParts[burgerParts.Count - 1];
             Vector3 bottomBunPos = bottomBun.transform.position;
 
-            float stepDuration = 0.12f;
-            float travelSpacing = Constants.CELL_VISUAL_HEIGHT * 0.2f;
-            float smackSpacing = Constants.CELL_VISUAL_HEIGHT * 0.15f;
+            float travelSpacing = Constants.CELL_VISUAL_HEIGHT * AnimConfig.COMPRESS_TRAVEL_SPACING_MULT;
+            float smackSpacing = Constants.CELL_VISUAL_HEIGHT * AnimConfig.COMPRESS_SMACK_SPACING_MULT;
 
             // Group of ingredients being pushed down (starts with just the top bun)
             List<Ingredient> movingGroup = new List<Ingredient> { burgerParts[0] };
@@ -279,8 +278,6 @@ namespace DogtorBurguer
 
             // Pitch scaling: total squeeze steps = middle ingredients + 1 (smack)
             int totalSteps = burgerParts.Count - 1; // all steps including smack
-            float pitchStart = 0.6f;
-            float pitchEnd = 1.8f;
             int stepIndex = 0;
 
             // Push through each ingredient until reaching the bottom bun
@@ -295,20 +292,20 @@ namespace DogtorBurguer
                 {
                     if (movingGroup[g] == null) continue;
                     Vector3 dest = targetPos + Vector3.up * ((movingGroup.Count - g) * travelSpacing);
-                    movingGroup[g].transform.DOMove(dest, stepDuration).SetEase(Ease.InQuad);
+                    movingGroup[g].transform.DOMove(dest, AnimConfig.COMPRESS_STEP_DURATION).SetEase(Ease.InQuad);
                 }
-                yield return new WaitForSeconds(stepDuration);
+                yield return new WaitForSeconds(AnimConfig.COMPRESS_STEP_DURATION);
 
                 // This ingredient joins the moving group
                 movingGroup.Add(target);
 
                 // Squeeze sound with rising pitch
-                float pitch = Mathf.Lerp(pitchStart, pitchEnd, (float)stepIndex / (totalSteps - 1));
+                float pitch = Mathf.Lerp(AnimConfig.COMPRESS_PITCH_START, AnimConfig.COMPRESS_PITCH_END, (float)stepIndex / (totalSteps - 1));
                 AudioManager.Instance?.PlaySqueeze(pitch);
                 stepIndex++;
 
                 // Pause between each compress step
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(AnimConfig.COMPRESS_PAUSE);
             }
 
             // Group moves down to bottom bun with travel spacing
@@ -316,20 +313,20 @@ namespace DogtorBurguer
             {
                 if (movingGroup[g] == null) continue;
                 Vector3 dest = bottomBunPos + Vector3.up * ((movingGroup.Count - g) * travelSpacing);
-                movingGroup[g].transform.DOMove(dest, stepDuration).SetEase(Ease.InQuad);
+                movingGroup[g].transform.DOMove(dest, AnimConfig.COMPRESS_STEP_DURATION).SetEase(Ease.InQuad);
             }
-            yield return new WaitForSeconds(stepDuration);
+            yield return new WaitForSeconds(AnimConfig.COMPRESS_STEP_DURATION);
 
             // Smack: highest pitch
-            float smackPitch = Mathf.Lerp(pitchStart, pitchEnd, (float)stepIndex / (totalSteps - 1));
+            float smackPitch = Mathf.Lerp(AnimConfig.COMPRESS_PITCH_START, AnimConfig.COMPRESS_PITCH_END, (float)stepIndex / (totalSteps - 1));
             AudioManager.Instance?.PlaySqueeze(smackPitch);
             for (int g = 0; g < movingGroup.Count; g++)
             {
                 if (movingGroup[g] == null) continue;
                 Vector3 dest = bottomBunPos + Vector3.up * ((movingGroup.Count - g) * smackSpacing);
-                movingGroup[g].transform.DOMove(dest, 0.08f).SetEase(Ease.InBack);
+                movingGroup[g].transform.DOMove(dest, AnimConfig.COMPRESS_SMACK_DURATION).SetEase(Ease.InBack);
             }
-            yield return new WaitForSeconds(0.08f);
+            yield return new WaitForSeconds(AnimConfig.COMPRESS_SMACK_DURATION);
 
             // Destroy all burger parts at once
             foreach (var part in burgerParts)
@@ -423,7 +420,7 @@ namespace DogtorBurguer
             float thresholdY = Mathf.Max(
                 colA.GetNextLandingPosition().y,
                 colB.GetNextLandingPosition().y
-            ) + (Constants.CELL_VISUAL_HEIGHT * 0.2f);
+            ) + (Constants.CELL_VISUAL_HEIGHT * GameplayConfig.SWAP_THRESHOLD_BUFFER_MULT);
 
             // Swap all stacked ingredients
             List<Ingredient> ingredientsA = colA.TakeAllIngredients();
@@ -432,18 +429,15 @@ namespace DogtorBurguer
             colA.SetAllIngredients(ingredientsB);
             colB.SetAllIngredients(ingredientsA);
 
-            // Wave delay settings
-            const float waveDelayPerRow = 0.04f;
-
             // Animate with wave effect - stagger by row (bottom to top)
             foreach (var ing in ingredientsA)
             {
-                float delay = ing.CurrentRow * waveDelayPerRow;
+                float delay = ing.CurrentRow * GameplayConfig.SWAP_WAVE_DELAY_PER_ROW;
                 ing.AnimateToCurrentPositionWithWave(delay);
             }
             foreach (var ing in ingredientsB)
             {
-                float delay = ing.CurrentRow * waveDelayPerRow;
+                float delay = ing.CurrentRow * GameplayConfig.SWAP_WAVE_DELAY_PER_ROW;
                 ing.AnimateToCurrentPositionWithWave(delay);
             }
 
@@ -468,7 +462,7 @@ namespace DogtorBurguer
             }
 
             // Check for matches and burgers after swap (with slight delay for animation)
-            float maxDelay = Mathf.Max(ingredientsA.Count, ingredientsB.Count) * waveDelayPerRow + 0.3f;
+            float maxDelay = Mathf.Max(ingredientsA.Count, ingredientsB.Count) * GameplayConfig.SWAP_WAVE_DELAY_PER_ROW + GameplayConfig.SWAP_POST_ANIM_DELAY;
             StartCoroutine(DelayedMatchCheck(colA, colB, maxDelay));
         }
 
@@ -496,11 +490,10 @@ namespace DogtorBurguer
             if (colA == null || colB == null) return;
 
             // Get the Y threshold - falling ingredients below this level get swapped too
-            // Use the higher of the two column tops + 20% buffer for forgiveness
             float thresholdY = Mathf.Max(
                 colA.GetNextLandingPosition().y,
                 colB.GetNextLandingPosition().y
-            ) + (Constants.CELL_VISUAL_HEIGHT * 0.2f);
+            ) + (Constants.CELL_VISUAL_HEIGHT * GameplayConfig.SWAP_THRESHOLD_BUFFER_MULT);
 
             // Swap all stacked ingredients
             List<Ingredient> ingredientsA = colA.TakeAllIngredients();
@@ -524,7 +517,6 @@ namespace DogtorBurguer
             {
                 if (falling == null || falling.IsLanded) continue;
 
-                // Only swap if the ingredient is below the threshold Y
                 if (falling.CurrentY <= thresholdY)
                 {
                     if (falling.CurrentColumn == colA)

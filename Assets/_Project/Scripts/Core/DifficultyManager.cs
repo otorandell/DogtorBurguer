@@ -8,12 +8,6 @@ namespace DogtorBurguer
         [SerializeField] private IngredientSpawner _spawner;
         [SerializeField] private GridManager _gridManager;
 
-        // Ingredients placed required to reach each level (1-20)
-        private static readonly int[] LevelThresholds = {
-            0, 3, 7, 12, 18, 25, 33, 42, 52, 64,
-            77, 91, 106, 122, 139, 157, 176, 196, 217, 239
-        };
-
         private int _currentLevel = 1;
         private int _ingredientsPlaced;
 
@@ -55,9 +49,9 @@ namespace DogtorBurguer
         private void EvaluateLevel()
         {
             int newLevel = 1;
-            for (int i = LevelThresholds.Length - 1; i >= 0; i--)
+            for (int i = GameplayConfig.LEVEL_THRESHOLDS.Length - 1; i >= 0; i--)
             {
-                if (_ingredientsPlaced >= LevelThresholds[i])
+                if (_ingredientsPlaced >= GameplayConfig.LEVEL_THRESHOLDS[i])
                 {
                     newLevel = i + 1;
                     break;
