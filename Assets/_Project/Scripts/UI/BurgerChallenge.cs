@@ -16,21 +16,27 @@ namespace DogtorBurguer
         [SerializeField] private float _ingredientScale = 1.0f;
         [SerializeField] private int _sortingOrder = 60;
 
+        [Header("Placeholder")]
+        [SerializeField] private Sprite _spritePlaceholder;
+
         [Header("Meter")]
         [SerializeField] private float _meterWidth = 0.2f;
         [SerializeField] private float _meterHeight = 1.6f;
         [SerializeField] private Color _meterBgColor = new Color(0.2f, 0.2f, 0.2f, 0.8f);
         [SerializeField] private Color _meterFillColor = new Color(0.2f, 0.9f, 0.3f, 1f);
 
+        private enum OrderType { Size, Contains }
+
+        private OrderType _orderType;
+        private int _requiredSize;
         private List<IngredientType> _targetIngredients = new List<IngredientType>();
         private int _challengeLevel = 1;
         private int _challengeProgress;
         private string _challengeName;
-        private HashSet<string> _usedCombinations = new HashSet<string>();
-        private int _lastTargetCount = -1;
 
         // Visual elements
         private List<GameObject> _burgerVisuals = new List<GameObject>();
+        private TMPro.TextMeshPro _titleText;
         private TMPro.TextMeshPro _nameText;
         private TMPro.TextMeshPro _levelText;
         private SpriteRenderer _meterBg;
@@ -76,12 +82,28 @@ namespace DogtorBurguer
             _displayRoot.transform.SetParent(transform, false);
             _displayRoot.transform.position = new Vector3(_panelCenter.x, _panelCenter.y, 0f);
 
-            // Name text (top of panel)
+            // Title text ("Special Order!")
+            GameObject titleObj = new GameObject("ChallengeTitle");
+            titleObj.transform.SetParent(_displayRoot.transform, false);
+            titleObj.transform.localPosition = new Vector3(0f, 1.25f, 0f);
+            _titleText = titleObj.AddComponent<TMPro.TextMeshPro>();
+            _titleText.text = "Special Order!";
+            _titleText.fontSize = UIStyles.WORLD_CHALLENGE_NAME_SIZE;
+            _titleText.color = UIStyles.GOLD;
+            _titleText.alignment = TMPro.TextAlignmentOptions.Center;
+            _titleText.fontStyle = TMPro.FontStyles.Bold;
+            _titleText.sortingOrder = _sortingOrder + 1;
+            _titleText.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            _titleText.outlineColor = UIStyles.OUTLINE_COLOR;
+            RectTransform titleRect = _titleText.GetComponent<RectTransform>();
+            titleRect.sizeDelta = new Vector2(2.2f, 0.5f);
+
+            // Name text (requirement description, below title)
             GameObject nameObj = new GameObject("ChallengeName");
             nameObj.transform.SetParent(_displayRoot.transform, false);
             nameObj.transform.localPosition = new Vector3(0f, 1.05f, 0f);
             _nameText = nameObj.AddComponent<TMPro.TextMeshPro>();
-            _nameText.fontSize = UIStyles.WORLD_CHALLENGE_NAME_SIZE;
+            _nameText.fontSize = UIStyles.WORLD_CHALLENGE_NAME_SIZE * 0.8f;
             _nameText.color = UIStyles.TEXT_UI;
             _nameText.alignment = TMPro.TextAlignmentOptions.Center;
             _nameText.sortingOrder = _sortingOrder + 1;
@@ -109,7 +131,6 @@ namespace DogtorBurguer
             _meterFill.color = _meterFillColor;
             _meterFill.sortingOrder = _sortingOrder + 1;
             meterFillObj.transform.localScale = new Vector3(_meterWidth, 0f, 1f);
-            // Pivot at bottom: offset the sprite renderer
             _meterFill.transform.localPosition = new Vector3(_meterX, _meterY - _meterHeight * 0.5f, 0f);
 
             // Level text
@@ -132,68 +153,55 @@ namespace DogtorBurguer
             _targetIngredients.Clear();
             ClearBurgerVisuals();
 
-            int targetCount = GetTargetIngredientCount();
-            int activeCount = GetActiveIngredientCount();
+            _orderType = Rng.Range(0, 2) == 0 ? OrderType.Size : OrderType.Contains;
 
-            // Reset used combinations when target count or active count changes
-            if (targetCount != _lastTargetCount)
+            if (_orderType == OrderType.Size)
             {
-                _usedCombinations.Clear();
-                _lastTargetCount = targetCount;
+                _requiredSize = Mathf.Clamp(_challengeLevel + 1, GameplayConfig.CHALLENGE_MIN_SIZE, GameplayConfig.CHALLENGE_MAX_SIZE);
+                _challengeName = $"{_requiredSize}+ Ingredients";
+                CreateSizeVisual();
+            }
+            else
+            {
+                int count = Mathf.Clamp(_challengeLevel, 1, GameplayConfig.CHALLENGE_MAX_CONTAINS);
+                int activeCount = GetActiveIngredientCount();
+                GenerateContainsIngredients(count, activeCount);
+                _challengeName = BuildContainsName();
+                CreateContainsVisual();
             }
 
-            // Generate a unique combination (no repeats until all exhausted)
-            for (int attempt = 0; attempt < GameplayConfig.CHALLENGE_COMBO_MAX_ATTEMPTS; attempt++)
-            {
-                _targetIngredients.Clear();
-                for (int i = 0; i < targetCount; i++)
-                {
-                    int typeIndex = Rng.Range(0, activeCount);
-                    _targetIngredients.Add((IngredientType)typeIndex);
-                }
-
-                string key = GetCombinationKey(_targetIngredients);
-                if (!_usedCombinations.Contains(key))
-                {
-                    _usedCombinations.Add(key);
-                    break;
-                }
-
-                // All combinations exhausted, reset and accept this one
-                if (attempt == GameplayConfig.CHALLENGE_COMBO_MAX_ATTEMPTS - 1)
-                {
-                    _usedCombinations.Clear();
-                    _usedCombinations.Add(key);
-                }
-            }
-
-            _challengeName = GenerateChallengeName(targetCount);
             _nameText.text = _challengeName;
-
-            CreateBurgerVisual();
             UpdateMeter();
             UpdateLevelText();
         }
 
-        private string GetCombinationKey(List<IngredientType> ingredients)
+        private void GenerateContainsIngredients(int count, int activeCount)
         {
-            List<int> sorted = new List<int>(ingredients.Count);
-            foreach (var ing in ingredients)
-                sorted.Add((int)ing);
-            sorted.Sort();
+            // Pick unique random ingredients from the active pool
+            List<int> available = new List<int>();
+            for (int i = 0; i < activeCount; i++)
+                available.Add(i);
 
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            for (int i = 0; i < sorted.Count; i++)
+            for (int i = 0; i < count && available.Count > 0; i++)
             {
-                if (i > 0) sb.Append(',');
-                sb.Append(sorted[i]);
+                int idx = Rng.Range(0, available.Count);
+                _targetIngredients.Add((IngredientType)available[idx]);
+                available.RemoveAt(idx);
             }
-            return sb.ToString();
         }
 
-        private int GetTargetIngredientCount()
+        private string BuildContainsName()
         {
-            return Mathf.Min(GameplayConfig.MAX_CHALLENGE_INGREDIENTS, _challengeLevel);
+            if (_targetIngredients.Count == 1)
+                return $"Has: {_targetIngredients[0]}";
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder("Has: ");
+            for (int i = 0; i < _targetIngredients.Count; i++)
+            {
+                if (i > 0) sb.Append(", ");
+                sb.Append(_targetIngredients[i]);
+            }
+            return sb.ToString();
         }
 
         private int GetActiveIngredientCount()
@@ -204,40 +212,92 @@ namespace DogtorBurguer
             return Constants.STARTING_INGREDIENT_COUNT;
         }
 
-        private string GenerateChallengeName(int ingredientCount)
-        {
-            string[] prefixes = { "The", "El", "Dr.", "Chef's", "Super", "Mega", "Ultra", "Lil'" };
-            string[] adjectives = { "Spicy", "Wild", "Crazy", "Hot", "Cool", "Epic", "Tasty", "Zesty" };
-            string[] nouns = { "Bite", "Stack", "Tower", "Combo", "Special", "Delight", "Dream", "Feast" };
-
-            string prefix = prefixes[Rng.Range(0, prefixes.Length)];
-            string adj = adjectives[Rng.Range(0, adjectives.Length)];
-            string noun = nouns[Rng.Range(0, nouns.Length)];
-
-            return $"{prefix} {adj} {noun}";
-        }
-
-        private void CreateBurgerVisual()
+        private void CreateSizeVisual()
         {
             IngredientSpawner spawner = FindAnyObjectByType<IngredientSpawner>();
             if (spawner == null) return;
 
-            float startY = -(_targetIngredients.Count + 1) * _ingredientSpacing * 0.5f;
+            float totalHeight = 2 * _ingredientSpacing;
+            float startY = -totalHeight * 0.5f;
+
+            // Bottom bun
+            CreateIngredientVisual(IngredientType.BunBottom, startY, spawner, 0);
+
+            // Silhouette placeholder with "+N" label
+            CreatePlaceholderVisual($"+{_requiredSize}", startY + _ingredientSpacing, 1);
+
+            // Top bun
+            CreateIngredientVisual(IngredientType.BunTop, startY + 2 * _ingredientSpacing, spawner, 2);
+        }
+
+        private void CreateContainsVisual()
+        {
+            IngredientSpawner spawner = FindAnyObjectByType<IngredientSpawner>();
+            if (spawner == null) return;
+
+            // Layout: bun + "?" + ingredients... + "?" + bun
+            int totalSlots = _targetIngredients.Count + 2; // +2 for the two "?" placeholders
+            float startY = -(totalSlots + 1) * _ingredientSpacing * 0.5f;
             int order = 0;
 
             // Bottom bun
             CreateIngredientVisual(IngredientType.BunBottom, startY, spawner, order++);
 
-            // Ingredients
+            // Opening "?" placeholder
+            float y = startY + order * _ingredientSpacing;
+            CreatePlaceholderVisual("?", y, order);
+            order++;
+
+            // Required ingredients
             for (int i = 0; i < _targetIngredients.Count; i++)
             {
-                float y = startY + (i + 1) * _ingredientSpacing;
-                CreateIngredientVisual(_targetIngredients[i], y, spawner, order++);
+                y = startY + order * _ingredientSpacing;
+                CreateIngredientVisual(_targetIngredients[i], y, spawner, order);
+                order++;
             }
 
+            // Closing "?" placeholder
+            y = startY + order * _ingredientSpacing;
+            CreatePlaceholderVisual("?", y, order);
+            order++;
+
             // Top bun
-            float topY = startY + (_targetIngredients.Count + 1) * _ingredientSpacing;
-            CreateIngredientVisual(IngredientType.BunTop, topY, spawner, order++);
+            float topY = startY + order * _ingredientSpacing;
+            CreateIngredientVisual(IngredientType.BunTop, topY, spawner, order);
+        }
+
+        private void CreatePlaceholderVisual(string label, float localY, int orderIndex)
+        {
+            if (_spritePlaceholder == null) return;
+
+            // Silhouette sprite
+            GameObject obj = new GameObject($"Placeholder_{label}");
+            obj.transform.SetParent(_displayRoot.transform, false);
+            obj.transform.localPosition = new Vector3(0f, localY, 0f);
+            obj.transform.localScale = Vector3.one * _ingredientScale;
+
+            SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
+            sr.sprite = _spritePlaceholder;
+            sr.sortingOrder = _sortingOrder + 2 + orderIndex;
+            _burgerVisuals.Add(obj);
+
+            // Text overlay as child
+            GameObject textObj = new GameObject("Label");
+            textObj.transform.SetParent(obj.transform, false);
+            textObj.transform.localPosition = Vector3.zero;
+
+            TMPro.TextMeshPro tmp = textObj.AddComponent<TMPro.TextMeshPro>();
+            tmp.text = label;
+            tmp.fontSize = UIStyles.WORLD_CHALLENGE_NAME_SIZE;
+            tmp.color = Color.white;
+            tmp.alignment = TMPro.TextAlignmentOptions.Center;
+            tmp.fontStyle = TMPro.FontStyles.Bold;
+            tmp.sortingOrder = sr.sortingOrder + 1;
+            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_WORLD;
+            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
+            RectTransform textRect = tmp.GetComponent<RectTransform>();
+            textRect.sizeDelta = new Vector2(1f, 0.5f);
+            _burgerVisuals.Add(textObj);
         }
 
         private void CreateIngredientVisual(IngredientType type, float localY, IngredientSpawner spawner, int orderIndex)
@@ -272,11 +332,31 @@ namespace DogtorBurguer
             _burgerVisuals.Clear();
         }
 
+        /// <summary>
+        /// Pure match check with no side effects. Used by GridManager
+        /// to override burger display name to "Order Complete!".
+        /// </summary>
+        public bool IsOrderMatch(List<IngredientType> ingredients, int ingredientCount)
+        {
+            if (ingredientCount == 0) return false;
+
+            if (_orderType == OrderType.Size)
+                return ingredientCount >= _requiredSize;
+
+            // Contains: all required ingredients must be present
+            foreach (var required in _targetIngredients)
+            {
+                if (!ingredients.Contains(required))
+                    return false;
+            }
+            return true;
+        }
+
         private void HandleBurgerCompleted(Vector3 pos, int basePoints, string name, int ingredientCount, List<IngredientType> ingredients)
         {
-            if (ingredientCount == 0) return; // Poor burgers don't count
+            if (ingredientCount == 0) return;
 
-            bool isMatch = CheckMatch(ingredients);
+            bool isMatch = IsOrderMatch(ingredients, ingredientCount);
             int globalMult = GetGlobalMultiplier();
             int challengeMult = isMatch ? GameplayConfig.CHALLENGE_MATCH_MULTIPLIER : 1;
             int finalPoints = basePoints * globalMult * challengeMult;
@@ -309,26 +389,6 @@ namespace DogtorBurguer
                     GenerateNewChallenge();
                 }
             }
-        }
-
-        private bool CheckMatch(List<IngredientType> completedIngredients)
-        {
-            if (completedIngredients == null || completedIngredients.Count != _targetIngredients.Count)
-                return false;
-
-            // Sort both lists and compare (order doesn't matter)
-            List<IngredientType> target = new List<IngredientType>(_targetIngredients);
-            List<IngredientType> completed = new List<IngredientType>(completedIngredients);
-
-            target.Sort();
-            completed.Sort();
-
-            for (int i = 0; i < target.Count; i++)
-            {
-                if (target[i] != completed[i])
-                    return false;
-            }
-            return true;
         }
 
         public int GetGlobalMultiplier()
@@ -383,9 +443,7 @@ namespace DogtorBurguer
 
             if (_meterFill != null)
             {
-                // Scale Y to fill amount, position at bottom of meter
                 float bottomY = _meterY - _meterHeight * 0.5f + fillHeight * 0.5f;
-
                 _meterFill.transform.localPosition = new Vector3(_meterX, bottomY, 0f);
                 _meterFill.transform.localScale = new Vector3(_meterWidth, fillHeight, 1f);
             }
@@ -394,12 +452,11 @@ namespace DogtorBurguer
         private void UpdateLevelText()
         {
             if (_levelText != null)
-                _levelText.text = $"Lv.{_challengeLevel}";
+                _levelText.text = $"\u2605 {_challengeLevel}";
         }
 
         private void FlashPanel()
         {
-            // Brief gold flash on all burger visuals
             foreach (var obj in _burgerVisuals)
             {
                 if (obj == null) continue;

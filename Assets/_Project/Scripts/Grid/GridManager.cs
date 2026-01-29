@@ -177,9 +177,15 @@ namespace DogtorBurguer
             // Collapse now that animation is done
             data.Column.CollapseFromRow(data.BunBottomIndex);
 
-            OnBurgerCompleted?.Invoke(data.Points, data.Name);
-            OnBurgerEffect?.Invoke(pos, data.Points, data.Name, data.IngredientCount);
-            OnBurgerWithIngredients?.Invoke(pos, data.Points, data.Name, data.IngredientCount, data.IngredientTypes);
+            // Let BurgerChallenge override display name if order matches
+            string displayName = data.Name;
+            if (BurgerChallenge.Instance != null &&
+                BurgerChallenge.Instance.IsOrderMatch(data.IngredientTypes, data.IngredientCount))
+                displayName = "Order Complete!";
+
+            OnBurgerCompleted?.Invoke(data.Points, displayName);
+            OnBurgerEffect?.Invoke(pos, data.Points, displayName, data.IngredientCount);
+            OnBurgerWithIngredients?.Invoke(pos, data.Points, displayName, data.IngredientCount, data.IngredientTypes);
 
             // Re-check column for stacked burgers
             CheckAndProcessBurger(data.Column);
