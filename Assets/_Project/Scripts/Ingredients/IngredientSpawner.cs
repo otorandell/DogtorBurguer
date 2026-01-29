@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 
 namespace DogtorBurguer
 {
     public class IngredientSpawner : MonoBehaviour
     {
+        private enum SpawnerState { Idle, Delaying, WaveFalling, WaitingForLand }
+
         [Header("Prefabs")]
         [SerializeField] private GameObject _ingredientPrefab;
 
@@ -31,7 +32,8 @@ namespace DogtorBurguer
         [Header("Wave Settings")]
         [SerializeField] private float _initialDelay = GameplayConfig.INITIAL_SPAWN_DELAY;
 
-        private bool _isSpawning;
+        private bool _active;
+        private SpawnerState _state = SpawnerState.Idle;
         private Dictionary<IngredientType, Sprite> _spriteMap;
         private int _spawnsSinceLastBun;
         private int _currentLevel = 1;
@@ -39,14 +41,15 @@ namespace DogtorBurguer
         // Wave state
         private List<Ingredient> _currentWaveIngredients = new();
         private List<(IngredientType type, int columnIndex)> _nextWaveData = new();
-        private List<GameObject> _nextWavePreviews = new();
-        private bool _waitingForWaveLand;
-        private bool _previewsShown;
         private float _delayTimer;
+
+        private WavePreviewManager _previewManager;
 
         private void Awake()
         {
             BuildSpriteMap();
+            _previewManager = gameObject.AddComponent<WavePreviewManager>();
+            _previewManager.Initialize(GetSpriteForType);
         }
 
         private void BuildSpriteMap()
@@ -67,30 +70,32 @@ namespace DogtorBurguer
 
         private void Update()
         {
-            if (!_isSpawning) return;
+            if (!_active) return;
 
-            if (!_waitingForWaveLand)
+            switch (_state)
             {
-                // Initial delay or between-wave delay
-                _delayTimer -= Time.deltaTime;
-                if (_delayTimer <= 0)
-                {
-                    SpawnNextWave();
-                }
-                return;
-            }
+                case SpawnerState.Idle:
+                    break;
 
-            // Show previews once wave ingredients have cleared the top cell
-            if (!_previewsShown && WaveClearedTop())
-            {
-                ShowNextWavePreviews();
-                _previewsShown = true;
-            }
+                case SpawnerState.Delaying:
+                    _delayTimer -= Time.deltaTime;
+                    if (_delayTimer <= 0)
+                        SpawnNextWave();
+                    break;
 
-            // Check if all current wave ingredients have landed
-            if (AllCurrentWaveLanded())
-            {
-                SpawnNextWave();
+                case SpawnerState.WaveFalling:
+                    if (WaveClearedTop())
+                    {
+                        _previewManager.ShowPreviews(_nextWaveData);
+                        _nextWaveData.Clear();
+                        _state = SpawnerState.WaitingForLand;
+                    }
+                    break;
+
+                case SpawnerState.WaitingForLand:
+                    if (AllCurrentWaveLanded())
+                        SpawnNextWave();
+                    break;
             }
         }
 
@@ -101,22 +106,22 @@ namespace DogtorBurguer
 
         public void StartSpawning()
         {
-            _isSpawning = true;
+            _active = true;
+            _state = SpawnerState.Delaying;
             _delayTimer = _initialDelay;
-            _waitingForWaveLand = false;
             _currentWaveIngredients.Clear();
             _nextWaveData.Clear();
-            ClearNextWavePreviews();
+            _previewManager.ClearPreviews();
         }
 
         public void StopSpawning()
         {
-            _isSpawning = false;
+            _active = false;
         }
 
         public void ResumeSpawning()
         {
-            _isSpawning = true;
+            _active = true;
         }
 
         public void SetFallSpeed(float stepDuration)
@@ -142,10 +147,12 @@ namespace DogtorBurguer
         {
             if (GridManager.Instance == null) return;
 
-            ClearNextWavePreviews();
+            // Consume remaining preview data (entries may have been tapped)
+            var waveData = _previewManager.HasPreviews
+                ? _previewManager.ConsumeRemainingData()
+                : (_nextWaveData.Count > 0 ? _nextWaveData : RollWaveData());
 
-            // Spawn from pre-rolled data if available, otherwise roll fresh
-            var waveData = _nextWaveData.Count > 0 ? _nextWaveData : RollWaveData();
+            _previewManager.ClearPreviews();
 
             _currentWaveIngredients.Clear();
             foreach (var (type, colIdx) in waveData)
@@ -159,9 +166,7 @@ namespace DogtorBurguer
 
             // Pre-roll next wave (previews shown once wave clears top)
             _nextWaveData = RollWaveData();
-            _previewsShown = false;
-
-            _waitingForWaveLand = true;
+            _state = SpawnerState.WaveFalling;
         }
 
         private bool AllCurrentWaveLanded()
@@ -204,8 +209,6 @@ namespace DogtorBurguer
 
         private int GetWaveSize()
         {
-            // Always at least 2 (pairs)
-            // Triple chance scales with level
             if (_currentLevel >= GameplayConfig.TRIPLE_WAVE_START_LEVEL)
             {
                 float tripleT = (_currentLevel - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL) / (Constants.MAX_LEVEL - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL);
@@ -227,64 +230,8 @@ namespace DogtorBurguer
             return available[Rng.Range(0, available.Count)];
         }
 
-        private void ShowNextWavePreviews()
-        {
-            foreach (var (type, colIdx) in _nextWaveData)
-            {
-                Column col = GridManager.Instance?.GetColumn(colIdx);
-                if (col == null) continue;
-
-                GameObject preview = CreatePreview(type, col);
-                if (preview != null)
-                {
-                    _nextWavePreviews.Add(preview);
-                    SpriteRenderer sr = preview.GetComponent<SpriteRenderer>();
-                    if (sr != null)
-                    {
-                        sr.DOFade(AnimConfig.PREVIEW_FADE_MIN, AnimConfig.PREVIEW_FADE_DURATION).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
-                    }
-                }
-            }
-        }
-
-        private void ClearNextWavePreviews()
-        {
-            foreach (var preview in _nextWavePreviews)
-            {
-                if (preview != null)
-                {
-                    preview.transform.DOKill();
-                    SpriteRenderer sr = preview.GetComponent<SpriteRenderer>();
-                    if (sr != null) sr.DOKill();
-                    Destroy(preview);
-                }
-            }
-            _nextWavePreviews.Clear();
-        }
-
-        private GameObject CreatePreview(IngredientType type, Column column)
-        {
-            Sprite sprite = null;
-            _spriteMap?.TryGetValue(type, out sprite);
-            if (sprite == null) return null;
-
-            GameObject preview = new GameObject("WavePreview");
-            float x = Constants.GRID_ORIGIN_X + (column.ColumnIndex * Constants.CELL_WIDTH);
-            float y = Constants.GRID_ORIGIN_Y + (Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT);
-            preview.transform.position = new Vector3(x, y, 0);
-
-            SpriteRenderer sr = preview.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.sortingOrder = 90;
-            sr.color = new Color(1f, 1f, 1f, AnimConfig.PREVIEW_INITIAL_ALPHA);
-
-            return preview;
-        }
-
-
         private IngredientType GetSpawnType()
         {
-            // Force bun spawn if threshold reached
             if (_enableForcedBunSpawn)
             {
                 int threshold = (int)(_activeIngredientCount * _forceBunMultiplier);
@@ -295,7 +242,6 @@ namespace DogtorBurguer
                 }
             }
 
-            // Unified pool: regular ingredients + bun as one slot
             int roll = Rng.Range(0, _activeIngredientCount + 1);
             if (roll < _activeIngredientCount)
             {
@@ -303,7 +249,6 @@ namespace DogtorBurguer
                 return (IngredientType)roll;
             }
 
-            // Bun selected
             _spawnsSinceLastBun = 0;
             return GetBunType();
         }
@@ -358,45 +303,24 @@ namespace DogtorBurguer
 
         public bool TryTapPreview(Vector2 worldPos)
         {
-            if (!_previewsShown || _nextWavePreviews.Count == 0) return false;
+            var result = _previewManager.TryTap(worldPos);
+            if (result == null) return false;
 
-            for (int i = 0; i < _nextWavePreviews.Count; i++)
+            var (type, colIdx) = result.Value;
+            Column col = GridManager.Instance?.GetColumn(colIdx);
+            if (col != null && !col.IsOverflowing)
             {
-                GameObject preview = _nextWavePreviews[i];
-                if (preview == null) continue;
-
-                float dist = Vector2.Distance(worldPos, preview.transform.position);
-                if (dist < Constants.CELL_WIDTH * GameplayConfig.PREVIEW_TAP_RADIUS_MULT)
-                {
-                    // Spawn this preview's ingredient
-                    var (type, colIdx) = _nextWaveData[i];
-                    Column col = GridManager.Instance?.GetColumn(colIdx);
-                    if (col != null && !col.IsOverflowing)
-                    {
-                        Ingredient ing = SpawnIngredient(type, col);
-                        if (ing != null)
-                            _currentWaveIngredients.Add(ing);
-                    }
-
-                    // Remove this entry from next wave data and previews
-                    preview.transform.DOKill();
-                    SpriteRenderer sr = preview.GetComponent<SpriteRenderer>();
-                    if (sr != null) sr.DOKill();
-                    Destroy(preview);
-                    _nextWavePreviews.RemoveAt(i);
-                    _nextWaveData.RemoveAt(i);
-
-                    return true;
-                }
+                Ingredient ing = SpawnIngredient(type, col);
+                if (ing != null)
+                    _currentWaveIngredients.Add(ing);
             }
-            return false;
+            return true;
         }
 
         public bool TryTapFallingIngredient(Vector2 worldPos)
         {
             if (GridManager.Instance == null) return false;
 
-            // Check all falling ingredients
             foreach (var ingredient in GridManager.Instance.GetFallingIngredients())
             {
                 if (ingredient == null || ingredient.IsLanded) continue;
@@ -428,11 +352,9 @@ namespace DogtorBurguer
                 ingredient = obj.AddComponent<Ingredient>();
             }
 
-            // Get sprite
             Sprite sprite = null;
             _spriteMap?.TryGetValue(type, out sprite);
 
-            // Initialize and start falling
             ingredient.Initialize(type, column, sprite);
             ingredient.StartFalling(_fallStepDuration);
 
@@ -441,7 +363,7 @@ namespace DogtorBurguer
 
         private void OnDestroy()
         {
-            ClearNextWavePreviews();
+            _previewManager?.ClearPreviews();
         }
 
         public void SpawnSpecificIngredient(IngredientType type, int columnIndex)

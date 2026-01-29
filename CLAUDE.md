@@ -16,7 +16,7 @@ Assets/_Project/Scripts/
   Core/          GameManager, GameState, Constants, DifficultyManager,
                  SaveDataManager, ControlMode, FeedbackManager, Rng, SceneLoader
   Grid/          GridManager, Column, MatchDetector, BurgerAnimator
-  Ingredients/   Ingredient, IngredientSpawner, IngredientType
+  Ingredients/   Ingredient, IngredientSpawner, IngredientType, WavePreviewManager
   Input/         TouchInputHandler
   UI/            MainMenuUI, GameHUD, GameOverPanel, SettingsPanel, ShopPanel,
                  BurgerChallenge, BurgerPopup, FloatingText, ScorePopup,
@@ -130,7 +130,7 @@ Active work to improve AI maintainability:
 
 1. ~~**Centralize config values**~~ DONE -- `GameplayConfig.cs`, `UIStyles.cs`, `AnimConfig.cs` alongside `Constants.cs`
 2. ~~**Split GridManager**~~ DONE -- `MatchDetector` (static, match/burger detection), `BurgerAnimator` (compress animation, scoring, naming), `GridManager` (column state, events, orchestration)
-3. **Split IngredientSpawner** (~457 lines) -- Extract `WavePreviewManager`, replace boolean flags with explicit enum state machine
+3. ~~**Split IngredientSpawner**~~ DONE -- `WavePreviewManager` (preview display/tap), `SpawnerState` enum replaces boolean flags
 4. **Restructure UI code** -- Separate layout/construction from behavior/logic in all UI scripts, reference UIStyles for visual properties
 
 ## Pending Features
