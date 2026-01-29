@@ -79,7 +79,7 @@ namespace DogtorBurguer
 
         private void UpdateLevel(int level)
         {
-            _levelText.text = $"Lv.{level}";
+            _levelText.text = $"Level {level}";
         }
 
         private void UpdateGems(int gems)

@@ -26,10 +26,11 @@ namespace DogtorBurguer
         #endregion
 
         #region Burger Challenge
-        public const int MAX_CHALLENGE_INGREDIENTS = 5;
+        public const int CHALLENGE_MIN_SIZE = 2;
+        public const int CHALLENGE_MAX_SIZE = 7;
+        public const int CHALLENGE_MAX_CONTAINS = 3;
         public const int CHALLENGE_MATCH_MULTIPLIER = 3;
         public const int CHALLENGE_GLOBAL_MULT_PER_LEVEL = 5;
-        public const int CHALLENGE_COMBO_MAX_ATTEMPTS = 200;
         #endregion
 
         #region Column Swap
@@ -43,8 +44,8 @@ namespace DogtorBurguer
         /// Ingredients placed required to reach each level (index 0 = level 1).
         /// </summary>
         public static readonly int[] LEVEL_THRESHOLDS = {
-            0, 3, 7, 12, 18, 25, 33, 42, 52, 64,
-            77, 91, 106, 122, 139, 157, 176, 196, 217, 239
+            0, 10, 22, 36, 52, 70, 90, 112, 136, 162,
+            190, 220, 252, 286, 322, 360, 400, 442, 486, 532
         };
         #endregion
     }
