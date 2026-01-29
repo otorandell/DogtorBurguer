@@ -15,7 +15,7 @@ Assets/_Project/Scripts/
   Chef/          ChefController
   Core/          GameManager, GameState, Constants, DifficultyManager,
                  SaveDataManager, ControlMode, FeedbackManager, Rng, SceneLoader
-  Grid/          GridManager, Column
+  Grid/          GridManager, Column, MatchDetector, BurgerAnimator
   Ingredients/   Ingredient, IngredientSpawner, IngredientType
   Input/         TouchInputHandler
   UI/            MainMenuUI, GameHUD, GameOverPanel, SettingsPanel, ShopPanel,
@@ -128,8 +128,8 @@ Setting `tmp.outlineWidth`/`tmp.outlineColor` after `AddComponent<TextMeshPro>()
 ## Architecture Refactoring Roadmap
 Active work to improve AI maintainability:
 
-1. **Centralize config values** -- Extract magic numbers into `GameplayConfig.cs`, `UIStyles.cs`, `AnimConfig.cs` alongside existing `Constants.cs`
-2. **Split GridManager** (~605 lines) -- Extract `MatchDetector` and `BurgerAnimator`, keep GridManager as column/grid state owner
+1. ~~**Centralize config values**~~ DONE -- `GameplayConfig.cs`, `UIStyles.cs`, `AnimConfig.cs` alongside `Constants.cs`
+2. ~~**Split GridManager**~~ DONE -- `MatchDetector` (static, match/burger detection), `BurgerAnimator` (compress animation, scoring, naming), `GridManager` (column state, events, orchestration)
 3. **Split IngredientSpawner** (~457 lines) -- Extract `WavePreviewManager`, replace boolean flags with explicit enum state machine
 4. **Restructure UI code** -- Separate layout/construction from behavior/logic in all UI scripts, reference UIStyles for visual properties
 

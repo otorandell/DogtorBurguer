@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 
 namespace DogtorBurguer
 {
@@ -12,6 +11,7 @@ namespace DogtorBurguer
         [SerializeField] private Column[] _columns;
 
         private List<Ingredient> _fallingIngredients = new List<Ingredient>();
+        private BurgerAnimator _burgerAnimator;
 
         public event Action OnGameOver;
         public event Action<int> OnMatchEliminated;         // Points earned
@@ -30,6 +30,7 @@ namespace DogtorBurguer
             }
             Instance = this;
 
+            _burgerAnimator = gameObject.AddComponent<BurgerAnimator>();
             InitializeColumns();
         }
 
@@ -88,7 +89,7 @@ namespace DogtorBurguer
             // Top bun: check burger before overflow
             if (ingredient.Type == IngredientType.BunTop)
             {
-                if (ColumnHasBunBelow(column, ingredient))
+                if (MatchDetector.HasBunBelow(column, ingredient))
                 {
                     OnIngredientPlaced?.Invoke();
                     CheckAndProcessBurger(column);
@@ -121,287 +122,50 @@ namespace DogtorBurguer
             CheckAndProcessBurger(column);
         }
 
-        private bool ColumnHasBunBelow(Column column, Ingredient topBun)
-        {
-            var ingredients = column.GetAllIngredients();
-            int topBunIndex = ingredients.IndexOf(topBun);
-
-            for (int i = topBunIndex - 1; i >= 0; i--)
-            {
-                if (ingredients[i].Type == IngredientType.BunBottom)
-                    return true;
-            }
-            return false;
-        }
-
         private void CheckAndProcessMatches(Column column)
         {
-            if (column.CheckForMatch(out Ingredient top, out Ingredient second))
+            while (MatchDetector.TryProcessMatch(column, out var result))
             {
-                Vector3 effectPos = (top.transform.position + second.transform.position) / 2f;
-                bool isBunMatch = top.Type == IngredientType.BunBottom;
-
-                // Remove both ingredients
-                column.RemoveIngredient(top);
-                column.RemoveIngredient(second);
-
-                // Flash then destroy
-                top.DestroyWithFlash();
-                second.DestroyWithFlash();
-
-                if (isBunMatch)
+                if (result.IsBunMatch)
                 {
-                    // Bottom buns cancel each other - no score
-                    FloatingText.Spawn(effectPos, "Too bad!", UIStyles.TEXT_TOO_BAD, UIStyles.WORLD_FLOATING_TEXT_SIZE);
+                    FloatingText.Spawn(result.EffectPosition, "Too bad!", UIStyles.TEXT_TOO_BAD, UIStyles.WORLD_FLOATING_TEXT_SIZE);
                 }
                 else
                 {
-                    // Award points and fire effect event
                     OnMatchEliminated?.Invoke(Constants.POINTS_MATCH);
-                    OnMatchEffect?.Invoke(effectPos, Constants.POINTS_MATCH);
+                    OnMatchEffect?.Invoke(result.EffectPosition, Constants.POINTS_MATCH);
                 }
-
-                // Check for more matches after this one
-                CheckAndProcessMatches(column);
             }
         }
 
         private void CheckAndProcessBurger(Column column)
         {
-            var ingredients = column.GetAllIngredients();
-            if (ingredients.Count < 2) return;
+            var detection = MatchDetector.DetectBurger(column);
+            if (!detection.Found) return;
 
-            // Search from top for BunTop
-            int bunTopIndex = -1;
-            for (int i = ingredients.Count - 1; i >= 0; i--)
+            int points = BurgerAnimator.CalculatePoints(detection.IngredientCount);
+            string burgerName = BurgerAnimator.GenerateName(detection.IngredientCount);
+
+            var data = new BurgerAnimator.BurgerData
             {
-                if (ingredients[i].Type == IngredientType.BunTop)
-                {
-                    bunTopIndex = i;
-                    break;
-                }
-            }
-
-            if (bunTopIndex < 0) return;
-
-            // Search downward for BunBottom
-            int bunBottomIndex = -1;
-            for (int i = bunTopIndex - 1; i >= 0; i--)
-            {
-                if (ingredients[i].Type == IngredientType.BunBottom)
-                {
-                    bunBottomIndex = i;
-                    break;
-                }
-                if (ingredients[i].Type == IngredientType.BunTop)
-                {
-                    break;
-                }
-            }
-
-            if (bunBottomIndex < 0) return;
-
-            // Collect burger ingredients (top to bottom)
-            List<Ingredient> burgerParts = new List<Ingredient>();
-            for (int i = bunTopIndex; i >= bunBottomIndex; i--)
-            {
-                burgerParts.Add(ingredients[i]);
-            }
-
-            int ingredientCount = bunTopIndex - bunBottomIndex - 1;
-
-            // Collect ingredient types (excluding buns)
-            List<IngredientType> ingredientTypes = new List<IngredientType>();
-            for (int i = bunBottomIndex + 1; i < bunTopIndex; i++)
-            {
-                ingredientTypes.Add(ingredients[i].Type);
-            }
-
-            int points = CalculateBurgerPoints(ingredientCount);
-            string burgerName = GenerateBurgerName(ingredientCount);
-
-            StartCoroutine(BurgerCompressAnimation(column, burgerParts, bunBottomIndex, bunTopIndex, points, burgerName, ingredientCount, ingredientTypes));
-        }
-
-        private System.Collections.IEnumerator BurgerCompressAnimation(
-            Column column, List<Ingredient> burgerParts,
-            int bunBottomIndex, int bunTopIndex,
-            int points, string burgerName, int ingredientCount,
-            List<IngredientType> ingredientTypes)
-        {
-            // Validate all parts still exist (may have been destroyed by a match)
-            foreach (var part in burgerParts)
-            {
-                if (part == null)
-                {
-                    GameManager.Instance?.ResumeSpawning();
-                    yield break;
-                }
-            }
-
-            // Pause spawning and freeze falling ingredients during animation
-            GameManager.Instance?.PauseSpawning();
-            foreach (var falling in new List<Ingredient>(_fallingIngredients))
-            {
-                if (falling != null)
-                    falling.PauseFalling();
-            }
-
-            // burgerParts[0] = top bun, burgerParts[last] = bottom bun
-            Ingredient bottomBun = burgerParts[burgerParts.Count - 1];
-            Vector3 bottomBunPos = bottomBun.transform.position;
-
-            float travelSpacing = Constants.CELL_VISUAL_HEIGHT * AnimConfig.COMPRESS_TRAVEL_SPACING_MULT;
-            float smackSpacing = Constants.CELL_VISUAL_HEIGHT * AnimConfig.COMPRESS_SMACK_SPACING_MULT;
-
-            // Group of ingredients being pushed down (starts with just the top bun)
-            List<Ingredient> movingGroup = new List<Ingredient> { burgerParts[0] };
-
-            // Skip compress for "Just Bread" (no ingredients between buns)
-            if (burgerParts.Count <= 2)
-            {
-                foreach (var part in burgerParts)
-                    part.DestroyWithFlash();
-                column.RemoveIngredientsInRange(bunBottomIndex, bunTopIndex);
-                column.CollapseFromRow(bunBottomIndex);
-                OnBurgerCompleted?.Invoke(points, burgerName);
-                OnBurgerEffect?.Invoke(bottomBunPos, points, burgerName, ingredientCount);
-                OnBurgerWithIngredients?.Invoke(bottomBunPos, points, burgerName, ingredientCount, ingredientTypes);
-                foreach (var falling in new List<Ingredient>(_fallingIngredients))
-                {
-                    if (falling != null)
-                        falling.ResumeFalling();
-                }
-                GameManager.Instance?.ResumeSpawning();
-                yield break;
-            }
-
-            // Pitch scaling: total squeeze steps = middle ingredients + 1 (smack)
-            int totalSteps = burgerParts.Count - 1; // all steps including smack
-            int stepIndex = 0;
-
-            // Push through each ingredient until reaching the bottom bun
-            for (int i = 1; i < burgerParts.Count - 1; i++)
-            {
-                Ingredient target = burgerParts[i];
-                if (target == null) break;
-                Vector3 targetPos = target.transform.position;
-
-                // Move the group down, each member offset by travel spacing
-                for (int g = 0; g < movingGroup.Count; g++)
-                {
-                    if (movingGroup[g] == null) continue;
-                    Vector3 dest = targetPos + Vector3.up * ((movingGroup.Count - g) * travelSpacing);
-                    movingGroup[g].transform.DOMove(dest, AnimConfig.COMPRESS_STEP_DURATION).SetEase(Ease.InQuad);
-                }
-                yield return new WaitForSeconds(AnimConfig.COMPRESS_STEP_DURATION);
-
-                // This ingredient joins the moving group
-                movingGroup.Add(target);
-
-                // Squeeze sound with rising pitch
-                float pitch = Mathf.Lerp(AnimConfig.COMPRESS_PITCH_START, AnimConfig.COMPRESS_PITCH_END, (float)stepIndex / (totalSteps - 1));
-                AudioManager.Instance?.PlaySqueeze(pitch);
-                stepIndex++;
-
-                // Pause between each compress step
-                yield return new WaitForSeconds(AnimConfig.COMPRESS_PAUSE);
-            }
-
-            // Group moves down to bottom bun with travel spacing
-            for (int g = 0; g < movingGroup.Count; g++)
-            {
-                if (movingGroup[g] == null) continue;
-                Vector3 dest = bottomBunPos + Vector3.up * ((movingGroup.Count - g) * travelSpacing);
-                movingGroup[g].transform.DOMove(dest, AnimConfig.COMPRESS_STEP_DURATION).SetEase(Ease.InQuad);
-            }
-            yield return new WaitForSeconds(AnimConfig.COMPRESS_STEP_DURATION);
-
-            // Smack: highest pitch
-            float smackPitch = Mathf.Lerp(AnimConfig.COMPRESS_PITCH_START, AnimConfig.COMPRESS_PITCH_END, (float)stepIndex / (totalSteps - 1));
-            AudioManager.Instance?.PlaySqueeze(smackPitch);
-            for (int g = 0; g < movingGroup.Count; g++)
-            {
-                if (movingGroup[g] == null) continue;
-                Vector3 dest = bottomBunPos + Vector3.up * ((movingGroup.Count - g) * smackSpacing);
-                movingGroup[g].transform.DOMove(dest, AnimConfig.COMPRESS_SMACK_DURATION).SetEase(Ease.InBack);
-            }
-            yield return new WaitForSeconds(AnimConfig.COMPRESS_SMACK_DURATION);
-
-            // Destroy all burger parts at once
-            foreach (var part in burgerParts)
-            {
-                if (part != null)
-                    part.DestroyWithFlash();
-            }
-
-            // Remove from column and collapse
-            column.RemoveIngredientsInRange(bunBottomIndex, bunTopIndex);
-            column.CollapseFromRow(bunBottomIndex);
-
-            OnBurgerCompleted?.Invoke(points, burgerName);
-            OnBurgerEffect?.Invoke(bottomBunPos, points, burgerName, ingredientCount);
-            OnBurgerWithIngredients?.Invoke(bottomBunPos, points, burgerName, ingredientCount, ingredientTypes);
-
-            // Resume falling ingredients and spawning
-            foreach (var falling in new List<Ingredient>(_fallingIngredients))
-            {
-                if (falling != null)
-                    falling.ResumeFalling();
-            }
-            GameManager.Instance?.ResumeSpawning();
-        }
-
-        private int CalculateBurgerPoints(int ingredientCount)
-        {
-            int basePoints = ingredientCount * Constants.POINTS_PER_INGREDIENT;
-            int bonus;
-
-            if (ingredientCount == 0) bonus = Constants.BONUS_POOR_BURGER;
-            else if (ingredientCount <= 2) bonus = Constants.BONUS_SMALL_BURGER;
-            else if (ingredientCount <= 4) bonus = Constants.BONUS_MEDIUM_BURGER;
-            else if (ingredientCount <= 6) bonus = Constants.BONUS_LARGE_BURGER;
-            else if (ingredientCount <= 8) bonus = Constants.BONUS_MEGA_BURGER;
-            else bonus = Constants.BONUS_MAX_BURGER;
-
-            return basePoints + bonus;
-        }
-
-        private string GenerateBurgerName(int ingredientCount)
-        {
-            if (ingredientCount == 0)
-                return "Just Bread...";
-            if (ingredientCount >= 9)
-                return "\u00a1DOKTOR BURGUER!";
-
-            string[] smallPrefixes = { "The", "Lil'", "Mini", "Baby" };
-            string[] mediumPrefixes = { "Super", "Big", "Double", "Triple" };
-            string[] largePrefixes = { "Mega", "Ultra", "Giga", "Hyper" };
-            string[] megaPrefixes = { "ULTRA", "LEGENDARY", "EPIC", "GODLIKE" };
-
-            string[] adjectives = {
-                "Explosive", "Deluxe", "Supreme", "Wild", "Savage",
-                "Brutal", "Infernal", "Cosmic", "Atomic", "Turbo",
-                "Divine", "Furious", "Volcanic", "Radical", "Blazing"
+                Column = column,
+                Parts = detection.Parts,
+                BunBottomIndex = detection.BunBottomIndex,
+                BunTopIndex = detection.BunTopIndex,
+                IngredientCount = detection.IngredientCount,
+                IngredientTypes = detection.IngredientTypes,
+                Points = points,
+                Name = burgerName
             };
 
-            string[] nouns = {
-                "Tower", "Monster", "Beast", "Titan", "Colossus",
-                "Skyscraper", "Tsunami", "Quake", "Volcano", "Hurricane",
-                "Avalanche", "Tornado", "Meteor", "Dragon", "Kraken"
-            };
+            _burgerAnimator.PlayCompress(data, _fallingIngredients, HandleBurgerAnimationComplete);
+        }
 
-            string[] prefixes;
-            if (ingredientCount <= 2) prefixes = smallPrefixes;
-            else if (ingredientCount <= 4) prefixes = mediumPrefixes;
-            else if (ingredientCount <= 6) prefixes = largePrefixes;
-            else prefixes = megaPrefixes;
-
-            string prefix = prefixes[Rng.Range(0, prefixes.Length)];
-            string adj = adjectives[Rng.Range(0, adjectives.Length)];
-            string noun = nouns[Rng.Range(0, nouns.Length)];
-
-            return $"{prefix} {noun} {adj}";
+        private void HandleBurgerAnimationComplete(BurgerAnimator.BurgerData data, Vector3 pos)
+        {
+            OnBurgerCompleted?.Invoke(data.Points, data.Name);
+            OnBurgerEffect?.Invoke(pos, data.Points, data.Name, data.IngredientCount);
+            OnBurgerWithIngredients?.Invoke(pos, data.Points, data.Name, data.IngredientCount, data.IngredientTypes);
         }
 
         public void SwapColumnTops(int columnA, int columnB)
