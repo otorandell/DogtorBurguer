@@ -68,16 +68,19 @@ Two modes, configurable in Settings (saved via PlayerPrefs):
 
 ### Difficulty (DifficultyManager)
 - 20 levels scaling fall speed and active ingredient count
-- Level 1: 3 ingredients, 0.5s fall step
-- Level 20: 7 ingredients, faster fall
-- Thresholds defined as static array in DifficultyManager
+- Level 1: 3 ingredients, 0.5s fall step; Level 20: 7 ingredients, 0.1s fall step
+- Thresholds in `GameplayConfig.LEVEL_THRESHOLDS` — slow start (gap of 10), ramp up (gap grows by 2 per level)
+- HUD shows "Level X" (full word, distinguishes from challenge star)
 
-### Burger Challenge (BurgerChallenge)
-- Target burger recipe displayed with ingredient sprites and progress meter
-- Match exact ingredients (order irrelevant) for 3x multiplier
-- Global multiplier: `1 + (level - 1) * 5`
-- Level up requires `level + 1` matches
-- Generates unique combinations (no repeats until pool exhausted)
+### Burger Challenge (BurgerChallenge) — "Special Orders"
+- Two order types, randomly chosen:
+  - **Size**: "N+ Ingredients" — any burger with at least N ingredients matches
+  - **Contains**: "Has: Meat, Cheese" — burger must include required ingredients (extras OK)
+- Panel shows "Special Order!" title, requirement text, and visual with silhouette placeholder sprites
+- Silhouette sprite (`_spritePlaceholder` SerializeField) with text overlays ("+N" or "?")
+- On match: popup shows "Order Complete!" instead of generated burger name (via GridManager `IsOrderMatch` check)
+- 3x challenge multiplier on match; global multiplier: `1 + (level - 1) * 5`
+- Level up requires `level + 1` matches; star label "★ X" (distinguishes from difficulty level)
 
 ### Scoring
 - Match: 10 pts per matched pair
@@ -132,6 +135,9 @@ Active work to improve AI maintainability:
 2. ~~**Split GridManager**~~ DONE -- `MatchDetector` (static, match/burger detection), `BurgerAnimator` (compress animation, scoring, naming), `GridManager` (column state, events, orchestration)
 3. ~~**Split IngredientSpawner**~~ DONE -- `WavePreviewManager` (preview display/tap), `SpawnerState` enum replaces boolean flags
 4. ~~**Restructure UI code**~~ DONE -- `UIFactory` static utility for shared canvas/text/button/panel/overlay construction, all UI scripts use it
+
+## Pending Manual Steps
+- **Assign placeholder sprite**: In Unity Inspector, select BurgerChallenge component → set `_spritePlaceholder` field to the silhouette PNG in `Assets/_Project/Sprites/Ingredients/`
 
 ## Pending Features
 - Text outline shader fix
