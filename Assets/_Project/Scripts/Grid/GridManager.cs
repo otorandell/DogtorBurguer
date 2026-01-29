@@ -12,6 +12,7 @@ namespace DogtorBurguer
 
         private List<Ingredient> _fallingIngredients = new List<Ingredient>();
         private BurgerAnimator _burgerAnimator;
+        private HashSet<Column> _columnsWithActiveBurger = new HashSet<Column>();
 
         public event Action OnGameOver;
         public event Action<int> OnMatchEliminated;         // Points earned
@@ -140,8 +141,16 @@ namespace DogtorBurguer
 
         private void CheckAndProcessBurger(Column column)
         {
+            if (_columnsWithActiveBurger.Contains(column)) return;
+
             var detection = MatchDetector.DetectBurger(column);
             if (!detection.Found) return;
+
+            _columnsWithActiveBurger.Add(column);
+
+            // Remove burger parts from column data IMMEDIATELY
+            // so they can't be re-detected or moved by swaps
+            column.RemoveIngredientsInRange(detection.BunBottomIndex, detection.BunTopIndex);
 
             int points = BurgerAnimator.CalculatePoints(detection.IngredientCount);
             string burgerName = BurgerAnimator.GenerateName(detection.IngredientCount);
@@ -163,9 +172,17 @@ namespace DogtorBurguer
 
         private void HandleBurgerAnimationComplete(BurgerAnimator.BurgerData data, Vector3 pos)
         {
+            _columnsWithActiveBurger.Remove(data.Column);
+
+            // Collapse now that animation is done
+            data.Column.CollapseFromRow(data.BunBottomIndex);
+
             OnBurgerCompleted?.Invoke(data.Points, data.Name);
             OnBurgerEffect?.Invoke(pos, data.Points, data.Name, data.IngredientCount);
             OnBurgerWithIngredients?.Invoke(pos, data.Points, data.Name, data.IngredientCount, data.IngredientTypes);
+
+            // Re-check column for stacked burgers
+            CheckAndProcessBurger(data.Column);
         }
 
         public void SwapColumnTops(int columnA, int columnB)

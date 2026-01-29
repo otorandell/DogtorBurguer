@@ -41,6 +41,7 @@ namespace DogtorBurguer
             {
                 if (part == null)
                 {
+                    onComplete?.Invoke(data, Vector3.zero);
                     GameManager.Instance?.ResumeSpawning();
                     yield break;
                 }
@@ -68,8 +69,6 @@ namespace DogtorBurguer
             {
                 foreach (var part in data.Parts)
                     part.DestroyWithFlash();
-                data.Column.RemoveIngredientsInRange(data.BunBottomIndex, data.BunTopIndex);
-                data.Column.CollapseFromRow(data.BunBottomIndex);
 
                 onComplete?.Invoke(data, bottomBunPos);
 
@@ -141,10 +140,6 @@ namespace DogtorBurguer
                 if (part != null)
                     part.DestroyWithFlash();
             }
-
-            // Remove from column and collapse
-            data.Column.RemoveIngredientsInRange(data.BunBottomIndex, data.BunTopIndex);
-            data.Column.CollapseFromRow(data.BunBottomIndex);
 
             onComplete?.Invoke(data, bottomBunPos);
 
