@@ -9,6 +9,12 @@
 - System.Random via shared `Rng` utility (NOT UnityEngine.Random)
 - C# 10+, namespace: `DogtorBurguer`
 
+## Code Conventions (project overrides / additions)
+
+These extend or override the global rules in `~/.claude/CLAUDE.md`.
+
+- **No nested types.** Promote any struct/class/enum nested inside a parent type to its own top-level file in the same folder. Overrides the global "nested types are fine" allowance — this project prefers them flat for navigability and avoiding awkward `Parent.Nested` qualified access at consumer sites.
+
 ## Project Structure
 ```
 Assets/_Project/Scripts/
@@ -144,3 +150,9 @@ Active work to improve AI maintainability:
 - Leaderboard integration (button exists, logs "Coming Soon")
 - IAP integration (buttons exist, currently grant gems for testing)
 - Ad SDK integration (AdManager is placeholder)
+
+## Pre-Launch Checklist
+Platform-readiness / launch-logistics items tracked separately from
+code-review findings. See `Docs/pre-launch-checklist.md` for the full
+list (save layer security, cloud save, schema versioning, IAP receipt
+validation, analytics, privacy policy, etc.).
