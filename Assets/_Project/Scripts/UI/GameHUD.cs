@@ -21,7 +21,7 @@ namespace DogtorBurguer
 
         private void CreateHUDElements()
         {
-            float startY = -10f;
+            float startY = UIStyles.HUD_START_Y;
 
             _scoreText = CreateHUDText("ScoreText", startY);
             _scoreText.fontSize = UIStyles.HUD_SCORE_SIZE;
@@ -43,11 +43,11 @@ namespace DogtorBurguer
             textObj.transform.SetParent(_canvas.transform, false);
 
             RectTransform rect = textObj.AddComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.06f, 0.93f);
-            rect.anchorMax = new Vector2(0.46f, 0.93f);
-            rect.pivot = new Vector2(0f, 1f);
-            rect.anchoredPosition = new Vector2(10f, yOffset);
-            rect.sizeDelta = new Vector2(0, 35);
+            rect.anchorMin = UIStyles.HUD_ANCHOR_MIN;
+            rect.anchorMax = UIStyles.HUD_ANCHOR_MAX;
+            rect.pivot = UIStyles.HUD_PIVOT;
+            rect.anchoredPosition = new Vector2(UIStyles.HUD_TEXT_X, yOffset);
+            rect.sizeDelta = UIStyles.HUD_TEXT_RECT;
 
             TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
             tmp.alignment = TextAlignmentOptions.Left;

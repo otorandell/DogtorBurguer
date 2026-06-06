@@ -37,28 +37,28 @@ namespace DogtorBurguer
             GameObject inner = UIFactory.CreatePanel(_panel.transform, UIStyles.SHOP_PANEL_SIZE, UIStyles.INNER_PANEL_BG);
 
             // Title
-            UIFactory.CreateText(inner.transform, "Shop", new Vector2(0, 160), new Vector2(350, 50),
+            UIFactory.CreateText(inner.transform, "Shop", UIStyles.SHOP_TITLE_POS, UIStyles.SHOP_TEXT_RECT,
                 UIStyles.PANEL_TITLE_SIZE, FontStyles.Bold, UIStyles.GOLD);
 
             // Gem balance
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
-            UIFactory.CreateText(inner.transform, $"Your gems: {gems}", new Vector2(0, 110), new Vector2(350, 50),
+            UIFactory.CreateText(inner.transform, $"Your gems: {gems}", UIStyles.SHOP_BALANCE_POS, UIStyles.SHOP_TEXT_RECT,
                 UIStyles.SETTINGS_BUTTON_TEXT_SIZE);
 
             // Watch Ad button
-            UIFactory.CreateButton(inner.transform, "Watch Ad (+25 gems)", new Vector2(0, 40),
+            UIFactory.CreateButton(inner.transform, "Watch Ad (+25 gems)", new Vector2(0, UIStyles.SHOP_BTN_START_Y),
                 UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_SHOP_AD, UIStyles.PANEL_BUTTON_TEXT_SIZE, OnWatchAdClicked);
 
             // Buy 100 gems
-            UIFactory.CreateButton(inner.transform, "Buy 100 gems - $0.99", new Vector2(0, -40),
+            UIFactory.CreateButton(inner.transform, "Buy 100 gems - $0.99", new Vector2(0, UIStyles.SHOP_BTN_START_Y + UIStyles.SHOP_BTN_SPACING),
                 UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_SHOP_BUY, UIStyles.PANEL_BUTTON_TEXT_SIZE, OnBuy100Clicked);
 
             // Buy 500 gems
-            UIFactory.CreateButton(inner.transform, "Buy 500 gems - $3.99", new Vector2(0, -120),
+            UIFactory.CreateButton(inner.transform, "Buy 500 gems - $3.99", new Vector2(0, UIStyles.SHOP_BTN_START_Y + UIStyles.SHOP_BTN_SPACING * 2),
                 UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_SHOP_BUY, UIStyles.PANEL_BUTTON_TEXT_SIZE, OnBuy500Clicked);
 
             // Close button
-            UIFactory.CreateButton(inner.transform, "Close", new Vector2(0, -190),
+            UIFactory.CreateButton(inner.transform, "Close", UIStyles.SHOP_CLOSE_POS,
                 UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_CLOSE, UIStyles.PANEL_BUTTON_TEXT_SIZE, Hide);
         }
 

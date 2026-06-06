@@ -1472,6 +1472,20 @@ Final pass — `CLAUDE.md` accuracy, scene/prefab/folder hygiene, stray assets. 
 ### Cross-ref — empty `Burger/` + `Scoring/` folders
 Confirmed both `Assets/_Project/Scripts/Burger/` and `Scoring/` exist on disk with no files → **F-7** (delete `Burger/`; `Scoring/` gets populated by F-26/F-34). No new tag.
 
+---
+
+## Implementation-discovered findings
+
+Findings surfaced while *implementing* the review waves (not during the original walkthrough). Logged here to keep the audit trail accurate.
+
+### F-87 — MainMenuUI credits-overlay size literal missed by F-72
+**Found in:** `UI/MainMenuUI.cs:135` (`new Vector2(400, 300)` — credits overlay text rect size, inside `OnCreditsClicked`)
+**What:** Same class of inline UI-layout magic number F-72 catalogued for the menu's title/high-score/gem/button literals, but it lives in `OnCreditsClicked` (`:131-135`), outside F-72's enumerated lines (`:51, 56, 61, 71`). The Wave-1 UI Layout Magic sweep left it untouched to stay within F-72's documented scope. Spotted while implementing that sweep.
+**Severity:** cosmetic
+**Status:** noted
+**Shared with:** F-72 (same file + UI-layout-magic→`UIStyles` theme), UI Layout Magic sweep synthesis.
+**Next step:** add a `CREDITS_OVERLAY_RECT` to `UIStyles` and reference it; fold into a F-72 follow-up or the next `UIStyles` touch. One literal, ~2-line change.
+
 
 
 

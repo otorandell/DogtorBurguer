@@ -48,17 +48,19 @@ namespace DogtorBurguer
             UIFactory.EnsureEventSystem();
 
             // Title
-            UIFactory.CreateText(_canvas.transform, "Dogtor Burguer!", new Vector2(0, 300), new Vector2(400, 60),
+            UIFactory.CreateText(_canvas.transform, "Dogtor Burguer!", UIStyles.MENU_TITLE_POS, UIStyles.MENU_TEXT_RECT,
                 UIStyles.MENU_TITLE_SIZE, TMPro.FontStyles.Bold, UIStyles.TEXT_HUD);
 
             // High Score
             int highScore = SaveDataManager.Instance != null ? SaveDataManager.Instance.HighScore : 0;
-            _highScoreText = UIFactory.CreateText(_canvas.transform, $"Best: {highScore}", new Vector2(0, 230), new Vector2(400, 60),
+            _highScoreText = UIFactory.CreateText(_canvas.transform, $"Best: {highScore}", UIStyles.MENU_HIGHSCORE_POS, UIStyles.MENU_TEXT_RECT,
                 UIStyles.MENU_HIGHSCORE_SIZE, color: UIStyles.TEXT_HUD);
 
-            // Gem counter (top-right)
+            // Gem counter (top-right). The anchor/pivot post-patch below is deferred to
+            // F-64/Wave 4 (UIFactory anchor params); the (0,400) position arg is dead
+            // (overridden at anchoredPosition), so it is left untouched until then.
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
-            _gemText = UIFactory.CreateText(_canvas.transform, $"Gems: {gems}", new Vector2(0, 400), new Vector2(200, 40),
+            _gemText = UIFactory.CreateText(_canvas.transform, $"Gems: {gems}", new Vector2(0, 400), UIStyles.MENU_GEM_RECT,
                 UIStyles.MENU_GEM_SIZE, TMPro.FontStyles.Bold, UIStyles.TEXT_HUD);
             RectTransform gemRect = _gemText.GetComponent<RectTransform>();
             gemRect.anchorMin = new Vector2(1f, 1f);
@@ -68,7 +70,7 @@ namespace DogtorBurguer
             _gemText.alignment = TMPro.TextAlignmentOptions.TopRight;
 
             // Buttons
-            float btnY = 80f;
+            float btnY = UIStyles.MENU_BTN_START_Y;
             UIFactory.CreateButton(_canvas.transform, "Play", new Vector2(0, btnY),
                 UIStyles.MENU_BUTTON_SIZE, UIStyles.BTN_PLAY, UIStyles.MENU_BUTTON_TEXT_SIZE, OnPlayClicked);
 

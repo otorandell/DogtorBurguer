@@ -41,25 +41,25 @@ namespace DogtorBurguer
             GameObject inner = UIFactory.CreatePanel(_panel.transform, UIStyles.SETTINGS_PANEL_SIZE, UIStyles.INNER_PANEL_BG);
 
             // Title
-            UIFactory.CreateText(inner.transform, "Settings", new Vector2(0, 130), new Vector2(300, 50),
+            UIFactory.CreateText(inner.transform, "Settings", UIStyles.SETTINGS_TITLE_POS, UIStyles.SETTINGS_TITLE_RECT,
                 UIStyles.PANEL_TITLE_SIZE, FontStyles.Bold);
 
             // Sound toggle button
-            var soundBtn = UIFactory.CreateButton(inner.transform, "", new Vector2(0, 50),
+            var soundBtn = UIFactory.CreateButton(inner.transform, "", UIStyles.SETTINGS_SOUND_POS,
                 UIStyles.SETTINGS_BUTTON_SIZE, UIStyles.BTN_SETTINGS_TOGGLE,
                 UIStyles.SETTINGS_BUTTON_TEXT_SIZE, OnSoundToggleClicked);
             _soundLabel = soundBtn.label;
             UpdateSoundLabel();
 
             // Control mode toggle button
-            var controlBtn = UIFactory.CreateButton(inner.transform, "", new Vector2(0, -20),
+            var controlBtn = UIFactory.CreateButton(inner.transform, "", UIStyles.SETTINGS_CONTROL_POS,
                 UIStyles.SETTINGS_BUTTON_SIZE, UIStyles.BTN_SETTINGS_TOGGLE,
                 UIStyles.SETTINGS_BUTTON_TEXT_SIZE, OnControlToggleClicked);
             _controlLabel = controlBtn.label;
             UpdateControlLabel();
 
             // Close button
-            UIFactory.CreateButton(inner.transform, "Close", new Vector2(0, -110),
+            UIFactory.CreateButton(inner.transform, "Close", UIStyles.SETTINGS_CLOSE_POS,
                 UIStyles.CLOSE_BUTTON_SIZE, UIStyles.BTN_CLOSE,
                 UIStyles.SETTINGS_BUTTON_TEXT_SIZE, Hide);
         }

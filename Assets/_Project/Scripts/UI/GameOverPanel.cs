@@ -41,18 +41,18 @@ namespace DogtorBurguer
             _panel = UIFactory.CreatePanel(_canvas.transform, UIStyles.GAMEOVER_PANEL_SIZE, UIStyles.PANEL_BG);
 
             // Title, score, level
-            UIFactory.CreateText(_panel.transform, "GAME OVER", new Vector2(0, 200), new Vector2(350, 50),
+            UIFactory.CreateText(_panel.transform, "GAME OVER", UIStyles.GAMEOVER_TITLE_POS, UIStyles.GAMEOVER_TEXT_RECT,
                 UIStyles.GAMEOVER_TITLE_SIZE, FontStyles.Bold);
 
-            _scoreText = UIFactory.CreateText(_panel.transform, "Score: 0", new Vector2(0, 140), new Vector2(350, 50),
+            _scoreText = UIFactory.CreateText(_panel.transform, "Score: 0", UIStyles.GAMEOVER_SCORE_POS, UIStyles.GAMEOVER_TEXT_RECT,
                 UIStyles.PANEL_SCORE_SIZE);
 
-            _levelText = UIFactory.CreateText(_panel.transform, "Level: 1", new Vector2(0, 100), new Vector2(350, 50),
+            _levelText = UIFactory.CreateText(_panel.transform, "Level: 1", UIStyles.GAMEOVER_LEVEL_POS, UIStyles.GAMEOVER_TEXT_RECT,
                 UIStyles.PANEL_LEVEL_SIZE);
 
             // Continue with gems button
             var gemsBtn = UIFactory.CreateButton(_panel.transform, $"Continue ({MonetizationConfig.CONTINUE_GEM_COST} gems)",
-                new Vector2(0, 30), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CONTINUE_GEMS,
+                new Vector2(0, UIStyles.GAMEOVER_BTN_START_Y), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CONTINUE_GEMS,
                 UIStyles.PANEL_BUTTON_TEXT_SIZE, OnContinueGemsClicked);
             _continueGemsObj = gemsBtn.obj;
             _continueGemsButton = gemsBtn.button;
@@ -60,18 +60,18 @@ namespace DogtorBurguer
 
             // Continue with ad button
             var adBtn = UIFactory.CreateButton(_panel.transform, "Watch Ad to Continue",
-                new Vector2(0, -45), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CONTINUE_AD,
+                new Vector2(0, UIStyles.GAMEOVER_BTN_START_Y + UIStyles.GAMEOVER_BTN_SPACING), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CONTINUE_AD,
                 UIStyles.PANEL_BUTTON_TEXT_SIZE, OnContinueAdClicked);
             _continueAdObj = adBtn.obj;
 
             // Restart button
             UIFactory.CreateButton(_panel.transform, "Restart",
-                new Vector2(0, -120), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_RESTART,
+                new Vector2(0, UIStyles.GAMEOVER_BTN_START_Y + UIStyles.GAMEOVER_BTN_SPACING * 2), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_RESTART,
                 UIStyles.PANEL_BUTTON_TEXT_SIZE, OnRestartClicked);
 
             // Main Menu button
             UIFactory.CreateButton(_panel.transform, "Main Menu",
-                new Vector2(0, -195), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CLOSE,
+                new Vector2(0, UIStyles.GAMEOVER_BTN_START_Y + UIStyles.GAMEOVER_BTN_SPACING * 3), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CLOSE,
                 UIStyles.PANEL_BUTTON_TEXT_SIZE, OnMenuClicked);
         }
 

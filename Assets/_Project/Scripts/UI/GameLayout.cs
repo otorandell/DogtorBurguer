@@ -5,22 +5,22 @@ namespace DogtorBurguer
     public class GameLayout : MonoBehaviour
     {
         [Header("Grid Panel")]
-        [SerializeField] private Vector2 _gridPanelCenter = new Vector2(0f, -1.9f);
-        [SerializeField] private Vector2 _gridPanelSize = new Vector2(5.2f, 5.8f);
+        [SerializeField] private Vector2 _gridPanelCenter = UIStyles.GRID_PANEL_CENTER;
+        [SerializeField] private Vector2 _gridPanelSize = UIStyles.GRID_PANEL_SIZE;
 
         [Header("Top Left Panel")]
-        [SerializeField] private Vector2 _topLeftCenter = new Vector2(-1.35f, 2.4f);
-        [SerializeField] private Vector2 _topLeftSize = new Vector2(2.5f, 2.6f);
+        [SerializeField] private Vector2 _topLeftCenter = UIStyles.TOP_LEFT_PANEL_CENTER;
+        [SerializeField] private Vector2 _topLeftSize = UIStyles.TOP_LEFT_PANEL_SIZE;
 
         [Header("Top Right Panel")]
-        [SerializeField] private Vector2 _topRightCenter = new Vector2(1.35f, 2.4f);
-        [SerializeField] private Vector2 _topRightSize = new Vector2(2.5f, 2.6f);
+        [SerializeField] private Vector2 _topRightCenter = UIStyles.TOP_RIGHT_PANEL_CENTER;
+        [SerializeField] private Vector2 _topRightSize = UIStyles.TOP_RIGHT_PANEL_SIZE;
 
         [Header("Border Style")]
         [SerializeField] private Color _borderColor = new Color(0f, 0f, 0f, 0.8f);
         [SerializeField] private Color _fillColor = new Color(0f, 0f, 0f, 0.15f);
-        [SerializeField] private int _borderWidth = 4;
-        [SerializeField] private int _cornerRadius = 24;
+        [SerializeField] private int _borderWidth = UIStyles.PANEL_BORDER_WIDTH;
+        [SerializeField] private int _cornerRadius = UIStyles.PANEL_CORNER_RADIUS;
 
         private const int TEX_SIZE = 128;
         private Sprite _panelSprite;
@@ -38,7 +38,7 @@ namespace DogtorBurguer
         {
             GameObject panelObj = new GameObject(name);
             panelObj.transform.SetParent(transform, false);
-            panelObj.transform.position = new Vector3(center.x, center.y, 5f);
+            panelObj.transform.position = new Vector3(center.x, center.y, Constants.Z_GAME_PANEL);
 
             SpriteRenderer sr = panelObj.AddComponent<SpriteRenderer>();
             sr.sortingOrder = Constants.SORT_GAME_PANEL;

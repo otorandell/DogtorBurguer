@@ -31,5 +31,9 @@ namespace DogtorBurguer
         public const int SORT_FEEDBACK_TEXT = 100;
         public const int SORT_BURGER_POPUP = 110;
         public const int SORT_SCREEN_FLASH = 200;
+
+        // World-space z depth for layered 2D frames (sprite draw order is governed
+        // by the SORT_* sorting orders above; this positions the panel in world z).
+        public const float Z_GAME_PANEL = 5f;
     }
 }

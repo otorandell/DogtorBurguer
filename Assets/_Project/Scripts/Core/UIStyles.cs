@@ -115,5 +115,63 @@ namespace DogtorBurguer
         public static readonly Color BUBBLE_ACTIVE = new(1f, 1f, 1f, 0.45f);
         public const float BUBBLE_RADIUS = 0.5f;
         #endregion
+
+        // Screen layout — element positions (POS), rect sizes (RECT), and button
+        // stacks (start Y + per-index spacing). Button stacks are consumed inline as
+        // `new Vector2(0, START_Y + SPACING * i)`, matching MainMenuUI's idiom.
+
+        #region Layout — HUD
+        public static readonly Vector2 HUD_ANCHOR_MIN = new(0.06f, 0.93f);
+        public static readonly Vector2 HUD_ANCHOR_MAX = new(0.46f, 0.93f);
+        public static readonly Vector2 HUD_PIVOT = new(0f, 1f);
+        public const float HUD_START_Y = -10f;
+        public const float HUD_TEXT_X = 10f;
+        public static readonly Vector2 HUD_TEXT_RECT = new(0f, 35f);
+        #endregion
+
+        #region Layout — Main Menu
+        public static readonly Vector2 MENU_TITLE_POS = new(0f, 300f);
+        public static readonly Vector2 MENU_HIGHSCORE_POS = new(0f, 230f);
+        public static readonly Vector2 MENU_TEXT_RECT = new(400f, 60f);
+        public static readonly Vector2 MENU_GEM_RECT = new(200f, 40f);
+        public const float MENU_BTN_START_Y = 80f;
+        #endregion
+
+        #region Layout — Game Over Panel
+        public static readonly Vector2 GAMEOVER_TITLE_POS = new(0f, 200f);
+        public static readonly Vector2 GAMEOVER_SCORE_POS = new(0f, 140f);
+        public static readonly Vector2 GAMEOVER_LEVEL_POS = new(0f, 100f);
+        public static readonly Vector2 GAMEOVER_TEXT_RECT = new(350f, 50f);
+        public const float GAMEOVER_BTN_START_Y = 30f;
+        public const float GAMEOVER_BTN_SPACING = -75f;
+        #endregion
+
+        #region Layout — Settings Panel
+        public static readonly Vector2 SETTINGS_TITLE_POS = new(0f, 130f);
+        public static readonly Vector2 SETTINGS_TITLE_RECT = new(300f, 50f);
+        public static readonly Vector2 SETTINGS_SOUND_POS = new(0f, 50f);
+        public static readonly Vector2 SETTINGS_CONTROL_POS = new(0f, -20f);
+        public static readonly Vector2 SETTINGS_CLOSE_POS = new(0f, -110f);
+        #endregion
+
+        #region Layout — Shop Panel
+        public static readonly Vector2 SHOP_TITLE_POS = new(0f, 160f);
+        public static readonly Vector2 SHOP_BALANCE_POS = new(0f, 110f);
+        public static readonly Vector2 SHOP_TEXT_RECT = new(350f, 50f);
+        public const float SHOP_BTN_START_Y = 40f;
+        public const float SHOP_BTN_SPACING = -80f;
+        public static readonly Vector2 SHOP_CLOSE_POS = new(0f, -190f);
+        #endregion
+
+        #region Layout — Game Layout Panels (world-space frames)
+        public static readonly Vector2 GRID_PANEL_CENTER = new(0f, -1.9f);
+        public static readonly Vector2 GRID_PANEL_SIZE = new(5.2f, 5.8f);
+        public static readonly Vector2 TOP_LEFT_PANEL_CENTER = new(-1.35f, 2.4f);
+        public static readonly Vector2 TOP_LEFT_PANEL_SIZE = new(2.5f, 2.6f);
+        public static readonly Vector2 TOP_RIGHT_PANEL_CENTER = new(1.35f, 2.4f);
+        public static readonly Vector2 TOP_RIGHT_PANEL_SIZE = new(2.5f, 2.6f);
+        public const int PANEL_BORDER_WIDTH = 4;
+        public const int PANEL_CORNER_RADIUS = 24;
+        #endregion
     }
 }

@@ -185,12 +185,13 @@ Not binding — re-order based on what we find.
 | F-84 | `_Recovery/` junk scenes committed to repo (4 `0*.unity`, 2 tracked) → delete + gitignore | cosmetic | noted |
 | F-85 | Stray 0-byte `nul` file at repo root → delete | cosmetic | noted |
 | F-86 | CLAUDE.md Project Structure drift — `Core/` line omits `AnimConfig`/`GameplayConfig`/`UIStyles` | cosmetic | noted |
+| F-87 | `MainMenuUI:135` credits-overlay size literal `(400,300)` missed by F-72 (outside its enumerated lines) — found during the Wave-1 layout sweep | cosmetic | noted |
 
 **Synthesis (in `notes.md`):**
 - *UI Construction Layer* — keep `UIFactory` (screen-space), add `WorldTextFactory` + `SpriteFactory` siblings in a `UI/Factory/` folder; links F-56/F-57/F-64/F-65/F-70.
 - *UI Layout Magic sweep* — batch the inline position/size literals across F-64/F-66/F-69/F-72/F-79/F-82 into one `UIStyles` pass.
 
-Next finding tag: **F-87**.
+Next finding tag: **F-88**.
 
 **Review status: COMPLETE** — all script folders (Audio, Chef, Core, Grid, Ingredients, Input, Monetization, UI) + project root/assets reviewed. 86 findings (F-1–F-86) + 3 synthesis notes (UI Construction Layer, UI Layout Magic sweep, plus the F-16 config architecture). Implementation is a separate pass.
 
