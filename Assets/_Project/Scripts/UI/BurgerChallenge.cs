@@ -209,7 +209,7 @@ namespace DogtorBurguer
             IngredientSpawner spawner = FindAnyObjectByType<IngredientSpawner>();
             if (spawner != null)
                 return spawner.ActiveIngredientCount;
-            return Constants.STARTING_INGREDIENT_COUNT;
+            return GameplayConfig.STARTING_INGREDIENT_COUNT;
         }
 
         private void CreateSizeVisual()

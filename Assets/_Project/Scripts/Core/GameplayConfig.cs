@@ -39,6 +39,25 @@ namespace DogtorBurguer
         public const float SWAP_POST_ANIM_DELAY = 0.3f;
         #endregion
 
+        #region Difficulty Curve
+        public const float INITIAL_FALL_STEP_DURATION = 0.5f;
+        public const float MIN_FALL_STEP_DURATION = 0.1f;
+        public const int MAX_LEVEL = 20;
+        public const int STARTING_INGREDIENT_COUNT = 3;
+        public const int MAX_INGREDIENT_COUNT = 7;
+        #endregion
+
+        #region Scoring
+        public const int POINTS_MATCH = 10;
+        public const int POINTS_PER_INGREDIENT = 10;
+        public const int BONUS_POOR_BURGER = 5;      // 0 ingredients
+        public const int BONUS_SMALL_BURGER = 20;    // 1-2 ingredients
+        public const int BONUS_MEDIUM_BURGER = 50;   // 3-4 ingredients
+        public const int BONUS_LARGE_BURGER = 100;   // 5-6 ingredients
+        public const int BONUS_MEGA_BURGER = 200;    // 7-8 ingredients
+        public const int BONUS_MAX_BURGER = 500;     // 9+ ingredients
+        #endregion
+
         #region Difficulty Thresholds
         /// <summary>
         /// Ingredients placed required to reach each level (index 0 = level 1).

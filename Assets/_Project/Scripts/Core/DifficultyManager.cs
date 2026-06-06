@@ -27,7 +27,7 @@ namespace DogtorBurguer
             // Start at high level for dual column test mode
             if (GameManager.Instance != null && GameManager.Instance.TestDualColumn)
             {
-                _currentLevel = Mathf.Clamp(GameManager.Instance.TestDualColumnLevel, 1, Constants.MAX_LEVEL);
+                _currentLevel = Mathf.Clamp(GameManager.Instance.TestDualColumnLevel, 1, GameplayConfig.MAX_LEVEL);
                 OnLevelChanged?.Invoke(_currentLevel);
             }
 
@@ -71,10 +71,10 @@ namespace DogtorBurguer
         {
             if (_spawner == null) return;
 
-            float t = (_currentLevel - 1f) / (Constants.MAX_LEVEL - 1f);
+            float t = (_currentLevel - 1f) / (GameplayConfig.MAX_LEVEL - 1f);
 
-            float fallStep = Mathf.Lerp(Constants.INITIAL_FALL_STEP_DURATION, Constants.MIN_FALL_STEP_DURATION, t);
-            int ingredientCount = Mathf.RoundToInt(Mathf.Lerp(Constants.STARTING_INGREDIENT_COUNT, Constants.MAX_INGREDIENT_COUNT, t));
+            float fallStep = Mathf.Lerp(GameplayConfig.INITIAL_FALL_STEP_DURATION, GameplayConfig.MIN_FALL_STEP_DURATION, t);
+            int ingredientCount = Mathf.RoundToInt(Mathf.Lerp(GameplayConfig.STARTING_INGREDIENT_COUNT, GameplayConfig.MAX_INGREDIENT_COUNT, t));
 
             _spawner.SetFallSpeed(fallStep);
             _spawner.SetActiveIngredientCount(ingredientCount);

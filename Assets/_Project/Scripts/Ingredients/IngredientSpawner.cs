@@ -22,8 +22,8 @@ namespace DogtorBurguer
         [SerializeField] private Sprite _spriteBunTop;
 
         [Header("Settings")]
-        [SerializeField] private float _fallStepDuration = Constants.INITIAL_FALL_STEP_DURATION;
-        [SerializeField] private int _activeIngredientCount = Constants.STARTING_INGREDIENT_COUNT;
+        [SerializeField] private float _fallStepDuration = GameplayConfig.INITIAL_FALL_STEP_DURATION;
+        [SerializeField] private int _activeIngredientCount = GameplayConfig.STARTING_INGREDIENT_COUNT;
 
         [Header("Forced Bun Spawn")]
         [SerializeField] private bool _enableForcedBunSpawn = true;
@@ -126,7 +126,7 @@ namespace DogtorBurguer
 
         public void SetFallSpeed(float stepDuration)
         {
-            _fallStepDuration = Mathf.Max(stepDuration, Constants.MIN_FALL_STEP_DURATION);
+            _fallStepDuration = Mathf.Max(stepDuration, GameplayConfig.MIN_FALL_STEP_DURATION);
         }
 
         public void SetActiveIngredientCount(int count)
@@ -211,7 +211,7 @@ namespace DogtorBurguer
         {
             if (_currentLevel >= GameplayConfig.TRIPLE_WAVE_START_LEVEL)
             {
-                float tripleT = (_currentLevel - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL) / (Constants.MAX_LEVEL - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL);
+                float tripleT = (_currentLevel - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL) / (GameplayConfig.MAX_LEVEL - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL);
                 float tripleChance = tripleT * GameplayConfig.TRIPLE_WAVE_MAX_CHANCE;
                 if (Rng.Value < tripleChance) return 3;
             }

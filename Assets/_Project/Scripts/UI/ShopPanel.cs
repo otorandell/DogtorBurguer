@@ -70,8 +70,8 @@ namespace DogtorBurguer
             {
                 if (success && SaveDataManager.Instance != null)
                 {
-                    SaveDataManager.Instance.AddGems(Constants.GEM_REWARD_AD);
-                    Debug.Log($"[Shop] Rewarded +{Constants.GEM_REWARD_AD} gems");
+                    SaveDataManager.Instance.AddGems(MonetizationConfig.GEM_REWARD_AD);
+                    Debug.Log($"[Shop] Rewarded +{MonetizationConfig.GEM_REWARD_AD} gems");
                 }
             });
         }

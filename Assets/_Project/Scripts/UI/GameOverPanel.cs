@@ -51,7 +51,7 @@ namespace DogtorBurguer
                 UIStyles.PANEL_LEVEL_SIZE);
 
             // Continue with gems button
-            var gemsBtn = UIFactory.CreateButton(_panel.transform, $"Continue ({Constants.CONTINUE_GEM_COST} gems)",
+            var gemsBtn = UIFactory.CreateButton(_panel.transform, $"Continue ({MonetizationConfig.CONTINUE_GEM_COST} gems)",
                 new Vector2(0, 30), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CONTINUE_GEMS,
                 UIStyles.PANEL_BUTTON_TEXT_SIZE, OnContinueGemsClicked);
             _continueGemsObj = gemsBtn.obj;
@@ -101,8 +101,8 @@ namespace DogtorBurguer
             if (!_hasContinued && SaveDataManager.Instance != null)
             {
                 int gems = SaveDataManager.Instance.Gems;
-                _continueGemsButton.interactable = gems >= Constants.CONTINUE_GEM_COST;
-                _continueGemsText.text = $"Continue ({Constants.CONTINUE_GEM_COST} gems)";
+                _continueGemsButton.interactable = gems >= MonetizationConfig.CONTINUE_GEM_COST;
+                _continueGemsText.text = $"Continue ({MonetizationConfig.CONTINUE_GEM_COST} gems)";
             }
 
             _canvas.gameObject.SetActive(true);
@@ -123,7 +123,7 @@ namespace DogtorBurguer
         private void OnContinueGemsClicked()
         {
             if (SaveDataManager.Instance == null) return;
-            if (!SaveDataManager.Instance.SpendGems(Constants.CONTINUE_GEM_COST)) return;
+            if (!SaveDataManager.Instance.SpendGems(MonetizationConfig.CONTINUE_GEM_COST)) return;
 
             _hasContinued = true;
             GameManager.Instance?.ContinueGame();

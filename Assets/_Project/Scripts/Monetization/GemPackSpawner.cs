@@ -9,7 +9,7 @@ namespace DogtorBurguer
 
         private void Start()
         {
-            _spawnTimer = Constants.GEM_PACK_SPAWN_INTERVAL;
+            _spawnTimer = MonetizationConfig.GEM_PACK_SPAWN_INTERVAL;
 
             if (GameManager.Instance != null)
                 GameManager.Instance.OnStateChanged += HandleStateChanged;
@@ -25,14 +25,14 @@ namespace DogtorBurguer
             _spawnTimer -= Time.deltaTime;
             if (_spawnTimer <= 0f)
             {
-                _spawnTimer = Constants.GEM_PACK_SPAWN_INTERVAL;
+                _spawnTimer = MonetizationConfig.GEM_PACK_SPAWN_INTERVAL;
                 TrySpawnGemPack();
             }
         }
 
         private void TrySpawnGemPack()
         {
-            if (Rng.Value > Constants.GEM_PACK_SPAWN_CHANCE) return;
+            if (Rng.Value > MonetizationConfig.GEM_PACK_SPAWN_CHANCE) return;
 
             SpawnGemPack();
         }
@@ -60,7 +60,7 @@ namespace DogtorBurguer
             _isActive = state == GameState.Playing;
 
             if (!_isActive)
-                _spawnTimer = Constants.GEM_PACK_SPAWN_INTERVAL;
+                _spawnTimer = MonetizationConfig.GEM_PACK_SPAWN_INTERVAL;
         }
 
         private void OnDestroy()

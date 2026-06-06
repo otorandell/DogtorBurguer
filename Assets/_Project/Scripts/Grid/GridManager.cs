@@ -133,8 +133,8 @@ namespace DogtorBurguer
                 }
                 else
                 {
-                    OnMatchEliminated?.Invoke(Constants.POINTS_MATCH);
-                    OnMatchEffect?.Invoke(result.EffectPosition, Constants.POINTS_MATCH);
+                    OnMatchEliminated?.Invoke(GameplayConfig.POINTS_MATCH);
+                    OnMatchEffect?.Invoke(result.EffectPosition, GameplayConfig.POINTS_MATCH);
                 }
             }
         }
@@ -232,12 +232,12 @@ namespace DogtorBurguer
                 {
                     if (falling.CurrentColumn == colA)
                     {
-                        falling.SwapToColumn(colB, Constants.INITIAL_FALL_STEP_DURATION);
+                        falling.SwapToColumn(colB, GameplayConfig.INITIAL_FALL_STEP_DURATION);
                         falling.DoWaveEffect(0f);
                     }
                     else if (falling.CurrentColumn == colB)
                     {
-                        falling.SwapToColumn(colA, Constants.INITIAL_FALL_STEP_DURATION);
+                        falling.SwapToColumn(colA, GameplayConfig.INITIAL_FALL_STEP_DURATION);
                         falling.DoWaveEffect(0f);
                     }
                 }

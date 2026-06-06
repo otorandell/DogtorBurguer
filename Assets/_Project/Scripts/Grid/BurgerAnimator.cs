@@ -154,15 +154,15 @@ namespace DogtorBurguer
 
         public static int CalculatePoints(int ingredientCount)
         {
-            int basePoints = ingredientCount * Constants.POINTS_PER_INGREDIENT;
+            int basePoints = ingredientCount * GameplayConfig.POINTS_PER_INGREDIENT;
             int bonus;
 
-            if (ingredientCount == 0) bonus = Constants.BONUS_POOR_BURGER;
-            else if (ingredientCount <= 2) bonus = Constants.BONUS_SMALL_BURGER;
-            else if (ingredientCount <= 4) bonus = Constants.BONUS_MEDIUM_BURGER;
-            else if (ingredientCount <= 6) bonus = Constants.BONUS_LARGE_BURGER;
-            else if (ingredientCount <= 8) bonus = Constants.BONUS_MEGA_BURGER;
-            else bonus = Constants.BONUS_MAX_BURGER;
+            if (ingredientCount == 0) bonus = GameplayConfig.BONUS_POOR_BURGER;
+            else if (ingredientCount <= 2) bonus = GameplayConfig.BONUS_SMALL_BURGER;
+            else if (ingredientCount <= 4) bonus = GameplayConfig.BONUS_MEDIUM_BURGER;
+            else if (ingredientCount <= 6) bonus = GameplayConfig.BONUS_LARGE_BURGER;
+            else if (ingredientCount <= 8) bonus = GameplayConfig.BONUS_MEGA_BURGER;
+            else bonus = GameplayConfig.BONUS_MAX_BURGER;
 
             return basePoints + bonus;
         }

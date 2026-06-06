@@ -67,9 +67,9 @@ namespace DogtorBurguer
 
             // Award gems
             if (SaveDataManager.Instance != null)
-                SaveDataManager.Instance.AddGems(Constants.GEM_PACK_VALUE);
+                SaveDataManager.Instance.AddGems(MonetizationConfig.GEM_PACK_VALUE);
 
-            Debug.Log($"[GemPack] Collected! +{Constants.GEM_PACK_VALUE} gems");
+            Debug.Log($"[GemPack] Collected! +{MonetizationConfig.GEM_PACK_VALUE} gems");
 
             // Collect animation
             _moveTween?.Kill();

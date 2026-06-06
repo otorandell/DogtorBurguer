@@ -95,7 +95,7 @@ namespace DogtorBurguer
 
         public bool ShouldShowInterstitial()
         {
-            return GamesPlayed > 0 && GamesPlayed % Constants.INTERSTITIAL_EVERY_N_GAMES == 0;
+            return GamesPlayed > 0 && GamesPlayed % MonetizationConfig.INTERSTITIAL_EVERY_N_GAMES == 0;
         }
     }
 }
