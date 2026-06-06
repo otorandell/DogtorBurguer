@@ -130,7 +130,7 @@ namespace DogtorBurguer
 
                 SpriteRenderer sr = bubble.AddComponent<SpriteRenderer>();
                 sr.sprite = circleSprite;
-                sr.sortingOrder = -1;
+                sr.sortingOrder = Constants.SORT_CHEF_BUBBLE;
 
                 _bubbles[i] = bubble;
                 _bubbleRenderers[i] = sr;

@@ -119,7 +119,7 @@ namespace DogtorBurguer
 
             SpriteRenderer sr = preview.AddComponent<SpriteRenderer>();
             sr.sprite = sprite;
-            sr.sortingOrder = 90;
+            sr.sortingOrder = Constants.SORT_WAVE_PREVIEW;
             sr.color = new Color(1f, 1f, 1f, AnimConfig.PREVIEW_INITIAL_ALPHA);
 
             return preview;

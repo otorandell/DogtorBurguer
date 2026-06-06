@@ -31,7 +31,7 @@ namespace DogtorBurguer
 
             _flashRenderer = flashObj.AddComponent<SpriteRenderer>();
             _flashRenderer.sprite = CreateWhiteSprite();
-            _flashRenderer.sortingOrder = 200;
+            _flashRenderer.sortingOrder = Constants.SORT_SCREEN_FLASH;
             _flashRenderer.color = Color.clear;
 
             // Scale to cover camera view
@@ -92,7 +92,7 @@ namespace DogtorBurguer
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.textWrappingMode = TextWrappingModes.NoWrap;
             tmp.overflowMode = TextOverflowModes.Overflow;
-            tmp.sortingOrder = 100;
+            tmp.sortingOrder = Constants.SORT_FEEDBACK_TEXT;
             tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_WORLD;
             tmp.outlineColor = UIStyles.OUTLINE_COLOR;
             tmp.rectTransform.sizeDelta = new Vector2(4f, 2f);

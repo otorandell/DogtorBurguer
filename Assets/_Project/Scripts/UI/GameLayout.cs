@@ -41,7 +41,7 @@ namespace DogtorBurguer
             panelObj.transform.position = new Vector3(center.x, center.y, 5f);
 
             SpriteRenderer sr = panelObj.AddComponent<SpriteRenderer>();
-            sr.sortingOrder = -50;
+            sr.sortingOrder = Constants.SORT_GAME_PANEL;
             sr.sprite = _panelSprite;
             sr.drawMode = SpriteDrawMode.Sliced;
             sr.size = size;

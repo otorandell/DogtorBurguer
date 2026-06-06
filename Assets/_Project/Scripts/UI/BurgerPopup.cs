@@ -26,7 +26,7 @@ namespace DogtorBurguer
             _nameText.textWrappingMode = TextWrappingModes.NoWrap;
             _nameText.overflowMode = TextOverflowModes.Overflow;
             _nameText.fontStyle = FontStyles.Bold;
-            _nameText.sortingOrder = 110;
+            _nameText.sortingOrder = Constants.SORT_BURGER_POPUP;
             _nameText.outlineWidth = UIStyles.OUTLINE_WIDTH_WORLD;
             _nameText.outlineColor = UIStyles.OUTLINE_COLOR;
             _nameText.rectTransform.sizeDelta = new Vector2(6f, 2f);
@@ -43,7 +43,7 @@ namespace DogtorBurguer
             _scoreText.alignment = TextAlignmentOptions.Center;
             _scoreText.textWrappingMode = TextWrappingModes.NoWrap;
             _scoreText.overflowMode = TextOverflowModes.Overflow;
-            _scoreText.sortingOrder = 110;
+            _scoreText.sortingOrder = Constants.SORT_BURGER_POPUP;
             _scoreText.outlineWidth = UIStyles.OUTLINE_WIDTH_WORLD;
             _scoreText.outlineColor = UIStyles.OUTLINE_COLOR;
             _scoreText.rectTransform.sizeDelta = new Vector2(4f, 1.5f);

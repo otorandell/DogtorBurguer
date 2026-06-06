@@ -24,7 +24,7 @@ namespace DogtorBurguer
             bgObj.transform.position = new Vector3(0, 0, 10f);
 
             _renderer = bgObj.AddComponent<SpriteRenderer>();
-            _renderer.sortingOrder = -100;
+            _renderer.sortingOrder = Constants.SORT_BACKGROUND;
 
             if (_backgroundSprite != null)
             {
@@ -84,7 +84,7 @@ namespace DogtorBurguer
             filterObj.transform.SetParent(transform, false);
 
             _filter = filterObj.AddComponent<SpriteRenderer>();
-            _filter.sortingOrder = -99;
+            _filter.sortingOrder = Constants.SORT_BACKGROUND_FILTER;
             _filter.color = new Color(1f, 1f, 1f, _filterOpacity);
 
             // 1x1 white pixel sprite

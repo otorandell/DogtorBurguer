@@ -16,7 +16,7 @@ namespace DogtorBurguer
             tmp.fontSize = fontSize;
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.sortingOrder = 100;
+            tmp.sortingOrder = Constants.SORT_FLOATING_TEXT;
             tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_WORLD;
             tmp.outlineColor = UIStyles.OUTLINE_COLOR;
 

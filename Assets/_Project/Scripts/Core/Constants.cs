@@ -16,5 +16,20 @@ namespace DogtorBurguer
 
         // Chef positions (between columns) — always one fewer than the columns
         public const int CHEF_POSITION_COUNT = COLUMN_COUNT - 1;
+
+        // Sorting layers (sprite/text render order; higher = nearer the camera).
+        // Structural — these define z-ordering between systems, not gameplay feel.
+        public const int SORT_BACKGROUND = -100;
+        public const int SORT_BACKGROUND_FILTER = -99;
+        public const int SORT_GAME_PANEL = -50;
+        public const int SORT_CHEF_BUBBLE = -1;
+        public const int SORT_CHALLENGE_BASE = 60;
+        public const int SORT_WAVE_PREVIEW = 90;
+        public const int SORT_GEM_PACK = 100;
+        public const int SORT_FLOATING_TEXT = 100;
+        public const int SORT_SCORE_POPUP = 100;
+        public const int SORT_FEEDBACK_TEXT = 100;
+        public const int SORT_BURGER_POPUP = 110;
+        public const int SORT_SCREEN_FLASH = 200;
     }
 }

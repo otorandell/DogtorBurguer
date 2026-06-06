@@ -16,7 +16,7 @@ namespace DogtorBurguer
 
             // Create sprite
             _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
-            _spriteRenderer.sortingOrder = 100;
+            _spriteRenderer.sortingOrder = Constants.SORT_GEM_PACK;
             _spriteRenderer.color = UIStyles.BTN_GEM_PACK;
 
             // Create a simple diamond shape via scale

@@ -15,7 +15,7 @@ namespace DogtorBurguer
 
             _text.text = $"+{points}";
             _text.color = color;
-            _text.sortingOrder = 100;
+            _text.sortingOrder = Constants.SORT_SCORE_POPUP;
 
             Animate();
         }

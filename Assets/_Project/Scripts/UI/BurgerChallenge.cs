@@ -14,7 +14,7 @@ namespace DogtorBurguer
         [Header("Burger Display")]
         [SerializeField] private float _ingredientSpacing = 0.18f;
         [SerializeField] private float _ingredientScale = 1.0f;
-        [SerializeField] private int _sortingOrder = 60;
+        [SerializeField] private int _sortingOrder = Constants.SORT_CHALLENGE_BASE;
 
         [Header("Placeholder")]
         [SerializeField] private Sprite _spritePlaceholder;
