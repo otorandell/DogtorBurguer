@@ -8,7 +8,6 @@ namespace DogtorBurguer
 
         // Cell size in world units
         public const float CELL_WIDTH = 1.4f;
-        public const float CELL_HEIGHT = 1.0f;
         public const float CELL_VISUAL_HEIGHT = 0.40f; // 60% overlap between rows
 
         // Grid positioning (bottom-left of grid)

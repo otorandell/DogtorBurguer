@@ -6,8 +6,6 @@ namespace DogtorBurguer
 {
     public class FloatingText : MonoBehaviour
     {
-        private static GameObject _prefab;
-
         public static void Spawn(Vector3 worldPos, string text, Color color, float fontSize = UIStyles.WORLD_FLOATING_TEXT_SIZE)
         {
             GameObject obj = new GameObject("FloatingText");

@@ -19,8 +19,9 @@ These extend or override the global rules in `~/.claude/CLAUDE.md`.
 ```
 Assets/_Project/Scripts/
   Chef/          ChefController
-  Core/          GameManager, GameState, Constants, DifficultyManager,
-                 SaveDataManager, ControlMode, FeedbackManager, Rng, SceneLoader
+  Core/          GameManager, GameState, Constants, GameplayConfig, UIStyles,
+                 AnimConfig, DifficultyManager, SaveDataManager, ControlMode,
+                 FeedbackManager, Rng, SceneLoader
   Grid/          GridManager, Column, MatchDetector, BurgerAnimator
   Ingredients/   Ingredient, IngredientSpawner, IngredientType, WavePreviewManager
   Input/         TouchInputHandler

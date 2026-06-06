@@ -191,11 +191,6 @@ namespace DogtorBurguer
             CheckAndProcessBurger(data.Column);
         }
 
-        public void SwapColumnTops(int columnA, int columnB)
-        {
-            SwapColumns(columnA, columnB);
-        }
-
         public void SwapColumnsWithWaveEffect(int columnA, int columnB)
         {
             Column colA = GetColumn(columnA);
@@ -257,67 +252,6 @@ namespace DogtorBurguer
         {
             yield return new WaitForSeconds(delay);
 
-            if (!colA.IsEmpty)
-            {
-                CheckAndProcessMatches(colA);
-                CheckAndProcessBurger(colA);
-            }
-            if (!colB.IsEmpty)
-            {
-                CheckAndProcessMatches(colB);
-                CheckAndProcessBurger(colB);
-            }
-        }
-
-        public void SwapColumns(int columnA, int columnB)
-        {
-            Column colA = GetColumn(columnA);
-            Column colB = GetColumn(columnB);
-
-            if (colA == null || colB == null) return;
-
-            // Get the Y threshold - falling ingredients below this level get swapped too
-            float thresholdY = Mathf.Max(
-                colA.GetNextLandingPosition().y,
-                colB.GetNextLandingPosition().y
-            ) + (Constants.CELL_VISUAL_HEIGHT * GameplayConfig.SWAP_THRESHOLD_BUFFER_MULT);
-
-            // Swap all stacked ingredients
-            List<Ingredient> ingredientsA = colA.TakeAllIngredients();
-            List<Ingredient> ingredientsB = colB.TakeAllIngredients();
-
-            colA.SetAllIngredients(ingredientsB);
-            colB.SetAllIngredients(ingredientsA);
-
-            // Animate stacked ingredients to their new positions
-            foreach (var ing in ingredientsA)
-            {
-                ing.AnimateToCurrentPosition();
-            }
-            foreach (var ing in ingredientsB)
-            {
-                ing.AnimateToCurrentPosition();
-            }
-
-            // Swap falling ingredients that are below the threshold
-            foreach (var falling in new List<Ingredient>(_fallingIngredients))
-            {
-                if (falling == null || falling.IsLanded) continue;
-
-                if (falling.CurrentY <= thresholdY)
-                {
-                    if (falling.CurrentColumn == colA)
-                    {
-                        falling.SwapToColumn(colB, Constants.INITIAL_FALL_STEP_DURATION);
-                    }
-                    else if (falling.CurrentColumn == colB)
-                    {
-                        falling.SwapToColumn(colA, Constants.INITIAL_FALL_STEP_DURATION);
-                    }
-                }
-            }
-
-            // Check for matches and burgers after swap
             if (!colA.IsEmpty)
             {
                 CheckAndProcessMatches(colA);
