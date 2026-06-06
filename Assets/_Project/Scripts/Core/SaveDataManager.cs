@@ -13,6 +13,11 @@ namespace DogtorBurguer
         private const string KEY_GAMES_PLAYED = "gamesPlayed";
         private const string KEY_CONTROL_MODE = "controlMode";
 
+        // Canonical first-run defaults. Single source of truth — referenced by
+        // LoadData and by consumers that need a fallback when Instance is null.
+        public const bool DEFAULT_SOUND_ON = true;
+        public const ControlMode DEFAULT_CONTROL_MODE = ControlMode.Drag;
+
         public event Action<int> OnGemsChanged;
 
         public int Gems { get; private set; }
@@ -38,9 +43,9 @@ namespace DogtorBurguer
         {
             Gems = PlayerPrefs.GetInt(KEY_GEMS, 0);
             HighScore = PlayerPrefs.GetInt(KEY_HIGH_SCORE, 0);
-            SoundOn = PlayerPrefs.GetInt(KEY_SOUND_ON, 1) == 1;
+            SoundOn = PlayerPrefs.GetInt(KEY_SOUND_ON, DEFAULT_SOUND_ON ? 1 : 0) == 1;
             GamesPlayed = PlayerPrefs.GetInt(KEY_GAMES_PLAYED, 0);
-            ControlMode = (ControlMode)PlayerPrefs.GetInt(KEY_CONTROL_MODE, (int)ControlMode.Drag);
+            ControlMode = (ControlMode)PlayerPrefs.GetInt(KEY_CONTROL_MODE, (int)DEFAULT_CONTROL_MODE);
         }
 
         public void AddGems(int amount)

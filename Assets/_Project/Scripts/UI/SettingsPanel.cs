@@ -7,7 +7,6 @@ namespace DogtorBurguer
     public class SettingsPanel : MonoBehaviour
     {
         private GameObject _panel;
-        private Canvas _canvas;
         private TextMeshProUGUI _soundLabel;
         private TextMeshProUGUI _controlLabel;
 
@@ -32,10 +31,10 @@ namespace DogtorBurguer
 
         private void CreatePanel()
         {
-            _canvas = FindAnyObjectByType<Canvas>();
+            Canvas canvas = FindAnyObjectByType<Canvas>();
 
             // Overlay container
-            _panel = UIFactory.CreateOverlay(_canvas.transform, UIStyles.OVERLAY_DARK);
+            _panel = UIFactory.CreateOverlay(canvas.transform, UIStyles.OVERLAY_DARK);
 
             // Inner panel
             GameObject inner = UIFactory.CreatePanel(_panel.transform, UIStyles.SETTINGS_PANEL_SIZE, UIStyles.INNER_PANEL_BG);
@@ -44,15 +43,16 @@ namespace DogtorBurguer
             UIFactory.CreateText(inner.transform, "Settings", UIStyles.SETTINGS_TITLE_POS, UIStyles.SETTINGS_TITLE_RECT,
                 UIStyles.PANEL_TITLE_SIZE, FontStyles.Bold);
 
-            // Sound toggle button
-            var soundBtn = UIFactory.CreateButton(inner.transform, "", UIStyles.SETTINGS_SOUND_POS,
+            // Sound toggle button (label text is set by UpdateSoundLabel; the
+            // create-time string is the GameObject name)
+            var soundBtn = UIFactory.CreateButton(inner.transform, "Sound", UIStyles.SETTINGS_SOUND_POS,
                 UIStyles.SETTINGS_BUTTON_SIZE, UIStyles.BTN_SETTINGS_TOGGLE,
                 UIStyles.SETTINGS_BUTTON_TEXT_SIZE, OnSoundToggleClicked);
             _soundLabel = soundBtn.label;
             UpdateSoundLabel();
 
-            // Control mode toggle button
-            var controlBtn = UIFactory.CreateButton(inner.transform, "", UIStyles.SETTINGS_CONTROL_POS,
+            // Control mode toggle button (label text set by UpdateControlLabel)
+            var controlBtn = UIFactory.CreateButton(inner.transform, "Controls", UIStyles.SETTINGS_CONTROL_POS,
                 UIStyles.SETTINGS_BUTTON_SIZE, UIStyles.BTN_SETTINGS_TOGGLE,
                 UIStyles.SETTINGS_BUTTON_TEXT_SIZE, OnControlToggleClicked);
             _controlLabel = controlBtn.label;
@@ -78,7 +78,9 @@ namespace DogtorBurguer
         private void UpdateSoundLabel()
         {
             if (_soundLabel == null) return;
-            bool soundOn = SaveDataManager.Instance != null ? SaveDataManager.Instance.SoundOn : true;
+            bool soundOn = SaveDataManager.Instance != null
+                ? SaveDataManager.Instance.SoundOn
+                : SaveDataManager.DEFAULT_SOUND_ON;
             _soundLabel.text = soundOn ? "Sound: ON" : "Sound: OFF";
         }
 
@@ -97,7 +99,7 @@ namespace DogtorBurguer
             if (_controlLabel == null) return;
             ControlMode mode = SaveDataManager.Instance != null
                 ? SaveDataManager.Instance.ControlMode
-                : ControlMode.Drag;
+                : SaveDataManager.DEFAULT_CONTROL_MODE;
             _controlLabel.text = mode == ControlMode.Drag ? "Controls: Drag" : "Controls: Tap";
         }
     }

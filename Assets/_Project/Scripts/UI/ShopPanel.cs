@@ -7,7 +7,6 @@ namespace DogtorBurguer
     public class ShopPanel : MonoBehaviour
     {
         private GameObject _panel;
-        private Canvas _canvas;
 
         public void Show()
         {
@@ -28,10 +27,10 @@ namespace DogtorBurguer
 
         private void CreatePanel()
         {
-            _canvas = FindAnyObjectByType<Canvas>();
+            Canvas canvas = FindAnyObjectByType<Canvas>();
 
             // Overlay container
-            _panel = UIFactory.CreateOverlay(_canvas.transform, UIStyles.OVERLAY_DARK);
+            _panel = UIFactory.CreateOverlay(canvas.transform, UIStyles.OVERLAY_DARK);
 
             // Inner panel
             GameObject inner = UIFactory.CreatePanel(_panel.transform, UIStyles.SHOP_PANEL_SIZE, UIStyles.INNER_PANEL_BG);
