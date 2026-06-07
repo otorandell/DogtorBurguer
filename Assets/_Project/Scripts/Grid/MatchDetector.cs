@@ -10,12 +10,6 @@ namespace DogtorBurguer
     /// </summary>
     public static class MatchDetector
     {
-        public struct MatchResult
-        {
-            public Vector3 EffectPosition;
-            public bool IsBunMatch;
-        }
-
         public struct BurgerDetection
         {
             public bool Found;
