@@ -227,7 +227,7 @@ namespace DogtorBurguer
             // Swap falling ingredients that are below the threshold
             foreach (var falling in new List<Ingredient>(_fallingIngredients))
             {
-                if (falling == null || falling.IsLanded) continue;
+                if (falling == null || falling.State == IngredientState.Landed) continue;
 
                 if (falling.CurrentY <= thresholdY)
                 {

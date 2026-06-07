@@ -169,7 +169,7 @@ namespace DogtorBurguer
             foreach (var ing in _currentWaveIngredients)
             {
                 if (ing == null) continue; // destroyed
-                if (!ing.IsLanded) return false;
+                if (ing.State != IngredientState.Landed) return false;
             }
             return true;
         }
@@ -318,7 +318,7 @@ namespace DogtorBurguer
 
             foreach (var ingredient in GridManager.Instance.GetFallingIngredients())
             {
-                if (ingredient == null || ingredient.IsLanded) continue;
+                if (ingredient == null || ingredient.State == IngredientState.Landed) continue;
 
                 float dist = Vector2.Distance(worldPos, ingredient.transform.position);
                 if (dist < Constants.CELL_WIDTH * GameplayConfig.FALLING_TAP_RADIUS_MULT)

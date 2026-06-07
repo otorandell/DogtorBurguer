@@ -10,16 +10,14 @@ namespace DogtorBurguer
 
         private Column _currentColumn;
         private int _currentRow;
-        private bool _isLanded;
-        private bool _isFalling;
+        private IngredientState _state = IngredientState.Spawned;
         private Tween _currentTween;
         private Tween _waveTween;
 
         public IngredientType Type => _type;
         public Column CurrentColumn => _currentColumn;
         public int CurrentRow => _currentRow;
-        public bool IsLanded => _isLanded;
-        public bool IsFalling => _isFalling;
+        public IngredientState State => _state;
 
         private void Awake()
         {
@@ -33,8 +31,7 @@ namespace DogtorBurguer
         {
             _type = type;
             _currentColumn = column;
-            _isLanded = false;
-            _isFalling = false;
+            _state = IngredientState.Spawned;
 
             // Auto-get SpriteRenderer if not assigned
             if (_spriteRenderer == null)
@@ -63,8 +60,8 @@ namespace DogtorBurguer
 
         public void StartFalling(float stepDuration)
         {
-            if (_isFalling) return;
-            _isFalling = true;
+            if (_state == IngredientState.Falling) return;
+            _state = IngredientState.Falling;
 
             // Falling ingredients render in front of stacked ones
             if (_spriteRenderer != null)
@@ -88,7 +85,7 @@ namespace DogtorBurguer
 
         private void FallOneStep(float stepDuration)
         {
-            if (_isLanded || !_isFalling) return;
+            if (_state != IngredientState.Falling) return;
 
             int targetRow = _currentColumn.StackHeight;
             Vector3 currentPos = transform.position;
@@ -121,8 +118,7 @@ namespace DogtorBurguer
 
         private void Land()
         {
-            _isFalling = false;
-            _isLanded = true;
+            _state = IngredientState.Landed;
 
             // Unregister as falling ingredient
             GridManager.Instance?.UnregisterFallingIngredient(this);
@@ -215,7 +211,7 @@ namespace DogtorBurguer
             transform.position = pos;
 
             // Resume falling
-            if (_isFalling && !_isLanded)
+            if (_state == IngredientState.Falling)
             {
                 FallOneStep(stepDuration);
             }
@@ -228,7 +224,7 @@ namespace DogtorBurguer
 
         public void FastDrop()
         {
-            if (!_isFalling || _isLanded) return;
+            if (_state != IngredientState.Falling) return;
 
             // Calculate distance remaining
             float landingY = Constants.GRID_ORIGIN_Y + (_currentColumn.StackHeight * Constants.CELL_VISUAL_HEIGHT);
