@@ -25,9 +25,11 @@ namespace DogtorBurguer
         public int TestDualColumnLevel => _testDualColumnLevel;
 
         private GameState _currentState = GameState.Menu;
+        private bool _isPaused;
         private int _score;
 
         public GameState CurrentState => _currentState;
+        public bool IsPaused => _isPaused;
         public int Score => _score;
 
         public event Action<GameState> OnStateChanged;
@@ -110,20 +112,23 @@ namespace DogtorBurguer
             Debug.Log("[GameManager] Game Started!");
         }
 
+        // Pause is a modifier on the Playing state, not a peer state — you can only
+        // pause while Playing, and resuming returns to Playing. Kept off GameState so
+        // the state machine stays {Menu, Playing, GameOver}.
         public void PauseGame()
         {
-            if (_currentState != GameState.Playing) return;
+            if (_currentState != GameState.Playing || _isPaused) return;
 
-            SetState(GameState.Paused);
+            _isPaused = true;
             _spawner?.StopSpawning();
             Time.timeScale = 0f;
         }
 
         public void ResumeGame()
         {
-            if (_currentState != GameState.Paused) return;
+            if (!_isPaused) return;
 
-            SetState(GameState.Playing);
+            _isPaused = false;
             _spawner?.StartSpawning();
             Time.timeScale = 1f;
         }

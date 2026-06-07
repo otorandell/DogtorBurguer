@@ -40,7 +40,10 @@ namespace DogtorBurguer
 
         private void Update()
         {
-            if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameState.Playing)
+            // Block gameplay input unless actively playing. Pause is now a modifier on
+            // the Playing state (F-21), so check IsPaused too — CurrentState stays Playing.
+            if (GameManager.Instance != null &&
+                (GameManager.Instance.CurrentState != GameState.Playing || GameManager.Instance.IsPaused))
             {
                 return;
             }

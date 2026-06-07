@@ -4,7 +4,6 @@ namespace DogtorBurguer
     {
         Menu,
         Playing,
-        Paused,
         GameOver
     }
 }
