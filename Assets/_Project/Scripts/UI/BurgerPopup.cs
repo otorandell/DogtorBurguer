@@ -17,36 +17,19 @@ namespace DogtorBurguer
 
         private void CreateTexts(string burgerName, int points, Color nameColor)
         {
-            // Burger name (main text)
-            _nameText = gameObject.AddComponent<TextMeshPro>();
-            _nameText.text = burgerName;
-            _nameText.fontSize = UIStyles.WORLD_BURGER_NAME_SIZE;
-            _nameText.color = nameColor;
-            _nameText.alignment = TextAlignmentOptions.Center;
-            _nameText.textWrappingMode = TextWrappingModes.NoWrap;
-            _nameText.overflowMode = TextOverflowModes.Overflow;
-            _nameText.fontStyle = FontStyles.Bold;
-            _nameText.sortingOrder = Constants.SORT_BURGER_POPUP;
-            _nameText.outlineWidth = UIStyles.OUTLINE_WIDTH_WORLD;
-            _nameText.outlineColor = UIStyles.OUTLINE_COLOR;
-            _nameText.rectTransform.sizeDelta = new Vector2(6f, 2f);
+            // Burger name (main text) — on this popup's own GameObject
+            _nameText = WorldTextFactory.Create(gameObject, burgerName,
+                UIStyles.WORLD_BURGER_NAME_SIZE, nameColor, Constants.SORT_BURGER_POPUP,
+                new Vector2(6f, 2f), FontStyles.Bold, UIStyles.OUTLINE_WIDTH_WORLD);
 
             // Score text (child object, below name)
             GameObject scoreObj = new GameObject("ScoreText");
             scoreObj.transform.SetParent(transform);
             scoreObj.transform.localPosition = new Vector3(0, AnimConfig.BURGER_POPUP_SCORE_OFFSET_Y, 0);
 
-            _scoreText = scoreObj.AddComponent<TextMeshPro>();
-            _scoreText.text = $"+{points}";
-            _scoreText.fontSize = UIStyles.WORLD_BURGER_SCORE_SIZE;
-            _scoreText.color = UIStyles.TEXT_UI;
-            _scoreText.alignment = TextAlignmentOptions.Center;
-            _scoreText.textWrappingMode = TextWrappingModes.NoWrap;
-            _scoreText.overflowMode = TextOverflowModes.Overflow;
-            _scoreText.sortingOrder = Constants.SORT_BURGER_POPUP;
-            _scoreText.outlineWidth = UIStyles.OUTLINE_WIDTH_WORLD;
-            _scoreText.outlineColor = UIStyles.OUTLINE_COLOR;
-            _scoreText.rectTransform.sizeDelta = new Vector2(4f, 1.5f);
+            _scoreText = WorldTextFactory.Create(scoreObj, $"+{points}",
+                UIStyles.WORLD_BURGER_SCORE_SIZE, UIStyles.TEXT_UI, Constants.SORT_BURGER_POPUP,
+                new Vector2(4f, 1.5f), FontStyles.Normal, UIStyles.OUTLINE_WIDTH_WORLD);
         }
 
         private void Animate()
