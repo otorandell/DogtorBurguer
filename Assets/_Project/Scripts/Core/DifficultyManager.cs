@@ -58,7 +58,10 @@ namespace DogtorBurguer
                 }
             }
 
-            if (newLevel != _currentLevel)
+            // Level only ever rises with ingredients placed; using '>' (not '!=') keeps a
+            // manually-raised level (e.g. dual-column test mode) from being reset to 1 on
+            // the first placement, when _ingredientsPlaced hasn't caught up yet.
+            if (newLevel > _currentLevel)
             {
                 _currentLevel = newLevel;
                 ApplyDifficulty();
