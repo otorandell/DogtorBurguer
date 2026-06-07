@@ -81,7 +81,21 @@ namespace DogtorBurguer
 
             _spawner.SetFallSpeed(fallStep);
             _spawner.SetActiveIngredientCount(ingredientCount);
-            _spawner.SetCurrentLevel(_currentLevel);
+            _spawner.SetTripleWaveChance(ComputeTripleWaveChance());
+        }
+
+        /// <summary>
+        /// Probability that a wave spawns three ingredients instead of two. Ramps from
+        /// 0 at TRIPLE_WAVE_START_LEVEL up to TRIPLE_WAVE_MAX_CHANCE at MAX_LEVEL.
+        /// </summary>
+        private float ComputeTripleWaveChance()
+        {
+            if (_currentLevel < GameplayConfig.TRIPLE_WAVE_START_LEVEL)
+                return 0f;
+
+            float t = (_currentLevel - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL) /
+                      (GameplayConfig.MAX_LEVEL - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL);
+            return t * GameplayConfig.TRIPLE_WAVE_MAX_CHANCE;
         }
     }
 }

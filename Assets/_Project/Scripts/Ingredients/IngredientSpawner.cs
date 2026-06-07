@@ -34,7 +34,7 @@ namespace DogtorBurguer
         private SpawnerState _state = SpawnerState.Delaying;
         private Dictionary<IngredientType, Sprite> _spriteMap;
         private int _spawnsSinceLastBun;
-        private int _currentLevel = 1;
+        private float _tripleWaveChance;
 
         // Wave state
         private List<Ingredient> _currentWaveIngredients = new();
@@ -94,9 +94,9 @@ namespace DogtorBurguer
             }
         }
 
-        public void SetCurrentLevel(int level)
+        public void SetTripleWaveChance(float chance)
         {
-            _currentLevel = level;
+            _tripleWaveChance = chance;
         }
 
         public void StartSpawning()
@@ -204,13 +204,9 @@ namespace DogtorBurguer
 
         private int GetWaveSize()
         {
-            if (_currentLevel >= GameplayConfig.TRIPLE_WAVE_START_LEVEL)
-            {
-                float tripleT = (_currentLevel - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL) / (GameplayConfig.MAX_LEVEL - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL);
-                float tripleChance = tripleT * GameplayConfig.TRIPLE_WAVE_MAX_CHANCE;
-                if (Rng.Value < tripleChance) return 3;
-            }
-            return 2;
+            // Triple-wave chance is computed and pushed by DifficultyManager (F-37);
+            // the spawner is value-driven and no longer references "level".
+            return Rng.Value < _tripleWaveChance ? 3 : 2;
         }
 
         private int GetUnusedColumn(List<int> usedColumns)
