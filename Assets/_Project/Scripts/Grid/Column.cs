@@ -139,15 +139,11 @@ namespace DogtorBurguer
             top = _ingredients[_ingredients.Count - 1];
             second = _ingredients[_ingredients.Count - 2];
 
-            // Regular ingredients match each other
-            if (top.Type.IsRegularIngredient() && second.Type.IsRegularIngredient())
-                return top.Type == second.Type;
-
-            // Bottom buns cancel each other
-            if (top.Type == IngredientType.BunBottom && second.Type == IngredientType.BunBottom)
-                return true;
-
-            return false;
+            // A plain type-equality covers every reachable case: matching regulars,
+            // and BunBottom+BunBottom cancellation. BunTop+BunTop can't occur — lone
+            // BunTops self-destruct on land (GridManager.OnIngredientLanded), and column
+            // swaps move contents intact, so they never become adjacent.
+            return top.Type == second.Type;
         }
 
         /// <summary>

@@ -15,17 +15,4 @@ namespace DogtorBurguer
         BunBottom = 10,
         BunTop = 11
     }
-
-    public static class IngredientTypeExtensions
-    {
-        public static bool IsBun(this IngredientType type)
-        {
-            return type == IngredientType.BunBottom || type == IngredientType.BunTop;
-        }
-
-        public static bool IsRegularIngredient(this IngredientType type)
-        {
-            return (int)type >= 0 && (int)type <= 6;
-        }
-    }
 }
