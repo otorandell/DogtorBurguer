@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
@@ -5,8 +6,15 @@ namespace DogtorBurguer
 {
     public class GemPack : MonoBehaviour
     {
+        // Active, uncollected packs. Taps are routed here from TouchInputHandler:
+        // the project uses the New Input System, so OnMouseDown never fires (F-48).
+        private static readonly List<GemPack> _active = new List<GemPack>();
+        private static Sprite _gemSprite;
+
+        // World-space tap radius — generous, since the pulsing visual is smaller.
+        private const float TapRadius = 0.8f;
+
         private SpriteRenderer _spriteRenderer;
-        private Collider2D _collider;
         private bool _collected;
         private Tween _moveTween;
 
@@ -14,18 +22,13 @@ namespace DogtorBurguer
         {
             transform.position = startPos;
 
-            // Create sprite
+            // Diamond sprite (cached + reused across packs)
             _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
+            _spriteRenderer.sprite = GetGemSprite();
             _spriteRenderer.sortingOrder = Constants.SORT_GEM_PACK;
             _spriteRenderer.color = UIStyles.BTN_GEM_PACK;
 
-            // Create a simple diamond shape via scale
             transform.localScale = Vector3.one * AnimConfig.GEM_START_SCALE;
-
-            // Add collider for tap detection
-            CircleCollider2D col = gameObject.AddComponent<CircleCollider2D>();
-            col.radius = 0.8f;
-            _collider = col;
 
             // Fly across with sine wobble
             float midY = (startPos.y + endPos.y) * 0.5f + Rng.Range(-1f, 1f);
@@ -53,17 +56,39 @@ namespace DogtorBurguer
             transform.DOScale(Vector3.one * AnimConfig.GEM_PULSE_MAX_SCALE, AnimConfig.GEM_PULSE_DURATION)
                 .SetLoops(-1, LoopType.Yoyo)
                 .SetEase(Ease.InOutSine);
+
+            _active.Add(this);
         }
 
-        private void OnMouseDown()
+        /// <summary>
+        /// Collects the active pack nearest <paramref name="worldPos"/> within tap range.
+        /// Returns true if a pack was collected (so the tap is consumed).
+        /// </summary>
+        public static bool TryTapAt(Vector3 worldPos)
         {
-            Collect();
+            for (int i = _active.Count - 1; i >= 0; i--)
+            {
+                GemPack pack = _active[i];
+                if (pack == null)
+                {
+                    _active.RemoveAt(i);
+                    continue;
+                }
+
+                if (Vector2.Distance(worldPos, pack.transform.position) <= TapRadius)
+                {
+                    pack.Collect();
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void Collect()
         {
             if (_collected) return;
             _collected = true;
+            _active.Remove(this);
 
             // Award gems
             if (SaveDataManager.Instance != null)
@@ -83,8 +108,31 @@ namespace DogtorBurguer
 
         private void OnDestroy()
         {
+            _active.Remove(this);
             _moveTween?.Kill();
             DOTween.Kill(transform);
+        }
+
+        /// <summary>Builds the diamond sprite once and reuses it for every pack.</summary>
+        private static Sprite GetGemSprite()
+        {
+            if (_gemSprite != null) return _gemSprite;
+
+            const int size = 64;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            float center = (size - 1) / 2f;
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    // Rhombus: inside when Manhattan distance from center is within the radius
+                    bool inside = Mathf.Abs(x - center) + Mathf.Abs(y - center) <= center;
+                    tex.SetPixel(x, y, inside ? Color.white : Color.clear);
+                }
+            }
+            tex.Apply();
+            _gemSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+            return _gemSprite;
         }
     }
 }

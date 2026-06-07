@@ -188,6 +188,10 @@ namespace DogtorBurguer
                 if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos))
                     return;
 
+                // Check gem pack tap
+                if (GemPack.TryTapAt(worldPos))
+                    return;
+
                 // Check if tapped on/near the chef → swap
                 float chefDist = Vector2.Distance(worldPos, _chef.transform.position);
                 if (chefDist < _chef.BubbleRadius * 2f)
@@ -218,6 +222,9 @@ namespace DogtorBurguer
                     return;
 
                 if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos))
+                    return;
+
+                if (GemPack.TryTapAt(worldPos))
                     return;
             }
 

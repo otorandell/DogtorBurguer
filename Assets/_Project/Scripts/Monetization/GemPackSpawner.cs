@@ -4,23 +4,20 @@ namespace DogtorBurguer
 {
     public class GemPackSpawner : MonoBehaviour
     {
-        private float _spawnTimer;
-        private bool _isActive;
-
-        private void Start()
-        {
-            _spawnTimer = MonetizationConfig.GEM_PACK_SPAWN_INTERVAL;
-
-            if (GameManager.Instance != null)
-                GameManager.Instance.OnStateChanged += HandleStateChanged;
-
-            _isActive = GameManager.Instance != null &&
-                        GameManager.Instance.CurrentState == GameState.Playing;
-        }
+        private float _spawnTimer = MonetizationConfig.GEM_PACK_SPAWN_INTERVAL;
 
         private void Update()
         {
-            if (!_isActive) return;
+            // Read game state directly each frame. The old approach subscribed once in
+            // Start and only if GameManager already existed — if it didn't, spawning was
+            // silently disabled forever. Reading here is order-independent (F-51).
+            bool isPlaying = GameManager.Instance != null &&
+                             GameManager.Instance.CurrentState == GameState.Playing;
+            if (!isPlaying)
+            {
+                _spawnTimer = MonetizationConfig.GEM_PACK_SPAWN_INTERVAL;
+                return;
+            }
 
             _spawnTimer -= Time.deltaTime;
             if (_spawnTimer <= 0f)
@@ -53,20 +50,6 @@ namespace DogtorBurguer
             GameObject packObj = new GameObject("GemPack");
             GemPack pack = packObj.AddComponent<GemPack>();
             pack.Initialize(startPos, endPos, duration);
-        }
-
-        private void HandleStateChanged(GameState state)
-        {
-            _isActive = state == GameState.Playing;
-
-            if (!_isActive)
-                _spawnTimer = MonetizationConfig.GEM_PACK_SPAWN_INTERVAL;
-        }
-
-        private void OnDestroy()
-        {
-            if (GameManager.Instance != null)
-                GameManager.Instance.OnStateChanged -= HandleStateChanged;
         }
     }
 }
