@@ -5,8 +5,6 @@ namespace DogtorBurguer
 {
     public class IngredientSpawner : MonoBehaviour
     {
-        private enum SpawnerState { Idle, Delaying, WaveFalling, WaitingForLand }
-
         [Header("Prefabs")]
         [SerializeField] private GameObject _ingredientPrefab;
 
@@ -33,7 +31,7 @@ namespace DogtorBurguer
         [SerializeField] private float _initialDelay = GameplayConfig.INITIAL_SPAWN_DELAY;
 
         private bool _active;
-        private SpawnerState _state = SpawnerState.Idle;
+        private SpawnerState _state = SpawnerState.Delaying;
         private Dictionary<IngredientType, Sprite> _spriteMap;
         private int _spawnsSinceLastBun;
         private int _currentLevel = 1;
@@ -74,9 +72,6 @@ namespace DogtorBurguer
 
             switch (_state)
             {
-                case SpawnerState.Idle:
-                    break;
-
                 case SpawnerState.Delaying:
                     _delayTimer -= Time.deltaTime;
                     if (_delayTimer <= 0)
