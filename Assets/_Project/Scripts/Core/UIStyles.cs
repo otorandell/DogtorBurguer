@@ -118,8 +118,8 @@ namespace DogtorBurguer
         #endregion
 
         #region Chef Bubbles
-        public static readonly Color BUBBLE_INACTIVE = new(1f, 1f, 1f, 0.25f);
-        public static readonly Color BUBBLE_ACTIVE = new(1f, 1f, 1f, 0.45f);
+        public static readonly Color BUBBLE_INACTIVE = new(1f, 1f, 1f, 0.6f);
+        public static readonly Color BUBBLE_ACTIVE = new(1f, 1f, 1f, 0.85f);
         public const float BUBBLE_RADIUS = 0.5f;
         #endregion
 
