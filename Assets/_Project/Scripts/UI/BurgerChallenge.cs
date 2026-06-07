@@ -25,8 +25,6 @@ namespace DogtorBurguer
         [SerializeField] private Color _meterBgColor = UIStyles.CHALLENGE_METER_BG;
         [SerializeField] private Color _meterFillColor = UIStyles.CHALLENGE_METER_FILL;
 
-        private enum OrderType { Size, Contains }
-
         private OrderType _orderType;
         private int _requiredSize;
         private List<IngredientType> _targetIngredients = new List<IngredientType>();
