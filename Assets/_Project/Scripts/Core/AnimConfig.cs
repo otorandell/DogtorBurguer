@@ -19,6 +19,7 @@ namespace DogtorBurguer
         public const float WAVE_PUNCH_SCALE = 0.15f;
         public const float WAVE_PUNCH_DURATION = 0.2f;
         public const int WAVE_PUNCH_VIBRATO = 4;
+        public const float WAVE_PUNCH_ELASTICITY = 0.5f;
         public const float WAVE_MOVE_DURATION = 0.2f;
         public const float WAVE_COMBINED_PUNCH_DURATION = 0.25f;
         #endregion
@@ -91,6 +92,7 @@ namespace DogtorBurguer
         public const float LEVELUP_TEXT_PUNCH_DURATION = 0.4f;
         public const float LEVELUP_HOLD = 0.35f;
         public const float LEVELUP_FADE_COLOR_DURATION = 0.2f;
+        public const float LEVELUP_COLOR_RESTORE_DURATION = 0.4f;
         public const float LEVELUP_SHRINK_DURATION = 0.25f;
         public const float LEVELUP_WAIT = 0.3f;
         #endregion

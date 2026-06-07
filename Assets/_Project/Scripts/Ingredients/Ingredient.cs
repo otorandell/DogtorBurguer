@@ -176,7 +176,7 @@ namespace DogtorBurguer
 
             Sequence seq = DOTween.Sequence();
             seq.SetDelay(delay);
-            seq.Append(transform.DOPunchScale(new Vector3(AnimConfig.WAVE_PUNCH_SCALE, -AnimConfig.WAVE_PUNCH_SCALE, 0), AnimConfig.WAVE_PUNCH_DURATION, AnimConfig.WAVE_PUNCH_VIBRATO, AnimConfig.LAND_PUNCH_ELASTICITY));
+            seq.Append(transform.DOPunchScale(new Vector3(AnimConfig.WAVE_PUNCH_SCALE, -AnimConfig.WAVE_PUNCH_SCALE, 0), AnimConfig.WAVE_PUNCH_DURATION, AnimConfig.WAVE_PUNCH_VIBRATO, AnimConfig.WAVE_PUNCH_ELASTICITY));
             _waveTween = seq;
         }
 
@@ -194,7 +194,7 @@ namespace DogtorBurguer
             Sequence seq = DOTween.Sequence();
             seq.SetDelay(delay);
             seq.Append(transform.DOMove(targetPos, AnimConfig.WAVE_MOVE_DURATION).SetEase(Ease.OutBack));
-            seq.Join(transform.DOPunchScale(new Vector3(AnimConfig.WAVE_PUNCH_SCALE, -AnimConfig.WAVE_PUNCH_SCALE, 0), AnimConfig.WAVE_COMBINED_PUNCH_DURATION, AnimConfig.WAVE_PUNCH_VIBRATO, AnimConfig.LAND_PUNCH_ELASTICITY));
+            seq.Join(transform.DOPunchScale(new Vector3(AnimConfig.WAVE_PUNCH_SCALE, -AnimConfig.WAVE_PUNCH_SCALE, 0), AnimConfig.WAVE_COMBINED_PUNCH_DURATION, AnimConfig.WAVE_PUNCH_VIBRATO, AnimConfig.WAVE_PUNCH_ELASTICITY));
             _waveTween = seq;
         }
 
