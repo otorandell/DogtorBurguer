@@ -39,7 +39,7 @@ namespace DogtorBurguer
             _scoreText = scoreObj.AddComponent<TextMeshPro>();
             _scoreText.text = $"+{points}";
             _scoreText.fontSize = UIStyles.WORLD_BURGER_SCORE_SIZE;
-            _scoreText.color = Color.white;
+            _scoreText.color = UIStyles.TEXT_UI;
             _scoreText.alignment = TextAlignmentOptions.Center;
             _scoreText.textWrappingMode = TextWrappingModes.NoWrap;
             _scoreText.overflowMode = TextOverflowModes.Overflow;

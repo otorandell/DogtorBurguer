@@ -22,8 +22,8 @@ namespace DogtorBurguer
         [Header("Meter")]
         [SerializeField] private float _meterWidth = 0.2f;
         [SerializeField] private float _meterHeight = 1.6f;
-        [SerializeField] private Color _meterBgColor = new Color(0.2f, 0.2f, 0.2f, 0.8f);
-        [SerializeField] private Color _meterFillColor = new Color(0.2f, 0.9f, 0.3f, 1f);
+        [SerializeField] private Color _meterBgColor = UIStyles.CHALLENGE_METER_BG;
+        [SerializeField] private Color _meterFillColor = UIStyles.CHALLENGE_METER_FILL;
 
         private enum OrderType { Size, Contains }
 
@@ -289,7 +289,7 @@ namespace DogtorBurguer
             TMPro.TextMeshPro tmp = textObj.AddComponent<TMPro.TextMeshPro>();
             tmp.text = label;
             tmp.fontSize = UIStyles.WORLD_CHALLENGE_NAME_SIZE;
-            tmp.color = Color.white;
+            tmp.color = UIStyles.TEXT_UI;
             tmp.alignment = TMPro.TextAlignmentOptions.Center;
             tmp.fontStyle = TMPro.FontStyles.Bold;
             tmp.sortingOrder = sr.sortingOrder + 1;
@@ -465,7 +465,7 @@ namespace DogtorBurguer
                 {
                     Color original = sr.color;
                     sr.color = UIStyles.GOLD;
-                    sr.DOColor(original, 0.4f);
+                    sr.DOColor(original, AnimConfig.LEVELUP_COLOR_RESTORE_DURATION);
                 }
             }
         }

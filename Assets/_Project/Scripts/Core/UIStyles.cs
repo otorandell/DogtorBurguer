@@ -29,15 +29,22 @@ namespace DogtorBurguer
         #region Popup Colors
         public static readonly Color SCORE_POPUP = Color.yellow;
         public static readonly Color BURGER_POPUP = new(1f, 0.5f, 0f);
-        public static readonly Color GOLD = new(1f, 0.85f, 0f, 1f);
+        public static readonly Color GOLD = new(1f, 0.85f, 0f);
         #endregion
 
         #region Panel / Overlay Colors
         public static readonly Color OVERLAY_DIM = new(0, 0, 0, 0.7f);
         public static readonly Color OVERLAY_DARK = new(0, 0, 0, 0.85f);
         public static readonly Color PANEL_BG = new(0.15f, 0.15f, 0.2f, 0.95f);
-        public static readonly Color INNER_PANEL_BG = new(0.18f, 0.18f, 0.25f, 1f);
+        public static readonly Color INNER_PANEL_BG = new(0.18f, 0.18f, 0.25f);
         public static readonly Color SCREEN_FLASH = new(1f, 1f, 1f, 0.6f);
+        #endregion
+
+        #region Game Layout / Challenge Colors
+        public static readonly Color LAYOUT_BORDER = new(0f, 0f, 0f, 0.8f);
+        public static readonly Color LAYOUT_FILL = new(0f, 0f, 0f, 0.15f);
+        public static readonly Color CHALLENGE_METER_BG = new(0.2f, 0.2f, 0.2f, 0.8f);
+        public static readonly Color CHALLENGE_METER_FILL = new(0.2f, 0.9f, 0.3f);
         #endregion
 
         #region Button Colors
@@ -46,9 +53,9 @@ namespace DogtorBurguer
         public static readonly Color BTN_SETTINGS = new(0.4f, 0.6f, 0.9f);
         public static readonly Color BTN_LEADERBOARD = new(0.6f, 0.4f, 0.8f);
         public static readonly Color BTN_CLOSE = new(0.5f, 0.5f, 0.5f);
-        public static readonly Color BTN_CONTINUE_GEMS = new(0.9f, 0.7f, 0.1f, 1f);
-        public static readonly Color BTN_CONTINUE_AD = new(0.3f, 0.5f, 0.9f, 1f);
-        public static readonly Color BTN_RESTART = new(0.2f, 0.7f, 0.3f, 1f);
+        public static readonly Color BTN_CONTINUE_GEMS = new(0.9f, 0.7f, 0.1f);
+        public static readonly Color BTN_CONTINUE_AD = new(0.3f, 0.5f, 0.9f);
+        public static readonly Color BTN_RESTART = new(0.2f, 0.7f, 0.3f);
         public static readonly Color BTN_SETTINGS_TOGGLE = new(0.3f, 0.5f, 0.7f);
         public static readonly Color BTN_SHOP_AD = new(0.3f, 0.5f, 0.9f);
         public static readonly Color BTN_SHOP_BUY = new(0.2f, 0.7f, 0.3f);

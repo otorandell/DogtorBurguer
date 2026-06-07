@@ -17,8 +17,8 @@ namespace DogtorBurguer
         [SerializeField] private Vector2 _topRightSize = UIStyles.TOP_RIGHT_PANEL_SIZE;
 
         [Header("Border Style")]
-        [SerializeField] private Color _borderColor = new Color(0f, 0f, 0f, 0.8f);
-        [SerializeField] private Color _fillColor = new Color(0f, 0f, 0f, 0.15f);
+        [SerializeField] private Color _borderColor = UIStyles.LAYOUT_BORDER;
+        [SerializeField] private Color _fillColor = UIStyles.LAYOUT_FILL;
         [SerializeField] private int _borderWidth = UIStyles.PANEL_BORDER_WIDTH;
         [SerializeField] private int _cornerRadius = UIStyles.PANEL_CORNER_RADIUS;
 
