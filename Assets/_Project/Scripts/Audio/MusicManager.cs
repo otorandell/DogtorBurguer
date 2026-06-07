@@ -10,8 +10,7 @@ namespace DogtorBurguer
         private AudioSource _source;
         private AudioClip[] _menuTracks;
         private AudioClip[] _gameTracks;
-        private bool _playingMenuCategory;
-        private bool _playingGameCategory;
+        private MusicCategory _currentCategory = MusicCategory.None;
 
         private void Awake()
         {
@@ -54,6 +53,7 @@ namespace DogtorBurguer
         {
             string sceneName = SceneManager.GetActiveScene().name;
             bool isMenu = sceneName == SceneLoader.SCENE_MAIN_MENU;
+            MusicCategory target = isMenu ? MusicCategory.Menu : MusicCategory.Game;
             AudioClip[] tracks = isMenu ? _menuTracks : _gameTracks;
 
             if (tracks == null || tracks.Length == 0)
@@ -63,18 +63,15 @@ namespace DogtorBurguer
             }
 
             // Don't restart if already playing from the same category
-            if (isMenu && _playingMenuCategory && _source.isPlaying)
-                return;
-            if (!isMenu && _playingGameCategory && _source.isPlaying)
+            if (_currentCategory == target && _source.isPlaying)
                 return;
 
             // Pick a random track
-            AudioClip target = tracks[Rng.Range(0, tracks.Length)];
-            _source.clip = target;
+            AudioClip clip = tracks[Rng.Range(0, tracks.Length)];
+            _source.clip = clip;
             _source.Play();
 
-            _playingMenuCategory = isMenu;
-            _playingGameCategory = !isMenu;
+            _currentCategory = target;
         }
 
         public void SetVolume(float volume)
