@@ -144,7 +144,7 @@ Not binding — re-order based on what we find.
 | F-43 | `sortingOrder = 90` → named constant in `Constants` (structural layering; F-14/F-16, not F-24) | cosmetic | **resolved** (via F-50 sweep) |
 | F-44 | Defensive Awake dependency resolution (3rd sighting → codebase-wide) — kill `FindAnyObjectByType` scene-scan variant; standardize on explicit injection | design-quality | noted |
 | F-45 | `TouchInputHandler` gesture-vs-mode tangle — dedup swipe-move + preview/falling tap, rename `ProcessTap`/`ProcessTapMode`; folds in magic-number + default + `_isDragging` nits | design-quality | noted |
-| F-46 | Singleton guard boilerplate duplicated across ~7 managers + missing `Instance` null-on-destroy → `Singleton<T>` base (guard/teardown only, NO lazy auto-create — preserves documented init order) | design-quality | noted |
+| F-46 | Singleton guard boilerplate duplicated across ~7 managers + missing `Instance` null-on-destroy → `Singleton<T>` base (guard/teardown only, NO lazy auto-create — preserves documented init order) | design-quality | **resolved** |
 | F-47 | GemPack invisible — `SpriteRenderer` created but `.sprite` never assigned (confirmed bug, not placeholder) | **blocker** | **resolved** |
 | F-48 | GemPack `OnMouseDown` bypasses New Input System — device-blocker if input handling is New-only; route through `TouchInputHandler` | design-quality | **resolved** |
 | F-49 | GemPack animation interleaved with construction/logic in `Initialize` + `Collect` (F-18/26/30 lineage) | design-quality | noted |
@@ -208,8 +208,8 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **44 of 87 findings resolved.** Branch: `impl-wave-1-sweeps` (Waves 0
-+ config landed on `main`).
+plan). **45 of 87 findings resolved.** Waves 0–3 + F-46 are on `main` /
+`impl-wave-4`; `main` is pushed to `origin`.
 
 **Wave 0 — trivial deletions / asset fixes** (on `main`):
 F-7, F-13, F-29, F-76, F-83, F-84, F-85, F-86.
@@ -227,10 +227,14 @@ playtested), F-80.
 F-21, F-27 (both F-31 prerequisites), F-33, F-35, F-36, F-32, F-5, F-58,
 F-74, F-10, F-20, F-37, F-39, F-9.
 
-**Still open (43):** Wave 4 (cross-cutting consolidations + structural
-splits — F-18/F-19/F-22/F-23, F-26/F-34, F-38/F-40/F-41/F-42, F-44, F-46,
-F-56/F-57/F-59, F-65, the `UI/Factory/` folder, etc.), Wave 5 (high-risk
-Grid: F-30, F-31), plus the audio findings F-1/F-2/F-3/F-4/F-6, the F-50
-remainder (gem-pack geometry/anim/color literals), and assorted others
-(F-8, F-45, F-49, F-52–F-55, F-60–F-63, F-67, F-68, F-70, F-71, F-73, F-75,
-F-77, F-78, F-87).
+**Wave 4 — cross-cutting consolidations & structural splits** (in progress, on
+`impl-wave-4`):
+F-46 (`Singleton<T>` base) — done. Remaining: see "Still open" below.
+
+**Still open (42):** Wave 4 remainder (F-44 DI sweep, the `UI/Factory/` folder
+= F-57 `WorldTextFactory` + F-65 `SpriteFactory`, then F-18/F-19/F-22/F-23,
+F-26/F-34, F-38/F-40/F-41/F-42, F-56/F-57/F-59, F-67, F-68, F-70/F-71/F-78,
+F-73/F-75), Wave 5 (high-risk Grid: F-30, F-31), plus the audio findings
+F-1/F-2/F-3/F-4/F-6, the F-50 remainder (gem-pack geometry/anim/color
+literals), and assorted others (F-8, F-45, F-49, F-52–F-55, F-60–F-63, F-77,
+F-87).
