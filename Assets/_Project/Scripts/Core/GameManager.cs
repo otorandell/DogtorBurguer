@@ -142,14 +142,10 @@ namespace DogtorBurguer
         /// <summary>Full reset via scene reload (any → fresh). Increments games-played.</summary>
         public void RestartGame()
         {
-            Time.timeScale = 1f;
-
             if (SaveDataManager.Instance != null)
                 SaveDataManager.Instance.IncrementGamesPlayed();
 
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
-            );
+            SceneLoader.LoadGame(); // resets timeScale; Game is the only scene RestartGame runs from
         }
 
         /// <summary>Revive after game over (GameOver → Playing). Clears top half; score preserved.</summary>

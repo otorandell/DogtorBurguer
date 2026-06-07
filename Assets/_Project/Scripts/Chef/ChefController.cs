@@ -7,7 +7,6 @@ namespace DogtorBurguer
     {
         [Header("Settings")]
         [SerializeField] private float _moveSpeed = AnimConfig.CHEF_MOVE_DURATION;
-        [SerializeField] private int _startPosition = 1; // Middle position
 
         [Header("Visual")]
         [SerializeField] private SpriteRenderer _spriteRenderer;
@@ -38,7 +37,7 @@ namespace DogtorBurguer
 
         private void Start()
         {
-            _currentPosition = Mathf.Clamp(_startPosition, 0, Constants.CHEF_POSITION_COUNT - 1);
+            _currentPosition = Constants.CHEF_START_POSITION;
             transform.position = GetWorldPosition(_currentPosition);
             CreatePositionBubbles();
             UpdateBubbleColors();
@@ -185,13 +184,13 @@ namespace DogtorBurguer
         {
             // Draw chef position indicator
             Gizmos.color = Color.yellow;
-            Vector3 pos = Application.isPlaying ? transform.position : GetWorldPosition(_startPosition);
+            Vector3 pos = Application.isPlaying ? transform.position : GetWorldPosition(Constants.CHEF_START_POSITION);
             Gizmos.DrawWireSphere(pos, 0.3f);
 
             // Draw which columns the chef covers
             Gizmos.color = Color.cyan;
-            int leftCol = Application.isPlaying ? LeftColumnIndex : _startPosition;
-            int rightCol = Application.isPlaying ? RightColumnIndex : _startPosition + 1;
+            int leftCol = Application.isPlaying ? LeftColumnIndex : Constants.CHEF_START_POSITION;
+            int rightCol = Application.isPlaying ? RightColumnIndex : Constants.CHEF_START_POSITION + 1;
 
             Vector3 leftPos = new Vector3(
                 Constants.GRID_ORIGIN_X + leftCol * Constants.CELL_WIDTH,

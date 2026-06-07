@@ -108,6 +108,7 @@ namespace DogtorBurguer
         public static readonly Vector2 GAMEOVER_PANEL_SIZE = new(400, 500);
         public static readonly Vector2 SETTINGS_PANEL_SIZE = new(350, 350);
         public static readonly Vector2 SHOP_PANEL_SIZE = new(380, 420);
+        public static readonly Vector2 CREDITS_RECT = new(400, 300);
         #endregion
 
         #region Background Gradients

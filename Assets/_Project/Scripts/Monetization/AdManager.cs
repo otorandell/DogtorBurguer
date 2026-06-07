@@ -29,6 +29,16 @@ namespace DogtorBurguer
         }
 
         /// <summary>
+        /// Ad-cadence policy: show an interstitial every Nth completed game.
+        /// Owns the decision; SaveDataManager only owns the games-played count.
+        /// </summary>
+        public bool ShouldShowInterstitial()
+        {
+            int played = SaveDataManager.Instance != null ? SaveDataManager.Instance.GamesPlayed : 0;
+            return played > 0 && played % MonetizationConfig.INTERSTITIAL_EVERY_N_GAMES == 0;
+        }
+
+        /// <summary>
         /// Shows an interstitial ad. Calls onComplete when done.
         /// </summary>
         public void ShowInterstitial(Action onComplete = null)

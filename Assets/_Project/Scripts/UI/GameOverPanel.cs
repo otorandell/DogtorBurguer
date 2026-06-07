@@ -145,7 +145,7 @@ namespace DogtorBurguer
 
         private void OnRestartClicked()
         {
-            if (SaveDataManager.Instance != null && SaveDataManager.Instance.ShouldShowInterstitial())
+            if (AdManager.Instance != null && AdManager.Instance.ShouldShowInterstitial())
             {
                 AdManager.Instance?.ShowInterstitial(() =>
                 {

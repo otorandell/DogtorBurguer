@@ -16,6 +16,7 @@ namespace DogtorBurguer
 
         // Chef positions (between columns) — always one fewer than the columns
         public const int CHEF_POSITION_COUNT = COLUMN_COUNT - 1;
+        public const int CHEF_START_POSITION = 1; // default middle position
 
         // Sorting layers (sprite/text render order; higher = nearer the camera).
         // Structural — these define z-ordering between systems, not gameplay feel.

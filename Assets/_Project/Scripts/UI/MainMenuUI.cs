@@ -132,7 +132,7 @@ namespace DogtorBurguer
 
             UIFactory.CreateText(_creditsOverlay.transform,
                 "Dogtor Burguer!\n\nA game by Oscar\n\nPowered by Unity\n\nTap to close",
-                Vector2.zero, new Vector2(400, 300),
+                Vector2.zero, UIStyles.CREDITS_RECT,
                 UIStyles.CREDITS_TEXT_SIZE);
         }
 

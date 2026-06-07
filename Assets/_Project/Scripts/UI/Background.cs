@@ -2,12 +2,6 @@ using UnityEngine;
 
 namespace DogtorBurguer
 {
-    public enum BackgroundType
-    {
-        Menu,
-        Game
-    }
-
     public class Background : MonoBehaviour
     {
         [SerializeField] private Sprite _backgroundSprite;

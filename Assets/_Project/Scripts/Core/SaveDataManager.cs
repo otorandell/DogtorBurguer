@@ -91,10 +91,5 @@ namespace DogtorBurguer
             PlayerPrefs.SetInt(KEY_CONTROL_MODE, (int)mode);
             PlayerPrefs.Save();
         }
-
-        public bool ShouldShowInterstitial()
-        {
-            return GamesPlayed > 0 && GamesPlayed % MonetizationConfig.INTERSTITIAL_EVERY_N_GAMES == 0;
-        }
     }
 }
