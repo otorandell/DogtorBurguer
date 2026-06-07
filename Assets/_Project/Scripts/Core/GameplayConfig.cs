@@ -13,6 +13,22 @@ namespace DogtorBurguer
         public const float TRIPLE_WAVE_MAX_CHANCE = 0.35f;
         #endregion
 
+        #region Ingredient Pool
+        // Regular (non-bun) ingredients in spawn-progression order (Egg appears in
+        // advanced phases). Spawning indexes this list, so IngredientType's int values
+        // are no longer load-bearing — adding one is a single append here (F-39).
+        public static readonly IngredientType[] REGULAR_INGREDIENTS =
+        {
+            IngredientType.Meat,
+            IngredientType.Cheese,
+            IngredientType.Tomato,
+            IngredientType.Onion,
+            IngredientType.Pickle,
+            IngredientType.Lettuce,
+            IngredientType.Egg
+        };
+        #endregion
+
         #region Bun Selection
         public const float BUN_TOP_BASE_CHANCE = 0.5f;
         public const float BUN_TOP_CHANCE_PER_BOTTOM = 0.08f;

@@ -126,7 +126,7 @@ namespace DogtorBurguer
 
         public void SetActiveIngredientCount(int count)
         {
-            _activeIngredientCount = Mathf.Clamp(count, 1, 7);
+            _activeIngredientCount = Mathf.Clamp(count, 1, GameplayConfig.REGULAR_INGREDIENTS.Length);
         }
 
         public int ActiveIngredientCount => _activeIngredientCount;
@@ -237,7 +237,7 @@ namespace DogtorBurguer
             if (roll < _activeIngredientCount)
             {
                 _spawnsSinceLastBun++;
-                return (IngredientType)roll;
+                return GameplayConfig.REGULAR_INGREDIENTS[roll];
             }
 
             _spawnsSinceLastBun = 0;

@@ -183,7 +183,7 @@ namespace DogtorBurguer
             for (int i = 0; i < count && available.Count > 0; i++)
             {
                 int idx = Rng.Range(0, available.Count);
-                _targetIngredients.Add((IngredientType)available[idx]);
+                _targetIngredients.Add(GameplayConfig.REGULAR_INGREDIENTS[available[idx]]);
                 available.RemoveAt(idx);
             }
         }
