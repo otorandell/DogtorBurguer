@@ -107,17 +107,18 @@ namespace DogtorBurguer
                 }
             }
 
-            // Check for overflow (game over condition)
+            OnIngredientPlaced?.Invoke();
+
+            // Process matches BEFORE checking overflow — a landing that completes a
+            // match can clear the column and "save" the player from a momentary overflow.
+            CheckAndProcessMatches(column); // includes bottom bun cancellation; may reduce height
+
+            // Now check overflow (game over condition)
             if (column.IsOverflowing)
             {
                 OnGameOver?.Invoke();
                 return;
             }
-
-            OnIngredientPlaced?.Invoke();
-
-            // Check for matches (includes bottom bun cancellation)
-            CheckAndProcessMatches(column);
 
             // Check for burger completion
             CheckAndProcessBurger(column);
