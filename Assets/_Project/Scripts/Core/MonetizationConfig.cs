@@ -20,5 +20,15 @@ namespace DogtorBurguer
         public const float GEM_PACK_SPAWN_CHANCE = 0.08f;
         public const float GEM_PACK_SPAWN_INTERVAL = 10f;
         #endregion
+
+        #region IAP Products
+        // Store products offered in the Shop. Amount + displayed price live in one
+        // place; ShopPanel derives both the button label and the grant from these.
+        public static readonly GemProduct[] GEM_PRODUCTS =
+        {
+            new GemProduct(100, "$0.99"),
+            new GemProduct(500, "$3.99"),
+        };
+        #endregion
     }
 }

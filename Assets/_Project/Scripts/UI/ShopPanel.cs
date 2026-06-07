@@ -44,17 +44,21 @@ namespace DogtorBurguer
             UIFactory.CreateText(inner.transform, $"Your gems: {gems}", UIStyles.SHOP_BALANCE_POS, UIStyles.SHOP_TEXT_RECT,
                 UIStyles.SETTINGS_BUTTON_TEXT_SIZE);
 
-            // Watch Ad button
-            UIFactory.CreateButton(inner.transform, "Watch Ad (+25 gems)", new Vector2(0, UIStyles.SHOP_BTN_START_Y),
+            // Watch Ad button (reward amount derived from config)
+            UIFactory.CreateButton(inner.transform, $"Watch Ad (+{MonetizationConfig.GEM_REWARD_AD} gems)",
+                new Vector2(0, UIStyles.SHOP_BTN_START_Y),
                 UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_SHOP_AD, UIStyles.PANEL_BUTTON_TEXT_SIZE, OnWatchAdClicked);
 
-            // Buy 100 gems
-            UIFactory.CreateButton(inner.transform, "Buy 100 gems - $0.99", new Vector2(0, UIStyles.SHOP_BTN_START_Y + UIStyles.SHOP_BTN_SPACING),
-                UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_SHOP_BUY, UIStyles.PANEL_BUTTON_TEXT_SIZE, OnBuy100Clicked);
-
-            // Buy 500 gems
-            UIFactory.CreateButton(inner.transform, "Buy 500 gems - $3.99", new Vector2(0, UIStyles.SHOP_BTN_START_Y + UIStyles.SHOP_BTN_SPACING * 2),
-                UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_SHOP_BUY, UIStyles.PANEL_BUTTON_TEXT_SIZE, OnBuy500Clicked);
+            // Buy buttons — label and grant both derive from the product table (ad sits at index 0)
+            GemProduct[] products = MonetizationConfig.GEM_PRODUCTS;
+            for (int i = 0; i < products.Length; i++)
+            {
+                GemProduct product = products[i];
+                float y = UIStyles.SHOP_BTN_START_Y + UIStyles.SHOP_BTN_SPACING * (i + 1);
+                UIFactory.CreateButton(inner.transform, $"Buy {product.Amount} gems - {product.PriceLabel}",
+                    new Vector2(0, y), UIStyles.SHOP_BUTTON_SIZE, UIStyles.BTN_SHOP_BUY,
+                    UIStyles.PANEL_BUTTON_TEXT_SIZE, () => OnBuyClicked(product));
+            }
 
             // Close button
             UIFactory.CreateButton(inner.transform, "Close", UIStyles.SHOP_CLOSE_POS,
@@ -75,16 +79,11 @@ namespace DogtorBurguer
             });
         }
 
-        private void OnBuy100Clicked()
+        private void OnBuyClicked(GemProduct product)
         {
-            Debug.Log("[Shop] IAP not implemented - would buy 100 gems for $0.99");
-            SaveDataManager.Instance?.AddGems(100);
-        }
-
-        private void OnBuy500Clicked()
-        {
-            Debug.Log("[Shop] IAP not implemented - would buy 500 gems for $3.99");
-            SaveDataManager.Instance?.AddGems(500);
+            // IAP stub — grants the gems directly until real IAP lands (see pre-launch checklist).
+            Debug.Log($"[Shop] IAP not implemented - would buy {product.Amount} gems for {product.PriceLabel}");
+            SaveDataManager.Instance?.AddGems(product.Amount);
         }
     }
 }
