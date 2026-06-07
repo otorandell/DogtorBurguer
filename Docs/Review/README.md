@@ -103,88 +103,88 @@ Not binding — re-order based on what we find.
 | F-2 | No path from procedural clips to authored audio assets (add per-slot `[SerializeField]` override) | design-quality | fix-now |
 | F-3 | `HandleBurger` if-elseif → switch expression | cosmetic | noted |
 | F-4 | Sample-generation skeleton repeats across `Generate*Samples` (gated on F-2 path) | design-quality | noted |
-| F-5 | Two category bools in `MusicManager` → `MusicCategory` enum | design-quality | noted |
+| F-5 | Two category bools in `MusicManager` → `MusicCategory` enum | design-quality | **resolved** |
 | F-6 | `MusicManager._source.volume = 0.5f` magic number (move to config) | cosmetic | noted |
-| F-7 | Empty `Burger/` and `Scoring/` placeholder folders — populate or delete | cosmetic | noted |
+| F-7 | Empty `Burger/` and `Scoring/` placeholder folders — populate or delete | cosmetic | **resolved** |
 | F-8 | `ChefController._startPosition` SerializeField never varies; collapse to constant | cosmetic | noted |
-| F-9 | Position bubbles likely effectively invisible (low alpha + sortingOrder behind chef) — decide UX cue vs delete | design-quality | noted |
-| F-10 | `SwapPlates` flip-snap needs one-line explanatory comment | cosmetic | noted |
-| F-11 | Inline `0.4f` duration in `BurgerChallenge:468` should be a named AnimConfig const | design-quality | noted |
-| F-12 | `LAND_PUNCH_ELASTICITY` misnamed (used in wave punches too) — rename or split | cosmetic | noted |
-| F-13 | `Constants.CELL_HEIGHT` is unused — delete or derive `CELL_VISUAL_HEIGHT` from it | cosmetic | noted |
-| F-14 | `Constants.cs` mixes structural with balance/tuning — move 17 entries to `GameplayConfig` (+ possible new `MonetizationConfig`) | design-quality | noted |
-| F-15 | `CHEF_POSITION_COUNT` should be derived from `COLUMN_COUNT - 1` | design-quality | noted |
-| F-16 | Adopt 6-config-file architecture (`Constants` + `GameplayConfig` + `MonetizationConfig` + `AnimConfig` + `UIStyles` + `AudioConfig`) — implementation strategy for F-4/F-6/F-11/F-14 | design-quality | noted |
-| F-17 | `DifficultyManager.EvaluateLevel` resets test-mode level on first ingredient placed | **blocker** (test feature) | noted |
+| F-9 | Position bubbles likely effectively invisible (low alpha + sortingOrder behind chef) — decide UX cue vs delete | design-quality | **resolved** |
+| F-10 | `SwapPlates` flip-snap needs one-line explanatory comment | cosmetic | **resolved** |
+| F-11 | Inline `0.4f` duration in `BurgerChallenge:468` should be a named AnimConfig const | design-quality | **resolved** |
+| F-12 | `LAND_PUNCH_ELASTICITY` misnamed (used in wave punches too) — rename or split | cosmetic | **resolved** |
+| F-13 | `Constants.CELL_HEIGHT` is unused — delete or derive `CELL_VISUAL_HEIGHT` from it | cosmetic | **resolved** |
+| F-14 | `Constants.cs` mixes structural with balance/tuning — move 17 entries to `GameplayConfig` (+ possible new `MonetizationConfig`) | design-quality | **resolved** |
+| F-15 | `CHEF_POSITION_COUNT` should be derived from `COLUMN_COUNT - 1` | design-quality | **resolved** |
+| F-16 | Adopt 6-config-file architecture (`Constants` + `GameplayConfig` + `MonetizationConfig` + `AnimConfig` + `UIStyles` + `AudioConfig`) — implementation strategy for F-4/F-6/F-11/F-14 | design-quality | **resolved** (AudioConfig deferred until F-4/F-6) |
+| F-17 | `DifficultyManager.EvaluateLevel` resets test-mode level on first ingredient placed | **blocker** (test feature) | **resolved** |
 | F-18 | `FeedbackManager` mixes orchestration with asset construction — extract `SpriteUtils` + `ScreenFlashOverlay` + popup `Spawn` factories | design-quality | noted |
 | F-19 | `GameManager.Start` doing four distinct phases — extract `ResolveDependencies` / `EnsureManagers` / `ApplyPersistedSettings` / `SubscribeEvents` | cosmetic | noted |
-| F-20 | Game-flow methods need explanatory comments for state-transition clarity | cosmetic | noted |
-| F-21 | `Paused` is structurally a modifier on `Playing` — refactor to internal `_isPaused` bool | design-quality | noted |
+| F-20 | Game-flow methods need explanatory comments for state-transition clarity | cosmetic | **resolved** |
+| F-21 | `Paused` is structurally a modifier on `Playing` — refactor to internal `_isPaused` bool | design-quality | **resolved** |
 | F-22 | `ShouldShowInterstitial` mixes persistence with ad-cadence logic — move to `AdManager` | design-quality | noted |
 | F-23 | `GameManager.RestartGame` bypasses `SceneLoader` — route through `SceneLoader.LoadGame()` | design-quality | noted |
-| F-24 | Inline UI style colors in `GameLayout` / `BurgerChallenge` / `BurgerPopup` should reference `UIStyles` | design-quality | noted |
-| F-25 | `Color` constructor inconsistency in `UIStyles` (redundant `1f` alpha on 5 entries) | cosmetic | noted |
+| F-24 | Inline UI style colors in `GameLayout` / `BurgerChallenge` / `BurgerPopup` should reference `UIStyles` | design-quality | **resolved** |
+| F-25 | `Color` constructor inconsistency in `UIStyles` (redundant `1f` alpha on 5 entries) | cosmetic | **resolved** |
 | F-26 | Split `BurgerAnimator` into Animation + `Scoring/Scoring` (consolidated per F-34) + `Scoring/BurgerNamer` + `Grid/BurgerData` top-level; closes F-1 + F-7-Scoring-half | design-quality | noted |
-| F-27 | `Column.CheckForMatch` collapses to `top.Type == second.Type` (+ delete now-dead `IsRegularIngredient` / `IsBun` / `IngredientTypeExtensions`) | design-quality | noted |
-| F-28 | `GridManager` overflow check fires before match check — kills "saving matches" | **blocker** (UX bug) | noted |
-| F-29 | Dead `SwapColumns` + `SwapColumnTops` methods in `GridManager` (~70 lines) | design-quality | noted |
+| F-27 | `Column.CheckForMatch` collapses to `top.Type == second.Type` (+ delete now-dead `IsRegularIngredient` / `IsBun` / `IngredientTypeExtensions`) | design-quality | **resolved** |
+| F-28 | `GridManager` overflow check fires before match check — kills "saving matches" | **blocker** (UX bug) | **resolved** |
+| F-29 | Dead `SwapColumns` + `SwapColumnTops` methods in `GridManager` (~70 lines) | design-quality | **resolved** |
 | F-30 | **[HIGH-RISK]** Extract `SwapAnimator` + event-based completion (replaces time-coupled `DelayedMatchCheck`) — test plan in notes | design-quality | noted |
 | F-31 | Formalize game-input freeze during burger resolution; collapse burger detection logic (delete `DetectBurger` / `HasBunBelow` / `BurgerDetection` / `_columnsWithActiveBurger` / cascade re-check) | design-quality | noted |
-| F-32 | Promote `MatchResult` struct to top-level type | cosmetic | noted |
-| F-33 | `Ingredient` two-bool `_isFalling` + `_isLanded` encoding of a 3-state lifecycle → `enum IngredientState { Spawned, Falling, Landed }` | design-quality | noted |
+| F-32 | Promote `MatchResult` struct to top-level type | cosmetic | **resolved** |
+| F-33 | `Ingredient` two-bool `_isFalling` + `_isLanded` encoding of a 3-state lifecycle → `enum IngredientState { Spawned, Falling, Landed }` | design-quality | **resolved** |
 | F-34 | Amend F-26: consolidate scoring into `Scoring/Scoring.cs` (general static class, not burger-specific) and absorb `Ingredient.FastDrop` calc into it | design-quality | noted |
-| F-35 | `SpawnerState` enum nested in `IngredientSpawner` → promote to own file | cosmetic | noted |
-| F-36 | Dead `Idle` state redundant with `_active` (`case Idle` unreachable) — delete it (Option A); `_active` stays as F-21-style modifier | design-quality | noted |
-| F-37 | Spawner consumes raw level only for `GetWaveSize` triple-chance — move computation to DifficultyManager, push value, delete `SetCurrentLevel`/`_currentLevel` (upgrades :285 note) | design-quality | noted |
+| F-35 | `SpawnerState` enum nested in `IngredientSpawner` → promote to own file | cosmetic | **resolved** |
+| F-36 | Dead `Idle` state redundant with `_active` (`case Idle` unreachable) — delete it (Option A); `_active` stays as F-21-style modifier | design-quality | **resolved** |
+| F-37 | Spawner consumes raw level only for `GetWaveSize` triple-chance — move computation to DifficultyManager, push value, delete `SetCurrentLevel`/`_currentLevel` (upgrades :285 note) | design-quality | **resolved** |
 | F-38 | Extract `WaveComposer` (wave-composition logic) from 378-line `IngredientSpawner` — not animation; SRP split of "what to spawn" | design-quality | noted |
-| F-39 | `IngredientType` int values load-bearing in 4 sites — introduce `GameplayConfig.REGULAR_INGREDIENTS` list; enum order then free, buns→0,1 optional. Kills extensions (w/ F-27) | design-quality | noted |
+| F-39 | `IngredientType` int values load-bearing in 4 sites — introduce `GameplayConfig.REGULAR_INGREDIENTS` list; enum order then free, buns→0,1 optional. Kills extensions (w/ F-27) | design-quality | **resolved** |
 | F-40 | Promote `(IngredientType, int columnIndex)` wave-slot tuple to named `WaveSlot` struct (across preview mgr + spawner; F-38 return type) | design-quality | noted |
 | F-41 | `_data`/`_previews` parallel lists can desync (latent `TryTap` index bug) — collapse to one `(preview, slot)` list; folds in DOTween/teardown nits | design-quality | noted |
 | F-42 | `CreatePreview` takes `Column` but uses only `ColumnIndex` — drop to `int`, remove sole `GridManager` coupling | design-quality | noted |
-| F-43 | `sortingOrder = 90` → named constant in `Constants` (structural layering; F-14/F-16, not F-24) | cosmetic | noted |
+| F-43 | `sortingOrder = 90` → named constant in `Constants` (structural layering; F-14/F-16, not F-24) | cosmetic | **resolved** (via F-50 sweep) |
 | F-44 | Defensive Awake dependency resolution (3rd sighting → codebase-wide) — kill `FindAnyObjectByType` scene-scan variant; standardize on explicit injection | design-quality | noted |
 | F-45 | `TouchInputHandler` gesture-vs-mode tangle — dedup swipe-move + preview/falling tap, rename `ProcessTap`/`ProcessTapMode`; folds in magic-number + default + `_isDragging` nits | design-quality | noted |
 | F-46 | Singleton guard boilerplate duplicated across ~7 managers + missing `Instance` null-on-destroy → `Singleton<T>` base (guard/teardown only, NO lazy auto-create — preserves documented init order) | design-quality | noted |
-| F-47 | GemPack invisible — `SpriteRenderer` created but `.sprite` never assigned (confirmed bug, not placeholder) | **blocker** | noted |
-| F-48 | GemPack `OnMouseDown` bypasses New Input System — device-blocker if input handling is New-only; route through `TouchInputHandler` | design-quality | noted |
+| F-47 | GemPack invisible — `SpriteRenderer` created but `.sprite` never assigned (confirmed bug, not placeholder) | **blocker** | **resolved** |
+| F-48 | GemPack `OnMouseDown` bypasses New Input System — device-blocker if input handling is New-only; route through `TouchInputHandler` | design-quality | **resolved** |
 | F-49 | GemPack animation interleaved with construction/logic in `Initialize` + `Collect` (F-18/26/30 lineage) | design-quality | noted |
-| F-50 | Gem-pack magic numbers routed **by kind** — `MonetizationConfig` (interval/chance/value) + `AnimConfig` (wobble/duration) + `Constants` (radius/geometry/sorting); advances F-14/F-16, promotes F-43 sweep; folds dead `_collider`, redundant kill, UI-color-on-world | design-quality | noted |
-| F-51 | `GemPackSpawner` subscribe-once init-order assumption (`Start` only subscribes if `GameManager.Instance` ready) → silent permanent no-op; read state directly in `Update` instead | design-quality | noted |
+| F-50 | Gem-pack magic numbers routed **by kind** — `MonetizationConfig` (interval/chance/value) + `AnimConfig` (wobble/duration) + `Constants` (radius/geometry/sorting); advances F-14/F-16, promotes F-43 sweep; folds dead `_collider`, redundant kill, UI-color-on-world | design-quality | **partial** (sorting sweep done; gem-pack geometry/anim literals + color still inline) |
+| F-51 | `GemPackSpawner` subscribe-once init-order assumption (`Start` only subscribes if `GameManager.Instance` ready) → silent permanent no-op; read state directly in `Update` instead | design-quality | **resolved** |
 | F-52 | `BackgroundType` second top-level type in `Background.cs` → own file | cosmetic | noted |
 | F-53 | Camera-fill sizing/positioning duplicated across `FitToCamera`/`CreateFilter` → shared helper; cache `Camera.main`; drop dead `:24` position write | design-quality | noted |
 | F-54 | `Background` magic numbers routed **by kind** — `Constants` (z-depths/sorting, 3rd sighting → F-50 sweep) + stay-at-impl (algorithmic texture dims/PPUs) + `UIStyles` (filter opacity) | design-quality | noted |
 | F-55 | `Background` generated textures/sprites leak (no `OnDestroy`) + not cached (global cache-assets rule); destroy on teardown + share 1×1 white sprite | design-quality | noted |
 | F-56 | **[ANCHOR]** Split `BurgerChallenge` god-class → challenge model (logic) + view (UI/animation); GridManager talks to model; scoring via Scoring/GameManager | design-quality | noted |
 | F-57 | Dedup `CreateUI` world-TMP setups + visual builders → new `WorldTextFactory` (UIFactory is UGUI-only) — *execute as part of F-56* | design-quality | noted |
-| F-58 | Nested `OrderType` enum → own file — *independent* | cosmetic | noted |
+| F-58 | Nested `OrderType` enum → own file — *independent* | cosmetic | **resolved** |
 | F-59 | Repeated `FindAnyObjectByType<IngredientSpawner>()` (3 sites/regen) → resolve once — *execute as part of F-56* (F-44 theme) | design-quality | noted |
 | F-60 | `BurgerChallenge` magic numbers + dead math (`:414` no-op, misleading `_meterX/Y`) routed **by kind** — `UIStyles` (layout/sizes) + `Constants` (sorting) + stay-at-impl (rect dims, algorithmic); *independent* (colors=F-24, flash dur=F-11) | design-quality | noted |
 | F-61 | `GenerateRectSprite` texture leak + not cached — *independent*; 2nd sighting → codebase-wide generated-asset hygiene (w/ F-55) | design-quality | noted |
 | F-62 | `BurgerPopup` no `OnDestroy` DOTween kill (untargeted alpha `DOTween.To`) + `sizeDelta` magics → `UIStyles` + `SetParent(false)` nit | design-quality | noted |
 | F-63 | `GameHUD` event-wiring: cache `DifficultyManager` (double `FindAnyObjectByType` + unsubscribe symmetry) + subscribe-once silent-failure (2nd F-51 sighting) + init/null-check inconsistencies | design-quality | noted |
-| F-64 | `GameHUD` layout magic numbers → `UIStyles`; + add anchor params to `UIFactory.CreateText` (centered-only at `:63-64`) so `CreateHUDText` can be deleted | design-quality | noted |
+| F-64 | `GameHUD` layout magic numbers → `UIStyles`; + add anchor params to `UIFactory.CreateText` (centered-only at `:63-64`) so `CreateHUDText` can be deleted | design-quality | **resolved** |
 | F-65 | **[codebase-wide]** Scattered runtime sprite/texture generators leak (no disposal) → new `SpriteFactory` sibling (gen + cache + dispose; not UIFactory — it's UGUI-only). Instances: F-55, F-61, GameLayout 9-slice (3rd sighting → formalized) | design-quality | noted |
-| F-66 | `GameLayout` magic numbers — `z`/`sortingOrder` → `Constants` (5th sorting sighting → F-50 sweep); border/corner/panel geometry → `UIStyles` (colors=F-24; `TEX_SIZE`/`1.5f` algorithmic) | design-quality | noted |
+| F-66 | `GameLayout` magic numbers — `z`/`sortingOrder` → `Constants` (5th sorting sighting → F-50 sweep); border/corner/panel geometry → `UIStyles` (colors=F-24; `TEX_SIZE`/`1.5f` algorithmic) | design-quality | **resolved** |
 | F-67 | `GameOverPanel` high-score persistence (`SetHighScore`) inside UI `Show()` → move to game-over flow (F-56 cousin) | design-quality | noted |
 | F-68 | `DifficultyManager.CurrentLevel` reached via `FindAnyObjectByType` in 3 sites (not a singleton) → expose via `GameManager`; supersedes F-63 local cache (F-44 theme) | design-quality | noted |
-| F-69 | `GameOverPanel` layout magic numbers → `UIStyles`; button y-stack `30/-45/-120/-195` is a derivable start+spacing sequence | design-quality | noted |
+| F-69 | `GameOverPanel` layout magic numbers → `UIStyles`; button y-stack `30/-45/-120/-195` is a derivable start+spacing sequence | design-quality | **resolved** |
 | F-70 | `UIFactory` internal dup (`CreateButton` label reuse `CreateText`; shared `ConfigureRect`) + `:22` `SetParent(false)` nit | cosmetic | noted |
 | F-71 | `MainMenuUI` bootstraps managers + sets `AudioListener.volume` in `Start` (`:18-37`) → extract to bootstrap entry point (links F-1, F-56/F-67) | design-quality | noted |
-| F-72 | `MainMenuUI` layout magic → `UIStyles`; gem-counter anchor post-patch = 2nd F-64 consumer + dead `(0,400)` arg; `using UnityEngine.UI` nit | design-quality | noted |
+| F-72 | `MainMenuUI` layout magic → `UIStyles`; gem-counter anchor post-patch = 2nd F-64 consumer + dead `(0,400)` arg; `using UnityEngine.UI` nit | design-quality | **resolved** |
 | F-73 | **[codebase-wide]** DOTween-kill-on-destroy hygiene — missing `OnDestroy` kill + untargeted `DOTween.To` closures. Instances: F-62 (BurgerPopup), GameOverPanel, ScorePopup (3rd → formalized) | design-quality | noted |
-| F-74 | `ScorePopup` `0.8f` fade scale → `AnimConfig` | cosmetic | noted |
+| F-74 | `ScorePopup` `0.8f` fade scale → `AnimConfig` | cosmetic | **resolved** |
 | F-75 | Consolidate 3 world-space rise-fade-destroy popups (`FloatingText`/`ScorePopup`/`BurgerPopup`) → `WorldTextFactory` + shared animation helper | design-quality | noted |
-| F-76 | Dead `_prefab` static field in `FloatingText` (`:9`) → delete | cosmetic | noted |
+| F-76 | Dead `_prefab` static field in `FloatingText` (`:9`) → delete | cosmetic | **resolved** |
 | F-77 | `SettingsPanel` `FindAnyObjectByType<Canvas>()` grabs arbitrary canvas → inject from `MainMenuUI` (F-44 theme) | design-quality | noted |
 | F-78 | Duplicate "apply sound setting" (`AudioListener.volume` + `ApplySoundSetting`) in `SettingsPanel` + `MainMenuUI` → one audio-service method (links F-71) | design-quality | noted |
-| F-79 | `SettingsPanel` layout magic → `UIStyles`; empty `""` button labels, silent `true`/`Drag` defaults, `_canvas` local | design-quality | noted |
-| F-80 | `ShopPanel` gem-balance display goes stale after grants (no `OnGemsChanged` sub/refresh) | design-quality | noted |
-| F-81 | `ShopPanel` IAP/reward amounts+prices hardcoded & duplicated across labels and grants → product table in `MonetizationConfig` (drift bait) | design-quality | noted |
-| F-82 | `ShopPanel` layout magic → `UIStyles`; `_canvas` local (mirrors F-79) | design-quality | noted |
-| F-83 | Orphaned `Menu_2.wav` in `Music/` root — MusicManager only loads `MenuTrack/`+`GameTrack/` (`:32-33`) → never plays | design-quality | noted |
-| F-84 | `_Recovery/` junk scenes committed to repo (4 `0*.unity`, 2 tracked) → delete + gitignore | cosmetic | noted |
-| F-85 | Stray 0-byte `nul` file at repo root → delete | cosmetic | noted |
-| F-86 | CLAUDE.md Project Structure drift — `Core/` line omits `AnimConfig`/`GameplayConfig`/`UIStyles` | cosmetic | noted |
+| F-79 | `SettingsPanel` layout magic → `UIStyles`; empty `""` button labels, silent `true`/`Drag` defaults, `_canvas` local | design-quality | **resolved** |
+| F-80 | `ShopPanel` gem-balance display goes stale after grants (no `OnGemsChanged` sub/refresh) | design-quality | **resolved** |
+| F-81 | `ShopPanel` IAP/reward amounts+prices hardcoded & duplicated across labels and grants → product table in `MonetizationConfig` (drift bait) | design-quality | **resolved** |
+| F-82 | `ShopPanel` layout magic → `UIStyles`; `_canvas` local (mirrors F-79) | design-quality | **resolved** |
+| F-83 | Orphaned `Menu_2.wav` in `Music/` root — MusicManager only loads `MenuTrack/`+`GameTrack/` (`:32-33`) → never plays | design-quality | **resolved** |
+| F-84 | `_Recovery/` junk scenes committed to repo (4 `0*.unity`, 2 tracked) → delete + gitignore | cosmetic | **resolved** |
+| F-85 | Stray 0-byte `nul` file at repo root → delete | cosmetic | **resolved** |
+| F-86 | CLAUDE.md Project Structure drift — `Core/` line omits `AnimConfig`/`GameplayConfig`/`UIStyles` | cosmetic | **resolved** |
 | F-87 | `MainMenuUI:135` credits-overlay size literal `(400,300)` missed by F-72 (outside its enumerated lines) — found during the Wave-1 layout sweep | cosmetic | noted |
 
 **Synthesis (in `notes.md`):**
@@ -207,5 +207,30 @@ Next finding tag: **F-88**.
 
 ## What we acted on
 
-This section grows as we fix things during the review. (Empty until
-the first fix lands.)
+Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
+plan). **44 of 87 findings resolved.** Branch: `impl-wave-1-sweeps` (Waves 0
++ config landed on `main`).
+
+**Wave 0 — trivial deletions / asset fixes** (on `main`):
+F-7, F-13, F-29, F-76, F-83, F-84, F-85, F-86.
+
+**Wave 1 — config architecture + mechanical sweeps:**
+F-14, F-15, F-16 (AudioConfig deferred until F-4/F-6), F-50 (sorting-order
+portion only — see F-50 row), F-43, the UI Layout Magic sweep (F-64, F-66,
+F-69, F-72, F-79, F-82), F-24, F-25, F-11, F-12, F-81.
+
+**Wave 2 — blockers & correctness bugs:**
+F-17, F-28 (playtested), F-47 + F-48 + F-51 (gem packs end-to-end,
+playtested), F-80.
+
+**Wave 3 — state machines, flags, small cleanups:**
+F-21, F-27 (both F-31 prerequisites), F-33, F-35, F-36, F-32, F-5, F-58,
+F-74, F-10, F-20, F-37, F-39, F-9.
+
+**Still open (43):** Wave 4 (cross-cutting consolidations + structural
+splits — F-18/F-19/F-22/F-23, F-26/F-34, F-38/F-40/F-41/F-42, F-44, F-46,
+F-56/F-57/F-59, F-65, the `UI/Factory/` folder, etc.), Wave 5 (high-risk
+Grid: F-30, F-31), plus the audio findings F-1/F-2/F-3/F-4/F-6, the F-50
+remainder (gem-pack geometry/anim/color literals), and assorted others
+(F-8, F-45, F-49, F-52–F-55, F-60–F-63, F-67, F-68, F-70, F-71, F-73, F-75,
+F-77, F-78, F-87).
