@@ -101,6 +101,7 @@ namespace DogtorBurguer
             }
         }
 
+        /// <summary>Fresh game start (any → Playing). Resets score and starts spawning.</summary>
         public void StartGame()
         {
             _score = 0;
@@ -115,6 +116,7 @@ namespace DogtorBurguer
         // Pause is a modifier on the Playing state, not a peer state — you can only
         // pause while Playing, and resuming returns to Playing. Kept off GameState so
         // the state machine stays {Menu, Playing, GameOver}.
+        /// <summary>Pause-menu entry (Playing &amp; not paused → paused). Stops spawning; timeScale = 0.</summary>
         public void PauseGame()
         {
             if (_currentState != GameState.Playing || _isPaused) return;
@@ -124,6 +126,7 @@ namespace DogtorBurguer
             Time.timeScale = 0f;
         }
 
+        /// <summary>Pause-menu exit (paused → resumed). Resumes spawning; timeScale = 1.</summary>
         public void ResumeGame()
         {
             if (!_isPaused) return;
@@ -133,17 +136,20 @@ namespace DogtorBurguer
             Time.timeScale = 1f;
         }
 
+        /// <summary>Spawner-only pause (used during burger compress). Does not change game state.</summary>
         public void PauseSpawning()
         {
             _spawner?.StopSpawning();
         }
 
+        /// <summary>Spawner-only resume, paired with PauseSpawning. Only resumes while Playing.</summary>
         public void ResumeSpawning()
         {
             if (_currentState == GameState.Playing)
                 _spawner?.ResumeSpawning();
         }
 
+        /// <summary>Full reset via scene reload (any → fresh). Increments games-played.</summary>
         public void RestartGame()
         {
             Time.timeScale = 1f;
@@ -156,6 +162,7 @@ namespace DogtorBurguer
             );
         }
 
+        /// <summary>Revive after game over (GameOver → Playing). Clears top half; score preserved.</summary>
         public void ContinueGame()
         {
             if (_gridManager != null)

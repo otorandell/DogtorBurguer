@@ -94,7 +94,8 @@ namespace DogtorBurguer
 
             Debug.Log($"[Chef] Swapping columns {LeftColumnIndex} and {RightColumnIndex}");
 
-            // Kill any existing flip and snap to clean state
+            // Snap to the current logical rotation before starting the new flip — if
+            // SwapPlates is called mid-flip, tweening from a partial angle looks wrong.
             _flipTween?.Kill();
             float targetY = _isFlipped ? 0f : 180f;
             transform.rotation = Quaternion.Euler(0, _isFlipped ? 180f : 0f, 0);

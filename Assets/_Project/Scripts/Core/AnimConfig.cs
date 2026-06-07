@@ -54,6 +54,7 @@ namespace DogtorBurguer
         #region Score / Floating Popups
         public const float POPUP_RISE_DISTANCE = 1.5f;
         public const float POPUP_DURATION = 0.8f;
+        public const float POPUP_FADE_SCALE = 0.8f;
         public const float FLOATING_TEXT_RISE = 1.5f;
         public const float FLOATING_TEXT_DURATION = 0.8f;
         public const float FLOATING_TEXT_FADE_DELAY = 0.3f;

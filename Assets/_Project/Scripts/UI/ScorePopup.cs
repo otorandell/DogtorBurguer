@@ -27,7 +27,7 @@ namespace DogtorBurguer
             Sequence seq = DOTween.Sequence();
             seq.Append(transform.DOMove(targetPos, AnimConfig.POPUP_DURATION).SetEase(Ease.OutCubic));
             seq.Join(DOTween.To(() => _text.alpha, x => _text.alpha = x, 0f, AnimConfig.POPUP_DURATION).SetEase(Ease.InQuad));
-            seq.Join(transform.DOScale(0.8f, AnimConfig.POPUP_DURATION).SetEase(Ease.InQuad));
+            seq.Join(transform.DOScale(AnimConfig.POPUP_FADE_SCALE, AnimConfig.POPUP_DURATION).SetEase(Ease.InQuad));
             seq.OnComplete(() => Destroy(gameObject));
         }
     }
