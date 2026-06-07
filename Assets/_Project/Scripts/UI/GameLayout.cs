@@ -27,7 +27,7 @@ namespace DogtorBurguer
 
         private void Start()
         {
-            _panelSprite = Generate9SliceSprite();
+            _panelSprite = SpriteFactory.RoundedPanel(_borderColor, _fillColor, _cornerRadius, _borderWidth, TEX_SIZE);
 
             CreatePanel("GridPanel", _gridPanelCenter, _gridPanelSize);
             CreatePanel("TopLeftPanel", _topLeftCenter, _topLeftSize);
@@ -45,85 +45,6 @@ namespace DogtorBurguer
             sr.sprite = _panelSprite;
             sr.drawMode = SpriteDrawMode.Sliced;
             sr.size = size;
-        }
-
-        private Sprite Generate9SliceSprite()
-        {
-            int w = TEX_SIZE;
-            int h = TEX_SIZE;
-            int r = Mathf.Min(_cornerRadius, w / 2, h / 2);
-            int bw = _borderWidth;
-
-            Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
-            tex.filterMode = FilterMode.Bilinear;
-
-            Color transparent = new Color(0, 0, 0, 0);
-
-            for (int y = 0; y < h; y++)
-            {
-                for (int x = 0; x < w; x++)
-                {
-                    float dist = DistanceInside(x, y, w, h, r);
-
-                    if (dist < 0f)
-                    {
-                        tex.SetPixel(x, y, transparent);
-                    }
-                    else if (dist < bw)
-                    {
-                        float t = Mathf.Clamp01(dist / 1.5f);
-                        Color c = _borderColor;
-                        c.a *= t;
-                        tex.SetPixel(x, y, c);
-                    }
-                    else
-                    {
-                        tex.SetPixel(x, y, _fillColor);
-                    }
-                }
-            }
-
-            tex.Apply();
-
-            // 9-slice border: corners are protected from stretching
-            float border = r;
-            Vector4 spriteBorder = new Vector4(border, border, border, border);
-
-            return Sprite.Create(
-                tex,
-                new Rect(0, 0, w, h),
-                new Vector2(0.5f, 0.5f),
-                TEX_SIZE,
-                0,
-                SpriteMeshType.FullRect,
-                spriteBorder
-            );
-        }
-
-        private float DistanceInside(int px, int py, int w, int h, int r)
-        {
-            float x = px;
-            float y = py;
-            float cr = r;
-
-            bool left = x < cr;
-            bool right = x > w - 1 - cr;
-            bool bottom = y < cr;
-            bool top = y > h - 1 - cr;
-
-            if ((left || right) && (bottom || top))
-            {
-                float cx = left ? cr : w - 1 - cr;
-                float cy = bottom ? cr : h - 1 - cr;
-                float dist = Mathf.Sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
-                return cr - dist;
-            }
-
-            float dL = x;
-            float dR = w - 1 - x;
-            float dB = y;
-            float dT = h - 1 - y;
-            return Mathf.Min(dL, dR, dB, dT);
         }
     }
 }

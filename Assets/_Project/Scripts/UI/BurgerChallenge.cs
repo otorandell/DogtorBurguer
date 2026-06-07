@@ -104,7 +104,7 @@ namespace DogtorBurguer
             meterBgObj.transform.SetParent(_displayRoot.transform, false);
             meterBgObj.transform.localPosition = new Vector3(_meterX, _meterY, 0f);
             _meterBg = meterBgObj.AddComponent<SpriteRenderer>();
-            _meterBg.sprite = GenerateRectSprite();
+            _meterBg.sprite = SpriteFactory.White();
             _meterBg.color = _meterBgColor;
             _meterBg.sortingOrder = _sortingOrder;
             meterBgObj.transform.localScale = new Vector3(_meterWidth, _meterHeight, 1f);
@@ -114,7 +114,7 @@ namespace DogtorBurguer
             meterFillObj.transform.SetParent(_displayRoot.transform, false);
             meterFillObj.transform.localPosition = new Vector3(_meterX, _meterY - _meterHeight * 0.5f, 0f);
             _meterFill = meterFillObj.AddComponent<SpriteRenderer>();
-            _meterFill.sprite = GenerateRectSprite();
+            _meterFill.sprite = SpriteFactory.White();
             _meterFill.color = _meterFillColor;
             _meterFill.sortingOrder = _sortingOrder + 1;
             meterFillObj.transform.localScale = new Vector3(_meterWidth, 0f, 1f);
@@ -457,15 +457,5 @@ namespace DogtorBurguer
             }
         }
 
-        private Sprite GenerateRectSprite()
-        {
-            Texture2D tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
-            tex.filterMode = FilterMode.Point;
-            Color[] pixels = new Color[16];
-            for (int i = 0; i < 16; i++) pixels[i] = Color.white;
-            tex.SetPixels(pixels);
-            tex.Apply();
-            return Sprite.Create(tex, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 4f);
-        }
     }
 }

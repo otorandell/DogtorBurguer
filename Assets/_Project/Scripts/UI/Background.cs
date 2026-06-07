@@ -32,48 +32,13 @@ namespace DogtorBurguer
             }
             else
             {
-                _renderer.sprite = GenerateGradientSprite();
+                Color top = _type == BackgroundType.Menu ? UIStyles.BG_MENU_TOP : UIStyles.BG_GAME_TOP;
+                Color bottom = _type == BackgroundType.Menu ? UIStyles.BG_MENU_BOTTOM : UIStyles.BG_GAME_BOTTOM;
+                _renderer.sprite = SpriteFactory.VerticalGradient(bottom, top);
             }
 
             FitToCamera();
             CreateFilter();
-        }
-
-        private Sprite GenerateGradientSprite()
-        {
-            int width = 2;
-            int height = 256;
-
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
-            tex.filterMode = FilterMode.Bilinear;
-            tex.wrapMode = TextureWrapMode.Clamp;
-
-            Color topColor, bottomColor;
-
-            if (_type == BackgroundType.Menu)
-            {
-                topColor = UIStyles.BG_MENU_TOP;
-                bottomColor = UIStyles.BG_MENU_BOTTOM;
-            }
-            else
-            {
-                topColor = UIStyles.BG_GAME_TOP;
-                bottomColor = UIStyles.BG_GAME_BOTTOM;
-            }
-
-            for (int y = 0; y < height; y++)
-            {
-                float t = (float)y / (height - 1);
-                Color c = Color.Lerp(bottomColor, topColor, t);
-                for (int x = 0; x < width; x++)
-                {
-                    tex.SetPixel(x, y, c);
-                }
-            }
-
-            tex.Apply();
-
-            return Sprite.Create(tex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 100f);
         }
 
         private void CreateFilter()
@@ -87,11 +52,7 @@ namespace DogtorBurguer
             _filter.sortingOrder = Constants.SORT_BACKGROUND_FILTER;
             _filter.color = new Color(1f, 1f, 1f, _filterOpacity);
 
-            // 1x1 white pixel sprite
-            Texture2D tex = new Texture2D(1, 1);
-            tex.SetPixel(0, 0, Color.white);
-            tex.Apply();
-            _filter.sprite = Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+            _filter.sprite = SpriteFactory.White();
 
             // Match the background size
             Camera cam = Camera.main;
