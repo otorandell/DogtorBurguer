@@ -7,23 +7,11 @@ using DG.Tweening;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// Handles burger compress animation, scoring, and name generation.
-    /// Lives as a component on the GridManager GameObject.
+    /// Plays the burger compress animation. Lives as a component on the GridManager
+    /// GameObject. Scoring and naming live in Scoring/Scoring + Scoring/BurgerNamer.
     /// </summary>
     public class BurgerAnimator : MonoBehaviour
     {
-        public struct BurgerData
-        {
-            public Column Column;
-            public List<Ingredient> Parts;
-            public int BunBottomIndex;
-            public int BunTopIndex;
-            public int IngredientCount;
-            public List<IngredientType> IngredientTypes;
-            public int Points;
-            public string Name;
-        }
-
         /// <summary>
         /// Starts the burger compress animation. Fires onComplete with position when done.
         /// </summary>
@@ -150,58 +138,6 @@ namespace DogtorBurguer
                     falling.ResumeFalling();
             }
             GameManager.Instance?.ResumeSpawning();
-        }
-
-        public static int CalculatePoints(int ingredientCount)
-        {
-            int basePoints = ingredientCount * GameplayConfig.POINTS_PER_INGREDIENT;
-            int bonus;
-
-            if (ingredientCount == 0) bonus = GameplayConfig.BONUS_POOR_BURGER;
-            else if (ingredientCount <= 2) bonus = GameplayConfig.BONUS_SMALL_BURGER;
-            else if (ingredientCount <= 4) bonus = GameplayConfig.BONUS_MEDIUM_BURGER;
-            else if (ingredientCount <= 6) bonus = GameplayConfig.BONUS_LARGE_BURGER;
-            else if (ingredientCount <= 8) bonus = GameplayConfig.BONUS_MEGA_BURGER;
-            else bonus = GameplayConfig.BONUS_MAX_BURGER;
-
-            return basePoints + bonus;
-        }
-
-        public static string GenerateName(int ingredientCount)
-        {
-            if (ingredientCount == 0)
-                return "Just Bread...";
-            if (ingredientCount >= 9)
-                return "\u00a1DOKTOR BURGUER!";
-
-            string[] smallPrefixes = { "The", "Lil'", "Mini", "Baby" };
-            string[] mediumPrefixes = { "Super", "Big", "Double", "Triple" };
-            string[] largePrefixes = { "Mega", "Ultra", "Giga", "Hyper" };
-            string[] megaPrefixes = { "ULTRA", "LEGENDARY", "EPIC", "GODLIKE" };
-
-            string[] adjectives = {
-                "Explosive", "Deluxe", "Supreme", "Wild", "Savage",
-                "Brutal", "Infernal", "Cosmic", "Atomic", "Turbo",
-                "Divine", "Furious", "Volcanic", "Radical", "Blazing"
-            };
-
-            string[] nouns = {
-                "Tower", "Monster", "Beast", "Titan", "Colossus",
-                "Skyscraper", "Tsunami", "Quake", "Volcano", "Hurricane",
-                "Avalanche", "Tornado", "Meteor", "Dragon", "Kraken"
-            };
-
-            string[] prefixes;
-            if (ingredientCount <= 2) prefixes = smallPrefixes;
-            else if (ingredientCount <= 4) prefixes = mediumPrefixes;
-            else if (ingredientCount <= 6) prefixes = largePrefixes;
-            else prefixes = megaPrefixes;
-
-            string prefix = prefixes[Rng.Range(0, prefixes.Length)];
-            string adj = adjectives[Rng.Range(0, adjectives.Length)];
-            string noun = nouns[Rng.Range(0, nouns.Length)];
-
-            return $"{prefix} {noun} {adj}";
         }
     }
 }

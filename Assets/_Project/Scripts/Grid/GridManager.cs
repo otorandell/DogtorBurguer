@@ -147,10 +147,10 @@ namespace DogtorBurguer
             // so they can't be re-detected or moved by swaps
             column.RemoveIngredientsInRange(detection.BunBottomIndex, detection.BunTopIndex);
 
-            int points = BurgerAnimator.CalculatePoints(detection.IngredientCount);
-            string burgerName = BurgerAnimator.GenerateName(detection.IngredientCount);
+            int points = Scoring.CalculateBurgerPoints(detection.IngredientCount);
+            string burgerName = BurgerNamer.Generate(detection.IngredientCount);
 
-            var data = new BurgerAnimator.BurgerData
+            var data = new BurgerData
             {
                 Column = column,
                 Parts = detection.Parts,
@@ -165,7 +165,7 @@ namespace DogtorBurguer
             _burgerAnimator.PlayCompress(data, _fallingIngredients, HandleBurgerAnimationComplete);
         }
 
-        private void HandleBurgerAnimationComplete(BurgerAnimator.BurgerData data, Vector3 pos)
+        private void HandleBurgerAnimationComplete(BurgerData data, Vector3 pos)
         {
             _columnsWithActiveBurger.Remove(data.Column);
 

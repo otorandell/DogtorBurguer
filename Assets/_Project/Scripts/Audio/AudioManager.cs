@@ -76,13 +76,15 @@ namespace DogtorBurguer
 
         private void HandleBurger(Vector3 pos, int points, string name, int ingredientCount)
         {
-            AudioClip clip;
-            if (ingredientCount >= 9) clip = _burgerMaxClip;
-            else if (ingredientCount >= 7) clip = _burgerMegaClip;
-            else if (ingredientCount >= 5) clip = _burgerLargeClip;
-            else if (ingredientCount >= 3) clip = _burgerMediumClip;
-            else if (ingredientCount >= 1) clip = _burgerSmallClip;
-            else clip = _burgerPoorClip;
+            AudioClip clip = Scoring.GetBurgerTier(ingredientCount) switch
+            {
+                BurgerTier.Max => _burgerMaxClip,
+                BurgerTier.Mega => _burgerMegaClip,
+                BurgerTier.Large => _burgerLargeClip,
+                BurgerTier.Medium => _burgerMediumClip,
+                BurgerTier.Small => _burgerSmallClip,
+                _ => _burgerPoorClip,
+            };
 
             PlayClip(clip, 0.7f);
         }

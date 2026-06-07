@@ -231,7 +231,7 @@ namespace DogtorBurguer
             float distanceToLand = transform.position.y - landingY;
 
             // Award points based on distance
-            int points = Mathf.RoundToInt(distanceToLand * GameplayConfig.FAST_DROP_POINTS_PER_UNIT);
+            int points = Scoring.FastDropPoints(distanceToLand);
             if (points > 0)
             {
                 GameManager.Instance?.AddExtraScore(points);

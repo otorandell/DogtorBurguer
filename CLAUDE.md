@@ -19,17 +19,20 @@ These extend or override the global rules in `~/.claude/CLAUDE.md`.
 ```
 Assets/_Project/Scripts/
   Chef/          ChefController
-  Core/          GameManager, GameState, Constants, GameplayConfig, UIStyles,
-                 AnimConfig, DifficultyManager, SaveDataManager, ControlMode,
-                 FeedbackManager, Rng, SceneLoader
-  Grid/          GridManager, Column, MatchDetector, BurgerAnimator
-  Ingredients/   Ingredient, IngredientSpawner, IngredientType, WavePreviewManager
+  Core/          GameManager, GameState, Constants, GameplayConfig, MonetizationConfig,
+                 UIStyles, AnimConfig, DifficultyManager, SaveDataManager, ControlMode,
+                 FeedbackManager, Rng, SceneLoader, Singleton<T> (manager base)
+  Grid/          GridManager, Column, MatchDetector, MatchResult, BurgerAnimator, BurgerData
+  Ingredients/   Ingredient, IngredientState, IngredientSpawner, SpawnerState,
+                 IngredientType, WavePreviewManager
   Input/         TouchInputHandler
+  Scoring/       Scoring (points/tiers), BurgerTier, BurgerNamer
   UI/            MainMenuUI, GameHUD, GameOverPanel, SettingsPanel, ShopPanel,
                  BurgerChallenge, BurgerPopup, FloatingText, ScorePopup,
-                 Background, GameLayout, UIFactory
-  Audio/         AudioManager, MusicManager
-  Monetization/  AdManager, GemPack, GemPackSpawner
+                 Background, GameLayout, OrderType, UIFactory
+    Factory/     SpriteFactory (cached procedural sprites), WorldTextFactory (world-space TMP)
+  Audio/         AudioManager, MusicManager, MusicCategory
+  Monetization/  AdManager, GemPack, GemProduct, GemPackSpawner
 ```
 
 ## Singletons
