@@ -3,10 +3,8 @@ using UnityEngine;
 
 namespace DogtorBurguer
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : Singleton<GameManager>
     {
-        public static GameManager Instance { get; private set; }
-
         [Header("References")]
         [SerializeField] private GridManager _gridManager;
         [SerializeField] private IngredientSpawner _spawner;
@@ -34,16 +32,6 @@ namespace DogtorBurguer
 
         public event Action<GameState> OnStateChanged;
         public event Action<int> OnScoreChanged;
-
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-        }
 
         private void Start()
         {
@@ -91,8 +79,10 @@ namespace DogtorBurguer
             }
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+
             if (_gridManager != null)
             {
                 _gridManager.OnGameOver -= HandleGameOver;

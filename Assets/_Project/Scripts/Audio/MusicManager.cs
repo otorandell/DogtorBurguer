@@ -3,24 +3,17 @@ using UnityEngine.SceneManagement;
 
 namespace DogtorBurguer
 {
-    public class MusicManager : MonoBehaviour
+    public class MusicManager : Singleton<MusicManager>
     {
-        public static MusicManager Instance { get; private set; }
-
         private AudioSource _source;
         private AudioClip[] _menuTracks;
         private AudioClip[] _gameTracks;
         private MusicCategory _currentCategory = MusicCategory.None;
 
-        private void Awake()
+        protected override void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
+            base.Awake();
+            if (Instance != this) return;
             DontDestroyOnLoad(gameObject);
 
             _source = gameObject.AddComponent<AudioSource>();
@@ -39,8 +32,9 @@ namespace DogtorBurguer
             PlayTrackForCurrentScene();
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 

@@ -4,10 +4,8 @@ using UnityEngine;
 
 namespace DogtorBurguer
 {
-    public class GridManager : MonoBehaviour
+    public class GridManager : Singleton<GridManager>
     {
-        public static GridManager Instance { get; private set; }
-
         [SerializeField] private Column[] _columns;
 
         private List<Ingredient> _fallingIngredients = new List<Ingredient>();
@@ -22,14 +20,10 @@ namespace DogtorBurguer
         public event Action<Vector3, int, string, int, List<IngredientType>> OnBurgerWithIngredients;
         public event Action OnIngredientPlaced;
 
-        private void Awake()
+        protected override void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
+            base.Awake();
+            if (Instance != this) return;
 
             _burgerAnimator = gameObject.AddComponent<BurgerAnimator>();
             InitializeColumns();

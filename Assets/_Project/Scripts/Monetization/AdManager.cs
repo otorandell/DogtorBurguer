@@ -8,20 +8,14 @@ namespace DogtorBurguer
     /// Ad manager wrapper. Currently uses mock ads (simulated delays).
     /// Replace mock methods with Unity Ads SDK calls when ready for production.
     /// </summary>
-    public class AdManager : MonoBehaviour
+    public class AdManager : Singleton<AdManager>
     {
-        public static AdManager Instance { get; private set; }
-
         private bool _isShowingAd;
 
-        private void Awake()
+        protected override void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
+            base.Awake();
+            if (Instance != this) return;
             DontDestroyOnLoad(gameObject);
 
             InitializeAds();

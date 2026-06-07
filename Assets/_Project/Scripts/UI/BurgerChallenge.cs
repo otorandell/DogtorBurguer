@@ -4,10 +4,8 @@ using DG.Tweening;
 
 namespace DogtorBurguer
 {
-    public class BurgerChallenge : MonoBehaviour
+    public class BurgerChallenge : Singleton<BurgerChallenge>
     {
-        public static BurgerChallenge Instance { get; private set; }
-
         [Header("Panel Position")]
         [SerializeField] private Vector2 _panelCenter = new Vector2(1.35f, 2.4f);
 
@@ -45,16 +43,6 @@ namespace DogtorBurguer
         private float _meterX = 0.9f;
         private float _meterY = -0.2f;
 
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-        }
-
         private void Start()
         {
             CreateUI();
@@ -62,8 +50,9 @@ namespace DogtorBurguer
             SubscribeEvents();
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             if (GridManager.Instance != null)
                 GridManager.Instance.OnBurgerWithIngredients -= HandleBurgerCompleted;
         }

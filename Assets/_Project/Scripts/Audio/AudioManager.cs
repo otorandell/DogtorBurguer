@@ -3,10 +3,8 @@ using UnityEngine;
 
 namespace DogtorBurguer
 {
-    public class AudioManager : MonoBehaviour
+    public class AudioManager : Singleton<AudioManager>
     {
-        public static AudioManager Instance { get; private set; }
-
         private AudioSource _sfxSource;
         private AudioSource _squeezSource;
 
@@ -26,14 +24,10 @@ namespace DogtorBurguer
 
         private const int SAMPLE_RATE = 44100;
 
-        private void Awake()
+        protected override void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
+            base.Awake();
+            if (Instance != this) return;
 
             // Ensure an AudioListener exists in the scene
             if (FindAnyObjectByType<AudioListener>() == null)
@@ -374,8 +368,10 @@ namespace DogtorBurguer
                   + Mathf.Sin(2f * Mathf.PI * freq * 0.5f * t) * 0.4f) * envelope * 0.8f;
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+
             GridManager gridManager = GridManager.Instance;
             if (gridManager == null)
                 gridManager = FindAnyObjectByType<GridManager>();

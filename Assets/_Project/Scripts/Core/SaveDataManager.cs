@@ -3,10 +3,8 @@ using UnityEngine;
 
 namespace DogtorBurguer
 {
-    public class SaveDataManager : MonoBehaviour
+    public class SaveDataManager : Singleton<SaveDataManager>
     {
-        public static SaveDataManager Instance { get; private set; }
-
         private const string KEY_GEMS = "gems";
         private const string KEY_HIGH_SCORE = "highScore";
         private const string KEY_SOUND_ON = "soundOn";
@@ -26,14 +24,10 @@ namespace DogtorBurguer
         public int GamesPlayed { get; private set; }
         public ControlMode ControlMode { get; private set; }
 
-        private void Awake()
+        protected override void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
+            base.Awake();
+            if (Instance != this) return;
             DontDestroyOnLoad(gameObject);
 
             LoadData();
