@@ -7,12 +7,14 @@ namespace DogtorBurguer
     public class ShopPanel : MonoBehaviour
     {
         private GameObject _panel;
+        private TextMeshProUGUI _gemBalanceText;
 
         public void Show()
         {
             if (_panel != null)
             {
                 _panel.SetActive(true);
+                RefreshGemBalance(); // gems may have changed while the panel was hidden
                 return;
             }
 
@@ -23,6 +25,12 @@ namespace DogtorBurguer
         {
             if (_panel != null)
                 _panel.SetActive(false);
+        }
+
+        private void OnDestroy()
+        {
+            if (SaveDataManager.Instance != null)
+                SaveDataManager.Instance.OnGemsChanged -= HandleGemsChanged;
         }
 
         private void CreatePanel()
@@ -39,10 +47,12 @@ namespace DogtorBurguer
             UIFactory.CreateText(inner.transform, "Shop", UIStyles.SHOP_TITLE_POS, UIStyles.SHOP_TEXT_RECT,
                 UIStyles.PANEL_TITLE_SIZE, FontStyles.Bold, UIStyles.GOLD);
 
-            // Gem balance
-            int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
-            UIFactory.CreateText(inner.transform, $"Your gems: {gems}", UIStyles.SHOP_BALANCE_POS, UIStyles.SHOP_TEXT_RECT,
-                UIStyles.SETTINGS_BUTTON_TEXT_SIZE);
+            // Gem balance (kept live via OnGemsChanged so grants/purchases update it immediately)
+            _gemBalanceText = UIFactory.CreateText(inner.transform, GemBalanceText(), UIStyles.SHOP_BALANCE_POS,
+                UIStyles.SHOP_TEXT_RECT, UIStyles.SETTINGS_BUTTON_TEXT_SIZE);
+
+            if (SaveDataManager.Instance != null)
+                SaveDataManager.Instance.OnGemsChanged += HandleGemsChanged;
 
             // Watch Ad button (reward amount derived from config)
             UIFactory.CreateButton(inner.transform, $"Watch Ad (+{MonetizationConfig.GEM_REWARD_AD} gems)",
@@ -77,6 +87,20 @@ namespace DogtorBurguer
                     Debug.Log($"[Shop] Rewarded +{MonetizationConfig.GEM_REWARD_AD} gems");
                 }
             });
+        }
+
+        private void HandleGemsChanged(int gems) => RefreshGemBalance();
+
+        private void RefreshGemBalance()
+        {
+            if (_gemBalanceText != null)
+                _gemBalanceText.text = GemBalanceText();
+        }
+
+        private static string GemBalanceText()
+        {
+            int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
+            return $"Your gems: {gems}";
         }
 
         private void OnBuyClicked(GemProduct product)
