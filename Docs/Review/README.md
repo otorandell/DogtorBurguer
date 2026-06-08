@@ -161,7 +161,7 @@ Not binding — re-order based on what we find.
 | F-60 | `BurgerChallenge` magic numbers + dead math (`:414` no-op, misleading `_meterX/Y`) routed **by kind** — `UIStyles` (layout/sizes) + `Constants` (sorting) + stay-at-impl (rect dims, algorithmic); *independent* (colors=F-24, flash dur=F-11) | design-quality | **resolved** (dead math + naming fixed by the F-56 split; positions → UIStyles) |
 | F-61 | `GenerateRectSprite` texture leak + not cached — *independent*; 2nd sighting → codebase-wide generated-asset hygiene (w/ F-55) | design-quality | **resolved** (via SpriteFactory.White) |
 | F-62 | `BurgerPopup` no `OnDestroy` DOTween kill (untargeted alpha `DOTween.To`) + `sizeDelta` magics → `UIStyles` + `SetParent(false)` nit | design-quality | **resolved** |
-| F-63 | `GameHUD` event-wiring: cache `DifficultyManager` (double `FindAnyObjectByType` + unsubscribe symmetry) + subscribe-once silent-failure (2nd F-51 sighting) + init/null-check inconsistencies | design-quality | noted |
+| F-63 | `GameHUD` event-wiring: cache `DifficultyManager` (double `FindAnyObjectByType` + unsubscribe symmetry) + subscribe-once silent-failure (2nd F-51 sighting) + init/null-check inconsistencies | design-quality | **resolved** (DifficultyManager scan removed by F-68; seed-from-source + consistent null-checks) |
 | F-64 | `GameHUD` layout magic numbers → `UIStyles`; + add anchor params to `UIFactory.CreateText` (centered-only at `:63-64`) so `CreateHUDText` can be deleted | design-quality | **resolved** |
 | F-65 | **[codebase-wide]** Scattered runtime sprite/texture generators leak (no disposal) → new `SpriteFactory` sibling (gen + cache + dispose; not UIFactory — it's UGUI-only). Instances: F-55, F-61, GameLayout 9-slice (3rd sighting → formalized) | design-quality | **resolved** (ChefController/GemPack/FeedbackManager generators not yet migrated) |
 | F-66 | `GameLayout` magic numbers — `z`/`sortingOrder` → `Constants` (5th sorting sighting → F-50 sweep); border/corner/panel geometry → `UIStyles` (colors=F-24; `TEX_SIZE`/`1.5f` algorithmic) | design-quality | **resolved** |
@@ -173,7 +173,7 @@ Not binding — re-order based on what we find.
 | F-72 | `MainMenuUI` layout magic → `UIStyles`; gem-counter anchor post-patch = 2nd F-64 consumer + dead `(0,400)` arg; `using UnityEngine.UI` nit | design-quality | **resolved** |
 | F-73 | **[codebase-wide]** DOTween-kill-on-destroy hygiene — missing `OnDestroy` kill + untargeted `DOTween.To` closures. Instances: F-62 (BurgerPopup), GameOverPanel, ScorePopup (3rd → formalized) | design-quality | **resolved** |
 | F-74 | `ScorePopup` `0.8f` fade scale → `AnimConfig` | cosmetic | **resolved** |
-| F-75 | Consolidate 3 world-space rise-fade-destroy popups (`FloatingText`/`ScorePopup`/`BurgerPopup`) → `WorldTextFactory` + shared animation helper | design-quality | noted |
+| F-75 | Consolidate 3 world-space rise-fade-destroy popups (`FloatingText`/`ScorePopup`/`BurgerPopup`) → `WorldTextFactory` + shared animation helper | design-quality | **resolved** (all 3 construct via WorldTextFactory; shared anim helper declined — 3 distinct animations would make it over-abstraction) |
 | F-76 | Dead `_prefab` static field in `FloatingText` (`:9`) → delete | cosmetic | **resolved** |
 | F-77 | `SettingsPanel` `FindAnyObjectByType<Canvas>()` grabs arbitrary canvas → inject from `MainMenuUI` (F-44 theme) | design-quality | **resolved** |
 | F-78 | Duplicate "apply sound setting" (`AudioListener.volume` + `ApplySoundSetting`) in `SettingsPanel` + `MainMenuUI` → one audio-service method (links F-71) | design-quality | **resolved** (SoundSettings.Apply; also pulled out of SaveDataManager) |
@@ -208,7 +208,7 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **80 of 87 findings resolved** (no partials remaining). Waves 0–3 are on
+plan). **82 of 87 findings resolved** (no partials remaining). Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
@@ -256,7 +256,6 @@ F-74, F-10, F-20, F-37, F-39, F-9.
 - **F-70** UIFactory internal dedup; **F-49** GemPack method grouping; **F-50**
   gem-pack literals routed (AnimConfig/Constants) + own UIStyles.GEM_PACK color.
 
-**Still open (7 noted):** **F-63** HUD event-wiring; **F-75** popup
-consolidation; **F-44** DI sweep (mostly non-singleton injection left — low
-value solo); **F-45** TouchInputHandler tidy; **F-4** (deferred — risky DSP
-dedup); Wave 5 high-risk Grid **F-30/F-31**.
+**Still open (5 noted):** **F-44** DI sweep (mostly non-singleton injection left
+— low value solo); **F-45** TouchInputHandler tidy; **F-4** (deferred — risky
+DSP dedup); Wave 5 high-risk Grid **F-30/F-31** (playtest-gated).
