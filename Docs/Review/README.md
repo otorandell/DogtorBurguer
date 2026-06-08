@@ -129,7 +129,7 @@ Not binding — re-order based on what we find.
 | F-28 | `GridManager` overflow check fires before match check — kills "saving matches" | **blocker** (UX bug) | **resolved** |
 | F-29 | Dead `SwapColumns` + `SwapColumnTops` methods in `GridManager` (~70 lines) | design-quality | **resolved** |
 | F-30 | **[HIGH-RISK]** Extract `SwapAnimator` + event-based completion (replaces time-coupled `DelayedMatchCheck`) — test plan in notes | design-quality | **resolved** (playtested, all 7 scenarios) |
-| F-31 | Formalize game-input freeze during burger resolution; collapse burger detection logic (delete `DetectBurger` / `HasBunBelow` / `BurgerDetection` / `_columnsWithActiveBurger` / cascade re-check) | design-quality | noted |
+| F-31 | Formalize game-input freeze during burger resolution; collapse burger detection logic (delete `DetectBurger` / `HasBunBelow` / `BurgerDetection` / `_columnsWithActiveBurger` / cascade re-check) | design-quality | **resolved** (playtested) |
 | F-32 | Promote `MatchResult` struct to top-level type | cosmetic | **resolved** |
 | F-33 | `Ingredient` two-bool `_isFalling` + `_isLanded` encoding of a 3-state lifecycle → `enum IngredientState { Spawned, Falling, Landed }` | design-quality | **resolved** |
 | F-34 | Amend F-26: consolidate scoring into `Scoring/Scoring.cs` (general static class, not burger-specific) and absorb `Ingredient.FastDrop` calc into it | design-quality | **resolved** |
@@ -208,7 +208,8 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **85 of 87 findings resolved** (no partials remaining). Waves 0–3 are on
+plan). **86 of 87 findings resolved** — only F-4 remains (deliberately deferred).
+Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
@@ -255,7 +256,14 @@ F-74, F-10, F-20, F-37, F-39, F-9.
   SettingsPanel canvas injection.
 - **F-70** UIFactory internal dedup; **F-49** GemPack method grouping; **F-50**
   gem-pack literals routed (AnimConfig/Constants) + own UIStyles.GEM_PACK color.
+- **F-63** HUD event-wiring; **F-75** FloatingText → WorldTextFactory; **F-45**
+  TouchInputHandler untangle; **F-44** DI-scan cleanup (rest accepted).
 
-**Still open (2 noted):** **F-31** (Wave 5 — input-freeze + burger-detection
-collapse, playtest-gated); **F-4** (deferred — risky DSP dedup, can't verify by
-ear). Everything else is resolved.
+**Wave 5 — high-risk Grid (playtest-gated):**
+- **F-30** `SwapAnimator` + event-driven swap completion (playtested).
+- **F-31** burger-resolution input freeze (`IsResolving`) + collapsed the
+  over-built burger detection into an inline BunTop-landing check (playtested).
+
+**Still open (1):** **F-4** — deliberately deferred (procedural-SFX skeleton
+dedup; the generated audio can't be verified by ear, low value). Every other
+finding F-1…F-87 is resolved.
