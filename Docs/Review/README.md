@@ -99,14 +99,14 @@ Not binding — re-order based on what we find.
 
 | Tag | Label | Severity | Status |
 |---|---|---|---|
-| F-1 | `EnsureComponent<T>` helper should be reusable (lift to Util, replace `MainMenuUI` re-implementation) | design-quality | noted |
+| F-1 | `EnsureComponent<T>` helper should be reusable (lift to Util, replace `MainMenuUI` re-implementation) | design-quality | **partial** (burger-tier dup closed via Scoring.GetBurgerTier; the EnsureComponent lift itself is still open — folds into F-71) |
 | F-2 | No path from procedural clips to authored audio assets (add per-slot `[SerializeField]` override) | design-quality | fix-now |
-| F-3 | `HandleBurger` if-elseif → switch expression | cosmetic | noted |
+| F-3 | `HandleBurger` if-elseif → switch expression | cosmetic | **resolved** |
 | F-4 | Sample-generation skeleton repeats across `Generate*Samples` (gated on F-2 path) | design-quality | noted |
 | F-5 | Two category bools in `MusicManager` → `MusicCategory` enum | design-quality | **resolved** |
 | F-6 | `MusicManager._source.volume = 0.5f` magic number (move to config) | cosmetic | noted |
 | F-7 | Empty `Burger/` and `Scoring/` placeholder folders — populate or delete | cosmetic | **resolved** |
-| F-8 | `ChefController._startPosition` SerializeField never varies; collapse to constant | cosmetic | noted |
+| F-8 | `ChefController._startPosition` SerializeField never varies; collapse to constant | cosmetic | **resolved** |
 | F-9 | Position bubbles likely effectively invisible (low alpha + sortingOrder behind chef) — decide UX cue vs delete | design-quality | **resolved** |
 | F-10 | `SwapPlates` flip-snap needs one-line explanatory comment | cosmetic | **resolved** |
 | F-11 | Inline `0.4f` duration in `BurgerChallenge:468` should be a named AnimConfig const | design-quality | **resolved** |
@@ -120,11 +120,11 @@ Not binding — re-order based on what we find.
 | F-19 | `GameManager.Start` doing four distinct phases — extract `ResolveDependencies` / `EnsureManagers` / `ApplyPersistedSettings` / `SubscribeEvents` | cosmetic | noted |
 | F-20 | Game-flow methods need explanatory comments for state-transition clarity | cosmetic | **resolved** |
 | F-21 | `Paused` is structurally a modifier on `Playing` — refactor to internal `_isPaused` bool | design-quality | **resolved** |
-| F-22 | `ShouldShowInterstitial` mixes persistence with ad-cadence logic — move to `AdManager` | design-quality | noted |
-| F-23 | `GameManager.RestartGame` bypasses `SceneLoader` — route through `SceneLoader.LoadGame()` | design-quality | noted |
+| F-22 | `ShouldShowInterstitial` mixes persistence with ad-cadence logic — move to `AdManager` | design-quality | **resolved** |
+| F-23 | `GameManager.RestartGame` bypasses `SceneLoader` — route through `SceneLoader.LoadGame()` | design-quality | **resolved** |
 | F-24 | Inline UI style colors in `GameLayout` / `BurgerChallenge` / `BurgerPopup` should reference `UIStyles` | design-quality | **resolved** |
 | F-25 | `Color` constructor inconsistency in `UIStyles` (redundant `1f` alpha on 5 entries) | cosmetic | **resolved** |
-| F-26 | Split `BurgerAnimator` into Animation + `Scoring/Scoring` (consolidated per F-34) + `Scoring/BurgerNamer` + `Grid/BurgerData` top-level; closes F-1 + F-7-Scoring-half | design-quality | noted |
+| F-26 | Split `BurgerAnimator` into Animation + `Scoring/Scoring` (consolidated per F-34) + `Scoring/BurgerNamer` + `Grid/BurgerData` top-level; closes F-1 + F-7-Scoring-half | design-quality | **resolved** |
 | F-27 | `Column.CheckForMatch` collapses to `top.Type == second.Type` (+ delete now-dead `IsRegularIngredient` / `IsBun` / `IngredientTypeExtensions`) | design-quality | **resolved** |
 | F-28 | `GridManager` overflow check fires before match check — kills "saving matches" | **blocker** (UX bug) | **resolved** |
 | F-29 | Dead `SwapColumns` + `SwapColumnTops` methods in `GridManager` (~70 lines) | design-quality | **resolved** |
@@ -132,7 +132,7 @@ Not binding — re-order based on what we find.
 | F-31 | Formalize game-input freeze during burger resolution; collapse burger detection logic (delete `DetectBurger` / `HasBunBelow` / `BurgerDetection` / `_columnsWithActiveBurger` / cascade re-check) | design-quality | noted |
 | F-32 | Promote `MatchResult` struct to top-level type | cosmetic | **resolved** |
 | F-33 | `Ingredient` two-bool `_isFalling` + `_isLanded` encoding of a 3-state lifecycle → `enum IngredientState { Spawned, Falling, Landed }` | design-quality | **resolved** |
-| F-34 | Amend F-26: consolidate scoring into `Scoring/Scoring.cs` (general static class, not burger-specific) and absorb `Ingredient.FastDrop` calc into it | design-quality | noted |
+| F-34 | Amend F-26: consolidate scoring into `Scoring/Scoring.cs` (general static class, not burger-specific) and absorb `Ingredient.FastDrop` calc into it | design-quality | **resolved** |
 | F-35 | `SpawnerState` enum nested in `IngredientSpawner` → promote to own file | cosmetic | **resolved** |
 | F-36 | Dead `Idle` state redundant with `_active` (`case Idle` unreachable) — delete it (Option A); `_active` stays as F-21-style modifier | design-quality | **resolved** |
 | F-37 | Spawner consumes raw level only for `GetWaveSize` triple-chance — move computation to DifficultyManager, push value, delete `SetCurrentLevel`/`_currentLevel` (upgrades :285 note) | design-quality | **resolved** |
@@ -150,20 +150,20 @@ Not binding — re-order based on what we find.
 | F-49 | GemPack animation interleaved with construction/logic in `Initialize` + `Collect` (F-18/26/30 lineage) | design-quality | noted |
 | F-50 | Gem-pack magic numbers routed **by kind** — `MonetizationConfig` (interval/chance/value) + `AnimConfig` (wobble/duration) + `Constants` (radius/geometry/sorting); advances F-14/F-16, promotes F-43 sweep; folds dead `_collider`, redundant kill, UI-color-on-world | design-quality | **partial** (sorting sweep done; gem-pack geometry/anim literals + color still inline) |
 | F-51 | `GemPackSpawner` subscribe-once init-order assumption (`Start` only subscribes if `GameManager.Instance` ready) → silent permanent no-op; read state directly in `Update` instead | design-quality | **resolved** |
-| F-52 | `BackgroundType` second top-level type in `Background.cs` → own file | cosmetic | noted |
+| F-52 | `BackgroundType` second top-level type in `Background.cs` → own file | cosmetic | **resolved** |
 | F-53 | Camera-fill sizing/positioning duplicated across `FitToCamera`/`CreateFilter` → shared helper; cache `Camera.main`; drop dead `:24` position write | design-quality | noted |
 | F-54 | `Background` magic numbers routed **by kind** — `Constants` (z-depths/sorting, 3rd sighting → F-50 sweep) + stay-at-impl (algorithmic texture dims/PPUs) + `UIStyles` (filter opacity) | design-quality | noted |
-| F-55 | `Background` generated textures/sprites leak (no `OnDestroy`) + not cached (global cache-assets rule); destroy on teardown + share 1×1 white sprite | design-quality | noted |
+| F-55 | `Background` generated textures/sprites leak (no `OnDestroy`) + not cached (global cache-assets rule); destroy on teardown + share 1×1 white sprite | design-quality | **resolved** (via SpriteFactory cache) |
 | F-56 | **[ANCHOR]** Split `BurgerChallenge` god-class → challenge model (logic) + view (UI/animation); GridManager talks to model; scoring via Scoring/GameManager | design-quality | noted |
-| F-57 | Dedup `CreateUI` world-TMP setups + visual builders → new `WorldTextFactory` (UIFactory is UGUI-only) — *execute as part of F-56* | design-quality | noted |
+| F-57 | Dedup `CreateUI` world-TMP setups + visual builders → new `WorldTextFactory` (UIFactory is UGUI-only) — *execute as part of F-56* | design-quality | **partial** (WorldTextFactory created + BurgerPopup migrated; BurgerChallenge dedup lands with F-56) |
 | F-58 | Nested `OrderType` enum → own file — *independent* | cosmetic | **resolved** |
 | F-59 | Repeated `FindAnyObjectByType<IngredientSpawner>()` (3 sites/regen) → resolve once — *execute as part of F-56* (F-44 theme) | design-quality | noted |
 | F-60 | `BurgerChallenge` magic numbers + dead math (`:414` no-op, misleading `_meterX/Y`) routed **by kind** — `UIStyles` (layout/sizes) + `Constants` (sorting) + stay-at-impl (rect dims, algorithmic); *independent* (colors=F-24, flash dur=F-11) | design-quality | noted |
-| F-61 | `GenerateRectSprite` texture leak + not cached — *independent*; 2nd sighting → codebase-wide generated-asset hygiene (w/ F-55) | design-quality | noted |
+| F-61 | `GenerateRectSprite` texture leak + not cached — *independent*; 2nd sighting → codebase-wide generated-asset hygiene (w/ F-55) | design-quality | **resolved** (via SpriteFactory.White) |
 | F-62 | `BurgerPopup` no `OnDestroy` DOTween kill (untargeted alpha `DOTween.To`) + `sizeDelta` magics → `UIStyles` + `SetParent(false)` nit | design-quality | noted |
 | F-63 | `GameHUD` event-wiring: cache `DifficultyManager` (double `FindAnyObjectByType` + unsubscribe symmetry) + subscribe-once silent-failure (2nd F-51 sighting) + init/null-check inconsistencies | design-quality | noted |
 | F-64 | `GameHUD` layout magic numbers → `UIStyles`; + add anchor params to `UIFactory.CreateText` (centered-only at `:63-64`) so `CreateHUDText` can be deleted | design-quality | **resolved** |
-| F-65 | **[codebase-wide]** Scattered runtime sprite/texture generators leak (no disposal) → new `SpriteFactory` sibling (gen + cache + dispose; not UIFactory — it's UGUI-only). Instances: F-55, F-61, GameLayout 9-slice (3rd sighting → formalized) | design-quality | noted |
+| F-65 | **[codebase-wide]** Scattered runtime sprite/texture generators leak (no disposal) → new `SpriteFactory` sibling (gen + cache + dispose; not UIFactory — it's UGUI-only). Instances: F-55, F-61, GameLayout 9-slice (3rd sighting → formalized) | design-quality | **resolved** (ChefController/GemPack/FeedbackManager generators not yet migrated) |
 | F-66 | `GameLayout` magic numbers — `z`/`sortingOrder` → `Constants` (5th sorting sighting → F-50 sweep); border/corner/panel geometry → `UIStyles` (colors=F-24; `TEX_SIZE`/`1.5f` algorithmic) | design-quality | **resolved** |
 | F-67 | `GameOverPanel` high-score persistence (`SetHighScore`) inside UI `Show()` → move to game-over flow (F-56 cousin) | design-quality | noted |
 | F-68 | `DifficultyManager.CurrentLevel` reached via `FindAnyObjectByType` in 3 sites (not a singleton) → expose via `GameManager`; supersedes F-63 local cache (F-44 theme) | design-quality | noted |
@@ -185,7 +185,7 @@ Not binding — re-order based on what we find.
 | F-84 | `_Recovery/` junk scenes committed to repo (4 `0*.unity`, 2 tracked) → delete + gitignore | cosmetic | **resolved** |
 | F-85 | Stray 0-byte `nul` file at repo root → delete | cosmetic | **resolved** |
 | F-86 | CLAUDE.md Project Structure drift — `Core/` line omits `AnimConfig`/`GameplayConfig`/`UIStyles` | cosmetic | **resolved** |
-| F-87 | `MainMenuUI:135` credits-overlay size literal `(400,300)` missed by F-72 (outside its enumerated lines) — found during the Wave-1 layout sweep | cosmetic | noted |
+| F-87 | `MainMenuUI:135` credits-overlay size literal `(400,300)` missed by F-72 (outside its enumerated lines) — found during the Wave-1 layout sweep | cosmetic | **resolved** |
 
 **Synthesis (in `notes.md`):**
 - *UI Construction Layer* — keep `UIFactory` (screen-space), add `WorldTextFactory` + `SpriteFactory` siblings in a `UI/Factory/` folder; links F-56/F-57/F-64/F-65/F-70.
@@ -208,8 +208,9 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **45 of 87 findings resolved.** Waves 0–3 + F-46 are on `main` /
-`impl-wave-4`; `main` is pushed to `origin`.
+plan). **55 of 87 findings resolved** (+3 partial: F-1, F-50, F-57). Waves 0–3
+are on `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4`
+(also pushed).
 
 **Wave 0 — trivial deletions / asset fixes** (on `main`):
 F-7, F-13, F-29, F-76, F-83, F-84, F-85, F-86.
@@ -229,12 +230,18 @@ F-74, F-10, F-20, F-37, F-39, F-9.
 
 **Wave 4 — cross-cutting consolidations & structural splits** (in progress, on
 `impl-wave-4`):
-F-46 (`Singleton<T>` base) — done. Remaining: see "Still open" below.
+- Shared infra: **F-46** `Singleton<T>` base; the **`UI/Factory/` folder** —
+  **F-65** `SpriteFactory` (+ instances F-55, F-61) and **F-57 (partial)**
+  `WorldTextFactory` (+ BurgerPopup migrated).
+- The `BurgerAnimator` → `Scoring/` split: **F-26 / F-34** (also closed **F-1**
+  tier-dup and **F-3** the switch; populated the `Scoring/` folder).
+- Independent cleanups: **F-52** (BackgroundType→file), **F-8** (chef start
+  const), **F-23** (RestartGame→SceneLoader), **F-22** (interstitial→AdManager),
+  **F-87** (credits rect→UIStyles).
 
-**Still open (42):** Wave 4 remainder (F-44 DI sweep, the `UI/Factory/` folder
-= F-57 `WorldTextFactory` + F-65 `SpriteFactory`, then F-18/F-19/F-22/F-23,
-F-26/F-34, F-38/F-40/F-41/F-42, F-56/F-57/F-59, F-67, F-68, F-70/F-71/F-78,
-F-73/F-75), Wave 5 (high-risk Grid: F-30, F-31), plus the audio findings
-F-1/F-2/F-3/F-4/F-6, the F-50 remainder (gem-pack geometry/anim/color
-literals), and assorted others (F-8, F-45, F-49, F-52–F-55, F-60–F-63, F-77,
-F-87).
+**Still open (28 noted + F-2 fix-now):** the **F-56** BurgerChallenge anchor
+(+ F-57 finish, F-59, F-60); **F-44** DI sweep; core splits F-18/F-19/F-67;
+F-68/F-70/F-71/F-78/F-77 (DI + bootstrap + audio service); spawner
+F-38/F-40/F-41/F-42; Background F-53/F-54; popups/HUD F-62/F-63/F-73/F-75;
+Wave 5 high-risk Grid F-30/F-31; audio F-2/F-4/F-6; misc F-45/F-49; plus the
+two partials to finish (F-1 EnsureComponent lift, F-50 gem-pack literals).
