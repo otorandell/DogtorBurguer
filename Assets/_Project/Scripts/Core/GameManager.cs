@@ -56,30 +56,20 @@ namespace DogtorBurguer
 
         private void EnsureManagers()
         {
-            // UI, audio, and monetization components for this scene.
-            EnsureComponent<GameHUD>();
-            EnsureComponent<GameOverPanel>();
-            EnsureComponent<AudioManager>();
-            EnsureComponent<GemPackSpawner>();
-            EnsureComponent<BurgerChallenge>();
+            // Scene-local managers.
+            MonoBehaviourUtil.EnsureComponent<GameHUD>();
+            MonoBehaviourUtil.EnsureComponent<GameOverPanel>();
+            MonoBehaviourUtil.EnsureComponent<AudioManager>();
+            MonoBehaviourUtil.EnsureComponent<GemPackSpawner>();
+            MonoBehaviourUtil.EnsureComponent<BurgerChallenge>();
 
-            // Persistent managers that should already exist from the menu.
-            if (SaveDataManager.Instance == null)
-            {
-                GameObject saveObj = new GameObject("SaveDataManager");
-                saveObj.AddComponent<SaveDataManager>();
-            }
-            if (MusicManager.Instance == null)
-            {
-                GameObject musicObj = new GameObject("MusicManager");
-                musicObj.AddComponent<MusicManager>();
-            }
+            // Persistent managers (normally already alive from the menu).
+            AppBootstrap.EnsureCoreManagers();
         }
 
         private void ApplyPersistedSettings()
         {
-            AudioListener.volume = SaveDataManager.Instance.SoundOn ? 1f : 0f;
-            MusicManager.Instance?.ApplySoundSetting();
+            SoundSettings.Apply();
         }
 
         private void SubscribeEvents()
@@ -220,14 +210,6 @@ namespace DogtorBurguer
             Debug.Log($"[GameManager] State changed to: {_currentState}");
         }
 
-        private void EnsureComponent<T>() where T : MonoBehaviour
-        {
-            if (FindAnyObjectByType<T>() == null)
-            {
-                GameObject obj = new GameObject(typeof(T).Name);
-                obj.AddComponent<T>();
-            }
-        }
 
     }
 }

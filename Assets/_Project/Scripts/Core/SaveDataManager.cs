@@ -72,10 +72,10 @@ namespace DogtorBurguer
 
         public void SetSoundOn(bool on)
         {
+            // Persistence only — applying it to the AudioListener/music is SoundSettings.Apply (F-78).
             SoundOn = on;
             PlayerPrefs.SetInt(KEY_SOUND_ON, on ? 1 : 0);
             PlayerPrefs.Save();
-            AudioListener.volume = on ? 1f : 0f;
         }
 
         public void IncrementGamesPlayed()

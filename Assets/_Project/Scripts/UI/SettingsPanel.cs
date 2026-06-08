@@ -7,8 +7,15 @@ namespace DogtorBurguer
     public class SettingsPanel : MonoBehaviour
     {
         private GameObject _panel;
+        private Canvas _canvas;
         private TextMeshProUGUI _soundLabel;
         private TextMeshProUGUI _controlLabel;
+
+        /// <summary>Injects the menu canvas to build into (F-77), instead of scanning the scene.</summary>
+        public void Initialize(Canvas canvas)
+        {
+            _canvas = canvas;
+        }
 
         public void Show()
         {
@@ -31,10 +38,8 @@ namespace DogtorBurguer
 
         private void CreatePanel()
         {
-            Canvas canvas = FindAnyObjectByType<Canvas>();
-
             // Overlay container
-            _panel = UIFactory.CreateOverlay(canvas.transform, UIStyles.OVERLAY_DARK);
+            _panel = UIFactory.CreateOverlay(_canvas.transform, UIStyles.OVERLAY_DARK);
 
             // Inner panel
             GameObject inner = UIFactory.CreatePanel(_panel.transform, UIStyles.SETTINGS_PANEL_SIZE, UIStyles.INNER_PANEL_BG);
@@ -70,8 +75,7 @@ namespace DogtorBurguer
 
             bool newState = !SaveDataManager.Instance.SoundOn;
             SaveDataManager.Instance.SetSoundOn(newState);
-            AudioListener.volume = newState ? 1f : 0f;
-            MusicManager.Instance?.ApplySoundSetting();
+            SoundSettings.Apply();
             UpdateSoundLabel();
         }
 

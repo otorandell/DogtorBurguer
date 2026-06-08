@@ -14,27 +14,8 @@ namespace DogtorBurguer
 
         private void Start()
         {
-            // Ensure managers exist
-            if (SaveDataManager.Instance == null)
-            {
-                GameObject saveObj = new GameObject("SaveDataManager");
-                saveObj.AddComponent<SaveDataManager>();
-            }
-
-            if (AdManager.Instance == null)
-            {
-                GameObject adObj = new GameObject("AdManager");
-                adObj.AddComponent<AdManager>();
-            }
-
-            if (MusicManager.Instance == null)
-            {
-                GameObject musicObj = new GameObject("MusicManager");
-                musicObj.AddComponent<MusicManager>();
-            }
-
-            AudioListener.volume = SaveDataManager.Instance.SoundOn ? 1f : 0f;
-            MusicManager.Instance?.ApplySoundSetting();
+            AppBootstrap.EnsureCoreManagers();
+            SoundSettings.Apply();
 
             CreateUI();
 
@@ -89,6 +70,7 @@ namespace DogtorBurguer
             // Sub-panels
             _shopPanel = gameObject.AddComponent<ShopPanel>();
             _settingsPanel = gameObject.AddComponent<SettingsPanel>();
+            _settingsPanel.Initialize(_canvas);
         }
 
         private void UpdateGemDisplay(int gems)
