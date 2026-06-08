@@ -154,11 +154,11 @@ Not binding — re-order based on what we find.
 | F-53 | Camera-fill sizing/positioning duplicated across `FitToCamera`/`CreateFilter` → shared helper; cache `Camera.main`; drop dead `:24` position write | design-quality | noted |
 | F-54 | `Background` magic numbers routed **by kind** — `Constants` (z-depths/sorting, 3rd sighting → F-50 sweep) + stay-at-impl (algorithmic texture dims/PPUs) + `UIStyles` (filter opacity) | design-quality | noted |
 | F-55 | `Background` generated textures/sprites leak (no `OnDestroy`) + not cached (global cache-assets rule); destroy on teardown + share 1×1 white sprite | design-quality | **resolved** (via SpriteFactory cache) |
-| F-56 | **[ANCHOR]** Split `BurgerChallenge` god-class → challenge model (logic) + view (UI/animation); GridManager talks to model; scoring via Scoring/GameManager | design-quality | noted |
-| F-57 | Dedup `CreateUI` world-TMP setups + visual builders → new `WorldTextFactory` (UIFactory is UGUI-only) — *execute as part of F-56* | design-quality | **partial** (WorldTextFactory created + BurgerPopup migrated; BurgerChallenge dedup lands with F-56) |
+| F-56 | **[ANCHOR]** Split `BurgerChallenge` god-class → challenge model (logic) + view (UI/animation); GridManager talks to model; scoring via Scoring/GameManager | design-quality | **resolved** (playtested) |
+| F-57 | Dedup `CreateUI` world-TMP setups + visual builders → new `WorldTextFactory` (UIFactory is UGUI-only) — *execute as part of F-56* | design-quality | **resolved** |
 | F-58 | Nested `OrderType` enum → own file — *independent* | cosmetic | **resolved** |
-| F-59 | Repeated `FindAnyObjectByType<IngredientSpawner>()` (3 sites/regen) → resolve once — *execute as part of F-56* (F-44 theme) | design-quality | noted |
-| F-60 | `BurgerChallenge` magic numbers + dead math (`:414` no-op, misleading `_meterX/Y`) routed **by kind** — `UIStyles` (layout/sizes) + `Constants` (sorting) + stay-at-impl (rect dims, algorithmic); *independent* (colors=F-24, flash dur=F-11) | design-quality | noted |
+| F-59 | Repeated `FindAnyObjectByType<IngredientSpawner>()` (3 sites/regen) → resolve once — *execute as part of F-56* (F-44 theme) | design-quality | **resolved** |
+| F-60 | `BurgerChallenge` magic numbers + dead math (`:414` no-op, misleading `_meterX/Y`) routed **by kind** — `UIStyles` (layout/sizes) + `Constants` (sorting) + stay-at-impl (rect dims, algorithmic); *independent* (colors=F-24, flash dur=F-11) | design-quality | **resolved** (dead math + naming fixed by the F-56 split; positions → UIStyles) |
 | F-61 | `GenerateRectSprite` texture leak + not cached — *independent*; 2nd sighting → codebase-wide generated-asset hygiene (w/ F-55) | design-quality | **resolved** (via SpriteFactory.White) |
 | F-62 | `BurgerPopup` no `OnDestroy` DOTween kill (untargeted alpha `DOTween.To`) + `sizeDelta` magics → `UIStyles` + `SetParent(false)` nit | design-quality | noted |
 | F-63 | `GameHUD` event-wiring: cache `DifficultyManager` (double `FindAnyObjectByType` + unsubscribe symmetry) + subscribe-once silent-failure (2nd F-51 sighting) + init/null-check inconsistencies | design-quality | noted |
@@ -208,9 +208,9 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **55 of 87 findings resolved** (+3 partial: F-1, F-50, F-57). Waves 0–3
-are on `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4`
-(also pushed).
+plan). **59 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
+`main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
+pushed).
 
 **Wave 0 — trivial deletions / asset fixes** (on `main`):
 F-7, F-13, F-29, F-76, F-83, F-84, F-85, F-86.
@@ -237,11 +237,14 @@ F-74, F-10, F-20, F-37, F-39, F-9.
   tier-dup and **F-3** the switch; populated the `Scoring/` folder).
 - Independent cleanups: **F-52** (BackgroundType→file), **F-8** (chef start
   const), **F-23** (RestartGame→SceneLoader), **F-22** (interstitial→AdManager),
-  **F-87** (credits rect→UIStyles).
+  **F-87** (credits rect→UIStyles), **F-53/F-54** (Background camera-fill +
+  constants — Background now fully closed).
+- **The anchor: F-56** — split `BurgerChallenge` into model + view (playtested);
+  closed **F-57** (WorldTextFactory), **F-59** (spawner resolved once), **F-60**
+  (panel layout literals → UIStyles) in the same pass.
 
-**Still open (28 noted + F-2 fix-now):** the **F-56** BurgerChallenge anchor
-(+ F-57 finish, F-59, F-60); **F-44** DI sweep; core splits F-18/F-19/F-67;
-F-68/F-70/F-71/F-78/F-77 (DI + bootstrap + audio service); spawner
-F-38/F-40/F-41/F-42; Background F-53/F-54; popups/HUD F-62/F-63/F-73/F-75;
-Wave 5 high-risk Grid F-30/F-31; audio F-2/F-4/F-6; misc F-45/F-49; plus the
-two partials to finish (F-1 EnsureComponent lift, F-50 gem-pack literals).
+**Still open (25 noted + F-2 fix-now):** **F-44** DI sweep; core splits
+F-18/F-19/F-67; F-68/F-70/F-71/F-78/F-77 (DI + bootstrap + audio service);
+spawner F-38/F-40/F-41/F-42; popups/HUD F-62/F-63/F-73/F-75; Wave 5 high-risk
+Grid F-30/F-31; audio F-2/F-4/F-6; misc F-45/F-49; plus the two partials to
+finish (F-1 EnsureComponent lift, F-50 gem-pack literals).
