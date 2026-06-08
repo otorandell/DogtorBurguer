@@ -142,8 +142,8 @@ Not binding — re-order based on what we find.
 | F-41 | `_data`/`_previews` parallel lists can desync (latent `TryTap` index bug) — collapse to one `(preview, slot)` list; folds in DOTween/teardown nits | design-quality | **resolved** |
 | F-42 | `CreatePreview` takes `Column` but uses only `ColumnIndex` — drop to `int`, remove sole `GridManager` coupling | design-quality | **resolved** |
 | F-43 | `sortingOrder = 90` → named constant in `Constants` (structural layering; F-14/F-16, not F-24) | cosmetic | **resolved** (via F-50 sweep) |
-| F-44 | Defensive Awake dependency resolution (3rd sighting → codebase-wide) — kill `FindAnyObjectByType` scene-scan variant; standardize on explicit injection | design-quality | noted |
-| F-45 | `TouchInputHandler` gesture-vs-mode tangle — dedup swipe-move + preview/falling tap, rename `ProcessTap`/`ProcessTapMode`; folds in magic-number + default + `_isDragging` nits | design-quality | noted |
+| F-44 | Defensive Awake dependency resolution (3rd sighting → codebase-wide) — kill `FindAnyObjectByType` scene-scan variant; standardize on explicit injection | design-quality | **resolved** (singleton scans removed via F-46/F-59/F-68/F-77 + this AudioManager cleanup; remaining Camera.main / AudioListener / serialized-fallback uses accepted) |
+| F-45 | `TouchInputHandler` gesture-vs-mode tangle — dedup swipe-move + preview/falling tap, rename `ProcessTap`/`ProcessTapMode`; folds in magic-number + default + `_isDragging` nits | design-quality | **resolved** |
 | F-46 | Singleton guard boilerplate duplicated across ~7 managers + missing `Instance` null-on-destroy → `Singleton<T>` base (guard/teardown only, NO lazy auto-create — preserves documented init order) | design-quality | **resolved** |
 | F-47 | GemPack invisible — `SpriteRenderer` created but `.sprite` never assigned (confirmed bug, not placeholder) | **blocker** | **resolved** |
 | F-48 | GemPack `OnMouseDown` bypasses New Input System — device-blocker if input handling is New-only; route through `TouchInputHandler` | design-quality | **resolved** |
@@ -208,7 +208,7 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **82 of 87 findings resolved** (no partials remaining). Waves 0–3 are on
+plan). **84 of 87 findings resolved** (no partials remaining). Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
@@ -256,6 +256,6 @@ F-74, F-10, F-20, F-37, F-39, F-9.
 - **F-70** UIFactory internal dedup; **F-49** GemPack method grouping; **F-50**
   gem-pack literals routed (AnimConfig/Constants) + own UIStyles.GEM_PACK color.
 
-**Still open (5 noted):** **F-44** DI sweep (mostly non-singleton injection left
-— low value solo); **F-45** TouchInputHandler tidy; **F-4** (deferred — risky
-DSP dedup); Wave 5 high-risk Grid **F-30/F-31** (playtest-gated).
+**Still open (3 noted):** **F-4** (deferred — risky DSP dedup, can't verify by
+ear); Wave 5 high-risk Grid **F-30/F-31** (playtest-gated). Everything else is
+resolved.
