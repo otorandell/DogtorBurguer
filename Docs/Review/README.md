@@ -99,7 +99,7 @@ Not binding — re-order based on what we find.
 
 | Tag | Label | Severity | Status |
 |---|---|---|---|
-| F-1 | `EnsureComponent<T>` helper should be reusable (lift to Util, replace `MainMenuUI` re-implementation) | design-quality | **partial** (burger-tier dup closed via Scoring.GetBurgerTier; the EnsureComponent lift itself is still open — folds into F-71) |
+| F-1 | `EnsureComponent<T>` helper should be reusable (lift to Util, replace `MainMenuUI` re-implementation) | design-quality | **resolved** (lifted to MonoBehaviourUtil; tier dup closed earlier via Scoring) |
 | F-2 | No path from procedural clips to authored audio assets (add per-slot `[SerializeField]` override) | design-quality | **resolved** |
 | F-3 | `HandleBurger` if-elseif → switch expression | cosmetic | **resolved** |
 | F-4 | Sample-generation skeleton repeats across `Generate*Samples` (gated on F-2 path) | design-quality | noted (deferred — risky DSP-math dedup, can't verify generated sound by ear; low value) |
@@ -169,14 +169,14 @@ Not binding — re-order based on what we find.
 | F-68 | `DifficultyManager.CurrentLevel` reached via `FindAnyObjectByType` in 3 sites (not a singleton) → expose via `GameManager`; supersedes F-63 local cache (F-44 theme) | design-quality | **resolved** |
 | F-69 | `GameOverPanel` layout magic numbers → `UIStyles`; button y-stack `30/-45/-120/-195` is a derivable start+spacing sequence | design-quality | **resolved** |
 | F-70 | `UIFactory` internal dup (`CreateButton` label reuse `CreateText`; shared `ConfigureRect`) + `:22` `SetParent(false)` nit | cosmetic | noted |
-| F-71 | `MainMenuUI` bootstraps managers + sets `AudioListener.volume` in `Start` (`:18-37`) → extract to bootstrap entry point (links F-1, F-56/F-67) | design-quality | noted |
+| F-71 | `MainMenuUI` bootstraps managers + sets `AudioListener.volume` in `Start` (`:18-37`) → extract to bootstrap entry point (links F-1, F-56/F-67) | design-quality | **resolved** (AppBootstrap + SoundSettings) |
 | F-72 | `MainMenuUI` layout magic → `UIStyles`; gem-counter anchor post-patch = 2nd F-64 consumer + dead `(0,400)` arg; `using UnityEngine.UI` nit | design-quality | **resolved** |
 | F-73 | **[codebase-wide]** DOTween-kill-on-destroy hygiene — missing `OnDestroy` kill + untargeted `DOTween.To` closures. Instances: F-62 (BurgerPopup), GameOverPanel, ScorePopup (3rd → formalized) | design-quality | **resolved** |
 | F-74 | `ScorePopup` `0.8f` fade scale → `AnimConfig` | cosmetic | **resolved** |
 | F-75 | Consolidate 3 world-space rise-fade-destroy popups (`FloatingText`/`ScorePopup`/`BurgerPopup`) → `WorldTextFactory` + shared animation helper | design-quality | noted |
 | F-76 | Dead `_prefab` static field in `FloatingText` (`:9`) → delete | cosmetic | **resolved** |
-| F-77 | `SettingsPanel` `FindAnyObjectByType<Canvas>()` grabs arbitrary canvas → inject from `MainMenuUI` (F-44 theme) | design-quality | noted |
-| F-78 | Duplicate "apply sound setting" (`AudioListener.volume` + `ApplySoundSetting`) in `SettingsPanel` + `MainMenuUI` → one audio-service method (links F-71) | design-quality | noted |
+| F-77 | `SettingsPanel` `FindAnyObjectByType<Canvas>()` grabs arbitrary canvas → inject from `MainMenuUI` (F-44 theme) | design-quality | **resolved** |
+| F-78 | Duplicate "apply sound setting" (`AudioListener.volume` + `ApplySoundSetting`) in `SettingsPanel` + `MainMenuUI` → one audio-service method (links F-71) | design-quality | **resolved** (SoundSettings.Apply; also pulled out of SaveDataManager) |
 | F-79 | `SettingsPanel` layout magic → `UIStyles`; empty `""` button labels, silent `true`/`Drag` defaults, `_canvas` local | design-quality | **resolved** |
 | F-80 | `ShopPanel` gem-balance display goes stale after grants (no `OnGemsChanged` sub/refresh) | design-quality | **resolved** |
 | F-81 | `ShopPanel` IAP/reward amounts+prices hardcoded & duplicated across labels and grants → product table in `MonetizationConfig` (drift bait) | design-quality | **resolved** |
@@ -208,7 +208,7 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **73 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
+plan). **77 of 87 findings resolved** (+1 partial: F-50). Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
@@ -249,9 +249,14 @@ F-74, F-10, F-20, F-37, F-39, F-9.
   (ScreenFlashOverlay + ScorePopup/BurgerPopup Spawn factories).
 - Spawner cluster: **F-40** WaveSlot struct, **F-41** preview paired-list (fixes
   the latent desync), **F-42** CreatePreview→int, **F-38** WaveComposer extraction.
+- Audio: **F-6** AudioConfig, **F-2** authored-clip override path.
+- Bootstrap/DI: **F-1** EnsureComponent lift (`MonoBehaviourUtil`), **F-71**
+  `AppBootstrap`, **F-78** `SoundSettings.Apply` (one audio-apply home), **F-77**
+  SettingsPanel canvas injection.
 
-**Still open (14 noted):** **F-44** DI sweep; F-70/F-71/F-78/F-77 (factory
-dedup + bootstrap + audio service); F-63 HUD event-wiring; F-75 popup
-consolidation; Wave 5 high-risk Grid F-30/F-31; **F-4** (deferred — risky DSP
-dedup); misc F-45/F-49; plus the two partials (F-1 EnsureComponent lift, F-50
-gem-pack literals).
+**Still open (9 noted + F-50 partial):** **F-70** UIFactory internal dedup;
+**F-63** HUD event-wiring; **F-75** popup consolidation; **F-44** DI sweep
+(mostly non-singleton injection left — low value solo); **F-45** TouchInputHandler
+tidy; **F-49** GemPack method grouping; Wave 5 high-risk Grid **F-30/F-31**;
+**F-4** (deferred — risky DSP dedup); plus the **F-50** partial (gem-pack
+geometry/anim/color literals).
