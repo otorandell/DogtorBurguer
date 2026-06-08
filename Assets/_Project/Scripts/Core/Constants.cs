@@ -38,5 +38,10 @@ namespace DogtorBurguer
         public const float Z_GAME_PANEL = 5f;
         public const float Z_BACKGROUND = 10f;
         public const float Z_BACKGROUND_FILTER = 9.9f;
+
+        // Gem-pack fly-across spawn geometry (off-screen X, upper-area Y band).
+        public const float GEM_SPAWN_EDGE_X = 5f;
+        public const float GEM_SPAWN_Y_MIN = 0f;
+        public const float GEM_SPAWN_Y_MAX = 3f;
     }
 }

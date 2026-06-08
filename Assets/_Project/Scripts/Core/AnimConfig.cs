@@ -105,6 +105,9 @@ namespace DogtorBurguer
         public const float GEM_PULSE_MAX_SCALE = 0.6f;
         public const float GEM_PULSE_DURATION = 0.4f;
         public const float GEM_START_SCALE = 0.5f;
+        public const float GEM_WOBBLE = 1f;            // ± vertical wander of the fly-across path
+        public const float GEM_FLY_DURATION_MIN = 3f;
+        public const float GEM_FLY_DURATION_MAX = 5f;
         #endregion
 
         #region Wave Preview

@@ -21,24 +21,27 @@ namespace DogtorBurguer
         public void Initialize(Vector3 startPos, Vector3 endPos, float duration)
         {
             transform.position = startPos;
+            BuildVisual();
+            PlayFlyIn(startPos, endPos, duration);
+            _active.Add(this);
+        }
 
-            // Diamond sprite (cached + reused across packs)
+        private void BuildVisual()
+        {
             _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             _spriteRenderer.sprite = GetGemSprite();
             _spriteRenderer.sortingOrder = Constants.SORT_GEM_PACK;
-            _spriteRenderer.color = UIStyles.BTN_GEM_PACK;
-
+            _spriteRenderer.color = UIStyles.GEM_PACK;
             transform.localScale = Vector3.one * AnimConfig.GEM_START_SCALE;
+        }
 
-            // Fly across with sine wobble
-            float midY = (startPos.y + endPos.y) * 0.5f + Rng.Range(-1f, 1f);
-            Vector3 midPos = new Vector3(
-                (startPos.x + endPos.x) * 0.5f,
-                midY,
-                0f
-            );
-
+        private void PlayFlyIn(Vector3 startPos, Vector3 endPos, float duration)
+        {
+            // Fly across with a sine wobble.
+            float midY = (startPos.y + endPos.y) * 0.5f + Rng.Range(-AnimConfig.GEM_WOBBLE, AnimConfig.GEM_WOBBLE);
+            Vector3 midPos = new Vector3((startPos.x + endPos.x) * 0.5f, midY, 0f);
             Vector3[] path = { startPos, midPos, endPos };
+
             _moveTween = transform.DOPath(path, duration, PathType.CatmullRom)
                 .SetEase(Ease.Linear)
                 .OnComplete(() =>
@@ -47,17 +50,13 @@ namespace DogtorBurguer
                         Destroy(gameObject);
                 });
 
-            // Add a gentle rotation
             transform.DORotate(new Vector3(0, 0, 360f), duration * 0.5f, RotateMode.FastBeyond360)
                 .SetLoops(-1, LoopType.Restart)
                 .SetEase(Ease.Linear);
 
-            // Pulse scale
             transform.DOScale(Vector3.one * AnimConfig.GEM_PULSE_MAX_SCALE, AnimConfig.GEM_PULSE_DURATION)
                 .SetLoops(-1, LoopType.Yoyo)
                 .SetEase(Ease.InOutSine);
-
-            _active.Add(this);
         }
 
         /// <summary>
@@ -90,13 +89,20 @@ namespace DogtorBurguer
             _collected = true;
             _active.Remove(this);
 
-            // Award gems
+            AwardGems();
+            PlayCollect();
+        }
+
+        private void AwardGems()
+        {
             if (SaveDataManager.Instance != null)
                 SaveDataManager.Instance.AddGems(MonetizationConfig.GEM_PACK_VALUE);
 
             Debug.Log($"[GemPack] Collected! +{MonetizationConfig.GEM_PACK_VALUE} gems");
+        }
 
-            // Collect animation
+        private void PlayCollect()
+        {
             _moveTween?.Kill();
             DOTween.Kill(transform);
 

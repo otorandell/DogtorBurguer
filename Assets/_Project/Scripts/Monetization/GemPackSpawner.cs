@@ -39,13 +39,14 @@ namespace DogtorBurguer
             // Determine direction (left-to-right or right-to-left)
             bool fromLeft = Rng.Value > 0.5f;
 
-            float screenEdge = 5f; // Off-screen X position
-            float yPos = Rng.Range(0f, 3f); // Upper area of screen
+            float screenEdge = Constants.GEM_SPAWN_EDGE_X;
+            float yPos = Rng.Range(Constants.GEM_SPAWN_Y_MIN, Constants.GEM_SPAWN_Y_MAX);
 
             Vector3 startPos = new Vector3(fromLeft ? -screenEdge : screenEdge, yPos, 0f);
-            Vector3 endPos = new Vector3(fromLeft ? screenEdge : -screenEdge, yPos + Rng.Range(-1f, 1f), 0f);
+            Vector3 endPos = new Vector3(fromLeft ? screenEdge : -screenEdge,
+                yPos + Rng.Range(-AnimConfig.GEM_WOBBLE, AnimConfig.GEM_WOBBLE), 0f);
 
-            float duration = Rng.Range(3f, 5f);
+            float duration = Rng.Range(AnimConfig.GEM_FLY_DURATION_MIN, AnimConfig.GEM_FLY_DURATION_MAX);
 
             GameObject packObj = new GameObject("GemPack");
             GemPack pack = packObj.AddComponent<GemPack>();

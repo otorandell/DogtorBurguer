@@ -59,7 +59,10 @@ namespace DogtorBurguer
         public static readonly Color BTN_SETTINGS_TOGGLE = new(0.3f, 0.5f, 0.7f);
         public static readonly Color BTN_SHOP_AD = new(0.3f, 0.5f, 0.9f);
         public static readonly Color BTN_SHOP_BUY = new(0.2f, 0.7f, 0.3f);
-        public static readonly Color BTN_GEM_PACK = new(1f, 0.85f, 0f);
+        #endregion
+
+        #region World-Space Sprite Colors
+        public static readonly Color GEM_PACK = new(1f, 0.85f, 0f);
         #endregion
 
         #region Font Sizes - HUD
