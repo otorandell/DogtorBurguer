@@ -35,47 +35,58 @@ namespace DogtorBurguer
 
         private void Start()
         {
+            ResolveDependencies();
+            EnsureManagers();
+            ApplyPersistedSettings();
+            SubscribeEvents();
+
+            if (_autoStartGame)
+                StartGame();
+        }
+
+        private void ResolveDependencies()
+        {
             if (_difficultyManager == null)
                 _difficultyManager = GetComponent<DifficultyManager>();
             if (_difficultyManager == null)
                 _difficultyManager = FindAnyObjectByType<DifficultyManager>();
+        }
 
-            // Ensure UI, audio, and monetization components exist
+        private void EnsureManagers()
+        {
+            // UI, audio, and monetization components for this scene.
             EnsureComponent<GameHUD>();
             EnsureComponent<GameOverPanel>();
             EnsureComponent<AudioManager>();
             EnsureComponent<GemPackSpawner>();
             EnsureComponent<BurgerChallenge>();
 
-            // Ensure SaveDataManager persists from menu
+            // Persistent managers that should already exist from the menu.
             if (SaveDataManager.Instance == null)
             {
                 GameObject saveObj = new GameObject("SaveDataManager");
                 saveObj.AddComponent<SaveDataManager>();
             }
-
-            // Ensure MusicManager persists from menu
             if (MusicManager.Instance == null)
             {
                 GameObject musicObj = new GameObject("MusicManager");
                 musicObj.AddComponent<MusicManager>();
             }
+        }
 
-            // Apply sound setting
+        private void ApplyPersistedSettings()
+        {
             AudioListener.volume = SaveDataManager.Instance.SoundOn ? 1f : 0f;
             MusicManager.Instance?.ApplySoundSetting();
+        }
 
-            // Subscribe to events
+        private void SubscribeEvents()
+        {
             if (_gridManager != null)
             {
                 _gridManager.OnGameOver += HandleGameOver;
                 _gridManager.OnMatchEliminated += AddScore;
                 _gridManager.OnBurgerCompleted += HandleBurgerCompleted;
-            }
-
-            if (_autoStartGame)
-            {
-                StartGame();
             }
         }
 
