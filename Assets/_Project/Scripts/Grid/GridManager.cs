@@ -11,7 +11,6 @@ namespace DogtorBurguer
         private List<Ingredient> _fallingIngredients = new List<Ingredient>();
         private BurgerAnimator _burgerAnimator;
         private SwapAnimator _swapAnimator;
-        private HashSet<Column> _columnsWithActiveBurger = new HashSet<Column>();
 
         public event Action OnGameOver;
         public event Action<int> OnMatchEliminated;         // Points earned
@@ -87,21 +86,22 @@ namespace DogtorBurguer
             // Top bun: check burger before overflow
             if (ingredient.Type == IngredientType.BunTop)
             {
-                if (MatchDetector.HasBunBelow(column, ingredient))
+                int topIndex = column.StackHeight - 1; // the BunTop we just landed
+                int bottomIndex = FindBunBottomBelow(column, topIndex);
+                if (bottomIndex >= 0)
                 {
                     OnIngredientPlaced?.Invoke();
-                    CheckAndProcessBurger(column);
-                    return;
+                    ProcessBurger(column, topIndex, bottomIndex);
                 }
                 else
                 {
-                    // No bottom bun below — destroy top bun
+                    // No bottom bun below — destroy the lone top bun.
                     Vector3 pos = ingredient.transform.position;
                     column.RemoveIngredient(ingredient);
                     ingredient.DestroyWithFlash();
                     FloatingText.Spawn(pos, "Too bad!", UIStyles.TEXT_TOO_BAD, UIStyles.WORLD_FLOATING_TEXT_SIZE);
-                    return;
                 }
+                return;
             }
 
             OnIngredientPlaced?.Invoke();
@@ -110,15 +110,14 @@ namespace DogtorBurguer
             // match can clear the column and "save" the player from a momentary overflow.
             CheckAndProcessMatches(column); // includes bottom bun cancellation; may reduce height
 
-            // Now check overflow (game over condition)
+            // Now check overflow (game over condition). A regular landing can't complete a
+            // burger — that only happens when a BunTop lands (handled above) — so no burger
+            // check here.
             if (column.IsOverflowing)
             {
                 OnGameOver?.Invoke();
                 return;
             }
-
-            // Check for burger completion
-            CheckAndProcessBurger(column);
         }
 
         private void CheckAndProcessMatches(Column column)
@@ -137,32 +136,46 @@ namespace DogtorBurguer
             }
         }
 
-        private void CheckAndProcessBurger(Column column)
+        /// <summary>Scans down from a just-landed BunTop for the nearest BunBottom; -1 if none.</summary>
+        private int FindBunBottomBelow(Column column, int topIndex)
         {
-            if (_columnsWithActiveBurger.Contains(column)) return;
+            var ingredients = column.GetAllIngredients();
+            for (int i = topIndex - 1; i >= 0; i--)
+            {
+                if (ingredients[i].Type == IngredientType.BunBottom)
+                    return i;
+            }
+            return -1;
+        }
 
-            var detection = MatchDetector.DetectBurger(column);
-            if (!detection.Found) return;
+        private void ProcessBurger(Column column, int topIndex, int bottomIndex)
+        {
+            var ingredients = column.GetAllIngredients();
 
-            _columnsWithActiveBurger.Add(column);
+            var parts = new List<Ingredient>();
+            for (int i = topIndex; i >= bottomIndex; i--)
+                parts.Add(ingredients[i]);
 
-            // Remove burger parts from column data IMMEDIATELY
-            // so they can't be re-detected or moved by swaps
-            column.RemoveIngredientsInRange(detection.BunBottomIndex, detection.BunTopIndex);
+            var ingredientTypes = new List<IngredientType>();
+            for (int i = bottomIndex + 1; i < topIndex; i++)
+                ingredientTypes.Add(ingredients[i].Type);
 
-            int points = Scoring.CalculateBurgerPoints(detection.IngredientCount);
-            string burgerName = BurgerNamer.Generate(detection.IngredientCount);
+            int ingredientCount = topIndex - bottomIndex - 1;
+
+            // Remove burger parts from column data immediately so they can't be re-detected
+            // or moved by a swap.
+            column.RemoveIngredientsInRange(bottomIndex, topIndex);
 
             var data = new BurgerData
             {
                 Column = column,
-                Parts = detection.Parts,
-                BunBottomIndex = detection.BunBottomIndex,
-                BunTopIndex = detection.BunTopIndex,
-                IngredientCount = detection.IngredientCount,
-                IngredientTypes = detection.IngredientTypes,
-                Points = points,
-                Name = burgerName
+                Parts = parts,
+                BunBottomIndex = bottomIndex,
+                BunTopIndex = topIndex,
+                IngredientCount = ingredientCount,
+                IngredientTypes = ingredientTypes,
+                Points = Scoring.CalculateBurgerPoints(ingredientCount),
+                Name = BurgerNamer.Generate(ingredientCount)
             };
 
             _burgerAnimator.PlayCompress(data, _fallingIngredients, HandleBurgerAnimationComplete);
@@ -170,8 +183,6 @@ namespace DogtorBurguer
 
         private void HandleBurgerAnimationComplete(BurgerData data, Vector3 pos)
         {
-            _columnsWithActiveBurger.Remove(data.Column);
-
             // Collapse now that animation is done
             data.Column.CollapseFromRow(data.BunBottomIndex);
 
@@ -184,9 +195,6 @@ namespace DogtorBurguer
             OnBurgerCompleted?.Invoke(data.Points, displayName);
             OnBurgerEffect?.Invoke(pos, data.Points, displayName, data.IngredientCount);
             OnBurgerWithIngredients?.Invoke(pos, data.Points, displayName, data.IngredientCount, data.IngredientTypes);
-
-            // Re-check column for stacked burgers
-            CheckAndProcessBurger(data.Column);
         }
 
         public void SwapColumnsWithWaveEffect(int columnA, int columnB)
@@ -233,16 +241,10 @@ namespace DogtorBurguer
 
         private void HandleSwapComplete(Column colA, Column colB)
         {
-            if (!colA.IsEmpty)
-            {
-                CheckAndProcessMatches(colA);
-                CheckAndProcessBurger(colA);
-            }
-            if (!colB.IsEmpty)
-            {
-                CheckAndProcessMatches(colB);
-                CheckAndProcessBurger(colB);
-            }
+            // Only matches can result from a swap — a column never holds a sitting BunTop
+            // (they resolve or self-destruct on landing), so no burger can form here.
+            if (!colA.IsEmpty) CheckAndProcessMatches(colA);
+            if (!colB.IsEmpty) CheckAndProcessMatches(colB);
         }
 
         /// <summary>

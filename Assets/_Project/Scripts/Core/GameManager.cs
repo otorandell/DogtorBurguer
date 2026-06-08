@@ -24,10 +24,14 @@ namespace DogtorBurguer
 
         private GameState _currentState = GameState.Menu;
         private bool _isPaused;
+        private int _resolutionDepth;
         private int _score;
 
         public GameState CurrentState => _currentState;
         public bool IsPaused => _isPaused;
+        // True while a burger is resolving (animation in progress). A counter, not a bool, so
+        // concurrent resolutions in different columns nest correctly (F-31).
+        public bool IsResolving => _resolutionDepth > 0;
         public int Score => _score;
         public int CurrentLevel => _difficultyManager != null ? _difficultyManager.CurrentLevel : 1;
 
@@ -148,6 +152,15 @@ namespace DogtorBurguer
         {
             if (_currentState == GameState.Playing)
                 _spawner?.ResumeSpawning();
+        }
+
+        /// <summary>Mark a burger resolution as in progress (freezes game input). Paired with EndResolution.</summary>
+        public void BeginResolution() => _resolutionDepth++;
+
+        /// <summary>End a burger resolution. Input unfreezes once all in-flight resolutions end.</summary>
+        public void EndResolution()
+        {
+            if (_resolutionDepth > 0) _resolutionDepth--;
         }
 
         /// <summary>Full reset via scene reload (any → fresh). Increments games-played.</summary>

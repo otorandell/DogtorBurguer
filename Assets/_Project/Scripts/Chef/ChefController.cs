@@ -90,6 +90,8 @@ namespace DogtorBurguer
         public void SwapPlates()
         {
             if (_isMoving) return;
+            // No swapping while a burger is resolving — would corrupt the column being compressed (F-31).
+            if (GameManager.Instance != null && GameManager.Instance.IsResolving) return;
 
             Debug.Log($"[Chef] Swapping columns {LeftColumnIndex} and {RightColumnIndex}");
 

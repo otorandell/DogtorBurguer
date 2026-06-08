@@ -35,8 +35,10 @@ namespace DogtorBurguer
                 }
             }
 
-            // Pause spawning and freeze falling ingredients
+            // Freeze the game for the duration of the resolution: pause spawning, freeze
+            // falling ingredients, and block input via IsResolving (F-31).
             GameManager.Instance?.PauseSpawning();
+            GameManager.Instance?.BeginResolution();
             foreach (var falling in new List<Ingredient>(fallingIngredients))
             {
                 if (falling != null)
@@ -65,6 +67,7 @@ namespace DogtorBurguer
                     if (falling != null)
                         falling.ResumeFalling();
                 }
+                GameManager.Instance?.EndResolution();
                 GameManager.Instance?.ResumeSpawning();
                 yield break;
             }
@@ -137,6 +140,7 @@ namespace DogtorBurguer
                 if (falling != null)
                     falling.ResumeFalling();
             }
+            GameManager.Instance?.EndResolution();
             GameManager.Instance?.ResumeSpawning();
         }
     }
