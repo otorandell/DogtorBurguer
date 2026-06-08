@@ -160,7 +160,7 @@ Not binding — re-order based on what we find.
 | F-59 | Repeated `FindAnyObjectByType<IngredientSpawner>()` (3 sites/regen) → resolve once — *execute as part of F-56* (F-44 theme) | design-quality | **resolved** |
 | F-60 | `BurgerChallenge` magic numbers + dead math (`:414` no-op, misleading `_meterX/Y`) routed **by kind** — `UIStyles` (layout/sizes) + `Constants` (sorting) + stay-at-impl (rect dims, algorithmic); *independent* (colors=F-24, flash dur=F-11) | design-quality | **resolved** (dead math + naming fixed by the F-56 split; positions → UIStyles) |
 | F-61 | `GenerateRectSprite` texture leak + not cached — *independent*; 2nd sighting → codebase-wide generated-asset hygiene (w/ F-55) | design-quality | **resolved** (via SpriteFactory.White) |
-| F-62 | `BurgerPopup` no `OnDestroy` DOTween kill (untargeted alpha `DOTween.To`) + `sizeDelta` magics → `UIStyles` + `SetParent(false)` nit | design-quality | noted |
+| F-62 | `BurgerPopup` no `OnDestroy` DOTween kill (untargeted alpha `DOTween.To`) + `sizeDelta` magics → `UIStyles` + `SetParent(false)` nit | design-quality | **resolved** |
 | F-63 | `GameHUD` event-wiring: cache `DifficultyManager` (double `FindAnyObjectByType` + unsubscribe symmetry) + subscribe-once silent-failure (2nd F-51 sighting) + init/null-check inconsistencies | design-quality | noted |
 | F-64 | `GameHUD` layout magic numbers → `UIStyles`; + add anchor params to `UIFactory.CreateText` (centered-only at `:63-64`) so `CreateHUDText` can be deleted | design-quality | **resolved** |
 | F-65 | **[codebase-wide]** Scattered runtime sprite/texture generators leak (no disposal) → new `SpriteFactory` sibling (gen + cache + dispose; not UIFactory — it's UGUI-only). Instances: F-55, F-61, GameLayout 9-slice (3rd sighting → formalized) | design-quality | **resolved** (ChefController/GemPack/FeedbackManager generators not yet migrated) |
@@ -171,7 +171,7 @@ Not binding — re-order based on what we find.
 | F-70 | `UIFactory` internal dup (`CreateButton` label reuse `CreateText`; shared `ConfigureRect`) + `:22` `SetParent(false)` nit | cosmetic | noted |
 | F-71 | `MainMenuUI` bootstraps managers + sets `AudioListener.volume` in `Start` (`:18-37`) → extract to bootstrap entry point (links F-1, F-56/F-67) | design-quality | noted |
 | F-72 | `MainMenuUI` layout magic → `UIStyles`; gem-counter anchor post-patch = 2nd F-64 consumer + dead `(0,400)` arg; `using UnityEngine.UI` nit | design-quality | **resolved** |
-| F-73 | **[codebase-wide]** DOTween-kill-on-destroy hygiene — missing `OnDestroy` kill + untargeted `DOTween.To` closures. Instances: F-62 (BurgerPopup), GameOverPanel, ScorePopup (3rd → formalized) | design-quality | noted |
+| F-73 | **[codebase-wide]** DOTween-kill-on-destroy hygiene — missing `OnDestroy` kill + untargeted `DOTween.To` closures. Instances: F-62 (BurgerPopup), GameOverPanel, ScorePopup (3rd → formalized) | design-quality | **resolved** |
 | F-74 | `ScorePopup` `0.8f` fade scale → `AnimConfig` | cosmetic | **resolved** |
 | F-75 | Consolidate 3 world-space rise-fade-destroy popups (`FloatingText`/`ScorePopup`/`BurgerPopup`) → `WorldTextFactory` + shared animation helper | design-quality | noted |
 | F-76 | Dead `_prefab` static field in `FloatingText` (`:9`) → delete | cosmetic | **resolved** |
@@ -208,7 +208,7 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **62 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
+plan). **64 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
@@ -246,8 +246,9 @@ F-74, F-10, F-20, F-37, F-39, F-9.
   (high-score persistence → game-over flow), **F-68** (level via GameManager;
   drops DifficultyManager scans in GameOverPanel/GameHUD/AudioManager).
 
-**Still open (22 noted + F-2 fix-now):** **F-44** DI sweep; **F-18**
+**Still open (20 noted + F-2 fix-now):** **F-44** DI sweep; **F-18**
 FeedbackManager split; F-70/F-71/F-78/F-77 (factory dedup + bootstrap + audio
-service); spawner F-38/F-40/F-41/F-42; popups/HUD F-62/F-63/F-73/F-75; Wave 5
-high-risk Grid F-30/F-31; audio F-2/F-4/F-6; misc F-45/F-49; plus the two
-partials to finish (F-1 EnsureComponent lift, F-50 gem-pack literals).
+service); spawner F-38/F-40/F-41/F-42; F-63 HUD event-wiring; F-75 popup
+consolidation; Wave 5 high-risk Grid F-30/F-31; audio F-2/F-4/F-6; misc
+F-45/F-49; plus the two partials (F-1 EnsureComponent lift, F-50 gem-pack
+literals).
