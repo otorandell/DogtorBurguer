@@ -128,7 +128,7 @@ Not binding — re-order based on what we find.
 | F-27 | `Column.CheckForMatch` collapses to `top.Type == second.Type` (+ delete now-dead `IsRegularIngredient` / `IsBun` / `IngredientTypeExtensions`) | design-quality | **resolved** |
 | F-28 | `GridManager` overflow check fires before match check — kills "saving matches" | **blocker** (UX bug) | **resolved** |
 | F-29 | Dead `SwapColumns` + `SwapColumnTops` methods in `GridManager` (~70 lines) | design-quality | **resolved** |
-| F-30 | **[HIGH-RISK]** Extract `SwapAnimator` + event-based completion (replaces time-coupled `DelayedMatchCheck`) — test plan in notes | design-quality | noted |
+| F-30 | **[HIGH-RISK]** Extract `SwapAnimator` + event-based completion (replaces time-coupled `DelayedMatchCheck`) — test plan in notes | design-quality | **resolved** (playtested, all 7 scenarios) |
 | F-31 | Formalize game-input freeze during burger resolution; collapse burger detection logic (delete `DetectBurger` / `HasBunBelow` / `BurgerDetection` / `_columnsWithActiveBurger` / cascade re-check) | design-quality | noted |
 | F-32 | Promote `MatchResult` struct to top-level type | cosmetic | **resolved** |
 | F-33 | `Ingredient` two-bool `_isFalling` + `_isLanded` encoding of a 3-state lifecycle → `enum IngredientState { Spawned, Falling, Landed }` | design-quality | **resolved** |
@@ -208,7 +208,7 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **84 of 87 findings resolved** (no partials remaining). Waves 0–3 are on
+plan). **85 of 87 findings resolved** (no partials remaining). Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
@@ -256,6 +256,6 @@ F-74, F-10, F-20, F-37, F-39, F-9.
 - **F-70** UIFactory internal dedup; **F-49** GemPack method grouping; **F-50**
   gem-pack literals routed (AnimConfig/Constants) + own UIStyles.GEM_PACK color.
 
-**Still open (3 noted):** **F-4** (deferred — risky DSP dedup, can't verify by
-ear); Wave 5 high-risk Grid **F-30/F-31** (playtest-gated). Everything else is
-resolved.
+**Still open (2 noted):** **F-31** (Wave 5 — input-freeze + burger-detection
+collapse, playtest-gated); **F-4** (deferred — risky DSP dedup, can't verify by
+ear). Everything else is resolved.
