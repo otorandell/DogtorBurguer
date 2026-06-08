@@ -100,11 +100,11 @@ Not binding — re-order based on what we find.
 | Tag | Label | Severity | Status |
 |---|---|---|---|
 | F-1 | `EnsureComponent<T>` helper should be reusable (lift to Util, replace `MainMenuUI` re-implementation) | design-quality | **partial** (burger-tier dup closed via Scoring.GetBurgerTier; the EnsureComponent lift itself is still open — folds into F-71) |
-| F-2 | No path from procedural clips to authored audio assets (add per-slot `[SerializeField]` override) | design-quality | fix-now |
+| F-2 | No path from procedural clips to authored audio assets (add per-slot `[SerializeField]` override) | design-quality | **resolved** |
 | F-3 | `HandleBurger` if-elseif → switch expression | cosmetic | **resolved** |
-| F-4 | Sample-generation skeleton repeats across `Generate*Samples` (gated on F-2 path) | design-quality | noted |
+| F-4 | Sample-generation skeleton repeats across `Generate*Samples` (gated on F-2 path) | design-quality | noted (deferred — risky DSP-math dedup, can't verify generated sound by ear; low value) |
 | F-5 | Two category bools in `MusicManager` → `MusicCategory` enum | design-quality | **resolved** |
-| F-6 | `MusicManager._source.volume = 0.5f` magic number (move to config) | cosmetic | noted |
+| F-6 | `MusicManager._source.volume = 0.5f` magic number (move to config) | cosmetic | **resolved** (new AudioConfig) |
 | F-7 | Empty `Burger/` and `Scoring/` placeholder folders — populate or delete | cosmetic | **resolved** |
 | F-8 | `ChefController._startPosition` SerializeField never varies; collapse to constant | cosmetic | **resolved** |
 | F-9 | Position bubbles likely effectively invisible (low alpha + sortingOrder behind chef) — decide UX cue vs delete | design-quality | **resolved** |
@@ -208,7 +208,7 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **69 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
+plan). **71 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
@@ -250,8 +250,8 @@ F-74, F-10, F-20, F-37, F-39, F-9.
 - Spawner cluster: **F-40** WaveSlot struct, **F-41** preview paired-list (fixes
   the latent desync), **F-42** CreatePreview→int, **F-38** WaveComposer extraction.
 
-**Still open (15 noted + F-2 fix-now):** **F-44** DI sweep;
-F-70/F-71/F-78/F-77 (factory dedup + bootstrap + audio service); F-63 HUD
-event-wiring; F-75 popup consolidation; Wave 5 high-risk Grid F-30/F-31; audio
-F-2/F-4/F-6; misc F-45/F-49; plus the two partials (F-1 EnsureComponent lift,
-F-50 gem-pack literals).
+**Still open (14 noted):** **F-44** DI sweep; F-70/F-71/F-78/F-77 (factory
+dedup + bootstrap + audio service); F-63 HUD event-wiring; F-75 popup
+consolidation; Wave 5 high-risk Grid F-30/F-31; **F-4** (deferred — risky DSP
+dedup); misc F-45/F-49; plus the two partials (F-1 EnsureComponent lift, F-50
+gem-pack literals).
