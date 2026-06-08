@@ -9,10 +9,16 @@ namespace DogtorBurguer
         private TextMeshPro _nameText;
         private TextMeshPro _scoreText;
 
-        public void Initialize(string burgerName, int points, Color nameColor)
+        /// <summary>Creates a burger-name + score popup at the world position and animates it.</summary>
+        public static BurgerPopup Spawn(Vector3 position, int points, string burgerName, Color nameColor)
         {
-            CreateTexts(burgerName, points, nameColor);
-            Animate();
+            GameObject obj = new GameObject("BurgerPopup");
+            obj.transform.position = position;
+
+            BurgerPopup popup = obj.AddComponent<BurgerPopup>();
+            popup.CreateTexts(burgerName, points, nameColor);
+            popup.Animate();
+            return popup;
         }
 
         private void CreateTexts(string burgerName, int points, Color nameColor)

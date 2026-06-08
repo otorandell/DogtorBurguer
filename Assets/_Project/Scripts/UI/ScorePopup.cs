@@ -6,18 +6,22 @@ namespace DogtorBurguer
 {
     public class ScorePopup : MonoBehaviour
     {
-        [SerializeField] private TextMeshPro _text;
+        private TextMeshPro _text;
 
-        public void Initialize(int points, Color color)
+        /// <summary>Creates a "+points" popup at the world position and starts its rise-fade.</summary>
+        public static ScorePopup Spawn(Vector3 position, int points, Color color)
         {
-            if (_text == null)
-                _text = GetComponent<TextMeshPro>();
+            GameObject obj = new GameObject("ScorePopup");
+            obj.transform.position = position;
 
-            _text.text = $"+{points}";
-            _text.color = color;
-            _text.sortingOrder = Constants.SORT_SCORE_POPUP;
+            TextMeshPro text = WorldTextFactory.Create(obj, $"+{points}",
+                UIStyles.WORLD_SCORE_POPUP_SIZE, color, Constants.SORT_SCORE_POPUP,
+                UIStyles.SCORE_POPUP_RECT, FontStyles.Normal, UIStyles.OUTLINE_WIDTH_WORLD);
 
-            Animate();
+            ScorePopup popup = obj.AddComponent<ScorePopup>();
+            popup._text = text;
+            popup.Animate();
+            return popup;
         }
 
         private void Animate()

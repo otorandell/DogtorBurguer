@@ -89,6 +89,7 @@ namespace DogtorBurguer
         #region World-Space Popup Sizes
         public static readonly Vector2 BURGER_POPUP_NAME_RECT = new(6f, 2f);
         public static readonly Vector2 BURGER_POPUP_SCORE_RECT = new(4f, 1.5f);
+        public static readonly Vector2 SCORE_POPUP_RECT = new(4f, 2f);
         #endregion
 
         #region Font Sizes - World Space
