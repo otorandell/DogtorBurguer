@@ -172,6 +172,14 @@ namespace DogtorBurguer
         public static readonly Vector2 SHOP_CLOSE_POS = new(0f, -190f);
         #endregion
 
+        #region Layout — Challenge Panel (world-space)
+        public const float CHALLENGE_TITLE_Y = 1.25f;
+        public const float CHALLENGE_NAME_Y = 1.05f;
+        public const float CHALLENGE_METER_X = 0.9f;
+        public const float CHALLENGE_METER_Y = -0.2f;
+        public const float CHALLENGE_LEVEL_GAP = 0.2f; // level text gap below the meter
+        #endregion
+
         #region Layout — Game Layout Panels (world-space frames)
         public static readonly Vector2 GRID_PANEL_CENTER = new(0f, -1.9f);
         public static readonly Vector2 GRID_PANEL_SIZE = new(5.2f, 5.8f);

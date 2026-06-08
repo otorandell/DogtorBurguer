@@ -24,8 +24,8 @@ namespace DogtorBurguer
         private SpriteRenderer _meterFill;
 
         // Meter anchor (local to the display root)
-        private const float MeterX = 0.9f;
-        private const float MeterY = -0.2f;
+        private const float MeterX = UIStyles.CHALLENGE_METER_X;
+        private const float MeterY = UIStyles.CHALLENGE_METER_Y;
 
         public void Initialize(BurgerChallenge model)
         {
@@ -56,7 +56,7 @@ namespace DogtorBurguer
             // Title ("Special Order!")
             GameObject titleObj = new GameObject("ChallengeTitle");
             titleObj.transform.SetParent(_displayRoot.transform, false);
-            titleObj.transform.localPosition = new Vector3(0f, 1.25f, 0f);
+            titleObj.transform.localPosition = new Vector3(0f, UIStyles.CHALLENGE_TITLE_Y, 0f);
             _titleText = WorldTextFactory.Create(titleObj, "Special Order!",
                 UIStyles.WORLD_CHALLENGE_NAME_SIZE, UIStyles.GOLD, order + 1,
                 new Vector2(2.2f, 0.5f), FontStyles.Bold, UIStyles.OUTLINE_WIDTH_UI);
@@ -64,7 +64,7 @@ namespace DogtorBurguer
             // Requirement description (below title)
             GameObject nameObj = new GameObject("ChallengeName");
             nameObj.transform.SetParent(_displayRoot.transform, false);
-            nameObj.transform.localPosition = new Vector3(0f, 1.05f, 0f);
+            nameObj.transform.localPosition = new Vector3(0f, UIStyles.CHALLENGE_NAME_Y, 0f);
             _nameText = WorldTextFactory.Create(nameObj, string.Empty,
                 UIStyles.WORLD_CHALLENGE_NAME_SIZE * 0.8f, UIStyles.TEXT_UI, order + 1,
                 new Vector2(2.2f, 0.5f), FontStyles.Normal, UIStyles.OUTLINE_WIDTH_UI);
@@ -92,7 +92,7 @@ namespace DogtorBurguer
             // Level text
             GameObject levelObj = new GameObject("ChallengeLevel");
             levelObj.transform.SetParent(_displayRoot.transform, false);
-            levelObj.transform.localPosition = new Vector3(MeterX, MeterY - _model.MeterHeight * 0.5f - 0.2f, 0f);
+            levelObj.transform.localPosition = new Vector3(MeterX, MeterY - _model.MeterHeight * 0.5f - UIStyles.CHALLENGE_LEVEL_GAP, 0f);
             _levelText = WorldTextFactory.Create(levelObj, string.Empty,
                 UIStyles.WORLD_CHALLENGE_LEVEL_SIZE, UIStyles.TEXT_UI, order + 1,
                 new Vector2(1f, 0.4f), FontStyles.Normal, UIStyles.OUTLINE_WIDTH_UI);
