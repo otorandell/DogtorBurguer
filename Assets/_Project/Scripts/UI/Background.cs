@@ -6,17 +6,20 @@ namespace DogtorBurguer
     {
         [SerializeField] private Sprite _backgroundSprite;
         [SerializeField] private BackgroundType _type = BackgroundType.Game;
-        [SerializeField, Range(0f, 1f)] private float _filterOpacity = 0.35f;
+        [SerializeField, Range(0f, 1f)] private float _filterOpacity = UIStyles.BG_FILTER_OPACITY;
 
         private SpriteRenderer _renderer;
         private SpriteRenderer _filter;
+        private Camera _cam;
+        private float _camWidth;
+        private float _camHeight;
 
         private void Start()
         {
+            CacheCameraDimensions();
+
             GameObject bgObj = new GameObject("BackgroundSprite");
             bgObj.transform.SetParent(transform, false);
-            bgObj.transform.position = new Vector3(0, 0, 10f);
-
             _renderer = bgObj.AddComponent<SpriteRenderer>();
             _renderer.sortingOrder = Constants.SORT_BACKGROUND;
 
@@ -31,50 +34,45 @@ namespace DogtorBurguer
                 _renderer.sprite = SpriteFactory.VerticalGradient(bottom, top);
             }
 
-            FitToCamera();
+            // Uniform scale fills the camera while preserving the sprite's aspect.
+            Vector2 spriteSize = _renderer.sprite.bounds.size;
+            float scale = _cam != null ? Mathf.Max(_camWidth / spriteSize.x, _camHeight / spriteSize.y) : 1f;
+            FitToCamera(_renderer.transform, Constants.Z_BACKGROUND, new Vector3(scale, scale, 1f));
+
             CreateFilter();
         }
 
         private void CreateFilter()
         {
-            if (_filterOpacity <= 0f) return;
+            if (_filterOpacity <= 0f || _cam == null) return;
 
             GameObject filterObj = new GameObject("BackgroundFilter");
             filterObj.transform.SetParent(transform, false);
-
             _filter = filterObj.AddComponent<SpriteRenderer>();
             _filter.sortingOrder = Constants.SORT_BACKGROUND_FILTER;
+            _filter.sprite = SpriteFactory.White();
             _filter.color = new Color(1f, 1f, 1f, _filterOpacity);
 
-            _filter.sprite = SpriteFactory.White();
-
-            // Match the background size
-            Camera cam = Camera.main;
-            if (cam == null) return;
-
-            float camHeight = 2f * cam.orthographicSize;
-            float camWidth = camHeight * cam.aspect;
-
-            filterObj.transform.localScale = new Vector3(camWidth, camHeight, 1f);
-            filterObj.transform.position = new Vector3(cam.transform.position.x, cam.transform.position.y, 9.9f);
+            // Stretch the 1x1 white sprite to exactly cover the camera.
+            FitToCamera(_filter.transform, Constants.Z_BACKGROUND_FILTER, new Vector3(_camWidth, _camHeight, 1f));
         }
 
-        private void FitToCamera()
+        private void CacheCameraDimensions()
         {
-            Camera cam = Camera.main;
-            if (cam == null) return;
+            _cam = Camera.main;
+            if (_cam == null) return;
 
-            float camHeight = 2f * cam.orthographicSize;
-            float camWidth = camHeight * cam.aspect;
+            _camHeight = 2f * _cam.orthographicSize;
+            _camWidth = _camHeight * _cam.aspect;
+        }
 
-            Vector2 spriteSize = _renderer.sprite.bounds.size;
-
-            float scaleX = camWidth / spriteSize.x;
-            float scaleY = camHeight / spriteSize.y;
-            float scale = Mathf.Max(scaleX, scaleY);
-
-            _renderer.transform.localScale = new Vector3(scale, scale, 1f);
-            _renderer.transform.position = new Vector3(cam.transform.position.x, cam.transform.position.y, 10f);
+        /// <summary>Centers a layer on the camera at world depth z with the given scale.</summary>
+        private void FitToCamera(Transform layer, float z, Vector3 scale)
+        {
+            layer.localScale = scale;
+            float x = _cam != null ? _cam.transform.position.x : 0f;
+            float y = _cam != null ? _cam.transform.position.y : 0f;
+            layer.position = new Vector3(x, y, z);
         }
     }
 }

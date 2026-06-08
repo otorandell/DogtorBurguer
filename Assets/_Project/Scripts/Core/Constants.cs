@@ -36,5 +36,7 @@ namespace DogtorBurguer
         // World-space z depth for layered 2D frames (sprite draw order is governed
         // by the SORT_* sorting orders above; this positions the panel in world z).
         public const float Z_GAME_PANEL = 5f;
+        public const float Z_BACKGROUND = 10f;
+        public const float Z_BACKGROUND_FILTER = 9.9f;
     }
 }

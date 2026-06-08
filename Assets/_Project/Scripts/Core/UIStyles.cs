@@ -116,6 +116,7 @@ namespace DogtorBurguer
         public static readonly Color BG_MENU_BOTTOM = new(0.18f, 0.08f, 0.25f);
         public static readonly Color BG_GAME_TOP = new(0.04f, 0.08f, 0.14f);
         public static readonly Color BG_GAME_BOTTOM = new(0.06f, 0.14f, 0.18f);
+        public const float BG_FILTER_OPACITY = 0.35f;
         #endregion
 
         #region Chef Bubbles
