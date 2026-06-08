@@ -10,6 +10,7 @@ namespace DogtorBurguer
 
         private List<Ingredient> _fallingIngredients = new List<Ingredient>();
         private BurgerAnimator _burgerAnimator;
+        private SwapAnimator _swapAnimator;
         private HashSet<Column> _columnsWithActiveBurger = new HashSet<Column>();
 
         public event Action OnGameOver;
@@ -26,6 +27,8 @@ namespace DogtorBurguer
             if (Instance != this) return;
 
             _burgerAnimator = gameObject.AddComponent<BurgerAnimator>();
+            _swapAnimator = gameObject.AddComponent<SwapAnimator>();
+            _swapAnimator.OnSwapComplete += HandleSwapComplete;
             InitializeColumns();
         }
 
@@ -193,60 +196,43 @@ namespace DogtorBurguer
 
             if (colA == null || colB == null) return;
 
-            // Get the Y threshold - falling ingredients below this level get swapped too
+            // Falling ingredients below this level swap columns too.
             float thresholdY = Mathf.Max(
                 colA.GetNextLandingPosition().y,
                 colB.GetNextLandingPosition().y
             ) + (Constants.CELL_VISUAL_HEIGHT * GameplayConfig.SWAP_THRESHOLD_BUFFER_MULT);
 
-            // Swap all stacked ingredients
+            // Data swap (instant).
             List<Ingredient> ingredientsA = colA.TakeAllIngredients();
             List<Ingredient> ingredientsB = colB.TakeAllIngredients();
-
             colA.SetAllIngredients(ingredientsB);
             colB.SetAllIngredients(ingredientsA);
 
-            // Animate with wave effect - stagger by row (bottom to top)
-            foreach (var ing in ingredientsA)
-            {
-                float delay = ing.CurrentRow * GameplayConfig.SWAP_WAVE_DELAY_PER_ROW;
-                ing.AnimateToCurrentPositionWithWave(delay);
-            }
-            foreach (var ing in ingredientsB)
-            {
-                float delay = ing.CurrentRow * GameplayConfig.SWAP_WAVE_DELAY_PER_ROW;
-                ing.AnimateToCurrentPositionWithWave(delay);
-            }
-
-            // Swap falling ingredients that are below the threshold
+            // Reassign falling ingredients below the threshold to the other column.
+            List<Ingredient> swappedFalling = new List<Ingredient>();
             foreach (var falling in new List<Ingredient>(_fallingIngredients))
             {
                 if (falling == null || falling.State == IngredientState.Landed) continue;
+                if (falling.CurrentY > thresholdY) continue;
 
-                if (falling.CurrentY <= thresholdY)
+                if (falling.CurrentColumn == colA)
                 {
-                    if (falling.CurrentColumn == colA)
-                    {
-                        falling.SwapToColumn(colB, GameplayConfig.INITIAL_FALL_STEP_DURATION);
-                        falling.DoWaveEffect(0f);
-                    }
-                    else if (falling.CurrentColumn == colB)
-                    {
-                        falling.SwapToColumn(colA, GameplayConfig.INITIAL_FALL_STEP_DURATION);
-                        falling.DoWaveEffect(0f);
-                    }
+                    falling.SwapToColumn(colB, GameplayConfig.INITIAL_FALL_STEP_DURATION);
+                    swappedFalling.Add(falling);
+                }
+                else if (falling.CurrentColumn == colB)
+                {
+                    falling.SwapToColumn(colA, GameplayConfig.INITIAL_FALL_STEP_DURATION);
+                    swappedFalling.Add(falling);
                 }
             }
 
-            // Check for matches and burgers after swap (with slight delay for animation)
-            float maxDelay = Mathf.Max(ingredientsA.Count, ingredientsB.Count) * GameplayConfig.SWAP_WAVE_DELAY_PER_ROW + GameplayConfig.SWAP_POST_ANIM_DELAY;
-            StartCoroutine(DelayedMatchCheck(colA, colB, maxDelay));
+            // Animate; match/burger checks run when the wave settles (HandleSwapComplete).
+            _swapAnimator.PlaySwap(colA, colB, ingredientsA, ingredientsB, swappedFalling);
         }
 
-        private System.Collections.IEnumerator DelayedMatchCheck(Column colA, Column colB, float delay)
+        private void HandleSwapComplete(Column colA, Column colB)
         {
-            yield return new WaitForSeconds(delay);
-
             if (!colA.IsEmpty)
             {
                 CheckAndProcessMatches(colA);
