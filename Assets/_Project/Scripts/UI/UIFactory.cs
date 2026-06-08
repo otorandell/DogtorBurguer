@@ -19,7 +19,7 @@ namespace DogtorBurguer
         public static Canvas CreateCanvas(Transform parent, string name, int sortingOrder)
         {
             GameObject canvasObj = new GameObject(name);
-            canvasObj.transform.SetParent(parent);
+            canvasObj.transform.SetParent(parent, false);
 
             Canvas canvas = canvasObj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -58,23 +58,8 @@ namespace DogtorBurguer
         {
             GameObject textObj = new GameObject(text);
             textObj.transform.SetParent(parent, false);
-
-            RectTransform rect = textObj.AddComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = position;
-            rect.sizeDelta = size;
-
-            TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = text;
-            tmp.fontSize = fontSize;
-            tmp.fontStyle = style;
-            tmp.color = color ?? UIStyles.TEXT_UI;
-            tmp.alignment = alignment;
-            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
-            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
-
-            return tmp;
+            SetCenteredRect(textObj, position, size);
+            return AddStyledText(textObj, text, fontSize, style, color ?? UIStyles.TEXT_UI, alignment);
         }
 
         /// <summary>
@@ -87,12 +72,7 @@ namespace DogtorBurguer
         {
             GameObject btnObj = new GameObject(label);
             btnObj.transform.SetParent(parent, false);
-
-            RectTransform btnRect = btnObj.AddComponent<RectTransform>();
-            btnRect.anchorMin = new Vector2(0.5f, 0.5f);
-            btnRect.anchorMax = new Vector2(0.5f, 0.5f);
-            btnRect.anchoredPosition = position;
-            btnRect.sizeDelta = size;
+            SetCenteredRect(btnObj, position, size);
 
             Image btnImg = btnObj.AddComponent<Image>();
             btnImg.color = color;
@@ -101,21 +81,11 @@ namespace DogtorBurguer
             btn.targetGraphic = btnImg;
             btn.onClick.AddListener(onClick);
 
+            // Label stretches to fill the button.
             GameObject textObj = new GameObject("Text");
             textObj.transform.SetParent(btnObj.transform, false);
-            RectTransform textRect = textObj.AddComponent<RectTransform>();
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.sizeDelta = Vector2.zero;
-
-            TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = label;
-            tmp.fontSize = fontSize;
-            tmp.fontStyle = FontStyles.Bold;
-            tmp.color = UIStyles.TEXT_UI;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
-            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
+            SetStretchRect(textObj);
+            TextMeshProUGUI tmp = AddStyledText(textObj, label, fontSize, FontStyles.Bold, UIStyles.TEXT_UI, TextAlignmentOptions.Center);
 
             return (btnObj, btn, tmp);
         }
@@ -127,11 +97,7 @@ namespace DogtorBurguer
         {
             GameObject overlay = new GameObject("Overlay");
             overlay.transform.SetParent(parent, false);
-
-            RectTransform rect = overlay.AddComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.sizeDelta = Vector2.zero;
+            SetStretchRect(overlay);
 
             Image img = overlay.AddComponent<Image>();
             img.color = color;
@@ -146,16 +112,45 @@ namespace DogtorBurguer
         {
             GameObject panel = new GameObject("Panel");
             panel.transform.SetParent(parent, false);
-
-            RectTransform rect = panel.AddComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = size;
+            SetCenteredRect(panel, Vector2.zero, size);
 
             Image img = panel.AddComponent<Image>();
             img.color = color;
 
             return panel;
+        }
+
+        // --- shared construction helpers ---
+
+        private static void SetCenteredRect(GameObject obj, Vector2 position, Vector2 size)
+        {
+            RectTransform rect = obj.AddComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+        }
+
+        private static void SetStretchRect(GameObject obj)
+        {
+            RectTransform rect = obj.AddComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.sizeDelta = Vector2.zero;
+        }
+
+        private static TextMeshProUGUI AddStyledText(
+            GameObject obj, string text, float fontSize, FontStyles style, Color color, TextAlignmentOptions alignment)
+        {
+            TextMeshProUGUI tmp = obj.AddComponent<TextMeshProUGUI>();
+            tmp.text = text;
+            tmp.fontSize = fontSize;
+            tmp.fontStyle = style;
+            tmp.color = color;
+            tmp.alignment = alignment;
+            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
+            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
+            return tmp;
         }
     }
 }
