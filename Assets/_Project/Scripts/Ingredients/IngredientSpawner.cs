@@ -33,7 +33,6 @@ namespace DogtorBurguer
         private bool _active;
         private SpawnerState _state = SpawnerState.Delaying;
         private Dictionary<IngredientType, Sprite> _spriteMap;
-        private int _spawnsSinceLastBun;
         private float _tripleWaveChance;
 
         // Wave state
@@ -42,12 +41,14 @@ namespace DogtorBurguer
         private float _delayTimer;
 
         private WavePreviewManager _previewManager;
+        private WaveComposer _composer;
 
         private void Awake()
         {
             BuildSpriteMap();
             _previewManager = gameObject.AddComponent<WavePreviewManager>();
             _previewManager.Initialize(GetSpriteForType);
+            _composer = new WaveComposer(_enableForcedBunSpawn, _forceBunMultiplier);
         }
 
         private void BuildSpriteMap()
@@ -145,7 +146,7 @@ namespace DogtorBurguer
             // Consume remaining preview data (entries may have been tapped)
             var waveData = _previewManager.HasPreviews
                 ? _previewManager.ConsumeRemainingData()
-                : (_nextWaveData.Count > 0 ? _nextWaveData : RollWaveData());
+                : (_nextWaveData.Count > 0 ? _nextWaveData : _composer.RollWave(_activeIngredientCount, _tripleWaveChance));
 
             _previewManager.ClearPreviews();
 
@@ -160,7 +161,7 @@ namespace DogtorBurguer
             }
 
             // Pre-roll next wave (previews shown once wave clears top)
-            _nextWaveData = RollWaveData();
+            _nextWaveData = _composer.RollWave(_activeIngredientCount, _tripleWaveChance);
             _state = SpawnerState.WaveFalling;
         }
 
@@ -183,113 +184,6 @@ namespace DogtorBurguer
                 if (ing.CurrentY > threshold) return false;
             }
             return true;
-        }
-
-        private List<WaveSlot> RollWaveData()
-        {
-            int waveSize = GetWaveSize();
-            var data = new List<WaveSlot>();
-            var usedColumns = new List<int>();
-
-            for (int i = 0; i < waveSize; i++)
-            {
-                int col = GetUnusedColumn(usedColumns);
-                if (col < 0) break;
-                usedColumns.Add(col);
-                IngredientType type = GetSpawnType();
-                data.Add(new WaveSlot(type, col));
-            }
-            return data;
-        }
-
-        private int GetWaveSize()
-        {
-            // Triple-wave chance is computed and pushed by DifficultyManager (F-37);
-            // the spawner is value-driven and no longer references "level".
-            return Rng.Value < _tripleWaveChance ? 3 : 2;
-        }
-
-        private int GetUnusedColumn(List<int> usedColumns)
-        {
-            List<int> available = new List<int>();
-            for (int i = 0; i < Constants.COLUMN_COUNT; i++)
-            {
-                if (!usedColumns.Contains(i))
-                    available.Add(i);
-            }
-            if (available.Count == 0) return -1;
-            return available[Rng.Range(0, available.Count)];
-        }
-
-        private IngredientType GetSpawnType()
-        {
-            if (_enableForcedBunSpawn)
-            {
-                int threshold = (int)(_activeIngredientCount * _forceBunMultiplier);
-                if (_spawnsSinceLastBun >= threshold)
-                {
-                    _spawnsSinceLastBun = 0;
-                    return GetBunType();
-                }
-            }
-
-            int roll = Rng.Range(0, _activeIngredientCount + 1);
-            if (roll < _activeIngredientCount)
-            {
-                _spawnsSinceLastBun++;
-                return GameplayConfig.REGULAR_INGREDIENTS[roll];
-            }
-
-            _spawnsSinceLastBun = 0;
-            return GetBunType();
-        }
-
-        private IngredientType GetBunType()
-        {
-            if (!GridHasBottomBun())
-                return IngredientType.BunBottom;
-
-            int bottomCount = CountBottomBunsOnGrid();
-            float topChance = Mathf.Min(GameplayConfig.BUN_TOP_BASE_CHANCE + bottomCount * GameplayConfig.BUN_TOP_CHANCE_PER_BOTTOM, GameplayConfig.BUN_TOP_CHANCE_CAP);
-            return Rng.Value < topChance ? IngredientType.BunTop : IngredientType.BunBottom;
-        }
-
-        private int CountBottomBunsOnGrid()
-        {
-            if (GridManager.Instance == null) return 0;
-
-            int count = 0;
-            for (int c = 0; c < Constants.COLUMN_COUNT; c++)
-            {
-                Column col = GridManager.Instance.GetColumn(c);
-                if (col == null) continue;
-
-                foreach (var ing in col.GetAllIngredients())
-                {
-                    if (ing.Type == IngredientType.BunBottom)
-                        count++;
-                }
-            }
-            return count;
-        }
-
-        private bool GridHasBottomBun()
-        {
-            if (GridManager.Instance == null) return false;
-
-            for (int c = 0; c < Constants.COLUMN_COUNT; c++)
-            {
-                Column col = GridManager.Instance.GetColumn(c);
-                if (col == null) continue;
-
-                var ingredients = col.GetAllIngredients();
-                foreach (var ing in ingredients)
-                {
-                    if (ing.Type == IngredientType.BunBottom)
-                        return true;
-                }
-            }
-            return false;
         }
 
         public bool TryTapPreview(Vector2 worldPos)
