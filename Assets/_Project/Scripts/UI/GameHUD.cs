@@ -15,8 +15,7 @@ namespace DogtorBurguer
             _canvas = UIFactory.CreateCanvas(transform, "HUD_Canvas", 50);
             CreateHUDElements();
             SubscribeEvents();
-            UpdateScore(0);
-            UpdateLevel(1);
+            RefreshAll();
         }
 
         private void CreateHUDElements()
@@ -33,8 +32,6 @@ namespace DogtorBurguer
             _gemText = CreateHUDText("GemText", startY - UIStyles.HUD_LINE_SPACING * 2);
             _gemText.fontSize = UIStyles.HUD_GEM_SIZE;
             _gemText.color = UIStyles.TEXT_HUD;
-            int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
-            _gemText.text = $"Gems: {gems}";
         }
 
         private TextMeshProUGUI CreateHUDText(string name, float yOffset)
@@ -71,14 +68,25 @@ namespace DogtorBurguer
                 SaveDataManager.Instance.OnGemsChanged += UpdateGems;
         }
 
+        // Seeds all three lines from the live sources (single init path, no hardcoded
+        // 0/1 duplicating canonical values).
+        private void RefreshAll()
+        {
+            UpdateScore(GameManager.Instance != null ? GameManager.Instance.Score : 0);
+            UpdateLevel(GameManager.Instance != null ? GameManager.Instance.CurrentLevel : 1);
+            UpdateGems(SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0);
+        }
+
         private void UpdateScore(int score)
         {
-            _scoreText.text = $"Score: {score}";
+            if (_scoreText != null)
+                _scoreText.text = $"Score: {score}";
         }
 
         private void UpdateLevel(int level)
         {
-            _levelText.text = $"Level {level}";
+            if (_levelText != null)
+                _levelText.text = $"Level {level}";
         }
 
         private void UpdateGems(int gems)
