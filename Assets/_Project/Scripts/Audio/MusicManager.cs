@@ -19,7 +19,7 @@ namespace DogtorBurguer
             _source = gameObject.AddComponent<AudioSource>();
             _source.loop = true;
             _source.playOnAwake = false;
-            _source.volume = 0.5f;
+            _source.volume = AudioConfig.DEFAULT_MUSIC_VOLUME;
 
             _menuTracks = Resources.LoadAll<AudioClip>("Music/MenuTrack");
             _gameTracks = Resources.LoadAll<AudioClip>("Music/GameTrack");

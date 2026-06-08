@@ -22,6 +22,21 @@ namespace DogtorBurguer
         private AudioClip _earlySpawnClip;
         private AudioClip _challengeMatchClip;
 
+        [Header("Authored Clip Overrides (optional — used instead of the generated clip if assigned)")]
+        [SerializeField] private AudioClip _matchOverride;
+        [SerializeField] private AudioClip _burgerPoorOverride;
+        [SerializeField] private AudioClip _burgerSmallOverride;
+        [SerializeField] private AudioClip _burgerMediumOverride;
+        [SerializeField] private AudioClip _burgerLargeOverride;
+        [SerializeField] private AudioClip _burgerMegaOverride;
+        [SerializeField] private AudioClip _burgerMaxOverride;
+        [SerializeField] private AudioClip _levelUpOverride;
+        [SerializeField] private AudioClip _gameOverOverride;
+        [SerializeField] private AudioClip _squeezeOverride;
+        [SerializeField] private AudioClip _fastDropOverride;
+        [SerializeField] private AudioClip _earlySpawnOverride;
+        [SerializeField] private AudioClip _challengeMatchOverride;
+
         private const int SAMPLE_RATE = 44100;
 
         protected override void Awake()
@@ -108,19 +123,25 @@ namespace DogtorBurguer
 
         private void GenerateClips()
         {
-            _matchClip = GenerateSound("Match", 0.15f, GenerateMatchSamples);
-            _burgerPoorClip = GenerateSound("BurgerPoor", 0.3f, GenerateBurgerPoorSamples);
-            _burgerSmallClip = GenerateSound("BurgerSmall", 0.25f, GenerateBurgerSmallSamples);
-            _burgerMediumClip = GenerateSound("BurgerMedium", 0.4f, GenerateBurgerMediumSamples);
-            _burgerLargeClip = GenerateSound("BurgerLarge", 0.5f, GenerateBurgerLargeSamples);
-            _burgerMegaClip = GenerateSound("BurgerMega", 0.6f, GenerateBurgerMegaSamples);
-            _burgerMaxClip = GenerateSound("BurgerMax", 0.8f, GenerateBurgerMaxSamples);
-            _levelUpClip = GenerateSound("LevelUp", 0.5f, GenerateLevelUpSamples);
-            _gameOverClip = GenerateSound("GameOver", 0.8f, GenerateGameOverSamples);
-            _squeezeClip = GenerateSound("Squeeze", 0.1f, GenerateSqueezeSamples);
-            _fastDropClip = GenerateSound("FastDrop", 0.12f, GenerateFastDropSamples);
-            _earlySpawnClip = GenerateSound("EarlySpawn", 0.15f, GenerateEarlySpawnSamples);
-            _challengeMatchClip = GenerateSound("ChallengeMatch", 0.35f, GenerateChallengeMatchSamples);
+            _matchClip = Resolve(_matchOverride, "Match", 0.15f, GenerateMatchSamples);
+            _burgerPoorClip = Resolve(_burgerPoorOverride, "BurgerPoor", 0.3f, GenerateBurgerPoorSamples);
+            _burgerSmallClip = Resolve(_burgerSmallOverride, "BurgerSmall", 0.25f, GenerateBurgerSmallSamples);
+            _burgerMediumClip = Resolve(_burgerMediumOverride, "BurgerMedium", 0.4f, GenerateBurgerMediumSamples);
+            _burgerLargeClip = Resolve(_burgerLargeOverride, "BurgerLarge", 0.5f, GenerateBurgerLargeSamples);
+            _burgerMegaClip = Resolve(_burgerMegaOverride, "BurgerMega", 0.6f, GenerateBurgerMegaSamples);
+            _burgerMaxClip = Resolve(_burgerMaxOverride, "BurgerMax", 0.8f, GenerateBurgerMaxSamples);
+            _levelUpClip = Resolve(_levelUpOverride, "LevelUp", 0.5f, GenerateLevelUpSamples);
+            _gameOverClip = Resolve(_gameOverOverride, "GameOver", 0.8f, GenerateGameOverSamples);
+            _squeezeClip = Resolve(_squeezeOverride, "Squeeze", 0.1f, GenerateSqueezeSamples);
+            _fastDropClip = Resolve(_fastDropOverride, "FastDrop", 0.12f, GenerateFastDropSamples);
+            _earlySpawnClip = Resolve(_earlySpawnOverride, "EarlySpawn", 0.15f, GenerateEarlySpawnSamples);
+            _challengeMatchClip = Resolve(_challengeMatchOverride, "ChallengeMatch", 0.35f, GenerateChallengeMatchSamples);
+        }
+
+        /// <summary>Use the authored clip if one is assigned in the inspector, else generate procedurally (F-2).</summary>
+        private AudioClip Resolve(AudioClip authored, string name, float duration, Func<float, int, float> sampleFunc)
+        {
+            return authored != null ? authored : GenerateSound(name, duration, sampleFunc);
         }
 
         private AudioClip GenerateSound(string name, float duration, Func<float, int, float> sampleFunc)
