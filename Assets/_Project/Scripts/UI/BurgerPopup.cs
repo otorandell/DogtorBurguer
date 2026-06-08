@@ -20,16 +20,16 @@ namespace DogtorBurguer
             // Burger name (main text) — on this popup's own GameObject
             _nameText = WorldTextFactory.Create(gameObject, burgerName,
                 UIStyles.WORLD_BURGER_NAME_SIZE, nameColor, Constants.SORT_BURGER_POPUP,
-                new Vector2(6f, 2f), FontStyles.Bold, UIStyles.OUTLINE_WIDTH_WORLD);
+                UIStyles.BURGER_POPUP_NAME_RECT, FontStyles.Bold, UIStyles.OUTLINE_WIDTH_WORLD);
 
             // Score text (child object, below name)
             GameObject scoreObj = new GameObject("ScoreText");
-            scoreObj.transform.SetParent(transform);
+            scoreObj.transform.SetParent(transform, false);
             scoreObj.transform.localPosition = new Vector3(0, AnimConfig.BURGER_POPUP_SCORE_OFFSET_Y, 0);
 
             _scoreText = WorldTextFactory.Create(scoreObj, $"+{points}",
                 UIStyles.WORLD_BURGER_SCORE_SIZE, UIStyles.TEXT_UI, Constants.SORT_BURGER_POPUP,
-                new Vector2(4f, 1.5f), FontStyles.Normal, UIStyles.OUTLINE_WIDTH_WORLD);
+                UIStyles.BURGER_POPUP_SCORE_RECT, FontStyles.Normal, UIStyles.OUTLINE_WIDTH_WORLD);
         }
 
         private void Animate()
@@ -48,11 +48,18 @@ namespace DogtorBurguer
 
             // Fade out and rise
             seq.Append(transform.DOMove(transform.position + Vector3.up * AnimConfig.BURGER_POPUP_RISE, AnimConfig.BURGER_POPUP_FADE_DURATION).SetEase(Ease.InCubic));
-            seq.Join(DOTween.To(() => _nameText.alpha, x => _nameText.alpha = x, 0f, AnimConfig.BURGER_POPUP_FADE_DURATION));
-            seq.Join(DOTween.To(() => _scoreText.alpha, x => _scoreText.alpha = x, 0f, AnimConfig.BURGER_POPUP_FADE_DURATION));
+            seq.Join(_nameText.DOFade(0f, AnimConfig.BURGER_POPUP_FADE_DURATION));
+            seq.Join(_scoreText.DOFade(0f, AnimConfig.BURGER_POPUP_FADE_DURATION));
             seq.Join(transform.DOScale(AnimConfig.BURGER_POPUP_FADE_SCALE, AnimConfig.BURGER_POPUP_FADE_DURATION).SetEase(Ease.InCubic));
 
             seq.OnComplete(() => Destroy(gameObject));
+        }
+
+        private void OnDestroy()
+        {
+            transform.DOKill();
+            if (_nameText != null) _nameText.DOKill();
+            if (_scoreText != null) _scoreText.DOKill();
         }
     }
 }

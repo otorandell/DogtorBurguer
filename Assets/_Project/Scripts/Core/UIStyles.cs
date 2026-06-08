@@ -86,6 +86,11 @@ namespace DogtorBurguer
         public const float CREDITS_TEXT_SIZE = 24f;
         #endregion
 
+        #region World-Space Popup Sizes
+        public static readonly Vector2 BURGER_POPUP_NAME_RECT = new(6f, 2f);
+        public static readonly Vector2 BURGER_POPUP_SCORE_RECT = new(4f, 1.5f);
+        #endregion
+
         #region Font Sizes - World Space
         public const float WORLD_SCORE_POPUP_SIZE = 5f;
         public const float WORLD_BURGER_NAME_SIZE = 4f;

@@ -107,7 +107,7 @@ namespace DogtorBurguer
             _panel.transform.localScale = Vector3.one * AnimConfig.GAMEOVER_START_SCALE;
 
             DOTween.Sequence()
-                .Append(DOTween.To(() => _canvasGroup.alpha, x => _canvasGroup.alpha = x, 1f, AnimConfig.GAMEOVER_FADE_DURATION))
+                .Append(_canvasGroup.DOFade(1f, AnimConfig.GAMEOVER_FADE_DURATION))
                 .Join(_panel.transform.DOScale(1f, AnimConfig.GAMEOVER_SCALE_DURATION).SetEase(Ease.OutBack))
                 .SetUpdate(true);
         }
@@ -164,6 +164,9 @@ namespace DogtorBurguer
         {
             if (GameManager.Instance != null)
                 GameManager.Instance.OnStateChanged -= HandleStateChanged;
+
+            if (_panel != null) _panel.transform.DOKill();
+            if (_canvasGroup != null) _canvasGroup.DOKill();
         }
     }
 }
