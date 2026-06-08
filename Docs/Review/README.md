@@ -136,11 +136,11 @@ Not binding — re-order based on what we find.
 | F-35 | `SpawnerState` enum nested in `IngredientSpawner` → promote to own file | cosmetic | **resolved** |
 | F-36 | Dead `Idle` state redundant with `_active` (`case Idle` unreachable) — delete it (Option A); `_active` stays as F-21-style modifier | design-quality | **resolved** |
 | F-37 | Spawner consumes raw level only for `GetWaveSize` triple-chance — move computation to DifficultyManager, push value, delete `SetCurrentLevel`/`_currentLevel` (upgrades :285 note) | design-quality | **resolved** |
-| F-38 | Extract `WaveComposer` (wave-composition logic) from 378-line `IngredientSpawner` — not animation; SRP split of "what to spawn" | design-quality | noted |
+| F-38 | Extract `WaveComposer` (wave-composition logic) from 378-line `IngredientSpawner` — not animation; SRP split of "what to spawn" | design-quality | **resolved** |
 | F-39 | `IngredientType` int values load-bearing in 4 sites — introduce `GameplayConfig.REGULAR_INGREDIENTS` list; enum order then free, buns→0,1 optional. Kills extensions (w/ F-27) | design-quality | **resolved** |
-| F-40 | Promote `(IngredientType, int columnIndex)` wave-slot tuple to named `WaveSlot` struct (across preview mgr + spawner; F-38 return type) | design-quality | noted |
-| F-41 | `_data`/`_previews` parallel lists can desync (latent `TryTap` index bug) — collapse to one `(preview, slot)` list; folds in DOTween/teardown nits | design-quality | noted |
-| F-42 | `CreatePreview` takes `Column` but uses only `ColumnIndex` — drop to `int`, remove sole `GridManager` coupling | design-quality | noted |
+| F-40 | Promote `(IngredientType, int columnIndex)` wave-slot tuple to named `WaveSlot` struct (across preview mgr + spawner; F-38 return type) | design-quality | **resolved** |
+| F-41 | `_data`/`_previews` parallel lists can desync (latent `TryTap` index bug) — collapse to one `(preview, slot)` list; folds in DOTween/teardown nits | design-quality | **resolved** |
+| F-42 | `CreatePreview` takes `Column` but uses only `ColumnIndex` — drop to `int`, remove sole `GridManager` coupling | design-quality | **resolved** |
 | F-43 | `sortingOrder = 90` → named constant in `Constants` (structural layering; F-14/F-16, not F-24) | cosmetic | **resolved** (via F-50 sweep) |
 | F-44 | Defensive Awake dependency resolution (3rd sighting → codebase-wide) — kill `FindAnyObjectByType` scene-scan variant; standardize on explicit injection | design-quality | noted |
 | F-45 | `TouchInputHandler` gesture-vs-mode tangle — dedup swipe-move + preview/falling tap, rename `ProcessTap`/`ProcessTapMode`; folds in magic-number + default + `_isDragging` nits | design-quality | noted |
@@ -208,7 +208,7 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **65 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
+plan). **69 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
@@ -245,9 +245,13 @@ F-74, F-10, F-20, F-37, F-39, F-9.
 - Core orchestration: **F-19** (GameManager.Start → four phases), **F-67**
   (high-score persistence → game-over flow), **F-68** (level via GameManager;
   drops DifficultyManager scans in GameOverPanel/GameHUD/AudioManager).
+- DOTween hygiene **F-62/F-73** (popups); **F-18** FeedbackManager split
+  (ScreenFlashOverlay + ScorePopup/BurgerPopup Spawn factories).
+- Spawner cluster: **F-40** WaveSlot struct, **F-41** preview paired-list (fixes
+  the latent desync), **F-42** CreatePreview→int, **F-38** WaveComposer extraction.
 
-**Still open (19 noted + F-2 fix-now):** **F-44** DI sweep;
-F-70/F-71/F-78/F-77 (factory dedup + bootstrap + audio service); spawner
-F-38/F-40/F-41/F-42; F-63 HUD event-wiring; F-75 popup consolidation; Wave 5
-high-risk Grid F-30/F-31; audio F-2/F-4/F-6; misc F-45/F-49; plus the two
-partials (F-1 EnsureComponent lift, F-50 gem-pack literals).
+**Still open (15 noted + F-2 fix-now):** **F-44** DI sweep;
+F-70/F-71/F-78/F-77 (factory dedup + bootstrap + audio service); F-63 HUD
+event-wiring; F-75 popup consolidation; Wave 5 high-risk Grid F-30/F-31; audio
+F-2/F-4/F-6; misc F-45/F-49; plus the two partials (F-1 EnsureComponent lift,
+F-50 gem-pack literals).
