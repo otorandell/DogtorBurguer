@@ -15,8 +15,11 @@ namespace DogtorBurguer
         [Header("Settings")]
         [SerializeField] private float _swipeThreshold = 50f; // pixels
 
+        // Camera projection distance for ScreenToWorldPoint (algorithmic, not a tuning value).
+        private const float ScreenToWorldZ = 10f;
+
         private Vector2 _touchStartPos;
-        private bool _isDragging;
+        private bool _pressActive; // true between press and release, in both control modes
 
         private void Awake()
         {
@@ -90,11 +93,11 @@ namespace DogtorBurguer
             if (mouse.leftButton.wasPressedThisFrame)
             {
                 _touchStartPos = mouse.position.ReadValue();
-                _isDragging = true;
+                _pressActive = true;
             }
-            else if (mouse.leftButton.wasReleasedThisFrame && _isDragging)
+            else if (mouse.leftButton.wasReleasedThisFrame && _pressActive)
             {
-                _isDragging = false;
+                _pressActive = false;
                 Vector2 endPos = mouse.position.ReadValue();
                 ProcessInput(_touchStartPos, endPos);
             }
@@ -108,14 +111,14 @@ namespace DogtorBurguer
             {
                 case UnityEngine.InputSystem.TouchPhase.Began:
                     _touchStartPos = touch.screenPosition;
-                    _isDragging = true;
+                    _pressActive = true;
                     break;
 
                 case UnityEngine.InputSystem.TouchPhase.Ended:
                 case UnityEngine.InputSystem.TouchPhase.Canceled:
-                    if (_isDragging)
+                    if (_pressActive)
                     {
-                        _isDragging = false;
+                        _pressActive = false;
                         ProcessInput(_touchStartPos, touch.screenPosition);
                     }
                     break;
@@ -126,113 +129,51 @@ namespace DogtorBurguer
         {
             if (_chef == null) return;
 
+            // Gesture is mode-independent: a horizontal swipe moves the chef in either mode.
+            Vector2 delta = endScreenPos - startScreenPos;
+            if (delta.magnitude > _swipeThreshold)
+            {
+                if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
+                    MoveChefHorizontal(delta.x);
+                return;
+            }
+
+            // Tap: world-object taps (preview / falling / gem pack) work in both modes.
+            if (_camera == null) return;
+            Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(startScreenPos.x, startScreenPos.y, ScreenToWorldZ));
+            worldPos.z = 0f;
+
+            if (_spawner != null && _spawner.TryTapPreview(worldPos)) return;
+            if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos)) return;
+            if (GemPack.TryTapAt(worldPos)) return;
+
+            // Only the remaining tap intent depends on the control mode.
             ControlMode mode = SaveDataManager.Instance != null
                 ? SaveDataManager.Instance.ControlMode
-                : ControlMode.Drag;
-
-            float swipeDistance = Vector2.Distance(startScreenPos, endScreenPos);
-            bool isSwipe = swipeDistance > _swipeThreshold;
+                : SaveDataManager.DEFAULT_CONTROL_MODE;
 
             if (mode == ControlMode.Drag)
             {
-                ProcessDragMode(startScreenPos, endScreenPos, isSwipe);
+                _chef.SwapPlates();
+                return;
             }
+
+            // Tap mode: tapping near the chef swaps; tapping to a side moves that way.
+            float chefDist = Vector2.Distance(worldPos, _chef.transform.position);
+            if (chefDist < _chef.BubbleRadius * GameplayConfig.CHEF_TAP_RADIUS_MULT)
+                _chef.SwapPlates();
+            else if (worldPos.x < _chef.transform.position.x)
+                _chef.MoveLeft();
             else
-            {
-                ProcessTapMode(startScreenPos, endScreenPos, isSwipe);
-            }
+                _chef.MoveRight();
         }
 
-        private void ProcessDragMode(Vector2 startScreenPos, Vector2 endScreenPos, bool isSwipe)
+        private void MoveChefHorizontal(float deltaX)
         {
-            if (isSwipe)
-            {
-                Vector2 swipeDir = endScreenPos - startScreenPos;
-                if (Mathf.Abs(swipeDir.x) > Mathf.Abs(swipeDir.y))
-                {
-                    if (swipeDir.x > 0)
-                        _chef.MoveRight();
-                    else
-                        _chef.MoveLeft();
-                }
-            }
+            if (deltaX > 0)
+                _chef.MoveRight();
             else
-            {
-                ProcessTap(startScreenPos);
-            }
-        }
-
-        private void ProcessTapMode(Vector2 startScreenPos, Vector2 endScreenPos, bool isSwipe)
-        {
-            if (isSwipe)
-            {
-                // Swipe = move
-                Vector2 swipeDir = endScreenPos - startScreenPos;
-                if (Mathf.Abs(swipeDir.x) > Mathf.Abs(swipeDir.y))
-                {
-                    if (swipeDir.x > 0)
-                        _chef.MoveRight();
-                    else
-                        _chef.MoveLeft();
-                }
-            }
-            else
-            {
-                if (_camera == null) return;
-
-                Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(startScreenPos.x, startScreenPos.y, 10f));
-                worldPos.z = 0;
-
-                // Check preview tap
-                if (_spawner != null && _spawner.TryTapPreview(worldPos))
-                    return;
-
-                // Check falling ingredient tap
-                if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos))
-                    return;
-
-                // Check gem pack tap
-                if (GemPack.TryTapAt(worldPos))
-                    return;
-
-                // Check if tapped on/near the chef → swap
-                float chefDist = Vector2.Distance(worldPos, _chef.transform.position);
-                if (chefDist < _chef.BubbleRadius * 2f)
-                {
-                    _chef.SwapPlates();
-                    return;
-                }
-
-                // Tap left/right of chef = move
-                if (worldPos.x < _chef.transform.position.x)
-                    _chef.MoveLeft();
-                else
-                    _chef.MoveRight();
-            }
-        }
-
-        private void ProcessTap(Vector2 screenPos)
-        {
-            if (_chef == null) return;
-
-            // Check if tapped on a falling ingredient or preview first
-            if (_camera != null)
-            {
-                Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 10f));
-                worldPos.z = 0;
-
-                if (_spawner != null && _spawner.TryTapPreview(worldPos))
-                    return;
-
-                if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos))
-                    return;
-
-                if (GemPack.TryTapAt(worldPos))
-                    return;
-            }
-
-            // Any other tap → swap
-            _chef.SwapPlates();
+                _chef.MoveLeft();
         }
 
         public void OnSwapButtonPressed()

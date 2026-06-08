@@ -38,6 +38,7 @@ namespace DogtorBurguer
         #region Tap Interaction
         public const float PREVIEW_TAP_RADIUS_MULT = 0.7f;
         public const float FALLING_TAP_RADIUS_MULT = 0.6f;
+        public const float CHEF_TAP_RADIUS_MULT = 2f; // tap within this × bubble radius of the chef = swap
         public const float FAST_DROP_POINTS_PER_UNIT = 2f;
         #endregion
 
