@@ -138,13 +138,29 @@ Setting `tmp.outlineWidth`/`tmp.outlineColor` after `AddComponent<TextMeshPro>()
 - Buttons/popups/panels: white with outline (when outline fix is applied)
 - World-space popups: white with outline
 
-## Architecture Refactoring Roadmap
-Active work to improve AI maintainability:
+## Roadmap
 
-1. ~~**Centralize config values**~~ DONE -- `GameplayConfig.cs`, `UIStyles.cs`, `AnimConfig.cs` alongside `Constants.cs`
-2. ~~**Split GridManager**~~ DONE -- `MatchDetector` (static, match/burger detection), `BurgerAnimator` (compress animation, scoring, naming), `GridManager` (column state, events, orchestration)
-3. ~~**Split IngredientSpawner**~~ DONE -- `WavePreviewManager` (preview display/tap), `SpawnerState` enum replaces boolean flags
-4. ~~**Restructure UI code**~~ DONE -- `UIFactory` static utility for shared canvas/text/button/panel/overlay construction, all UI scripts use it
+### Phase 1 — Architecture refactoring + code review (COMPLETE)
+The full human-led code review (`Docs/Review/`, findings F-1…F-87) is implemented:
+**86 / 87 resolved**, every behavioral change playtested. Highlights:
+- 6-config-file split — `Constants` / `GameplayConfig` / `MonetizationConfig` / `AnimConfig` / `UIStyles` / `AudioConfig` (by who-tunes-it)
+- `Singleton<T>` base for the 7 managers; `MonoBehaviourUtil`, `AppBootstrap`, `SoundSettings`
+- `Scoring/` (scoring + `BurgerTier` + `BurgerNamer`); `Grid/` → `MatchDetector` (match only) + `BurgerAnimator` + `SwapAnimator` + `BurgerData`
+- `BurgerChallenge` → model + `BurgerChallengeView`; `IngredientSpawner` → `WaveComposer` + `WavePreviewManager`
+- `UI/Factory/` — `UIFactory` (UGUI) + `WorldTextFactory` (world TMP) + `SpriteFactory` (cached procedural sprites)
+
+See `Docs/Review/README.md` for the per-finding index. **Only F-4 remains** —
+the procedural-SFX skeleton dedup, deliberately deferred (verify-by-ear, low value;
+revisit only if the SFX get reworked).
+
+### Phase 2 — Polish & final (CURRENT)
+Making the game feel and look finished. **Playtest-driven**: the developer plays and
+notes what's off; changes land as edits — mostly one-line tweaks, since feel / visual /
+balance values are centralized in `AnimConfig` / `UIStyles` / `GameplayConfig`. Focus areas:
+- **Game feel / juice** — animation timing, screen shake, squash/stretch, popups (`AnimConfig`)
+- **Difficulty & balance** — level curve, wave speed, triple-wave chance, Special Order difficulty, scoring (`GameplayConfig`)
+- **Audio** — real SFX/music via the authored-clip override path (`AudioManager._*Override` fields) or procedural/mix tuning (`AudioConfig`)
+- **Visual** — the text-outline fix (see Known Issues), readability/contrast, the placeholder sprite (`UIStyles`)
 
 ## Pending Manual Steps
 - **Assign placeholder sprite**: In Unity Inspector, select BurgerChallenge component → set `_spritePlaceholder` field to the silhouette PNG in `Assets/_Project/Sprites/Ingredients/`
