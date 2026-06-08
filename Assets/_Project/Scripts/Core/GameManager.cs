@@ -173,6 +173,10 @@ namespace DogtorBurguer
 
         private void HandleGameOver()
         {
+            // Persist the high score as part of the game-over flow (not in the UI panel, F-67).
+            if (SaveDataManager.Instance != null)
+                SaveDataManager.Instance.SetHighScore(_score);
+
             SetState(GameState.GameOver);
             _spawner?.StopSpawning();
 

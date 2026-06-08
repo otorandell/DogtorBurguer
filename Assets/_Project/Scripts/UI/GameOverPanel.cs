@@ -91,9 +91,7 @@ namespace DogtorBurguer
 
             _scoreText.text = $"Score: {score}";
             _levelText.text = $"Level: {level}";
-
-            if (SaveDataManager.Instance != null)
-                SaveDataManager.Instance.SetHighScore(score);
+            // High score is persisted by GameManager's game-over flow (F-67), not here.
 
             _continueGemsObj.SetActive(!_hasContinued);
             _continueAdObj.SetActive(!_hasContinued);
