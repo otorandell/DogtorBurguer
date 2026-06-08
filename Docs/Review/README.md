@@ -151,8 +151,8 @@ Not binding — re-order based on what we find.
 | F-50 | Gem-pack magic numbers routed **by kind** — `MonetizationConfig` (interval/chance/value) + `AnimConfig` (wobble/duration) + `Constants` (radius/geometry/sorting); advances F-14/F-16, promotes F-43 sweep; folds dead `_collider`, redundant kill, UI-color-on-world | design-quality | **partial** (sorting sweep done; gem-pack geometry/anim literals + color still inline) |
 | F-51 | `GemPackSpawner` subscribe-once init-order assumption (`Start` only subscribes if `GameManager.Instance` ready) → silent permanent no-op; read state directly in `Update` instead | design-quality | **resolved** |
 | F-52 | `BackgroundType` second top-level type in `Background.cs` → own file | cosmetic | **resolved** |
-| F-53 | Camera-fill sizing/positioning duplicated across `FitToCamera`/`CreateFilter` → shared helper; cache `Camera.main`; drop dead `:24` position write | design-quality | noted |
-| F-54 | `Background` magic numbers routed **by kind** — `Constants` (z-depths/sorting, 3rd sighting → F-50 sweep) + stay-at-impl (algorithmic texture dims/PPUs) + `UIStyles` (filter opacity) | design-quality | noted |
+| F-53 | Camera-fill sizing/positioning duplicated across `FitToCamera`/`CreateFilter` → shared helper; cache `Camera.main`; drop dead `:24` position write | design-quality | **resolved** |
+| F-54 | `Background` magic numbers routed **by kind** — `Constants` (z-depths/sorting, 3rd sighting → F-50 sweep) + stay-at-impl (algorithmic texture dims/PPUs) + `UIStyles` (filter opacity) | design-quality | **resolved** |
 | F-55 | `Background` generated textures/sprites leak (no `OnDestroy`) + not cached (global cache-assets rule); destroy on teardown + share 1×1 white sprite | design-quality | **resolved** (via SpriteFactory cache) |
 | F-56 | **[ANCHOR]** Split `BurgerChallenge` god-class → challenge model (logic) + view (UI/animation); GridManager talks to model; scoring via Scoring/GameManager | design-quality | **resolved** (playtested) |
 | F-57 | Dedup `CreateUI` world-TMP setups + visual builders → new `WorldTextFactory` (UIFactory is UGUI-only) — *execute as part of F-56* | design-quality | **resolved** |
@@ -208,7 +208,7 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **71 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
+plan). **73 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
