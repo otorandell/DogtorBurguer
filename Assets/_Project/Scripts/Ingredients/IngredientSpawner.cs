@@ -38,7 +38,7 @@ namespace DogtorBurguer
 
         // Wave state
         private List<Ingredient> _currentWaveIngredients = new();
-        private List<(IngredientType type, int columnIndex)> _nextWaveData = new();
+        private List<WaveSlot> _nextWaveData = new();
         private float _delayTimer;
 
         private WavePreviewManager _previewManager;
@@ -150,11 +150,11 @@ namespace DogtorBurguer
             _previewManager.ClearPreviews();
 
             _currentWaveIngredients.Clear();
-            foreach (var (type, colIdx) in waveData)
+            foreach (WaveSlot slot in waveData)
             {
-                Column col = GridManager.Instance.GetColumn(colIdx);
+                Column col = GridManager.Instance.GetColumn(slot.ColumnIndex);
                 if (col == null || col.IsOverflowing) continue;
-                Ingredient ing = SpawnIngredient(type, col);
+                Ingredient ing = SpawnIngredient(slot.Type, col);
                 if (ing != null)
                     _currentWaveIngredients.Add(ing);
             }
@@ -185,10 +185,10 @@ namespace DogtorBurguer
             return true;
         }
 
-        private List<(IngredientType type, int columnIndex)> RollWaveData()
+        private List<WaveSlot> RollWaveData()
         {
             int waveSize = GetWaveSize();
-            var data = new List<(IngredientType, int)>();
+            var data = new List<WaveSlot>();
             var usedColumns = new List<int>();
 
             for (int i = 0; i < waveSize; i++)
@@ -197,7 +197,7 @@ namespace DogtorBurguer
                 if (col < 0) break;
                 usedColumns.Add(col);
                 IngredientType type = GetSpawnType();
-                data.Add((type, col));
+                data.Add(new WaveSlot(type, col));
             }
             return data;
         }
@@ -294,14 +294,14 @@ namespace DogtorBurguer
 
         public bool TryTapPreview(Vector2 worldPos)
         {
-            var result = _previewManager.TryTap(worldPos);
+            WaveSlot? result = _previewManager.TryTap(worldPos);
             if (result == null) return false;
 
-            var (type, colIdx) = result.Value;
-            Column col = GridManager.Instance?.GetColumn(colIdx);
+            WaveSlot slot = result.Value;
+            Column col = GridManager.Instance?.GetColumn(slot.ColumnIndex);
             if (col != null && !col.IsOverflowing)
             {
-                Ingredient ing = SpawnIngredient(type, col);
+                Ingredient ing = SpawnIngredient(slot.Type, col);
                 if (ing != null)
                     _currentWaveIngredients.Add(ing);
             }
@@ -350,11 +350,6 @@ namespace DogtorBurguer
             ingredient.StartFalling(_fallStepDuration);
 
             return ingredient;
-        }
-
-        private void OnDestroy()
-        {
-            _previewManager?.ClearPreviews();
         }
 
         public void SpawnSpecificIngredient(IngredientType type, int columnIndex)
