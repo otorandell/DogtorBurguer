@@ -29,9 +29,11 @@ namespace DogtorBurguer
         public GameState CurrentState => _currentState;
         public bool IsPaused => _isPaused;
         public int Score => _score;
+        public int CurrentLevel => _difficultyManager != null ? _difficultyManager.CurrentLevel : 1;
 
         public event Action<GameState> OnStateChanged;
         public event Action<int> OnScoreChanged;
+        public event Action<int> OnLevelChanged; // forwarded from DifficultyManager (F-68)
 
         private void Start()
         {
@@ -88,7 +90,12 @@ namespace DogtorBurguer
                 _gridManager.OnMatchEliminated += AddScore;
                 _gridManager.OnBurgerCompleted += HandleBurgerCompleted;
             }
+
+            if (_difficultyManager != null)
+                _difficultyManager.OnLevelChanged += RaiseLevelChanged;
         }
+
+        private void RaiseLevelChanged(int level) => OnLevelChanged?.Invoke(level);
 
         protected override void OnDestroy()
         {
@@ -100,6 +107,9 @@ namespace DogtorBurguer
                 _gridManager.OnMatchEliminated -= AddScore;
                 _gridManager.OnBurgerCompleted -= HandleBurgerCompleted;
             }
+
+            if (_difficultyManager != null)
+                _difficultyManager.OnLevelChanged -= RaiseLevelChanged;
         }
 
         /// <summary>Fresh game start (any → Playing). Resets score and starts spawning.</summary>

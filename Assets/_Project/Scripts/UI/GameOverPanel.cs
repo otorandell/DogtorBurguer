@@ -86,8 +86,7 @@ namespace DogtorBurguer
         private void Show()
         {
             int score = GameManager.Instance != null ? GameManager.Instance.Score : 0;
-            DifficultyManager dm = FindAnyObjectByType<DifficultyManager>();
-            int level = dm != null ? dm.CurrentLevel : 1;
+            int level = GameManager.Instance != null ? GameManager.Instance.CurrentLevel : 1;
 
             _scoreText.text = $"Score: {score}";
             _levelText.text = $"Level: {level}";

@@ -61,12 +61,11 @@ namespace DogtorBurguer
                 gridManager.OnBurgerEffect += HandleBurger;
             }
 
-            DifficultyManager dm = FindAnyObjectByType<DifficultyManager>();
-            if (dm != null)
-                dm.OnLevelChanged += HandleLevelUp;
-
             if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnLevelChanged += HandleLevelUp;
                 GameManager.Instance.OnStateChanged += HandleStateChanged;
+            }
         }
 
         private void HandleMatch(Vector3 pos, int points)
@@ -384,12 +383,11 @@ namespace DogtorBurguer
                 gridManager.OnBurgerEffect -= HandleBurger;
             }
 
-            DifficultyManager dm = FindAnyObjectByType<DifficultyManager>();
-            if (dm != null)
-                dm.OnLevelChanged -= HandleLevelUp;
-
             if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnLevelChanged -= HandleLevelUp;
                 GameManager.Instance.OnStateChanged -= HandleStateChanged;
+            }
         }
     }
 }

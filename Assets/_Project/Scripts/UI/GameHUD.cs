@@ -62,11 +62,10 @@ namespace DogtorBurguer
         private void SubscribeEvents()
         {
             if (GameManager.Instance != null)
+            {
                 GameManager.Instance.OnScoreChanged += UpdateScore;
-
-            DifficultyManager dm = FindAnyObjectByType<DifficultyManager>();
-            if (dm != null)
-                dm.OnLevelChanged += UpdateLevel;
+                GameManager.Instance.OnLevelChanged += UpdateLevel;
+            }
 
             if (SaveDataManager.Instance != null)
                 SaveDataManager.Instance.OnGemsChanged += UpdateGems;
@@ -91,11 +90,10 @@ namespace DogtorBurguer
         private void OnDestroy()
         {
             if (GameManager.Instance != null)
+            {
                 GameManager.Instance.OnScoreChanged -= UpdateScore;
-
-            DifficultyManager dm = FindAnyObjectByType<DifficultyManager>();
-            if (dm != null)
-                dm.OnLevelChanged -= UpdateLevel;
+                GameManager.Instance.OnLevelChanged -= UpdateLevel;
+            }
 
             if (SaveDataManager.Instance != null)
                 SaveDataManager.Instance.OnGemsChanged -= UpdateGems;
