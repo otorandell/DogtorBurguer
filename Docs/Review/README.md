@@ -117,7 +117,7 @@ Not binding — re-order based on what we find.
 | F-16 | Adopt 6-config-file architecture (`Constants` + `GameplayConfig` + `MonetizationConfig` + `AnimConfig` + `UIStyles` + `AudioConfig`) — implementation strategy for F-4/F-6/F-11/F-14 | design-quality | **resolved** (AudioConfig deferred until F-4/F-6) |
 | F-17 | `DifficultyManager.EvaluateLevel` resets test-mode level on first ingredient placed | **blocker** (test feature) | **resolved** |
 | F-18 | `FeedbackManager` mixes orchestration with asset construction — extract `SpriteUtils` + `ScreenFlashOverlay` + popup `Spawn` factories | design-quality | noted |
-| F-19 | `GameManager.Start` doing four distinct phases — extract `ResolveDependencies` / `EnsureManagers` / `ApplyPersistedSettings` / `SubscribeEvents` | cosmetic | noted |
+| F-19 | `GameManager.Start` doing four distinct phases — extract `ResolveDependencies` / `EnsureManagers` / `ApplyPersistedSettings` / `SubscribeEvents` | cosmetic | **resolved** |
 | F-20 | Game-flow methods need explanatory comments for state-transition clarity | cosmetic | **resolved** |
 | F-21 | `Paused` is structurally a modifier on `Playing` — refactor to internal `_isPaused` bool | design-quality | **resolved** |
 | F-22 | `ShouldShowInterstitial` mixes persistence with ad-cadence logic — move to `AdManager` | design-quality | **resolved** |
@@ -165,8 +165,8 @@ Not binding — re-order based on what we find.
 | F-64 | `GameHUD` layout magic numbers → `UIStyles`; + add anchor params to `UIFactory.CreateText` (centered-only at `:63-64`) so `CreateHUDText` can be deleted | design-quality | **resolved** |
 | F-65 | **[codebase-wide]** Scattered runtime sprite/texture generators leak (no disposal) → new `SpriteFactory` sibling (gen + cache + dispose; not UIFactory — it's UGUI-only). Instances: F-55, F-61, GameLayout 9-slice (3rd sighting → formalized) | design-quality | **resolved** (ChefController/GemPack/FeedbackManager generators not yet migrated) |
 | F-66 | `GameLayout` magic numbers — `z`/`sortingOrder` → `Constants` (5th sorting sighting → F-50 sweep); border/corner/panel geometry → `UIStyles` (colors=F-24; `TEX_SIZE`/`1.5f` algorithmic) | design-quality | **resolved** |
-| F-67 | `GameOverPanel` high-score persistence (`SetHighScore`) inside UI `Show()` → move to game-over flow (F-56 cousin) | design-quality | noted |
-| F-68 | `DifficultyManager.CurrentLevel` reached via `FindAnyObjectByType` in 3 sites (not a singleton) → expose via `GameManager`; supersedes F-63 local cache (F-44 theme) | design-quality | noted |
+| F-67 | `GameOverPanel` high-score persistence (`SetHighScore`) inside UI `Show()` → move to game-over flow (F-56 cousin) | design-quality | **resolved** |
+| F-68 | `DifficultyManager.CurrentLevel` reached via `FindAnyObjectByType` in 3 sites (not a singleton) → expose via `GameManager`; supersedes F-63 local cache (F-44 theme) | design-quality | **resolved** |
 | F-69 | `GameOverPanel` layout magic numbers → `UIStyles`; button y-stack `30/-45/-120/-195` is a derivable start+spacing sequence | design-quality | **resolved** |
 | F-70 | `UIFactory` internal dup (`CreateButton` label reuse `CreateText`; shared `ConfigureRect`) + `:22` `SetParent(false)` nit | cosmetic | noted |
 | F-71 | `MainMenuUI` bootstraps managers + sets `AudioListener.volume` in `Start` (`:18-37`) → extract to bootstrap entry point (links F-1, F-56/F-67) | design-quality | noted |
@@ -208,7 +208,7 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **59 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
+plan). **62 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
@@ -242,9 +242,12 @@ F-74, F-10, F-20, F-37, F-39, F-9.
 - **The anchor: F-56** — split `BurgerChallenge` into model + view (playtested);
   closed **F-57** (WorldTextFactory), **F-59** (spawner resolved once), **F-60**
   (panel layout literals → UIStyles) in the same pass.
+- Core orchestration: **F-19** (GameManager.Start → four phases), **F-67**
+  (high-score persistence → game-over flow), **F-68** (level via GameManager;
+  drops DifficultyManager scans in GameOverPanel/GameHUD/AudioManager).
 
-**Still open (25 noted + F-2 fix-now):** **F-44** DI sweep; core splits
-F-18/F-19/F-67; F-68/F-70/F-71/F-78/F-77 (DI + bootstrap + audio service);
-spawner F-38/F-40/F-41/F-42; popups/HUD F-62/F-63/F-73/F-75; Wave 5 high-risk
-Grid F-30/F-31; audio F-2/F-4/F-6; misc F-45/F-49; plus the two partials to
-finish (F-1 EnsureComponent lift, F-50 gem-pack literals).
+**Still open (22 noted + F-2 fix-now):** **F-44** DI sweep; **F-18**
+FeedbackManager split; F-70/F-71/F-78/F-77 (factory dedup + bootstrap + audio
+service); spawner F-38/F-40/F-41/F-42; popups/HUD F-62/F-63/F-73/F-75; Wave 5
+high-risk Grid F-30/F-31; audio F-2/F-4/F-6; misc F-45/F-49; plus the two
+partials to finish (F-1 EnsureComponent lift, F-50 gem-pack literals).
