@@ -147,8 +147,8 @@ Not binding — re-order based on what we find.
 | F-46 | Singleton guard boilerplate duplicated across ~7 managers + missing `Instance` null-on-destroy → `Singleton<T>` base (guard/teardown only, NO lazy auto-create — preserves documented init order) | design-quality | **resolved** |
 | F-47 | GemPack invisible — `SpriteRenderer` created but `.sprite` never assigned (confirmed bug, not placeholder) | **blocker** | **resolved** |
 | F-48 | GemPack `OnMouseDown` bypasses New Input System — device-blocker if input handling is New-only; route through `TouchInputHandler` | design-quality | **resolved** |
-| F-49 | GemPack animation interleaved with construction/logic in `Initialize` + `Collect` (F-18/26/30 lineage) | design-quality | noted |
-| F-50 | Gem-pack magic numbers routed **by kind** — `MonetizationConfig` (interval/chance/value) + `AnimConfig` (wobble/duration) + `Constants` (radius/geometry/sorting); advances F-14/F-16, promotes F-43 sweep; folds dead `_collider`, redundant kill, UI-color-on-world | design-quality | **partial** (sorting sweep done; gem-pack geometry/anim literals + color still inline) |
+| F-49 | GemPack animation interleaved with construction/logic in `Initialize` + `Collect` (F-18/26/30 lineage) | design-quality | **resolved** |
+| F-50 | Gem-pack magic numbers routed **by kind** — `MonetizationConfig` (interval/chance/value) + `AnimConfig` (wobble/duration) + `Constants` (radius/geometry/sorting); advances F-14/F-16, promotes F-43 sweep; folds dead `_collider`, redundant kill, UI-color-on-world | design-quality | **resolved** |
 | F-51 | `GemPackSpawner` subscribe-once init-order assumption (`Start` only subscribes if `GameManager.Instance` ready) → silent permanent no-op; read state directly in `Update` instead | design-quality | **resolved** |
 | F-52 | `BackgroundType` second top-level type in `Background.cs` → own file | cosmetic | **resolved** |
 | F-53 | Camera-fill sizing/positioning duplicated across `FitToCamera`/`CreateFilter` → shared helper; cache `Camera.main`; drop dead `:24` position write | design-quality | **resolved** |
@@ -168,7 +168,7 @@ Not binding — re-order based on what we find.
 | F-67 | `GameOverPanel` high-score persistence (`SetHighScore`) inside UI `Show()` → move to game-over flow (F-56 cousin) | design-quality | **resolved** |
 | F-68 | `DifficultyManager.CurrentLevel` reached via `FindAnyObjectByType` in 3 sites (not a singleton) → expose via `GameManager`; supersedes F-63 local cache (F-44 theme) | design-quality | **resolved** |
 | F-69 | `GameOverPanel` layout magic numbers → `UIStyles`; button y-stack `30/-45/-120/-195` is a derivable start+spacing sequence | design-quality | **resolved** |
-| F-70 | `UIFactory` internal dup (`CreateButton` label reuse `CreateText`; shared `ConfigureRect`) + `:22` `SetParent(false)` nit | cosmetic | noted |
+| F-70 | `UIFactory` internal dup (`CreateButton` label reuse `CreateText`; shared `ConfigureRect`) + `:22` `SetParent(false)` nit | cosmetic | **resolved** |
 | F-71 | `MainMenuUI` bootstraps managers + sets `AudioListener.volume` in `Start` (`:18-37`) → extract to bootstrap entry point (links F-1, F-56/F-67) | design-quality | **resolved** (AppBootstrap + SoundSettings) |
 | F-72 | `MainMenuUI` layout magic → `UIStyles`; gem-counter anchor post-patch = 2nd F-64 consumer + dead `(0,400)` arg; `using UnityEngine.UI` nit | design-quality | **resolved** |
 | F-73 | **[codebase-wide]** DOTween-kill-on-destroy hygiene — missing `OnDestroy` kill + untargeted `DOTween.To` closures. Instances: F-62 (BurgerPopup), GameOverPanel, ScorePopup (3rd → formalized) | design-quality | **resolved** |
@@ -208,7 +208,7 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **77 of 87 findings resolved** (+1 partial: F-50). Waves 0–3 are on
+plan). **80 of 87 findings resolved** (no partials remaining). Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
@@ -253,10 +253,10 @@ F-74, F-10, F-20, F-37, F-39, F-9.
 - Bootstrap/DI: **F-1** EnsureComponent lift (`MonoBehaviourUtil`), **F-71**
   `AppBootstrap`, **F-78** `SoundSettings.Apply` (one audio-apply home), **F-77**
   SettingsPanel canvas injection.
+- **F-70** UIFactory internal dedup; **F-49** GemPack method grouping; **F-50**
+  gem-pack literals routed (AnimConfig/Constants) + own UIStyles.GEM_PACK color.
 
-**Still open (9 noted + F-50 partial):** **F-70** UIFactory internal dedup;
-**F-63** HUD event-wiring; **F-75** popup consolidation; **F-44** DI sweep
-(mostly non-singleton injection left — low value solo); **F-45** TouchInputHandler
-tidy; **F-49** GemPack method grouping; Wave 5 high-risk Grid **F-30/F-31**;
-**F-4** (deferred — risky DSP dedup); plus the **F-50** partial (gem-pack
-geometry/anim/color literals).
+**Still open (7 noted):** **F-63** HUD event-wiring; **F-75** popup
+consolidation; **F-44** DI sweep (mostly non-singleton injection left — low
+value solo); **F-45** TouchInputHandler tidy; **F-4** (deferred — risky DSP
+dedup); Wave 5 high-risk Grid **F-30/F-31**.
