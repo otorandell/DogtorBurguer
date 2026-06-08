@@ -116,7 +116,7 @@ Not binding — re-order based on what we find.
 | F-15 | `CHEF_POSITION_COUNT` should be derived from `COLUMN_COUNT - 1` | design-quality | **resolved** |
 | F-16 | Adopt 6-config-file architecture (`Constants` + `GameplayConfig` + `MonetizationConfig` + `AnimConfig` + `UIStyles` + `AudioConfig`) — implementation strategy for F-4/F-6/F-11/F-14 | design-quality | **resolved** (AudioConfig deferred until F-4/F-6) |
 | F-17 | `DifficultyManager.EvaluateLevel` resets test-mode level on first ingredient placed | **blocker** (test feature) | **resolved** |
-| F-18 | `FeedbackManager` mixes orchestration with asset construction — extract `SpriteUtils` + `ScreenFlashOverlay` + popup `Spawn` factories | design-quality | noted |
+| F-18 | `FeedbackManager` mixes orchestration with asset construction — extract `SpriteUtils` + `ScreenFlashOverlay` + popup `Spawn` factories | design-quality | **resolved** (sprite gen via SpriteFactory instead of a new SpriteUtils) |
 | F-19 | `GameManager.Start` doing four distinct phases — extract `ResolveDependencies` / `EnsureManagers` / `ApplyPersistedSettings` / `SubscribeEvents` | cosmetic | **resolved** |
 | F-20 | Game-flow methods need explanatory comments for state-transition clarity | cosmetic | **resolved** |
 | F-21 | `Paused` is structurally a modifier on `Playing` — refactor to internal `_isPaused` bool | design-quality | **resolved** |
@@ -208,7 +208,7 @@ Next finding tag: **F-88**.
 ## What we acted on
 
 Implementation by landing wave (see [`EXECUTION.md`](EXECUTION.md) for the
-plan). **64 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
+plan). **65 of 87 findings resolved** (+2 partial: F-1, F-50). Waves 0–3 are on
 `main` (pushed to `origin`); Wave 4 is in progress on `impl-wave-4` (also
 pushed).
 
@@ -246,9 +246,8 @@ F-74, F-10, F-20, F-37, F-39, F-9.
   (high-score persistence → game-over flow), **F-68** (level via GameManager;
   drops DifficultyManager scans in GameOverPanel/GameHUD/AudioManager).
 
-**Still open (20 noted + F-2 fix-now):** **F-44** DI sweep; **F-18**
-FeedbackManager split; F-70/F-71/F-78/F-77 (factory dedup + bootstrap + audio
-service); spawner F-38/F-40/F-41/F-42; F-63 HUD event-wiring; F-75 popup
-consolidation; Wave 5 high-risk Grid F-30/F-31; audio F-2/F-4/F-6; misc
-F-45/F-49; plus the two partials (F-1 EnsureComponent lift, F-50 gem-pack
-literals).
+**Still open (19 noted + F-2 fix-now):** **F-44** DI sweep;
+F-70/F-71/F-78/F-77 (factory dedup + bootstrap + audio service); spawner
+F-38/F-40/F-41/F-42; F-63 HUD event-wiring; F-75 popup consolidation; Wave 5
+high-risk Grid F-30/F-31; audio F-2/F-4/F-6; misc F-45/F-49; plus the two
+partials (F-1 EnsureComponent lift, F-50 gem-pack literals).
