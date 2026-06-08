@@ -67,9 +67,6 @@ namespace DogtorBurguer
         private void SubscribeEvents()
         {
             GridManager gridManager = GridManager.Instance;
-            if (gridManager == null)
-                gridManager = FindAnyObjectByType<GridManager>();
-
             if (gridManager != null)
             {
                 gridManager.OnMatchEffect += HandleMatch;
@@ -395,9 +392,6 @@ namespace DogtorBurguer
             base.OnDestroy();
 
             GridManager gridManager = GridManager.Instance;
-            if (gridManager == null)
-                gridManager = FindAnyObjectByType<GridManager>();
-
             if (gridManager != null)
             {
                 gridManager.OnMatchEffect -= HandleMatch;
