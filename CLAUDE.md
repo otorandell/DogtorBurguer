@@ -27,6 +27,7 @@ Assets/_Project/Scripts/
                  IngredientType, WavePreviewManager
   Input/         TouchInputHandler
   Scoring/       Scoring (points/tiers), BurgerTier, BurgerNamer
+  Skins/         Skin (ScriptableObject), SkinSlot, UnlockMethod, SkinMap, Theme (static accessor)
   UI/            MainMenuUI, GameHUD, GameOverPanel, SettingsPanel, ShopPanel,
                  BurgerChallenge, BurgerPopup, FloatingText, ScorePopup,
                  Background, GameLayout, OrderType, UIFactory
@@ -115,6 +116,21 @@ Two modes, configurable in Settings (saved via PlayerPrefs):
 - Gem pack drops during gameplay (8% chance every 10s)
 - AdManager is currently mock (simulated delays). IAP buttons grant gems for testing
 
+### Skins & Theme (cosmetics)
+All gameplay sprites flow through one place: `Theme` (static) reads `Skin` ScriptableObject
+assets from `Resources/Skins/` and serves the active sprite per `SkinSlot`. Consumers
+(`IngredientSpawner`, `ChefController`, `Background`) call `Theme.Ingredient(type)` /
+`Theme.Chef` / `Theme.Background(type)` — there is **no** per-scene sprite wiring anymore.
+- **Slots** (`SkinSlot`, suffixed `…Skin`): the 7 ingredients + `BunSkin` (carries top **and**
+  bottom — the one slot with two sprites) + `ChefSkin` + `GameBackgroundSkin` + `MenuBackgroundSkin`.
+  `SkinMap.SlotFor(IngredientType)` maps ingredients → slot (both buns collapse to `BunSkin`).
+- **Reskin the game** = edit the slot's asset in `Resources/Skins/` (set its **Sprite** field; for
+  `bun_default` also **Secondary Sprite** = bottom bun), or just replace a PNG's contents keeping its
+  filename. Works from the Project window with any scene open — no more opening `Game.unity`.
+- **Spare art ready for the catalog**: `meat_alt`, `chef_happy`, `chef_alt` (renamed, not yet wired).
+- **Status**: Phase 1 only = one default skin per slot (`_isDefault = true`). Runtime *selection* and
+  *unlock/buy* are not built yet — see the Skin System roadmap entry.
+
 ## Randomness
 All randomness uses `Rng` static class, never `UnityEngine.Random`:
 ```csharp
@@ -162,10 +178,34 @@ balance values are centralized in `AnimConfig` / `UIStyles` / `GameplayConfig`. 
 - **Audio** — real SFX/music via the authored-clip override path (`AudioManager._*Override` fields) or procedural/mix tuning (`AudioConfig`)
 - **Visual** — the text-outline fix (see Known Issues), readability/contrast, the placeholder sprite (`UIStyles`)
 
+### Skin System (IN PROGRESS)
+Cosmetic skins, configured centrally via `Theme` / `Resources/Skins` (see Core Systems → Skins & Theme).
+Granular: one skin = one slot = one sprite (bun = top+bottom). Unlock methods modeled in `UnlockMethod`
+(Free / Gems / Iap / AdUnlock).
+- **Phase 1 (DONE)** — `Skins/` foundation + 11 default skin assets; `IngredientSpawner`, `ChefController`,
+  `Background` refactored off scattered SerializeFields onto `Theme`. All art renamed to short names
+  (files **and** sprite sub-assets), fileIDs preserved.
+- **Phase 2 (pending)** — per-slot selection + persistence (`SaveDataManager`: owned-ids + selected-per-slot,
+  `OnSkinChanged` for live re-skin); `Theme` composes selection over defaults.
+- **Phase 3 (pending)** — unlock/buy flows (gems via `SaveDataManager`, IAP, ad via `AdManager`) + Skins UI
+  reachable from MainMenu; then sellable **Pack** bundles (buy-many / equip-all) on top of per-slot equip.
+
+## Asset Conventions
+- **Renaming a sprite**: rename the file *and* the sprite **sub-asset** (the fold-out child) — the latter
+  lives in the `.png.meta` in three spots (`internalIDToNameTable.second`, `spriteSheet.sprites[].name`,
+  and the `nameFileIdTable` key). The sprite's `internalID`/fileID is stored explicitly, so editing the
+  name preserves it — `.asset` and scene references by fileID survive. Always move the `.png.meta` with the
+  `.png` so the texture GUID is kept.
+- **Hand-authored metas**: this project writes minimal `.cs.meta` (just `fileFormatVersion` + chosen `guid`)
+  and `.asset` YAML directly, since the AI can't drive the Editor.
+
 ## Pending Manual Steps
+- **Verify skin import (Phase 1)**: open Unity, confirm a clean compile and that `Resources/Skins/*.asset`
+  each show their sprite (not "None"); the game should look identical to before.
 - **Assign placeholder sprite**: In Unity Inspector, select BurgerChallenge component → set `_spritePlaceholder` field to the silhouette PNG in `Assets/_Project/Sprites/Ingredients/`
 
 ## Pending Features
+- Skin selection + unlock/buy UI (foundation done — see Skin System roadmap; Phase 2/3 pending)
 - Text outline shader fix
 - Leaderboard integration (button exists, logs "Coming Soon")
 - IAP integration (buttons exist, currently grant gems for testing)

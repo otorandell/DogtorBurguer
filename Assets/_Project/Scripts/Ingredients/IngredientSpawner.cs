@@ -8,17 +8,6 @@ namespace DogtorBurguer
         [Header("Prefabs")]
         [SerializeField] private GameObject _ingredientPrefab;
 
-        [Header("Sprites")]
-        [SerializeField] private Sprite _spriteMeat;
-        [SerializeField] private Sprite _spriteCheese;
-        [SerializeField] private Sprite _spriteTomato;
-        [SerializeField] private Sprite _spriteOnion;
-        [SerializeField] private Sprite _spritePickle;
-        [SerializeField] private Sprite _spriteLettuce;
-        [SerializeField] private Sprite _spriteEgg;
-        [SerializeField] private Sprite _spriteBunBottom;
-        [SerializeField] private Sprite _spriteBunTop;
-
         [Header("Settings")]
         [SerializeField] private float _fallStepDuration = GameplayConfig.INITIAL_FALL_STEP_DURATION;
         [SerializeField] private int _activeIngredientCount = GameplayConfig.STARTING_INGREDIENT_COUNT;
@@ -32,7 +21,6 @@ namespace DogtorBurguer
 
         private bool _active;
         private SpawnerState _state = SpawnerState.Delaying;
-        private Dictionary<IngredientType, Sprite> _spriteMap;
         private float _tripleWaveChance;
 
         // Wave state
@@ -45,26 +33,9 @@ namespace DogtorBurguer
 
         private void Awake()
         {
-            BuildSpriteMap();
             _previewManager = gameObject.AddComponent<WavePreviewManager>();
             _previewManager.Initialize(GetSpriteForType);
             _composer = new WaveComposer(_enableForcedBunSpawn, _forceBunMultiplier);
-        }
-
-        private void BuildSpriteMap()
-        {
-            _spriteMap = new Dictionary<IngredientType, Sprite>
-            {
-                { IngredientType.Meat, _spriteMeat },
-                { IngredientType.Cheese, _spriteCheese },
-                { IngredientType.Tomato, _spriteTomato },
-                { IngredientType.Onion, _spriteOnion },
-                { IngredientType.Pickle, _spritePickle },
-                { IngredientType.Lettuce, _spriteLettuce },
-                { IngredientType.Egg, _spriteEgg },
-                { IngredientType.BunBottom, _spriteBunBottom },
-                { IngredientType.BunTop, _spriteBunTop }
-            };
         }
 
         private void Update()
@@ -132,12 +103,7 @@ namespace DogtorBurguer
 
         public int ActiveIngredientCount => _activeIngredientCount;
 
-        public Sprite GetSpriteForType(IngredientType type)
-        {
-            if (_spriteMap != null && _spriteMap.TryGetValue(type, out Sprite sprite))
-                return sprite;
-            return null;
-        }
+        public Sprite GetSpriteForType(IngredientType type) => Theme.Ingredient(type);
 
         private void SpawnNextWave()
         {
@@ -237,10 +203,7 @@ namespace DogtorBurguer
                 ingredient = obj.AddComponent<Ingredient>();
             }
 
-            Sprite sprite = null;
-            _spriteMap?.TryGetValue(type, out sprite);
-
-            ingredient.Initialize(type, column, sprite);
+            ingredient.Initialize(type, column, Theme.Ingredient(type));
             ingredient.StartFalling(_fallStepDuration);
 
             return ingredient;

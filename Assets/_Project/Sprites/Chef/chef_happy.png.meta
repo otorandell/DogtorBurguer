@@ -4,7 +4,7 @@ TextureImporter:
   internalIDToNameTable:
   - first:
       213: -654161141132095464
-    second: ChatGPT Image 21 ene 2026, 15_07_23_0
+    second: chef_happy
   - first:
       213: 3345768033351483319
     second: ChatGPT Image 21 ene 2026, 15_07_23_1
@@ -124,11 +124,24 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 512
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ChatGPT Image 21 ene 2026, 15_07_23_0
+      name: chef_happy
       rect:
         serializedVersion: 2
         x: 9
@@ -273,7 +286,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ChatGPT Image 21 ene 2026, 15_07_23_0: -654161141132095464
+      chef_happy: -654161141132095464
       ChatGPT Image 21 ene 2026, 15_07_23_1: 3345768033351483319
       ChatGPT Image 21 ene 2026, 15_07_23_2: 3228923376247978387
       ChatGPT Image 21 ene 2026, 15_07_23_3: 6754394843414482582

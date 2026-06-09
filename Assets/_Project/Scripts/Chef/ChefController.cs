@@ -33,6 +33,12 @@ namespace DogtorBurguer
             {
                 _spriteRenderer = GetComponent<SpriteRenderer>();
             }
+
+            // Skin the chef from the active theme; keep any scene-assigned sprite if none is authored.
+            if (_spriteRenderer != null && Theme.Chef != null)
+            {
+                _spriteRenderer.sprite = Theme.Chef;
+            }
         }
 
         private void Start()

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5693c742f969f714eaaad614cf367755
+guid: 50162ba33dce2ce40a3accf131d5b209
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8555596872088745708
-    second: A_bold,_hand-drawn_digital_illustration_features_t_0
+      213: 7305462377797683528
+    second: bun_bottom
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,11 +109,24 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 512
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: A_bold,_hand-drawn_digital_illustration_features_t_0
+      name: bun_bottom
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ce6fa4296069bb670800000000000000
-      internalID: 8555596872088745708
+      spriteID: 8498c9c9357326560800000000000000
+      internalID: 7305462377797683528
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      A_bold,_hand-drawn_digital_illustration_features_t_0: 8555596872088745708
+      bun_bottom: 7305462377797683528
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

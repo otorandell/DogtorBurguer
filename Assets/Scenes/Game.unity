@@ -499,18 +499,11 @@ MonoBehaviour:
   _spriteEgg: {fileID: -2598638062153997275, guid: cd7fd7a558c872341b9133b2f4fa701c, type: 3}
   _spriteBunBottom: {fileID: 7305462377797683528, guid: 50162ba33dce2ce40a3accf131d5b209, type: 3}
   _spriteBunTop: {fileID: 3609593068229568893, guid: 99a38696dc9f7744ea0cff79c5ccbb2a, type: 3}
-  _spawnInterval: 2
   _fallStepDuration: 0.4
   _activeIngredientCount: 4
-  _bunSpawnChance: 0.15
   _enableForcedBunSpawn: 1
   _forceBunMultiplier: 2
-  _doubleSpawnMinLevel: 4
-  _doubleSpawnMaxChance: 0.3
-  _doubleSpawnDelay: 0.4
-  _previewDuration: 0.8
-  _previewBlinks: 3
-  _earlySpawnMaxBonus: 15
+  _initialDelay: 1.5
 --- !u!114 &1509865694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -558,14 +551,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DogtorBurguer.FeedbackManager
   _gridManager: {fileID: 1509865694}
   _mainCamera: {fileID: 0}
-  _matchColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  _burgerColor: {r: 1, g: 0.5, b: 0, a: 1}
-  _popupFontSize: 5
-  _matchShakeStrength: 0.15
-  _burgerShakeStrength: 0.3
-  _shakeDuration: 0.2
-  _flashColor: {r: 1, g: 1, b: 1, a: 0.6}
-  _flashDuration: 0.3
 --- !u!114 &1509865697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -648,7 +633,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -654161141132095464, guid: 209a2b63b43948142a2031746b081437, type: 3}
+  m_Sprite: {fileID: -8053652358851173063, guid: d39097b3d1f22544a9b2407874de2eb0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -688,7 +673,6 @@ MonoBehaviour:
   _chef: {fileID: 2127115019}
   _camera: {fileID: 519420031}
   _spawner: {fileID: 0}
-  _chefTapRadius: 1
   _swipeThreshold: 50
 --- !u!114 &2127115019
 MonoBehaviour:
@@ -703,11 +687,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DogtorBurguer.ChefController
   _moveSpeed: 0.15
-  _startPosition: 1
   _spriteRenderer: {fileID: 2127115016}
   _bubbleRadius: 0.5
-  _bubbleColor: {r: 1, g: 1, b: 1, a: 0.25}
-  _bubbleActiveColor: {r: 1, g: 1, b: 1, a: 0.45}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

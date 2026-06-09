@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: cd7fd7a558c872341b9133b2f4fa701c
+guid: 99a38696dc9f7744ea0cff79c5ccbb2a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2598638062153997275
-    second: A_2D_digital_illustration_of_a_fried_egg_features__0
+      213: 3609593068229568893
+    second: bun_top
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,11 +109,24 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 512
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: A_2D_digital_illustration_of_a_fried_egg_features__0
+      name: bun_top
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 524608d5378cfebd0800000000000000
-      internalID: -2598638062153997275
+      spriteID: d79298765c9d71230800000000000000
+      internalID: 3609593068229568893
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      A_2D_digital_illustration_of_a_fried_egg_features__0: -2598638062153997275
+      bun_top: 3609593068229568893
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 35aa9b4cd10104749ba26d6be6253759
+guid: d39097b3d1f22544a9b2407874de2eb0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2150653377805084851
-    second: A_hand-drawn_illustration_of_a_secret_ingredient_0
+      213: -8053652358851173063
+    second: chef_alt
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 900
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -72,7 +72,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -109,17 +109,30 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: A_hand-drawn_illustration_of_a_secret_ingredient_0
+      name: chef_alt
       rect:
         serializedVersion: 2
-        x: 55
-        y: 152
-        width: 912
-        height: 718
+        x: 0
+        y: 0
+        width: 3240
+        height: 4000
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3b8e01b3ad7a8dd10800000000000000
-      internalID: 2150653377805084851
+      spriteID: 935603689ddab3090800000000000000
+      internalID: -8053652358851173063
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      A_hand-drawn_illustration_of_a_secret_ingredient_0: 2150653377805084851
+      chef_alt: -8053652358851173063
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

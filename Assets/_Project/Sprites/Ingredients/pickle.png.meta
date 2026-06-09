@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 03e1fb8baaf244448b73fa15d27f6621
+guid: 5693c742f969f714eaaad614cf367755
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6879683535648024728
-    second: A_hand-drawn_illustration_of_a_cooked_hamburger_pa_0
+      213: 8555596872088745708
+    second: pickle
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,11 +109,24 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 512
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: A_hand-drawn_illustration_of_a_cooked_hamburger_pa_0
+      name: pickle
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 867989246447680a0800000000000000
-      internalID: -6879683535648024728
+      spriteID: ce6fa4296069bb670800000000000000
+      internalID: 8555596872088745708
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      A_hand-drawn_illustration_of_a_cooked_hamburger_pa_0: -6879683535648024728
+      pickle: 8555596872088745708
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

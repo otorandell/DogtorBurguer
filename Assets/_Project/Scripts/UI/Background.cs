@@ -4,7 +4,6 @@ namespace DogtorBurguer
 {
     public class Background : MonoBehaviour
     {
-        [SerializeField] private Sprite _backgroundSprite;
         [SerializeField] private BackgroundType _type = BackgroundType.Game;
         [SerializeField, Range(0f, 1f)] private float _filterOpacity = UIStyles.BG_FILTER_OPACITY;
 
@@ -23,9 +22,10 @@ namespace DogtorBurguer
             _renderer = bgObj.AddComponent<SpriteRenderer>();
             _renderer.sortingOrder = Constants.SORT_BACKGROUND;
 
-            if (_backgroundSprite != null)
+            Sprite themeSprite = Theme.Background(_type);
+            if (themeSprite != null)
             {
-                _renderer.sprite = _backgroundSprite;
+                _renderer.sprite = themeSprite;
             }
             else
             {
