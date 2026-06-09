@@ -5,8 +5,7 @@ namespace DogtorBurguer
     /// </summary>
     public enum SpawnerState
     {
-        Delaying,        // counting down before spawning the next wave
-        WaveFalling,     // current wave is falling; waiting for it to clear the top cell
-        WaitingForLand   // previews shown; waiting for the current wave to finish landing
+        Delaying,      // counting down before spawning the first wave
+        WaveFalling    // a wave is falling; the preview queue refills continuously until it lands
     }
 }

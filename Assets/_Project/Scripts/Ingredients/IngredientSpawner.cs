@@ -22,10 +22,10 @@ namespace DogtorBurguer
         private bool _active;
         private SpawnerState _state = SpawnerState.Delaying;
         private float _tripleWaveChance;
+        private int _previewTarget; // how many previews to keep shown while waiting (refilled as columns free)
 
         // Wave state
         private List<Ingredient> _currentWaveIngredients = new();
-        private List<WaveSlot> _nextWaveData = new();
         private float _delayTimer;
 
         private WavePreviewManager _previewManager;
@@ -51,15 +51,12 @@ namespace DogtorBurguer
                     break;
 
                 case SpawnerState.WaveFalling:
-                    if (WaveClearedTop())
-                    {
-                        _previewManager.ShowPreviews(_nextWaveData);
-                        _nextWaveData.Clear();
-                        _state = SpawnerState.WaitingForLand;
-                    }
-                    break;
-
-                case SpawnerState.WaitingForLand:
+                    // Previews are a standing lookahead queue: continuously refilled into random columns
+                    // (Change A), independent of the wave. The next wave fires when the ORIGINAL wave
+                    // lands — which the player can't stall — force-dropping any held preview.
+                    TopUpPreviews();
+                    // Purely visual: reveal each reserved ghost once its column's spawn zone is clear.
+                    _previewManager.RevealCleared(ColumnsWithPieceInPreviewZone());
                     if (AllCurrentWaveLanded())
                         SpawnNextWave();
                     break;
@@ -77,7 +74,7 @@ namespace DogtorBurguer
             _state = SpawnerState.Delaying;
             _delayTimer = _initialDelay;
             _currentWaveIngredients.Clear();
-            _nextWaveData.Clear();
+            _previewTarget = 0;
             _previewManager.ClearPreviews();
         }
 
@@ -109,10 +106,11 @@ namespace DogtorBurguer
         {
             if (GridManager.Instance == null) return;
 
-            // Consume remaining preview data (entries may have been tapped)
+            // The standing preview queue IS the next wave; fall back to a fresh roll only when the
+            // queue is empty (the very first wave, or a moment when every column was busy).
             var waveData = _previewManager.HasPreviews
                 ? _previewManager.ConsumeRemainingData()
-                : (_nextWaveData.Count > 0 ? _nextWaveData : _composer.RollWave(_activeIngredientCount, _tripleWaveChance));
+                : _composer.RollWave(_activeIngredientCount, _tripleWaveChance);
 
             _previewManager.ClearPreviews();
 
@@ -126,8 +124,8 @@ namespace DogtorBurguer
                     _currentWaveIngredients.Add(ing);
             }
 
-            // Pre-roll next wave (previews shown once wave clears top)
-            _nextWaveData = _composer.RollWave(_activeIngredientCount, _tripleWaveChance);
+            // How many previews to keep shown for the upcoming wave — this becomes its size.
+            _previewTarget = _composer.RollWaveSize(_tripleWaveChance);
             _state = SpawnerState.WaveFalling;
         }
 
@@ -141,17 +139,6 @@ namespace DogtorBurguer
             return true;
         }
 
-        private bool WaveClearedTop()
-        {
-            float threshold = Constants.GRID_ORIGIN_Y + ((Constants.MAX_ROWS - 1) * Constants.CELL_VISUAL_HEIGHT);
-            foreach (var ing in _currentWaveIngredients)
-            {
-                if (ing == null) continue;
-                if (ing.CurrentY > threshold) return false;
-            }
-            return true;
-        }
-
         public bool TryTapPreview(Vector2 worldPos)
         {
             WaveSlot? result = _previewManager.TryTap(worldPos);
@@ -161,11 +148,70 @@ namespace DogtorBurguer
             Column col = GridManager.Instance?.GetColumn(slot.ColumnIndex);
             if (col != null && !col.IsOverflowing)
             {
-                Ingredient ing = SpawnIngredient(slot.Type, col);
-                if (ing != null)
-                    _currentWaveIngredients.Add(ing);
+                // Tapped previews are "fire and forget": deliberately NOT added to the wave-completion
+                // list. Otherwise a player could hold a preview forever by tapping the other refills to
+                // keep a piece always falling, never letting the gate close. The next wave still fires
+                // when the ORIGINAL wave lands (which can't be stalled), force-dropping any held preview.
+                SpawnIngredient(slot.Type, col);
             }
+            // A tapped preview just dropped — refill the queue immediately for instant lookahead.
+            TopUpPreviews();
             return true;
+        }
+
+        /// <summary>
+        /// Refills the preview queue up to <see cref="_previewTarget"/>, placing each new preview in an
+        /// eligible column — one with no existing preview, no falling piece, and not overflowing. This
+        /// preserves the "one falling piece per column" invariant (no overlap) and caps in-flight pieces.
+        /// </summary>
+        private void TopUpPreviews()
+        {
+            while (_previewManager.Count < _previewTarget)
+            {
+                int column = PickPreviewColumn();
+                if (column < 0) break; // every column already has a preview or is full
+                if (!_previewManager.AddPreview(_composer.RollSlot(_activeIngredientCount, column)))
+                    break; // preview couldn't be created (e.g. missing sprite) — don't spin
+
+            }
+        }
+
+        private int PickPreviewColumn()
+        {
+            if (GridManager.Instance == null) return -1;
+
+            List<int> eligible = new List<int>();
+            for (int c = 0; c < Constants.COLUMN_COUNT; c++)
+            {
+                // Only constraint: one preview per column, so a wave never spawns two pieces into one
+                // column at once. Height and falling pieces are deliberately ignored — placement stays
+                // unbiased (a busy column is still eligible). Clearance only delays the GHOST visual,
+                // handled separately in ColumnsWithPieceInPreviewZone + WavePreviewManager.RevealCleared.
+                if (_previewManager.HasPreviewInColumn(c)) continue;
+                eligible.Add(c);
+            }
+
+            if (eligible.Count == 0) return -1;
+            return eligible[Rng.Range(0, eligible.Count)];
+        }
+
+        /// <summary>
+        /// Columns that currently have a piece falling through the preview's footprint (just below the
+        /// spawn line). Used ONLY to delay the ghost's visual reveal — never to choose wave columns.
+        /// </summary>
+        private HashSet<int> ColumnsWithPieceInPreviewZone()
+        {
+            HashSet<int> blocked = new HashSet<int>();
+            if (GridManager.Instance == null) return blocked;
+
+            float spawnY = Constants.GRID_ORIGIN_Y + (Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT);
+            float clearedBelowY = spawnY - AnimConfig.PREVIEW_SPAWN_CLEARANCE;
+            foreach (Ingredient falling in GridManager.Instance.GetFallingIngredients())
+            {
+                if (falling != null && falling.CurrentColumn != null && falling.CurrentY > clearedBelowY)
+                    blocked.Add(falling.CurrentColumn.ColumnIndex);
+            }
+            return blocked;
         }
 
         public bool TryTapFallingIngredient(Vector2 worldPos)

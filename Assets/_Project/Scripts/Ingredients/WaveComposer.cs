@@ -23,7 +23,7 @@ namespace DogtorBurguer
         /// <summary>Rolls the slots for one wave, given the active pool size and triple-wave chance.</summary>
         public List<WaveSlot> RollWave(int activeIngredientCount, float tripleWaveChance)
         {
-            int waveSize = Rng.Value < tripleWaveChance ? 3 : 2;
+            int waveSize = RollWaveSize(tripleWaveChance);
             var data = new List<WaveSlot>();
             var usedColumns = new List<int>();
 
@@ -35,6 +35,18 @@ namespace DogtorBurguer
                 data.Add(new WaveSlot(GetSpawnType(activeIngredientCount), col));
             }
             return data;
+        }
+
+        /// <summary>Rolls a single slot for a specific column (used to refill the preview queue).</summary>
+        public WaveSlot RollSlot(int activeIngredientCount, int column)
+        {
+            return new WaveSlot(GetSpawnType(activeIngredientCount), column);
+        }
+
+        /// <summary>How many ingredients a wave contains (3 on a triple roll, else 2).</summary>
+        public int RollWaveSize(float tripleWaveChance)
+        {
+            return Rng.Value < tripleWaveChance ? 3 : 2;
         }
 
         private int GetUnusedColumn(List<int> usedColumns)
