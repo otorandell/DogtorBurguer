@@ -178,17 +178,18 @@ balance values are centralized in `AnimConfig` / `UIStyles` / `GameplayConfig`. 
 - **Audio** — real SFX/music via the authored-clip override path (`AudioManager._*Override` fields) or procedural/mix tuning (`AudioConfig`)
 - **Visual** — the text-outline fix (see Known Issues), readability/contrast, the placeholder sprite (`UIStyles`)
 
-### Skin System (IN PROGRESS)
-Cosmetic skins, configured centrally via `Theme` / `Resources/Skins` (see Core Systems → Skins & Theme).
-Granular: one skin = one slot = one sprite (bun = top+bottom). Unlock methods modeled in `UnlockMethod`
-(Free / Gems / Iap / AdUnlock).
-- **Phase 1 (DONE)** — `Skins/` foundation + 11 default skin assets; `IngredientSpawner`, `ChefController`,
-  `Background` refactored off scattered SerializeFields onto `Theme`. All art renamed to short names
-  (files **and** sprite sub-assets), fileIDs preserved.
-- **Phase 2 (pending)** — per-slot selection + persistence (`SaveDataManager`: owned-ids + selected-per-slot,
-  `OnSkinChanged` for live re-skin); `Theme` composes selection over defaults.
-- **Phase 3 (pending)** — unlock/buy flows (gems via `SaveDataManager`, IAP, ad via `AdManager`) + Skins UI
-  reachable from MainMenu; then sellable **Pack** bundles (buy-many / equip-all) on top of per-slot equip.
+### Skin System
+Configured centrally via `Theme` / `Resources/Skins` (see Core Systems → Skins & Theme).
+Granular: one skin = one slot = one sprite (bun = top+bottom).
+- **Phase 1 (DONE)** — built primarily as a **content-swap convenience**: all gameplay art now flows
+  through `Theme`, so swapping a sprite means editing one asset (or replacing a PNG), never touching a
+  scene. `Skins/` foundation + 11 default skin assets; `IngredientSpawner`, `ChefController`, `Background`
+  refactored off scattered SerializeFields. All art renamed to short names (files **and** sprite
+  sub-assets), fileIDs preserved.
+- **Phases 2-3 (DEFERRED)** — the cosmetic *feature* (runtime per-slot selection + persistence, then
+  unlock/buy flows via gems/IAP/ad, a Skins UI, and Pack bundles) is intentionally parked. The foundation
+  is built to support it (`UnlockMethod`, `_isDefault`, per-slot model), so it can be picked up later if
+  cosmetic monetization is wanted — but it is **not** active work.
 
 ## Asset Conventions
 - **Renaming a sprite**: rename the file *and* the sprite **sub-asset** (the fold-out child) — the latter
@@ -205,7 +206,7 @@ Granular: one skin = one slot = one sprite (bun = top+bottom). Unlock methods mo
 - **Assign placeholder sprite**: In Unity Inspector, select BurgerChallenge component → set `_spritePlaceholder` field to the silhouette PNG in `Assets/_Project/Sprites/Ingredients/`
 
 ## Pending Features
-- Skin selection + unlock/buy UI (foundation done — see Skin System roadmap; Phase 2/3 pending)
+- Skin selection + unlock/buy UI (DEFERRED — foundation done; see Skin System roadmap)
 - Text outline shader fix
 - Leaderboard integration (button exists, logs "Coming Soon")
 - IAP integration (buttons exist, currently grant gems for testing)
