@@ -17,7 +17,6 @@ namespace DogtorBurguer
         private readonly List<(GameObject preview, WaveSlot slot, bool revealed)> _entries = new();
         private Func<IngredientType, Sprite> _getSprite;
 
-        public bool HasPreviews => _entries.Count > 0;
         public int Count => _entries.Count;
 
         public void Initialize(Func<IngredientType, Sprite> getSprite)

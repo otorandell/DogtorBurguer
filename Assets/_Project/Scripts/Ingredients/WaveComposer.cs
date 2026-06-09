@@ -1,12 +1,11 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace DogtorBurguer
 {
     /// <summary>
-    /// Decides what a wave contains — column selection, ingredient-type rolls, and bun
-    /// pacing/type rules. Owns the bun-pacing counter and reads grid state via GridManager.
-    /// Extracted from IngredientSpawner so the spawner only orchestrates + spawns (F-38).
+    /// Decides what each spawned slot contains — ingredient-type rolls and bun pacing/type rules.
+    /// Owns the bun-pacing counter and reads grid state via GridManager. Column selection lives in
+    /// IngredientSpawner (the preview queue). Extracted so the spawner only orchestrates + spawns (F-38).
     /// </summary>
     public class WaveComposer
     {
@@ -20,24 +19,7 @@ namespace DogtorBurguer
             _forceBunMultiplier = forceBunMultiplier;
         }
 
-        /// <summary>Rolls the slots for one wave, given the active pool size and triple-wave chance.</summary>
-        public List<WaveSlot> RollWave(int activeIngredientCount, float tripleWaveChance)
-        {
-            int waveSize = RollWaveSize(tripleWaveChance);
-            var data = new List<WaveSlot>();
-            var usedColumns = new List<int>();
-
-            for (int i = 0; i < waveSize; i++)
-            {
-                int col = GetUnusedColumn(usedColumns);
-                if (col < 0) break;
-                usedColumns.Add(col);
-                data.Add(new WaveSlot(GetSpawnType(activeIngredientCount), col));
-            }
-            return data;
-        }
-
-        /// <summary>Rolls a single slot for a specific column (used to refill the preview queue).</summary>
+        /// <summary>Rolls a single slot for a specific column (used to build/refill the preview queue).</summary>
         public WaveSlot RollSlot(int activeIngredientCount, int column)
         {
             return new WaveSlot(GetSpawnType(activeIngredientCount), column);
@@ -47,18 +29,6 @@ namespace DogtorBurguer
         public int RollWaveSize(float tripleWaveChance)
         {
             return Rng.Value < tripleWaveChance ? 3 : 2;
-        }
-
-        private int GetUnusedColumn(List<int> usedColumns)
-        {
-            List<int> available = new List<int>();
-            for (int i = 0; i < Constants.COLUMN_COUNT; i++)
-            {
-                if (!usedColumns.Contains(i))
-                    available.Add(i);
-            }
-            if (available.Count == 0) return -1;
-            return available[Rng.Range(0, available.Count)];
         }
 
         private IngredientType GetSpawnType(int activeIngredientCount)

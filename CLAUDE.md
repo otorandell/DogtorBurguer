@@ -61,12 +61,13 @@ Key events for cross-system communication:
 ## Core Systems
 
 ### Wave-Based Spawning (IngredientSpawner)
-- Waves of 2 ingredients (triple chance starting at level 8, up to 35% at level 20)
-- Next wave waits until all current wave ingredients land
-- Pre-rolls next wave and shows blinking previews once current wave clears top cell
-- Tap preview to immediately spawn that ingredient
-- Forced bun spawn threshold: `activeCount * 1.5`
-- Unified ingredient pool: bun is one extra slot in the random range
+- A wave = 2 ingredients (3 on a triple roll; triple chance starts at level 8, up to 35% at level 20), each in a distinct column.
+- **Standing preview queue**: a target number of upcoming pieces (= the next wave's size) is always reserved and shown as blinking ghosts, one per column. Topped up every frame (`TopUpPreviews`) and seeded at `StartSpawning` (hidden through the initial delay). The reserved previews **are** the next wave — when the current wave lands, they become the real pieces, dropping in their columns.
+- **Next-wave trigger**: fires only when the ORIGINAL auto-spawned wave lands. Tapped previews are "fire and forget" (not counted toward wave completion), so a desired preview can't be frozen by tapping the others — a held preview force-drops within ~one fall.
+- **Tap a preview** to spawn that ingredient immediately; only revealed (visible) previews are tappable.
+- **Column choice is unbiased** (random, one preview per column, height/stack ignored). A per-preview clearance (`AnimConfig.PREVIEW_SPAWN_CLEARANCE`) delays only the ghost's visual reveal so it never overlaps a falling sprite — it does NOT influence which column is chosen (`ColumnsWithPieceInPreviewZone` + `WavePreviewManager.RevealCleared`).
+- Forced bun spawn threshold: `activeCount * FORCED_BUN_MULTIPLIER` (1.5); unified pool — bun is one extra slot in the random range.
+- `WaveComposer` owns ingredient-type + bun-pacing rolls (`RollSlot` / `RollWaveSize`); `IngredientSpawner` owns column selection (the queue).
 
 ### Bun Type Selection (GetBunType)
 - No bottom bun on grid: always BunBottom
