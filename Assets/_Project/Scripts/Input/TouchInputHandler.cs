@@ -154,20 +154,29 @@ namespace DogtorBurguer
                 ? SaveDataManager.Instance.ControlMode
                 : SaveDataManager.DEFAULT_CONTROL_MODE;
 
+            // Tapping the chef swaps plates — same in both modes. The radius bounds it, so a tap up
+            // in the playfield (e.g. a near-miss on a falling piece) never swaps the cook.
+            float chefDist = Vector2.Distance(worldPos, _chef.transform.position);
+            bool tappedChef = chefDist < _chef.BubbleRadius * GameplayConfig.CHEF_TAP_RADIUS_MULT;
+
             if (mode == ControlMode.Drag)
             {
-                _chef.SwapPlates();
+                // Drag mode moves by swiping (handled above); a tap only swaps, and only on the chef.
+                if (tappedChef)
+                    _chef.SwapPlates();
                 return;
             }
 
-            // Tap mode: tapping near the chef swaps; tapping to a side moves that way.
-            float chefDist = Vector2.Distance(worldPos, _chef.transform.position);
-            if (chefDist < _chef.BubbleRadius * GameplayConfig.CHEF_TAP_RADIUS_MULT)
+            // Tap mode: tap the chef to swap, or tap to a side (below the playfield) to move there.
+            if (tappedChef)
                 _chef.SwapPlates();
-            else if (worldPos.x < _chef.transform.position.x)
-                _chef.MoveLeft();
-            else
-                _chef.MoveRight();
+            else if (worldPos.y < Constants.GRID_ORIGIN_Y)
+            {
+                if (worldPos.x < _chef.transform.position.x)
+                    _chef.MoveLeft();
+                else
+                    _chef.MoveRight();
+            }
         }
 
         private void MoveChefHorizontal(float deltaX)
@@ -182,5 +191,47 @@ namespace DogtorBurguer
         {
             _chef?.SwapPlates();
         }
+
+#if UNITY_EDITOR
+        // Debug gizmos for the chef's tap hit-zones (mirrors ProcessInput), mode-aware. Magenta =
+        // flip: tapping within this radius swaps the cook — in BOTH modes. Cyan = move: tapping a
+        // side below the grid floor walks the chef — Tap mode ONLY (Drag mode moves by swiping, so
+        // it has no move-tap zone). Reads the live ControlMode in play; the default in edit mode.
+        private void OnDrawGizmos()
+        {
+            ChefController chef = _chef != null ? _chef : FindAnyObjectByType<ChefController>();
+            if (chef == null) return;
+
+            Vector3 chefPos = Application.isPlaying
+                ? chef.transform.position
+                : chef.GetPositionWorldPos(Constants.CHEF_START_POSITION);
+            float flipRadius = chef.BubbleRadius * GameplayConfig.CHEF_TAP_RADIUS_MULT;
+
+            // Flip (swap) zone — tapping the chef swaps in both modes.
+            Gizmos.color = GizmoStyles.ChefFlip;
+            Gizmos.DrawWireSphere(chefPos, flipRadius);
+
+            // Move side-zones only exist in Tap mode.
+            ControlMode mode = (Application.isPlaying && SaveDataManager.Instance != null)
+                ? SaveDataManager.Instance.ControlMode
+                : SaveDataManager.DEFAULT_CONTROL_MODE;
+            if (mode != ControlMode.Tap) return;
+
+            float leftEdge = Constants.GRID_ORIGIN_X - Constants.CELL_WIDTH * 0.5f;
+            float rightEdge = Constants.GRID_ORIGIN_X + (Constants.COLUMN_COUNT - 0.5f) * Constants.CELL_WIDTH;
+            float top = Constants.GRID_ORIGIN_Y;
+            float bottom = chefPos.y - flipRadius;
+            Gizmos.color = GizmoStyles.ChefDrag;
+            DrawXBand(leftEdge, chefPos.x, top, bottom);
+            DrawXBand(chefPos.x, rightEdge, top, bottom);
+        }
+
+        private static void DrawXBand(float xMin, float xMax, float yTop, float yBottom)
+        {
+            Vector3 center = new Vector3((xMin + xMax) * 0.5f, (yTop + yBottom) * 0.5f, 0f);
+            Vector3 size = new Vector3(xMax - xMin, yTop - yBottom, 0f);
+            Gizmos.DrawWireCube(center, size);
+        }
+#endif
     }
 }

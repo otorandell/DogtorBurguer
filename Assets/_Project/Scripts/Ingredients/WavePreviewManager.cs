@@ -146,5 +146,20 @@ namespace DogtorBurguer
         {
             ClearPreviews();
         }
+
+#if UNITY_EDITOR
+        // Debug gizmo: the tap radius around each revealed (tappable) preview ghost.
+        // Mirrors TryTap exactly — only revealed entries, same radius.
+        private void OnDrawGizmos()
+        {
+            float radius = Constants.CELL_WIDTH * GameplayConfig.PREVIEW_TAP_RADIUS_MULT;
+            Gizmos.color = GizmoStyles.PreviewTap;
+            foreach (var (preview, _, revealed) in _entries)
+            {
+                if (!revealed || preview == null) continue;
+                Gizmos.DrawWireSphere(preview.transform.position, radius);
+            }
+        }
+#endif
     }
 }

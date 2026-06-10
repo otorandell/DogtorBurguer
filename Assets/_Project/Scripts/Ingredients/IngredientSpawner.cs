@@ -257,5 +257,22 @@ namespace DogtorBurguer
                 SpawnIngredient(type, column);
             }
         }
+
+#if UNITY_EDITOR
+        // Debug gizmo: the fast-drop tap radius around each falling piece. Mirrors
+        // TryTapFallingIngredient exactly (same source, filter, and radius).
+        private void OnDrawGizmos()
+        {
+            if (!Application.isPlaying || GridManager.Instance == null) return;
+
+            float radius = Constants.CELL_WIDTH * GameplayConfig.FALLING_TAP_RADIUS_MULT;
+            Gizmos.color = GizmoStyles.FallingTap;
+            foreach (var ingredient in GridManager.Instance.GetFallingIngredients())
+            {
+                if (ingredient == null || ingredient.State == IngredientState.Landed) continue;
+                Gizmos.DrawWireSphere(ingredient.transform.position, radius);
+            }
+        }
+#endif
     }
 }

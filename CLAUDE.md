@@ -90,8 +90,20 @@ Buns are **decoupled** from regular ingredients (own chances) and from level/typ
 
 ### Controls (TouchInputHandler)
 Two modes, configurable in Settings (saved via PlayerPrefs):
-- **Drag**: Swipe = move chef, Tap = swap plates, Tap falling = fast-drop, Tap preview = spawn
-- **Tap**: Tap near chef = swap, Tap left/right of chef = move, Swipe = move, Tap falling = fast-drop, Tap preview = spawn
+- **Drag**: Swipe = move chef, **Tap the cook = swap plates**, Tap falling = fast-drop, Tap preview = spawn
+- **Tap**: Tap the cook = swap, **Tap a side (below the grid floor) = move**, Swipe = move, Tap falling = fast-drop, Tap preview = spawn
+
+**Chef tap-control is bounded** so taps up in the playfield (e.g. a near-miss reaching for a
+falling piece) never move or swap the cook (`ProcessInput`):
+- **Swap (flip)** = tap within the cook's circle (`BubbleRadius × CHEF_TAP_RADIUS_MULT`) — both modes.
+- **Move (Tap mode only)** = tap a side with `worldPos.y < GRID_ORIGIN_Y` (below the playfield).
+- **Swipe** moves in both modes (gesture, checked before any tap logic).
+
+**Input-area debug gizmos** (editor-only, `#if UNITY_EDITOR`): each clickable zone is drawn by the
+component owning its hit-test, one color per interaction (`GizmoStyles`): falling fast-drop (green,
+`IngredientSpawner`), preview tap (yellow, `WavePreviewManager`), chef flip circle (magenta) + move
+sides (cyan, `TouchInputHandler` — move sides are mode-aware, Tap mode only). Toggle per-script via
+Unity's Gizmos menu.
 
 The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]`) → persists
 `SaveDataManager.StartingLevel`; clamped 1..`SETTINGS_LEVEL_CAP`. See Difficulty.
