@@ -501,8 +501,6 @@ MonoBehaviour:
   _spriteBunTop: {fileID: 3609593068229568893, guid: 99a38696dc9f7744ea0cff79c5ccbb2a, type: 3}
   _fallStepDuration: 0.4
   _activeIngredientCount: 4
-  _enableForcedBunSpawn: 1
-  _forceBunMultiplier: 2
   _initialDelay: 1.5
 --- !u!114 &1509865694
 MonoBehaviour:

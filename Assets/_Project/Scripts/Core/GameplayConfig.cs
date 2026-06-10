@@ -8,9 +8,12 @@ namespace DogtorBurguer
     {
         #region Wave Spawning
         public const float INITIAL_SPAWN_DELAY = 1.5f;
-        public const float FORCED_BUN_MULTIPLIER = 1.5f;
-        public const int TRIPLE_WAVE_START_LEVEL = 8;
-        public const float TRIPLE_WAVE_MAX_CHANCE = 0.35f;
+        #endregion
+
+        #region Ingredient Bag
+        // Regular ingredients are drawn from a shuffle-bag of (one of each active type +
+        // this many random extras) — even spread, no droughts, but non-countable.
+        public const int BAG_RANDOM_EXTRAS = 3;
         #endregion
 
         #region Ingredient Pool
@@ -29,10 +32,15 @@ namespace DogtorBurguer
         };
         #endregion
 
-        #region Bun Selection
-        public const float BUN_TOP_BASE_CHANCE = 0.5f;
-        public const float BUN_TOP_CHANCE_PER_BOTTOM = 0.08f;
-        public const float BUN_TOP_CHANCE_CAP = 0.8f;
+        #region Bun Economy
+        // Buns are decoupled from the ingredient bag and from level/type-count. Bottom is a flat
+        // chance (starts a burger); top only spawns when there's an open bottom to close and scales
+        // with the backlog, so open bottoms self-balance near where top chance crosses bottom chance.
+        public const float BOTTOM_BUN_CHANCE = 0.12f;                  // flat per-slot chance of a bottom bun
+        public const float TOP_BUN_BASE_CHANCE = 0.08f;               // top chance at exactly one open bottom
+        public const float TOP_BUN_CHANCE_PER_EXTRA_BOTTOM = 0.04f;   // added per additional open bottom
+        public const float TOP_BUN_CHANCE_CAP = 0.40f;                // safety cap (rarely reached)
+        public const int BUN_DROUGHT_LIMIT = 15;                      // pieces with no bun → force a bottom
         #endregion
 
         #region Tap Interaction
@@ -57,11 +65,36 @@ namespace DogtorBurguer
         #endregion
 
         #region Difficulty Curve
+        // Spawner's pre-difficulty default and the column-swap animation duration.
+        // (No longer the curve's level-1 speed — that comes from FALL_STEP_BY_LEVEL.)
         public const float INITIAL_FALL_STEP_DURATION = 0.5f;
-        public const float MIN_FALL_STEP_DURATION = 0.1f;
+        // Absolute fastest fall allowed — the SetFallSpeed floor, and the kill-screen speed.
+        public const float MIN_FALL_STEP_DURATION = 0.06f;
         public const int MAX_LEVEL = 20;
+        public const int KILLER_LEVEL = 21; // Tetris-style kill screen, above the normal curve.
         public const int STARTING_INGREDIENT_COUNT = 3;
         public const int MAX_INGREDIENT_COUNT = 7;
+
+        // Highest level selectable from Settings. TESTING: set to KILLER_LEVEL so the kill
+        // screen can be entered directly from the stepper; drop to MAX_LEVEL for release.
+        public const int SETTINGS_LEVEL_CAP = KILLER_LEVEL;
+
+        // Per-level curves: index 0 = level 1 … index 19 = level 20. Length MUST equal MAX_LEVEL.
+        // The killer level (21) is NOT in these tables — it applies MIN_FALL_STEP_DURATION,
+        // MAX_INGREDIENT_COUNT, and always-triple waves directly (see DifficultyManager).
+        public static readonly float[] FALL_STEP_BY_LEVEL = {
+            0.45f, 0.37f, 0.33f, 0.31f, 0.28f, 0.27f, 0.25f, 0.23f, 0.22f, 0.205f,
+            0.19f, 0.18f, 0.17f, 0.16f, 0.15f, 0.14f, 0.13f, 0.12f, 0.11f, 0.10f
+        };
+        public static readonly int[] INGREDIENT_COUNT_BY_LEVEL = {
+            3, 3, 3, 4, 4, 4, 4, 5, 5, 5,
+            5, 6, 6, 6, 6, 7, 7, 7, 7, 7
+        };
+        public static readonly float[] TRIPLE_CHANCE_BY_LEVEL = {
+            0f,    0f,    0f,    0f,    0f,    0.05f, 0.08f, 0.11f, 0.15f, 0.18f,
+            0.22f, 0.26f, 0.30f, 0.34f, 0.38f, 0.41f, 0.44f, 0.47f, 0.49f, 0.50f
+        };
+        public const int KILLER_LEVEL_THRESHOLD = 434; // ingredients placed to enter the kill screen
         #endregion
 
         #region Scoring
@@ -80,8 +113,8 @@ namespace DogtorBurguer
         /// Ingredients placed required to reach each level (index 0 = level 1).
         /// </summary>
         public static readonly int[] LEVEL_THRESHOLDS = {
-            0, 10, 22, 36, 52, 70, 90, 112, 136, 162,
-            190, 220, 252, 286, 322, 360, 400, 442, 486, 532
+            0, 16, 33, 50, 68, 86, 105, 124, 144, 164,
+            185, 206, 228, 250, 273, 296, 320, 344, 369, 394
         };
         #endregion
     }

@@ -115,7 +115,7 @@ namespace DogtorBurguer
 
         #region Panel Sizes
         public static readonly Vector2 GAMEOVER_PANEL_SIZE = new(400, 500);
-        public static readonly Vector2 SETTINGS_PANEL_SIZE = new(350, 350);
+        public static readonly Vector2 SETTINGS_PANEL_SIZE = new(350, 430);
         public static readonly Vector2 SHOP_PANEL_SIZE = new(380, 420);
         public static readonly Vector2 CREDITS_RECT = new(400, 300);
         #endregion
@@ -165,11 +165,17 @@ namespace DogtorBurguer
         #endregion
 
         #region Layout — Settings Panel
-        public static readonly Vector2 SETTINGS_TITLE_POS = new(0f, 130f);
+        public static readonly Vector2 SETTINGS_TITLE_POS = new(0f, 165f);
         public static readonly Vector2 SETTINGS_TITLE_RECT = new(300f, 50f);
-        public static readonly Vector2 SETTINGS_SOUND_POS = new(0f, 50f);
-        public static readonly Vector2 SETTINGS_CONTROL_POS = new(0f, -20f);
-        public static readonly Vector2 SETTINGS_CLOSE_POS = new(0f, -110f);
+        public static readonly Vector2 SETTINGS_SOUND_POS = new(0f, 90f);
+        public static readonly Vector2 SETTINGS_CONTROL_POS = new(0f, 20f);
+        public static readonly Vector2 SETTINGS_LEVEL_POS = new(0f, -55f);
+        public static readonly Vector2 SETTINGS_LEVEL_MINUS_POS = new(-135f, -55f);
+        public static readonly Vector2 SETTINGS_LEVEL_PLUS_POS = new(135f, -55f);
+        public static readonly Vector2 SETTINGS_CLOSE_POS = new(0f, -135f);
+        // Stepper row: centered value label flanked by square −/+ buttons.
+        public static readonly Vector2 SETTINGS_STEPPER_LABEL_SIZE = new(210f, 55f);
+        public static readonly Vector2 SETTINGS_STEPPER_BTN_SIZE = new(55f, 55f);
         #endregion
 
         #region Layout — Shop Panel

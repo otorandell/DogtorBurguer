@@ -12,10 +12,6 @@ namespace DogtorBurguer
         [SerializeField] private float _fallStepDuration = GameplayConfig.INITIAL_FALL_STEP_DURATION;
         [SerializeField] private int _activeIngredientCount = GameplayConfig.STARTING_INGREDIENT_COUNT;
 
-        [Header("Forced Bun Spawn")]
-        [SerializeField] private bool _enableForcedBunSpawn = true;
-        [SerializeField] private float _forceBunMultiplier = GameplayConfig.FORCED_BUN_MULTIPLIER;
-
         [Header("Wave Settings")]
         [SerializeField] private float _initialDelay = GameplayConfig.INITIAL_SPAWN_DELAY;
 
@@ -39,7 +35,7 @@ namespace DogtorBurguer
         {
             _previewManager = gameObject.AddComponent<WavePreviewManager>();
             _previewManager.Initialize(GetSpriteForType);
-            _composer = new WaveComposer(_enableForcedBunSpawn, _forceBunMultiplier);
+            _composer = new WaveComposer();
         }
 
         private void Update()

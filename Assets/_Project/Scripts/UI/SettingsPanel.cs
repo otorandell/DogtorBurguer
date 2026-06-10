@@ -10,6 +10,7 @@ namespace DogtorBurguer
         private Canvas _canvas;
         private TextMeshProUGUI _soundLabel;
         private TextMeshProUGUI _controlLabel;
+        private TextMeshProUGUI _levelLabel;
 
         /// <summary>Injects the menu canvas to build into (F-77), instead of scanning the scene.</summary>
         public void Initialize(Canvas canvas)
@@ -24,6 +25,7 @@ namespace DogtorBurguer
                 _panel.SetActive(true);
                 UpdateSoundLabel();
                 UpdateControlLabel();
+                UpdateLevelLabel();
                 return;
             }
 
@@ -62,6 +64,20 @@ namespace DogtorBurguer
                 UIStyles.SETTINGS_BUTTON_TEXT_SIZE, OnControlToggleClicked);
             _controlLabel = controlBtn.label;
             UpdateControlLabel();
+
+            // Starting-level stepper: [−] value [+]. Buttons step the persisted
+            // StartingLevel by one, clamped 1..SETTINGS_LEVEL_CAP; the label shows the value.
+            UIFactory.CreateButton(inner.transform, "-", UIStyles.SETTINGS_LEVEL_MINUS_POS,
+                UIStyles.SETTINGS_STEPPER_BTN_SIZE, UIStyles.BTN_SETTINGS_TOGGLE,
+                UIStyles.SETTINGS_BUTTON_TEXT_SIZE, () => OnLevelStep(-1));
+
+            _levelLabel = UIFactory.CreateText(inner.transform, "Start Level: 1", UIStyles.SETTINGS_LEVEL_POS,
+                UIStyles.SETTINGS_STEPPER_LABEL_SIZE, UIStyles.SETTINGS_BUTTON_TEXT_SIZE, FontStyles.Bold);
+            UpdateLevelLabel();
+
+            UIFactory.CreateButton(inner.transform, "+", UIStyles.SETTINGS_LEVEL_PLUS_POS,
+                UIStyles.SETTINGS_STEPPER_BTN_SIZE, UIStyles.BTN_SETTINGS_TOGGLE,
+                UIStyles.SETTINGS_BUTTON_TEXT_SIZE, () => OnLevelStep(1));
 
             // Close button
             UIFactory.CreateButton(inner.transform, "Close", UIStyles.SETTINGS_CLOSE_POS,
@@ -105,6 +121,23 @@ namespace DogtorBurguer
                 ? SaveDataManager.Instance.ControlMode
                 : SaveDataManager.DEFAULT_CONTROL_MODE;
             _controlLabel.text = mode == ControlMode.Drag ? "Controls: Drag" : "Controls: Tap";
+        }
+
+        private void OnLevelStep(int delta)
+        {
+            if (SaveDataManager.Instance == null) return;
+
+            SaveDataManager.Instance.SetStartingLevel(SaveDataManager.Instance.StartingLevel + delta);
+            UpdateLevelLabel();
+        }
+
+        private void UpdateLevelLabel()
+        {
+            if (_levelLabel == null) return;
+            int level = SaveDataManager.Instance != null
+                ? SaveDataManager.Instance.StartingLevel
+                : SaveDataManager.DEFAULT_STARTING_LEVEL;
+            _levelLabel.text = $"Start Level: {level}";
         }
     }
 }

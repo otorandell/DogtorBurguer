@@ -24,7 +24,7 @@ Assets/_Project/Scripts/
                  FeedbackManager, Rng, SceneLoader, Singleton<T> (manager base)
   Grid/          GridManager, Column, MatchDetector, MatchResult, BurgerAnimator, BurgerData
   Ingredients/   Ingredient, IngredientState, IngredientSpawner, SpawnerState,
-                 IngredientType, WavePreviewManager
+                 IngredientType, WavePreviewManager, WaveComposer, WaveSlot, IngredientBag
   Input/         TouchInputHandler
   Scoring/       Scoring (points/tiers), BurgerTier, BurgerNamer
   Skins/         Skin (ScriptableObject), SkinSlot, UnlockMethod, SkinMap, Theme (static accessor)
@@ -61,27 +61,58 @@ Key events for cross-system communication:
 ## Core Systems
 
 ### Wave-Based Spawning (IngredientSpawner)
-- A wave = 2 ingredients (3 on a triple roll; triple chance starts at level 8, up to 35% at level 20), each in a distinct column.
+- A wave = 2 ingredients (3 on a triple roll; triple chance per `TRIPLE_CHANCE_BY_LEVEL` — see Difficulty), each in a distinct column.
 - **Standing preview queue**: a target number of upcoming pieces (= the next wave's size) is always reserved and shown as blinking ghosts, one per column. Topped up every frame (`TopUpPreviews`) and seeded at `StartSpawning` (hidden through the initial delay). The reserved previews **are** the next wave — when the current wave lands, they become the real pieces, dropping in their columns.
 - **Next-wave trigger**: fires only when the ORIGINAL auto-spawned wave lands. Tapped previews are "fire and forget" (not counted toward wave completion), so a desired preview can't be frozen by tapping the others — a held preview force-drops within ~one fall.
 - **Tap a preview** to spawn that ingredient immediately; only revealed (visible) previews are tappable.
 - **Column choice is unbiased** (random, one preview per column, height/stack ignored). A per-preview clearance (`AnimConfig.PREVIEW_SPAWN_CLEARANCE`) delays only the ghost's visual reveal so it never overlaps a falling sprite — it does NOT influence which column is chosen (`ColumnsWithPieceInPreviewZone` + `WavePreviewManager.RevealCleared`).
-- Forced bun spawn threshold: `activeCount * FORCED_BUN_MULTIPLIER` (1.5); unified pool — bun is one extra slot in the random range.
-- `WaveComposer` owns ingredient-type + bun-pacing rolls (`RollSlot` / `RollWaveSize`); `IngredientSpawner` owns column selection (the queue).
+- **Composition**: each slot is either a bun or a regular ingredient. Regulars come from
+  `IngredientBag` (shuffle-bag, even spread); buns are a decoupled grid-aware economy (see below).
+  `WaveComposer.RollSlot` decides type, `RollWaveSize` decides 2-vs-3; `IngredientSpawner` owns
+  column selection (the queue).
 
-### Bun Type Selection (GetBunType)
-- No bottom bun on grid: always BunBottom
-- Otherwise: `topChance = 0.5 + bottomCount * 0.08` (capped 0.8)
+### Ingredient distribution & Bun Economy (WaveComposer / IngredientBag)
+Buns are **decoupled** from regular ingredients (own chances) and from level/type count.
+- **Regular ingredients** (`IngredientBag`): a shuffle-bag of `1 of each active type +
+  BAG_RANDOM_EXTRAS (3)` random extras, drawn without replacement, rebuilt from the current
+  active count when empty or when the count changes. Guarantees no droughts/streaks, no weights.
+- **Bottom bun**: flat `BOTTOM_BUN_CHANCE` (0.12) per slot — the "start a burger" resource.
+  Surplus bottoms cancel each other on the grid, so it can flow freely. A drought guard forces
+  a bottom after `BUN_DROUGHT_LIMIT` (15) bun-less pieces.
+- **Top bun**: only when ≥1 open bottom exists on the grid (a lone top self-destructs). Chance
+  `min(TOP_BUN_BASE_CHANCE + TOP_BUN_CHANCE_PER_EXTRA_BOTTOM·(open−1), TOP_BUN_CHANCE_CAP)`
+  = 8% at one open bottom, +4% each additional, cap 40%. So it crosses the 12% bottom rate at
+  2 open bottoms → the board self-balances around ~2 unclosed bottoms instead of accumulating.
+- **Mechanic** (in `GridManager`, unchanged): a burger completes when a `BunTop` lands above a
+  `BunBottom` in its column; a lone top self-destructs ("Too bad!"); two adjacent bottoms cancel.
+- Per-slot order: drought-forced bottom → flat bottom → scaling top (if eligible) → bag draw.
+  The bun roll reads grid state when the preview is *reserved* (a wave ahead), same as before.
 
 ### Controls (TouchInputHandler)
 Two modes, configurable in Settings (saved via PlayerPrefs):
 - **Drag**: Swipe = move chef, Tap = swap plates, Tap falling = fast-drop, Tap preview = spawn
 - **Tap**: Tap near chef = swap, Tap left/right of chef = move, Swipe = move, Tap falling = fast-drop, Tap preview = spawn
 
+The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]`) → persists
+`SaveDataManager.StartingLevel`; clamped 1..`SETTINGS_LEVEL_CAP`. See Difficulty.
+
 ### Difficulty (DifficultyManager)
-- 20 levels scaling fall speed and active ingredient count
-- Level 1: 3 ingredients, 0.5s fall step; Level 20: 7 ingredients, 0.1s fall step
-- Thresholds in `GameplayConfig.LEVEL_THRESHOLDS` — slow start (gap of 10), ramp up (gap grows by 2 per level)
+- 20 levels scaling fall speed, active ingredient (type) count, and triple-wave chance.
+- **Table-driven** (not formula-derived): three per-level arrays in `GameplayConfig`, each
+  length `MAX_LEVEL`, indexed `level - 1`: `FALL_STEP_BY_LEVEL`, `INGREDIENT_COUNT_BY_LEVEL`,
+  `TRIPLE_CHANCE_BY_LEVEL`. `ApplyDifficulty` indexes them directly — edit one cell to retune
+  one level. An `Awake` assert enforces all tables (+ `LEVEL_THRESHOLDS`) stay `MAX_LEVEL` long.
+- **Curve shape** (front-loaded): L1 fall 0.45s / 3 types; L10 ≈ 0.205s (the old L15 speed);
+  L20 0.10s / 7 types. Triple waves start L6, ramp to 0.50 at L20.
+- **Pacing**: `LEVEL_THRESHOLDS` (ingredients placed per level) — reaches L20 at 394 placements
+  (longer early levels than before, much shorter late ones).
+- **Killer level (21)** — Tetris-style kill screen above the curve, NOT in the tables: always-triple
+  waves at `MIN_FALL_STEP_DURATION` (0.06s, the absolute fall floor) with 7 types. Entered by
+  sustained survival past `KILLER_LEVEL_THRESHOLD` (434 placements); selectable from Settings only
+  while `SETTINGS_LEVEL_CAP == KILLER_LEVEL` (testing — see Pending Manual Steps).
+- **Starting level**: `SaveDataManager.StartingLevel` (persisted, set via the Settings stepper)
+  seeds `_currentLevel`; `DifficultyManager` runs at `[DefaultExecutionOrder(-100)]` so the seed
+  is applied before the HUD/spawner init. Initial level is pull-state (no init-time `OnLevelChanged`).
 - HUD shows "Level X" (full word, distinguishes from challenge star)
 
 ### Burger Challenge (BurgerChallenge) — "Special Orders"
@@ -205,6 +236,9 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - **Verify skin import (Phase 1)**: open Unity, confirm a clean compile and that `Resources/Skins/*.asset`
   each show their sprite (not "None"); the game should look identical to before.
 - **Assign placeholder sprite**: In Unity Inspector, select BurgerChallenge component → set `_spritePlaceholder` field to the silhouette PNG in `Assets/_Project/Sprites/Ingredients/`
+- **Before release: lower `SETTINGS_LEVEL_CAP` to `MAX_LEVEL`** (`GameplayConfig`). It's currently
+  `KILLER_LEVEL` (21) so the kill screen is reachable from the Settings stepper for testing; players
+  should not be able to *start* on the kill screen. One-line flip (comment marks it).
 
 ## Pending Features
 - Skin selection + unlock/buy UI (DEFERRED — foundation done; see Skin System roadmap)

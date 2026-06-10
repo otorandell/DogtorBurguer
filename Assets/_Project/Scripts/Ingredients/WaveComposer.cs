@@ -3,21 +3,16 @@ using UnityEngine;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// Decides what each spawned slot contains — ingredient-type rolls and bun pacing/type rules.
-    /// Owns the bun-pacing counter and reads grid state via GridManager. Column selection lives in
-    /// IngredientSpawner (the preview queue). Extracted so the spawner only orchestrates + spawns (F-38).
+    /// Decides what each spawned slot contains. Regular ingredients come from an even-spread
+    /// <see cref="IngredientBag"/>; buns are a decoupled, grid-aware economy (flat bottom rate +
+    /// a top rate that scales with the number of open bottoms, so the board self-balances rather
+    /// than passively accumulating unclosed burgers). Column selection lives in IngredientSpawner
+    /// (the preview queue); this only chooses types. Extracted so the spawner just orchestrates (F-38).
     /// </summary>
     public class WaveComposer
     {
-        private readonly bool _enableForcedBunSpawn;
-        private readonly float _forceBunMultiplier;
-        private int _spawnsSinceLastBun;
-
-        public WaveComposer(bool enableForcedBunSpawn, float forceBunMultiplier)
-        {
-            _enableForcedBunSpawn = enableForcedBunSpawn;
-            _forceBunMultiplier = forceBunMultiplier;
-        }
+        private readonly IngredientBag _bag = new();
+        private int _piecesSinceBun;
 
         /// <summary>Rolls a single slot for a specific column (used to build/refill the preview queue).</summary>
         public WaveSlot RollSlot(int activeIngredientCount, int column)
@@ -33,38 +28,58 @@ namespace DogtorBurguer
 
         private IngredientType GetSpawnType(int activeIngredientCount)
         {
-            if (_enableForcedBunSpawn)
+            if (TryRollBun(out IngredientType bun))
+                return bun;
+
+            _piecesSinceBun++;
+            return _bag.Next(activeIngredientCount);
+        }
+
+        /// <summary>
+        /// Decides whether this slot is a bun, and which. Bottom is a flat chance (the "start a
+        /// burger" resource); top only when there's an open bottom to close and scales up with the
+        /// backlog (the "close a burger" resource), so open bottoms hover near the balance point.
+        /// A drought guard forces a bottom if buns have been absent too long.
+        /// </summary>
+        private bool TryRollBun(out IngredientType bunType)
+        {
+            // Drought guard: never let burger-building stall for lack of a bottom to start on.
+            if (_piecesSinceBun >= GameplayConfig.BUN_DROUGHT_LIMIT)
             {
-                int threshold = (int)(activeIngredientCount * _forceBunMultiplier);
-                if (_spawnsSinceLastBun >= threshold)
+                _piecesSinceBun = 0;
+                bunType = IngredientType.BunBottom;
+                return true;
+            }
+
+            // Flat bottom chance — safe to flow freely; surplus bottoms cancel each other on the grid.
+            if (Rng.Value < GameplayConfig.BOTTOM_BUN_CHANCE)
+            {
+                _piecesSinceBun = 0;
+                bunType = IngredientType.BunBottom;
+                return true;
+            }
+
+            // Top only matters when there's an unclosed bottom to land on (a lone top self-destructs).
+            int openBottoms = CountOpenBottoms();
+            if (openBottoms >= 1)
+            {
+                float topChance = Mathf.Min(
+                    GameplayConfig.TOP_BUN_BASE_CHANCE + GameplayConfig.TOP_BUN_CHANCE_PER_EXTRA_BOTTOM * (openBottoms - 1),
+                    GameplayConfig.TOP_BUN_CHANCE_CAP);
+                if (Rng.Value < topChance)
                 {
-                    _spawnsSinceLastBun = 0;
-                    return GetBunType();
+                    _piecesSinceBun = 0;
+                    bunType = IngredientType.BunTop;
+                    return true;
                 }
             }
 
-            int roll = Rng.Range(0, activeIngredientCount + 1);
-            if (roll < activeIngredientCount)
-            {
-                _spawnsSinceLastBun++;
-                return GameplayConfig.REGULAR_INGREDIENTS[roll];
-            }
-
-            _spawnsSinceLastBun = 0;
-            return GetBunType();
+            bunType = default;
+            return false;
         }
 
-        private IngredientType GetBunType()
-        {
-            if (!GridHasBottomBun())
-                return IngredientType.BunBottom;
-
-            int bottomCount = CountBottomBunsOnGrid();
-            float topChance = Mathf.Min(GameplayConfig.BUN_TOP_BASE_CHANCE + bottomCount * GameplayConfig.BUN_TOP_CHANCE_PER_BOTTOM, GameplayConfig.BUN_TOP_CHANCE_CAP);
-            return Rng.Value < topChance ? IngredientType.BunTop : IngredientType.BunBottom;
-        }
-
-        private int CountBottomBunsOnGrid()
+        /// <summary>Counts unclosed bottom buns on the grid (every on-grid BunBottom is still open).</summary>
+        private int CountOpenBottoms()
         {
             if (GridManager.Instance == null) return 0;
 
@@ -81,24 +96,6 @@ namespace DogtorBurguer
                 }
             }
             return count;
-        }
-
-        private bool GridHasBottomBun()
-        {
-            if (GridManager.Instance == null) return false;
-
-            for (int c = 0; c < Constants.COLUMN_COUNT; c++)
-            {
-                Column col = GridManager.Instance.GetColumn(c);
-                if (col == null) continue;
-
-                foreach (var ing in col.GetAllIngredients())
-                {
-                    if (ing.Type == IngredientType.BunBottom)
-                        return true;
-                }
-            }
-            return false;
         }
     }
 }

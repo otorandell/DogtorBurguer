@@ -10,11 +10,13 @@ namespace DogtorBurguer
         private const string KEY_SOUND_ON = "soundOn";
         private const string KEY_GAMES_PLAYED = "gamesPlayed";
         private const string KEY_CONTROL_MODE = "controlMode";
+        private const string KEY_STARTING_LEVEL = "startingLevel";
 
         // Canonical first-run defaults. Single source of truth — referenced by
         // LoadData and by consumers that need a fallback when Instance is null.
         public const bool DEFAULT_SOUND_ON = true;
         public const ControlMode DEFAULT_CONTROL_MODE = ControlMode.Drag;
+        public const int DEFAULT_STARTING_LEVEL = 1;
 
         public event Action<int> OnGemsChanged;
 
@@ -23,6 +25,7 @@ namespace DogtorBurguer
         public bool SoundOn { get; private set; }
         public int GamesPlayed { get; private set; }
         public ControlMode ControlMode { get; private set; }
+        public int StartingLevel { get; private set; }
 
         protected override void Awake()
         {
@@ -40,6 +43,8 @@ namespace DogtorBurguer
             SoundOn = PlayerPrefs.GetInt(KEY_SOUND_ON, DEFAULT_SOUND_ON ? 1 : 0) == 1;
             GamesPlayed = PlayerPrefs.GetInt(KEY_GAMES_PLAYED, 0);
             ControlMode = (ControlMode)PlayerPrefs.GetInt(KEY_CONTROL_MODE, (int)DEFAULT_CONTROL_MODE);
+            StartingLevel = Mathf.Clamp(
+                PlayerPrefs.GetInt(KEY_STARTING_LEVEL, DEFAULT_STARTING_LEVEL), 1, GameplayConfig.SETTINGS_LEVEL_CAP);
         }
 
         public void AddGems(int amount)
@@ -89,6 +94,13 @@ namespace DogtorBurguer
         {
             ControlMode = mode;
             PlayerPrefs.SetInt(KEY_CONTROL_MODE, (int)mode);
+            PlayerPrefs.Save();
+        }
+
+        public void SetStartingLevel(int level)
+        {
+            StartingLevel = Mathf.Clamp(level, 1, GameplayConfig.SETTINGS_LEVEL_CAP);
+            PlayerPrefs.SetInt(KEY_STARTING_LEVEL, StartingLevel);
             PlayerPrefs.Save();
         }
     }

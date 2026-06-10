@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace DogtorBurguer
 {
+    // Runs ahead of default-order scripts so _currentLevel is seeded and difficulty
+    // applied before GameManager starts spawning and GameHUD reads CurrentLevel on init.
+    [DefaultExecutionOrder(-100)]
     public class DifficultyManager : MonoBehaviour
     {
         [SerializeField] private IngredientSpawner _spawner;
@@ -14,6 +17,18 @@ namespace DogtorBurguer
         public int CurrentLevel => _currentLevel;
         public event Action<int> OnLevelChanged;
 
+        private void Awake()
+        {
+            // The per-level curve tables are indexed by level (1..MAX_LEVEL); a length
+            // mismatch would index out of range in ApplyDifficulty. Enforce it once here.
+            Debug.Assert(
+                GameplayConfig.FALL_STEP_BY_LEVEL.Length == GameplayConfig.MAX_LEVEL &&
+                GameplayConfig.INGREDIENT_COUNT_BY_LEVEL.Length == GameplayConfig.MAX_LEVEL &&
+                GameplayConfig.TRIPLE_CHANCE_BY_LEVEL.Length == GameplayConfig.MAX_LEVEL &&
+                GameplayConfig.LEVEL_THRESHOLDS.Length == GameplayConfig.MAX_LEVEL,
+                "Difficulty curve tables must each have MAX_LEVEL entries.");
+        }
+
         private void Start()
         {
             if (_gridManager == null)
@@ -24,13 +39,19 @@ namespace DogtorBurguer
             if (_gridManager != null)
                 _gridManager.OnIngredientPlaced += HandleIngredientPlaced;
 
-            // Start at high level for dual column test mode
+            // Seed the starting level. Dual-column test mode overrides; otherwise the
+            // player-chosen Settings value (defaults to 1). The '>' guard in EvaluateLevel
+            // keeps a raised start from being reset before _ingredientsPlaced catches up.
+            int startLevel = SaveDataManager.Instance != null
+                ? SaveDataManager.Instance.StartingLevel
+                : SaveDataManager.DEFAULT_STARTING_LEVEL;
             if (GameManager.Instance != null && GameManager.Instance.TestDualColumn)
-            {
-                _currentLevel = Mathf.Clamp(GameManager.Instance.TestDualColumnLevel, 1, GameplayConfig.MAX_LEVEL);
-                OnLevelChanged?.Invoke(_currentLevel);
-            }
+                startLevel = GameManager.Instance.TestDualColumnLevel;
 
+            _currentLevel = Mathf.Clamp(startLevel, 1, GameplayConfig.KILLER_LEVEL);
+            // The initial level is pull-state, not an event: subscribers read CurrentLevel
+            // on their own init (GameHUD.RefreshAll, GameOverPanel). Firing OnLevelChanged
+            // here would risk a spurious level-up SFX and depend on subscribe ordering.
             ApplyDifficulty();
         }
 
@@ -58,6 +79,10 @@ namespace DogtorBurguer
                 }
             }
 
+            // Sustained survival past the top of the curve tips into the kill screen.
+            if (_ingredientsPlaced >= GameplayConfig.KILLER_LEVEL_THRESHOLD)
+                newLevel = GameplayConfig.KILLER_LEVEL;
+
             // Level only ever rises with ingredients placed; using '>' (not '!=') keeps a
             // manually-raised level (e.g. dual-column test mode) from being reset to 1 on
             // the first placement, when _ingredientsPlaced hasn't caught up yet.
@@ -74,28 +99,28 @@ namespace DogtorBurguer
         {
             if (_spawner == null) return;
 
-            float t = (_currentLevel - 1f) / (GameplayConfig.MAX_LEVEL - 1f);
+            float fallStep;
+            int ingredientCount;
+            float tripleChance;
 
-            float fallStep = Mathf.Lerp(GameplayConfig.INITIAL_FALL_STEP_DURATION, GameplayConfig.MIN_FALL_STEP_DURATION, t);
-            int ingredientCount = Mathf.RoundToInt(Mathf.Lerp(GameplayConfig.STARTING_INGREDIENT_COUNT, GameplayConfig.MAX_INGREDIENT_COUNT, t));
+            if (_currentLevel >= GameplayConfig.KILLER_LEVEL)
+            {
+                // Kill screen: every wave is a triple at the absolute speed floor.
+                fallStep = GameplayConfig.MIN_FALL_STEP_DURATION;
+                ingredientCount = GameplayConfig.MAX_INGREDIENT_COUNT;
+                tripleChance = 1f;
+            }
+            else
+            {
+                int i = _currentLevel - 1; // 0-based index into the per-level curve tables
+                fallStep = GameplayConfig.FALL_STEP_BY_LEVEL[i];
+                ingredientCount = GameplayConfig.INGREDIENT_COUNT_BY_LEVEL[i];
+                tripleChance = GameplayConfig.TRIPLE_CHANCE_BY_LEVEL[i];
+            }
 
             _spawner.SetFallSpeed(fallStep);
             _spawner.SetActiveIngredientCount(ingredientCount);
-            _spawner.SetTripleWaveChance(ComputeTripleWaveChance());
-        }
-
-        /// <summary>
-        /// Probability that a wave spawns three ingredients instead of two. Ramps from
-        /// 0 at TRIPLE_WAVE_START_LEVEL up to TRIPLE_WAVE_MAX_CHANCE at MAX_LEVEL.
-        /// </summary>
-        private float ComputeTripleWaveChance()
-        {
-            if (_currentLevel < GameplayConfig.TRIPLE_WAVE_START_LEVEL)
-                return 0f;
-
-            float t = (_currentLevel - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL) /
-                      (GameplayConfig.MAX_LEVEL - (float)GameplayConfig.TRIPLE_WAVE_START_LEVEL);
-            return t * GameplayConfig.TRIPLE_WAVE_MAX_CHANCE;
+            _spawner.SetTripleWaveChance(tripleChance);
         }
     }
 }
