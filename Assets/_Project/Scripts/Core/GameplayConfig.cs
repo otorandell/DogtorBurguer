@@ -47,6 +47,7 @@ namespace DogtorBurguer
         public const float PREVIEW_TAP_RADIUS_MULT = 0.7f;
         public const float FALLING_TAP_RADIUS_MULT = 0.6f;
         public const float CHEF_TAP_RADIUS_MULT = 2f; // tap within this × bubble radius of the chef = swap
+        public const float CHEF_MOVE_ZONE_TOP_OFFSET = 0.6f; // Tap-mode move zone extends this far above the grid floor
         public const float FAST_DROP_POINTS_PER_UNIT = 2f;
         #endregion
 
@@ -116,6 +117,25 @@ namespace DogtorBurguer
             0, 16, 33, 50, 68, 86, 105, 124, 144, 164,
             185, 206, 228, 250, 273, 296, 320, 344, 369, 394
         };
+        #endregion
+
+        #region Consumables
+        // When a fairy spawns, this is the chance it carries a consumable (vs gems). 60/40 keeps
+        // gem income ≈ unchanged while adding ~2 consumables/game (see MonetizationConfig).
+        public const float FAIRY_CONSUMABLE_CHANCE = 0.60f;
+
+        // Relative weights for which consumable a consumable-fairy carries. Index by ConsumableType
+        // (Ketchup, Mustard, Skewer). Even thirds to start — down-weight Mustard (strongest, board-
+        // wide) or up-weight Skewer (situational) here if playtest needs it.
+        public static readonly float[] CONSUMABLE_SPAWN_WEIGHTS = { 1f, 1f, 1f };
+
+        // Direct removals from a consumable score this per NON-BUN ingredient (flat, no multiplier —
+        // match-like, not burger-like). Buns destroyed by consumables score nothing.
+        public const int POINTS_CONSUMABLE_PER_INGREDIENT = 10;
+
+        // The consumable faller drops much faster than ingredients and resolves on impact with its
+        // target (top-of-stack for Ketchup/Mustard, first bun for Skewer). Seconds per cell.
+        public const float CONSUMABLE_FALL_STEP_DURATION = 0.03f;
         #endregion
     }
 }

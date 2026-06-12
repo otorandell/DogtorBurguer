@@ -33,7 +33,11 @@ Assets/_Project/Scripts/
                  Background, GameLayout, OrderType, UIFactory
     Factory/     SpriteFactory (cached procedural sprites), WorldTextFactory (world-space TMP)
   Audio/         AudioManager, MusicManager, MusicCategory
-  Monetization/  AdManager, GemPack, GemProduct, GemPackSpawner
+  Monetization/  AdManager, GemProduct, BurgerFairy, BurgerFairySpawner
+  Consumables/   ConsumableType, ConsumableEffect (+ Ketchup/Mustard/Skewer), ConsumableEffects,
+                 ConsumableFaller, ConsumableInventory, ConsumableInventoryView,
+                 ConsumableDragController, ConsumableSlotLayout, FairyPayload, FairyPayloadKind,
+                 RewardArt, SpriteFit
 ```
 
 ## Singletons
@@ -45,6 +49,9 @@ These classes use the singleton pattern. Initialization order matters:
 5. **GridManager** -- column/grid state
 6. **AudioManager** -- procedural SFX generation
 7. **BurgerChallenge** -- challenge UI and tracking
+8. **ConsumableInventory** -- per-run consumable slots (2, FIFO); created by GameManager
+9. **ConsumableInventoryView** -- world-space inventory slot icons
+10. **ConsumableDragController** -- the drag-to-column carry interaction
 
 ## Event System
 Key events for cross-system communication:
@@ -57,6 +64,7 @@ Key events for cross-system communication:
 - `GridManager.OnIngredientPlaced` -- post-landing
 - `DifficultyManager.OnLevelChanged(int)` -- difficulty progression
 - `SaveDataManager.OnGemsChanged(int)` -- currency updates
+- `ConsumableInventory.OnChanged` -- consumable slots changed (add / consume)
 
 ## Core Systems
 
@@ -96,14 +104,20 @@ Two modes, configurable in Settings (saved via PlayerPrefs):
 **Chef tap-control is bounded** so taps up in the playfield (e.g. a near-miss reaching for a
 falling piece) never move or swap the cook (`ProcessInput`):
 - **Swap (flip)** = tap within the cook's circle (`BubbleRadius × CHEF_TAP_RADIUS_MULT`) — both modes.
-- **Move (Tap mode only)** = tap a side with `worldPos.y < GRID_ORIGIN_Y` (below the playfield).
+- **Move (Tap mode only)** = tap a side with `worldPos.y < GRID_ORIGIN_Y + CHEF_MOVE_ZONE_TOP_OFFSET`
+  (below / into the bottom of the playfield; the offset gives the side-taps vertical room).
 - **Swipe** moves in both modes (gesture, checked before any tap logic).
+
+**Consumable carry**: a press that *starts on an inventory slot* becomes a drag-to-column carry
+(see Core Systems → Consumables) — `TouchInputHandler` hands the gesture to
+`ConsumableDragController` and suppresses chef logic for its duration. **Editor-only debug**: keys
+**1/2/3** grant Ketchup/Mustard/Skewer to the inventory (`#if UNITY_EDITOR`).
 
 **Input-area debug gizmos** (editor-only, `#if UNITY_EDITOR`): each clickable zone is drawn by the
 component owning its hit-test, one color per interaction (`GizmoStyles`): falling fast-drop (green,
 `IngredientSpawner`), preview tap (yellow, `WavePreviewManager`), chef flip circle (magenta) + move
-sides (cyan, `TouchInputHandler` — move sides are mode-aware, Tap mode only). Toggle per-script via
-Unity's Gizmos menu.
+sides (cyan, `TouchInputHandler` — mode-aware, Tap mode only), fairy tap (orange, `BurgerFairy` —
+play-mode only, runtime-spawned). Toggle per-script via Unity's Gizmos menu.
 
 The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]`) → persists
 `SaveDataManager.StartingLevel`; clamped 1..`SETTINGS_LEVEL_CAP`. See Difficulty.
@@ -150,15 +164,55 @@ The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]
 - Chef has 3 positions (between the 4 columns)
 
 ### Audio
-- **AudioManager**: All SFX procedurally generated (sin waves, envelopes, harmonics). No audio asset files
+- **AudioManager**: All SFX procedurally generated (sin waves, envelopes, harmonics). No audio asset
+  files. Each sound has an optional `_*Override` clip slot for authored audio. Consumable hooks:
+  `PlayConsumableCollect` / `PlayConsumableUse(type)` / `PlayConsumableFizzle` (placeholder tones).
 - **MusicManager**: Loads tracks from Resources/Music/. Random selection per scene
 
 ### Monetization
-- Gems currency (earned via ads, gem packs, IAP)
+- Gems currency (earned via ads, Burger Fairy drops, IAP)
 - Continue after game over: 50 gems or watch ad
 - Interstitial ads every 3 games
-- Gem pack drops during gameplay (8% chance every 10s)
+- **Burger Fairy** drops during gameplay (`FAIRY_SPAWN_CHANCE` 0.20 / 10s) carry gems (~40%) or
+  a consumable (~60%) — see Core Systems → Consumables. Gem fairies award `GEM_PACK_VALUE`.
 - AdManager is currently mock (simulated delays). IAP buttons grant gems for testing
+
+### Consumables ("Burger Fairy" deliveries)
+Per-run consumable items delivered by fairies; drag onto a column to use. Design doc:
+`Docs/consumables-design.md`. **Feature-complete.**
+- **Delivery**: `BurgerFairy` (replaced the old GemPack) flies across the screen carrying a
+  **payload** — gems or a consumable (`FAIRY_CONSUMABLE_CHANCE` 0.60; which one per
+  `CONSUMABLE_SPAWN_WEIGHTS`, even thirds). `BurgerFairySpawner` rolls it. Tap to collect
+  (routed **first** in `ProcessInput`, above preview/falling, since it's on top of the playfield).
+  Gems → `AddGems`; consumable → `ConsumableInventory`.
+- **Inventory** (`ConsumableInventory`): per-run, **2 slots, FIFO** (a 3rd collect evicts the
+  oldest); not persisted. `ConsumableInventoryView` renders world-space icons in the score panel.
+- **Use — drag-to-column**: press a slot icon → carry (icon follows finger, a translucent ghost
+  snaps to the nearest column) → release **over the playfield** to use, **off it** to cancel.
+  Owned by `ConsumableDragController`, driven by `TouchInputHandler` (origin disambiguates: a
+  press on a slot becomes a carry and suppresses chef gestures). **World keeps moving while
+  carrying** — a cancellable pause would be a free stop-time exploit.
+- **Faller + effects**: on release a `ConsumableFaller` drops fast and **resolves on impact**;
+  reaching the floor with no target **fizzles** (item still spent). Each `ConsumableEffect`
+  supplies a target rule + on-impact behavior (polymorphic, no switch) calling granular
+  `GridManager` helpers:
+  - **Ketchup** → clears the whole targeted column (`ConsumableClearColumn`).
+  - **Mustard** → removes the targeted column's top type **board-wide** (`ConsumableSweepType`),
+    per-column collapse + cascade (chain reactions reuse the normal pair-match loop).
+  - **Skewer** → drives one `BunBottom` to row 0, destroys the rest, regulars collapse on top
+    (`ConsumableSkewer`).
+- **Scoring**: non-bun removals score `POINTS_CONSUMABLE_PER_INGREDIENT` (10), flat, no
+  multiplier; **buns score nothing** (Ketchup-cleared and Skewer-destroyed alike). Cascades
+  score normally via `OnMatchEliminated`.
+- **Art** (`RewardArt` + `SpriteFit`): one badge per payload from `Resources/Rewards/`
+  (`gem`/`ketchup`/`mustard`/`skewer`) doubles as fairy badge, inventory icon, column ghost
+  (alpha) and faller; the carrier from `Resources/Fairy/fairy`. `SpriteFit.Height` normalizes
+  every sprite to a world-height so source PPU/size doesn't matter. Sizes/positions/sorts live in
+  `UIStyles` (`*_HEIGHT`, `CONSUMABLE_SLOT_*`) and `Constants` (`SORT_CONSUMABLE_*`).
+- **Status**: audio is placeholder procedural tones on the hooks (`PlayConsumableCollect` /
+  `PlayConsumableUse(type)` / `PlayConsumableFizzle`) — real sound design deferred. Slot
+  layout/sizes are placeholder; eyeball-tune via `UIStyles`. Editor debug: keys **1/2/3** grant
+  Ketchup/Mustard/Skewer.
 
 ### Skins & Theme (cosmetics)
 All gameplay sprites flow through one place: `Theme` (static) reads `Skin` ScriptableObject
@@ -243,6 +297,11 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   `.png` so the texture GUID is kept.
 - **Hand-authored metas**: this project writes minimal `.cs.meta` (just `fileFormatVersion` + chosen `guid`)
   and `.asset` YAML directly, since the AI can't drive the Editor.
+- **Consumable/reward sprites** live in `Resources/Fairy/` + `Resources/Rewards/` (loaded by name via
+  `RewardArt`, outside the `Theme`/Skins pipeline). They must import as **Single** sprite mode — the
+  project's default is **Multiple**, which auto-slices multi-blob images into fragments and breaks
+  `Resources.Load<Sprite>` (it returns only the first fragment). `SpriteFit` sizes them by world-height,
+  so PPU / source size doesn't matter.
 
 ## Pending Manual Steps
 - **Verify skin import (Phase 1)**: open Unity, confirm a clean compile and that `Resources/Skins/*.asset`
@@ -253,6 +312,7 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   should not be able to *start* on the kill screen. One-line flip (comment marks it).
 
 ## Pending Features
+- Consumable polish: real SFX (override slots ready) + final slot layout/sizes (placeholders in `UIStyles`)
 - Skin selection + unlock/buy UI (DEFERRED — foundation done; see Skin System roadmap)
 - Text outline shader fix
 - Leaderboard integration (button exists, logs "Coming Soon")

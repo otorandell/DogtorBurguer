@@ -98,13 +98,12 @@ namespace DogtorBurguer
         public const float LEVELUP_WAIT = 0.3f;
         #endregion
 
-        #region Gem Pack
+        #region Fairy (fly-across collectible)
         public const float GEM_COLLECT_SCALE_UP = 1.2f;
         public const float GEM_COLLECT_SCALE_UP_DURATION = 0.15f;
         public const float GEM_COLLECT_SCALE_DOWN_DURATION = 0.2f;
-        public const float GEM_PULSE_MAX_SCALE = 0.6f;
+        public const float FAIRY_PULSE_SCALE = 1.08f;  // gentle breathing pulse (absolute root scale)
         public const float GEM_PULSE_DURATION = 0.4f;
-        public const float GEM_START_SCALE = 0.5f;
         public const float GEM_WOBBLE = 1f;            // ± vertical wander of the fly-across path
         public const float GEM_FLY_DURATION_MIN = 3f;
         public const float GEM_FLY_DURATION_MAX = 5f;

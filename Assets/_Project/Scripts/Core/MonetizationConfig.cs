@@ -16,9 +16,12 @@ namespace DogtorBurguer
         public const int INTERSTITIAL_EVERY_N_GAMES = 3;
         #endregion
 
-        #region Gem Pack Drops
-        public const float GEM_PACK_SPAWN_CHANCE = 0.08f;
-        public const float GEM_PACK_SPAWN_INTERVAL = 10f;
+        #region Fairy Drops
+        // Burger Fairies carry gems OR a consumable (see GameplayConfig.FAIRY_CONSUMABLE_CHANCE).
+        // This is the per-interval chance one appears; raising it scales BOTH gem and consumable
+        // fairies (the 60/40 payload split is unchanged).
+        public const float FAIRY_SPAWN_CHANCE = 0.20f;
+        public const float FAIRY_SPAWN_INTERVAL = 10f;
         #endregion
 
         #region IAP Products

@@ -50,6 +50,7 @@ namespace DogtorBurguer
                  || GameManager.Instance.IsPaused
                  || GameManager.Instance.IsResolving))
             {
+                CancelCarryIfActive();
                 return;
             }
 
@@ -76,7 +77,13 @@ namespace DogtorBurguer
         private void HandleKeyboardInput()
         {
             Keyboard keyboard = Keyboard.current;
-            if (keyboard == null || _chef == null) return;
+            if (keyboard == null) return;
+
+#if UNITY_EDITOR
+            HandleDebugConsumableHotkeys(keyboard);
+#endif
+
+            if (_chef == null) return;
 
             if (keyboard.aKey.wasPressedThisFrame)
                 _chef.MoveLeft();
@@ -87,6 +94,20 @@ namespace DogtorBurguer
                 _chef.SwapPlates();
         }
 
+#if UNITY_EDITOR
+        // Debug (editor-only): 1/2/3 grant Ketchup/Mustard/Skewer so the effects can be tested
+        // without farming fairies. Respects the 2-slot FIFO inventory; never ships.
+        private void HandleDebugConsumableHotkeys(Keyboard keyboard)
+        {
+            ConsumableInventory inv = ConsumableInventory.Instance;
+            if (inv == null) return;
+
+            if (keyboard.digit1Key.wasPressedThisFrame) inv.Add(ConsumableType.Ketchup);
+            else if (keyboard.digit2Key.wasPressedThisFrame) inv.Add(ConsumableType.Mustard);
+            else if (keyboard.digit3Key.wasPressedThisFrame) inv.Add(ConsumableType.Skewer);
+        }
+#endif
+
         private void HandleMouseInput()
         {
             Mouse mouse = Mouse.current;
@@ -96,12 +117,16 @@ namespace DogtorBurguer
             {
                 _touchStartPos = mouse.position.ReadValue();
                 _pressActive = true;
+                TryBeginCarry(_touchStartPos);
             }
             else if (mouse.leftButton.wasReleasedThisFrame && _pressActive)
             {
                 _pressActive = false;
-                Vector2 endPos = mouse.position.ReadValue();
-                ProcessInput(_touchStartPos, endPos);
+                EndPress(mouse.position.ReadValue());
+            }
+            else if (_pressActive && IsCarrying)
+            {
+                UpdateCarry(mouse.position.ReadValue());
             }
         }
 
@@ -114,6 +139,13 @@ namespace DogtorBurguer
                 case UnityEngine.InputSystem.TouchPhase.Began:
                     _touchStartPos = touch.screenPosition;
                     _pressActive = true;
+                    TryBeginCarry(touch.screenPosition);
+                    break;
+
+                case UnityEngine.InputSystem.TouchPhase.Moved:
+                case UnityEngine.InputSystem.TouchPhase.Stationary:
+                    if (_pressActive && IsCarrying)
+                        UpdateCarry(touch.screenPosition);
                     break;
 
                 case UnityEngine.InputSystem.TouchPhase.Ended:
@@ -121,7 +153,7 @@ namespace DogtorBurguer
                     if (_pressActive)
                     {
                         _pressActive = false;
-                        ProcessInput(_touchStartPos, touch.screenPosition);
+                        EndPress(touch.screenPosition);
                     }
                     break;
             }
@@ -145,9 +177,11 @@ namespace DogtorBurguer
             Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(startScreenPos.x, startScreenPos.y, ScreenToWorldZ));
             worldPos.z = 0f;
 
+            // Fairy first: it's a transient flying reward rendered on top of the playfield, so a tap
+            // on it should collect it rather than be eaten by the preview/falling hit-tests beneath.
+            if (BurgerFairy.TryTapAt(worldPos)) return;
             if (_spawner != null && _spawner.TryTapPreview(worldPos)) return;
             if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos)) return;
-            if (GemPack.TryTapAt(worldPos)) return;
 
             // Only the remaining tap intent depends on the control mode.
             ControlMode mode = SaveDataManager.Instance != null
@@ -170,7 +204,7 @@ namespace DogtorBurguer
             // Tap mode: tap the chef to swap, or tap to a side (below the playfield) to move there.
             if (tappedChef)
                 _chef.SwapPlates();
-            else if (worldPos.y < Constants.GRID_ORIGIN_Y)
+            else if (worldPos.y < Constants.GRID_ORIGIN_Y + GameplayConfig.CHEF_MOVE_ZONE_TOP_OFFSET)
             {
                 if (worldPos.x < _chef.transform.position.x)
                     _chef.MoveLeft();
@@ -190,6 +224,46 @@ namespace DogtorBurguer
         public void OnSwapButtonPressed()
         {
             _chef?.SwapPlates();
+        }
+
+        // ---- Consumable carry (drag-to-column) ----
+        // A press that starts on an inventory slot becomes a carry; the drag controller owns the
+        // gesture for its duration and chef logic is suppressed (we route to Release, not
+        // ProcessInput). Origin disambiguates: a press anywhere else stays normal gameplay.
+
+        private bool IsCarrying =>
+            ConsumableDragController.Instance != null && ConsumableDragController.Instance.IsCarrying;
+
+        private void TryBeginCarry(Vector2 screenPos)
+        {
+            ConsumableDragController.Instance?.TryBegin(ToWorld(screenPos));
+        }
+
+        private void UpdateCarry(Vector2 screenPos)
+        {
+            ConsumableDragController.Instance?.UpdateCarry(ToWorld(screenPos));
+        }
+
+        private void EndPress(Vector2 screenPos)
+        {
+            if (IsCarrying)
+                ConsumableDragController.Instance.Release(ToWorld(screenPos));
+            else
+                ProcessInput(_touchStartPos, screenPos);
+        }
+
+        private void CancelCarryIfActive()
+        {
+            if (IsCarrying)
+                ConsumableDragController.Instance.Cancel();
+        }
+
+        private Vector3 ToWorld(Vector2 screenPos)
+        {
+            if (_camera == null) return Vector3.zero;
+            Vector3 world = _camera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, ScreenToWorldZ));
+            world.z = 0f;
+            return world;
         }
 
 #if UNITY_EDITOR
@@ -219,7 +293,7 @@ namespace DogtorBurguer
 
             float leftEdge = Constants.GRID_ORIGIN_X - Constants.CELL_WIDTH * 0.5f;
             float rightEdge = Constants.GRID_ORIGIN_X + (Constants.COLUMN_COUNT - 0.5f) * Constants.CELL_WIDTH;
-            float top = Constants.GRID_ORIGIN_Y;
+            float top = Constants.GRID_ORIGIN_Y + GameplayConfig.CHEF_MOVE_ZONE_TOP_OFFSET;
             float bottom = chefPos.y - flipRadius;
             Gizmos.color = GizmoStyles.ChefDrag;
             DrawXBand(leftEdge, chefPos.x, top, bottom);

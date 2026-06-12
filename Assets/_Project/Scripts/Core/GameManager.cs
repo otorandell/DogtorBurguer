@@ -64,7 +64,10 @@ namespace DogtorBurguer
             MonoBehaviourUtil.EnsureComponent<GameHUD>();
             MonoBehaviourUtil.EnsureComponent<GameOverPanel>();
             MonoBehaviourUtil.EnsureComponent<AudioManager>();
-            MonoBehaviourUtil.EnsureComponent<GemPackSpawner>();
+            MonoBehaviourUtil.EnsureComponent<BurgerFairySpawner>();
+            MonoBehaviourUtil.EnsureComponent<ConsumableInventory>();
+            MonoBehaviourUtil.EnsureComponent<ConsumableInventoryView>();
+            MonoBehaviourUtil.EnsureComponent<ConsumableDragController>();
             MonoBehaviourUtil.EnsureComponent<BurgerChallenge>();
 
             // Persistent managers (normally already alive from the menu).

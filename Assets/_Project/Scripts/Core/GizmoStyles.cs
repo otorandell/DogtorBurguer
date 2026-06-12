@@ -13,5 +13,6 @@ namespace DogtorBurguer
         public static readonly Color PreviewTap = Color.yellow;  // tap a revealed preview ghost → spawn
         public static readonly Color ChefFlip = Color.magenta;   // tap near the chef → swap plates
         public static readonly Color ChefDrag = Color.cyan;      // tap a side / swipe → move the chef
+        public static readonly Color FairyTap = new(1f, 0.55f, 0.1f); // tap a fairy → collect (orange)
     }
 }

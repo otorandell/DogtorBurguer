@@ -11,7 +11,19 @@
       "Bash(tree:*)",
       "Bash(dir:*)",
       "Bash(findstr:*)",
-      "Bash(python generate_sfx.py:*)"
+      "Bash(python generate_sfx.py:*)",
+      "Bash(python *)",
+      "Bash(git rev-list *)",
+      "Bash(git switch *)",
+      "Bash(git -C \"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\" status --short)",
+      "Bash(git -C \"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\" log --oneline -5)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\\\\Assets\\\\_Project\\\\Sprites\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(git -C \"C:/Users/oscar/Documents/Repos/DogtorBurguer\" status --short)",
+      "Skill(code-review)",
+      "Bash(ls ProjectSettings/ScriptExecutionOrder*)",
+      "Bash(grep -l \"DefaultExecutionOrder\" -r Assets/_Project/Scripts/Core Assets/_Project/Scripts/UI)",
+      "Bash(grep -rn \"DefaultExecutionOrder\\\\|executionOrder\" Assets/_Project/Scripts/Core/DifficultyManager.cs Assets/_Project/Scripts/Core/GameManager.cs Assets/_Project/Scripts/UI/GameHUD.cs)"
     ]
   }
 }

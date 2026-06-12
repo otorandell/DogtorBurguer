@@ -278,6 +278,105 @@ namespace DogtorBurguer
             _fallingIngredients.Clear();
         }
 
+        // ---- Consumable effects ----
+        // Granular grid primitives the ConsumableEffect subclasses orchestrate. Each removes
+        // ingredients, collapses survivors, and re-runs the standard match cascade. Non-bun
+        // removals score POINTS_CONSUMABLE_PER_INGREDIENT (flat, no multiplier); buns score nothing.
+
+        private static bool IsBun(IngredientType type) =>
+            type == IngredientType.BunBottom || type == IngredientType.BunTop;
+
+        /// <summary>Ketchup: removes the entire column.</summary>
+        public void ConsumableClearColumn(Column column)
+        {
+            if (column == null || column.IsEmpty) return;
+
+            Vector3 pos = column.GetWorldPositionForRow(column.StackHeight);
+            List<Ingredient> all = column.TakeAllIngredients();
+
+            int nonBun = 0;
+            foreach (Ingredient ing in all)
+            {
+                if (ing == null) continue;
+                if (!IsBun(ing.Type)) nonBun++;
+                ing.DestroyWithFlash();
+            }
+            AwardConsumablePoints(nonBun, pos);
+        }
+
+        /// <summary>Mustard: removes every ingredient of <paramref name="type"/> across all columns.</summary>
+        public void ConsumableSweepType(IngredientType type, Column originColumn)
+        {
+            int nonBun = 0;
+            foreach (Column col in _columns)
+            {
+                bool removedAny = false;
+                foreach (Ingredient ing in col.GetAllIngredients())
+                {
+                    if (ing == null || ing.Type != type) continue;
+                    col.RemoveIngredient(ing);
+                    ing.DestroyWithFlash();
+                    if (!IsBun(type)) nonBun++;
+                    removedAny = true;
+                }
+
+                if (removedAny)
+                {
+                    col.CollapseFromRow(0);          // survivors above the gaps drop
+                    CheckAndProcessMatches(col);     // new adjacencies → standard cascade
+                }
+            }
+
+            Vector3 pos = originColumn != null
+                ? originColumn.GetWorldPositionForRow(originColumn.StackHeight)
+                : Vector3.zero;
+            AwardConsumablePoints(nonBun, pos);
+        }
+
+        /// <summary>
+        /// Skewer: keeps one bottom bun at row 0, destroys the rest, regulars collapse on top.
+        /// </summary>
+        public void ConsumableSkewer(Column column)
+        {
+            if (column == null) return;
+
+            List<Ingredient> taken = column.TakeAllIngredients();
+
+            // Keep the topmost bottom bun (they're identical, so which survives is cosmetic).
+            Ingredient keep = null;
+            for (int i = taken.Count - 1; i >= 0; i--)
+            {
+                if (taken[i].Type == IngredientType.BunBottom) { keep = taken[i]; break; }
+            }
+
+            if (keep == null)
+            {
+                column.SetAllIngredients(taken); // no bun (CanApply guards this) — restore untouched
+                return;
+            }
+
+            List<Ingredient> rebuilt = new List<Ingredient> { keep };
+            foreach (Ingredient ing in taken)
+            {
+                if (ing == keep) continue;
+                if (ing.Type == IngredientType.BunBottom) { ing.DestroyWithFlash(); continue; } // extra bottoms (no points)
+                rebuilt.Add(ing);
+            }
+
+            column.SetAllIngredients(rebuilt);
+            column.CollapseFromRow(0);
+            CheckAndProcessMatches(column);
+        }
+
+        private void AwardConsumablePoints(int nonBunCount, Vector3 pos)
+        {
+            if (nonBunCount <= 0) return;
+
+            int points = nonBunCount * GameplayConfig.POINTS_CONSUMABLE_PER_INGREDIENT;
+            GameManager.Instance?.AddExtraScore(points);
+            FloatingText.Spawn(pos, $"+{points}", UIStyles.TEXT_FAST_DROP, UIStyles.WORLD_FLOATING_TEXT_SIZE);
+        }
+
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {

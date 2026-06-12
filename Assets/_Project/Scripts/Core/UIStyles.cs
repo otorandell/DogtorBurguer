@@ -61,8 +61,19 @@ namespace DogtorBurguer
         public static readonly Color BTN_SHOP_BUY = new(0.2f, 0.7f, 0.3f);
         #endregion
 
-        #region World-Space Sprite Colors
-        public static readonly Color GEM_PACK = new(1f, 0.85f, 0f);
+        #region Consumable / Fairy Sizes (world-space heights)
+        // Reward sprites import large (100 PPU); everything is normalized to a target world height
+        // via SpriteFit rather than a raw scale, so the source pixel size doesn't matter.
+        public const float FAIRY_BODY_HEIGHT = 1.3f;
+        public const float FAIRY_BADGE_HEIGHT = 1.1f;        // payload badge on the fairy (+50%)
+        public const float CONSUMABLE_FALLER_HEIGHT = 2.0f;  // matches the column ghost (what it previews)
+        public const float CONSUMABLE_GHOST_HEIGHT = 2.0f;   // column preview (+100%)
+        public const float CONSUMABLE_GHOST_ALPHA = 0.5f;    // translucency of the column preview
+        public const float CONSUMABLE_CARRY_HEIGHT = 1.8f;   // matches the inventory icon (same item lifted)
+        public const float CONSUMABLE_ICON_HEIGHT = 1.8f;    // inventory slot icon (+100%)
+        // Inventory slots live in the top-left score panel (world space). Tune these to taste.
+        public static readonly Vector2 CONSUMABLE_SLOT_0_POS = new(-2.0f, 1.55f);
+        public static readonly Vector2 CONSUMABLE_SLOT_1_POS = new(-1.1f, 1.55f);
         #endregion
 
         #region Font Sizes - HUD

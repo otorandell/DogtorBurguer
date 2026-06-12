@@ -21,6 +21,11 @@ namespace DogtorBurguer
         private AudioClip _fastDropClip;
         private AudioClip _earlySpawnClip;
         private AudioClip _challengeMatchClip;
+        private AudioClip _consumableCollectClip;
+        private AudioClip _consumableKetchupClip;
+        private AudioClip _consumableMustardClip;
+        private AudioClip _consumableSkewerClip;
+        private AudioClip _consumableFizzleClip;
 
         [Header("Authored Clip Overrides (optional — used instead of the generated clip if assigned)")]
         [SerializeField] private AudioClip _matchOverride;
@@ -36,6 +41,11 @@ namespace DogtorBurguer
         [SerializeField] private AudioClip _fastDropOverride;
         [SerializeField] private AudioClip _earlySpawnOverride;
         [SerializeField] private AudioClip _challengeMatchOverride;
+        [SerializeField] private AudioClip _consumableCollectOverride;
+        [SerializeField] private AudioClip _consumableKetchupOverride;
+        [SerializeField] private AudioClip _consumableMustardOverride;
+        [SerializeField] private AudioClip _consumableSkewerOverride;
+        [SerializeField] private AudioClip _consumableFizzleOverride;
 
         private const int SAMPLE_RATE = 44100;
 
@@ -133,6 +143,11 @@ namespace DogtorBurguer
             _fastDropClip = Resolve(_fastDropOverride, "FastDrop", 0.12f, GenerateFastDropSamples);
             _earlySpawnClip = Resolve(_earlySpawnOverride, "EarlySpawn", 0.15f, GenerateEarlySpawnSamples);
             _challengeMatchClip = Resolve(_challengeMatchOverride, "ChallengeMatch", 0.35f, GenerateChallengeMatchSamples);
+            _consumableCollectClip = Resolve(_consumableCollectOverride, "ConsumableCollect", 0.18f, GenerateConsumableCollectSamples);
+            _consumableKetchupClip = Resolve(_consumableKetchupOverride, "ConsumableKetchup", 0.18f, GenerateKetchupSamples);
+            _consumableMustardClip = Resolve(_consumableMustardOverride, "ConsumableMustard", 0.16f, GenerateMustardSamples);
+            _consumableSkewerClip = Resolve(_consumableSkewerOverride, "ConsumableSkewer", 0.20f, GenerateSkewerSamples);
+            _consumableFizzleClip = Resolve(_consumableFizzleOverride, "ConsumableFizzle", 0.16f, GenerateFizzleSamples);
         }
 
         /// <summary>Use the authored clip if one is assigned in the inspector, else generate procedurally (F-2).</summary>
@@ -385,6 +400,75 @@ namespace DogtorBurguer
             float freq = notes[noteIndex];
             return (Mathf.Sin(2f * Mathf.PI * freq * t) * 0.6f
                   + Mathf.Sin(2f * Mathf.PI * freq * 0.5f * t) * 0.4f) * envelope * 0.8f;
+        }
+
+        // ---- Consumables ----
+        // Placeholder procedural tones wired to the hooks; the override fields let authored clips
+        // drop in later (real sound design is the deferred audio pass).
+
+        public void PlayConsumableCollect() => PlayClip(_consumableCollectClip, 0.6f);
+
+        public void PlayConsumableUse(ConsumableType type)
+        {
+            AudioClip clip = type switch
+            {
+                ConsumableType.Ketchup => _consumableKetchupClip,
+                ConsumableType.Mustard => _consumableMustardClip,
+                _ => _consumableSkewerClip,
+            };
+            PlayClip(clip, 0.6f);
+        }
+
+        public void PlayConsumableFizzle() => PlayClip(_consumableFizzleClip, 0.5f);
+
+        /// <summary>Bright two-note pickup for collecting a consumable (G5, D6).</summary>
+        private float GenerateConsumableCollectSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float[] notes = { 784f, 1175f };
+            float noteLength = duration / notes.Length;
+            int noteIndex = Mathf.Min((int)(t / noteLength), notes.Length - 1);
+            float noteT = (t - noteIndex * noteLength) / noteLength;
+            float envelope = 1f - noteT * 0.5f;
+            return Mathf.Sin(2f * Mathf.PI * notes[noteIndex] * t) * envelope * 0.7f;
+        }
+
+        /// <summary>Ketchup: wet descending splat.</summary>
+        private float GenerateKetchupSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float freq = Mathf.Lerp(520f, 140f, t / duration);
+            float envelope = 1f - t / duration;
+            float wet = Mathf.Sin(2f * Mathf.PI * freq * 6f * t) * 0.15f;
+            return (Mathf.Sin(2f * Mathf.PI * freq * t) + wet) * envelope * 0.6f;
+        }
+
+        /// <summary>Mustard: quick rising squirt.</summary>
+        private float GenerateMustardSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float freq = Mathf.Lerp(300f, 1300f, t / duration);
+            float envelope = (1f - t / duration) * (1f - t / duration);
+            return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * 0.6f;
+        }
+
+        /// <summary>Skewer: low thunk + slam.</summary>
+        private float GenerateSkewerSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float freq = Mathf.Lerp(180f, 90f, t / duration);
+            float envelope = Mathf.Exp(-t / duration * 5f);
+            return (Mathf.Sin(2f * Mathf.PI * freq * t) * 0.7f
+                  + Mathf.Sin(2f * Mathf.PI * freq * 2f * t) * 0.3f) * envelope * 0.8f;
+        }
+
+        /// <summary>Fizzle: dull descending blip (missed / no target).</summary>
+        private float GenerateFizzleSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float freq = Mathf.Lerp(380f, 180f, t / duration);
+            float envelope = 1f - t / duration;
+            return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * 0.4f;
         }
 
         protected override void OnDestroy()
