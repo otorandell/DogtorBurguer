@@ -230,10 +230,9 @@ assets from `Resources/Skins/` and serves the active sprite per `SkinSlot`. Cons
   Flipped art reads un-mirrored). Single renderer, so no second sprite to hide.
 - **Plates** (`PlateManager`, `Theme.Plate`): four decorative plates, one under each column
   (`Constants.PLATE_Y_OFFSET` below row 0), purely cosmetic. Sort: `SORT_PLATE (-2)` at the back,
-  ingredients (0+), then `SORT_CHEF (50)` — the chef currently renders **over the plates and the
-  ingredients** (temporary; pending layered chef art so the arms can tuck behind while the head
-  stays in front). The bottom ingredient still sits on the plate. On a flip the two active plates
-  **slide** to swap columns (`PlateManager.SwapColumns`, position-only DOMove — sprite never flips).
+  ingredients (0+), then `SORT_CHEF (50)` — the chef renders **over the plates and the ingredients**
+  (intentional final look). The bottom ingredient still sits on the plate. On a flip the two active
+  plates **slide** to swap columns (`PlateManager.SwapColumns`, position-only DOMove — sprite never flips).
 - **Reskin the game** = edit the slot's asset in `Resources/Skins/` (set its **Sprite** field; for
   `bun_default` also **Secondary Sprite** = bottom bun, for `chef_default` = flipped facing), or
   just replace a PNG's contents keeping its filename. Works from the Project window with any scene
@@ -353,10 +352,6 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - **Chef size/position tuning**: knobs are the chef sprite **PPU** (currently 2009 = ~33% of the original
   import) for size, and `Constants.CHEF_BOTTOM_OFFSET` (1.76) for the feet line — `GetWorldPosition` anchors
   the feet and derives the centre from the live sprite height, so resizing keeps the chef on the bottom border.
-- **Layered chef art (arms-behind / head-in-front)**: temporary `SORT_CHEF (50)` puts the whole chef over
-  the plates and ingredients. The desired look needs the artist to export the cook in **two pieces** (back =
-  body+arms, front = head) rendered as two SpriteRenderers straddling the plate/ingredient layers — pending
-  that art.
 - **★ glyph in `ChallengeLevel`**: LiberationSans SDF lacks U+2605, so the challenge star renders as □
   (harmless warning). Fix later via a sprite/glyph swap or a font with the star.
 - **Verify skin import (Phase 1)**: open Unity, confirm a clean compile and that `Resources/Skins/*.asset`
