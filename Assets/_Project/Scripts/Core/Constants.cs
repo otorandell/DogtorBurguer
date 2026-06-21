@@ -17,19 +17,23 @@ namespace DogtorBurguer
         // Chef positions (between columns) — always one fewer than the columns
         public const int CHEF_POSITION_COUNT = COLUMN_COUNT - 1;
         public const int CHEF_START_POSITION = 1; // default middle position
+        // The chef's feet sit this far below the grid origin. Position anchors the feet (not the
+        // sprite centre), so resizing the chef sprite keeps it planted on the bottom border.
+        public const float CHEF_BOTTOM_OFFSET = 1.66f;
 
         // One decorative plate sits under each column; the bottom ingredient rests on it.
         // Offset below the row-0 ingredient centre (world units).
-        public const float PLATE_Y_OFFSET = 0.2f;
+        public const float PLATE_Y_OFFSET = 0.3f;
 
         // Sorting layers (sprite/text render order; higher = nearer the camera).
         // Structural — these define z-ordering between systems, not gameplay feel.
         public const int SORT_BACKGROUND = -100;
         public const int SORT_BACKGROUND_FILTER = -99;
         public const int SORT_GAME_PANEL = -50;
-        // Chef tucks under the plates; plates under the ingredients (row 0 = order 0).
-        public const int SORT_CHEF = -3;
+        // Plate at the back; chef renders over the ingredients (which sort by row, falling = MAX_ROWS+1)
+        // but below the challenge/preview/UI layers (60+).
         public const int SORT_PLATE = -2;
+        public const int SORT_CHEF = 50;
         public const int SORT_CHALLENGE_BASE = 60;
         public const int SORT_WAVE_PREVIEW = 90;
         public const int SORT_GEM_PACK = 100;        // fairy body

@@ -58,10 +58,14 @@ namespace DogtorBurguer
             float rightX = Constants.GRID_ORIGIN_X + ((position + 1) * Constants.CELL_WIDTH);
             float x = (leftX + rightX) / 2f;
 
-            // Y position is below the grid
-            float y = Constants.GRID_ORIGIN_Y - Constants.CELL_VISUAL_HEIGHT * 0.8f;
+            // Anchor the chef's feet to a fixed bottom line and derive the centre from the live
+            // sprite height, so resizing the sprite keeps it sitting on the bottom border.
+            float feetY = Constants.GRID_ORIGIN_Y - Constants.CHEF_BOTTOM_OFFSET;
+            float halfHeight = (_spriteRenderer != null && _spriteRenderer.sprite != null)
+                ? _spriteRenderer.sprite.bounds.extents.y
+                : 0f;
 
-            return new Vector3(x, y, 0);
+            return new Vector3(x, feetY + halfHeight, 0);
         }
 
         public void MoveToPosition(int newPosition)
@@ -121,8 +125,11 @@ namespace DogtorBurguer
             seq.InsertCallback(AnimConfig.CHEF_FLIP_DURATION * 0.5f, () => ApplyFlipVisual(target));
             _flipTween = seq;
 
-            // Tell GridManager to swap with wave effect (plates stay put — they're identical
-            // per column, so there's nothing to flip).
+            // Slide the two plates to swap columns alongside the flip (positions only — the
+            // plate sprite itself doesn't rotate/flip).
+            PlateManager.Instance?.SwapColumns(LeftColumnIndex, RightColumnIndex, AnimConfig.CHEF_FLIP_DURATION);
+
+            // Tell GridManager to swap with wave effect
             GridManager.Instance?.SwapColumnsWithWaveEffect(LeftColumnIndex, RightColumnIndex);
         }
 
