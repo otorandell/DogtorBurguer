@@ -1,13 +1,14 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 namespace DogtorBurguer
 {
     public class GameHUD : MonoBehaviour
     {
-        private TextMeshProUGUI _scoreText;
-        private TextMeshProUGUI _levelText;
-        private TextMeshProUGUI _gemText;
+        private TextMeshProUGUI _scoreNumber;
+        private TextMeshProUGUI _levelNumber;
+        private TextMeshProUGUI _gemText; // temporary — moves to the top status bar in a later step
         private Canvas _canvas;
 
         private void Start()
@@ -20,18 +21,44 @@ namespace DogtorBurguer
 
         private void CreateHUDElements()
         {
-            float startY = UIStyles.HUD_START_Y;
+            _levelNumber = BuildStatPanel("LevelPanel", UiArt.Load("ui_title_level"), UIStyles.HUD_LEVEL_PANEL_POS);
+            _scoreNumber = BuildStatPanel("ScorePanel", UiArt.Load("ui_title_score"), UIStyles.HUD_SCORE_PANEL_POS);
 
-            _scoreText = CreateHUDText("ScoreText", startY);
-            _scoreText.fontSize = UIStyles.HUD_SCORE_SIZE;
-            _scoreText.fontStyle = FontStyles.Bold;
-
-            _levelText = CreateHUDText("LevelText", startY - UIStyles.HUD_LINE_SPACING);
-            _levelText.fontSize = UIStyles.HUD_LEVEL_SIZE;
-
-            _gemText = CreateHUDText("GemText", startY - UIStyles.HUD_LINE_SPACING * 2);
+            // Temporary gem readout, parked below the panels until the status-bar step.
+            float gemY = UIStyles.HUD_LEVEL_PANEL_POS.y - UIStyles.HUD_PANEL_SIZE.y;
+            _gemText = CreateHUDText("GemText", gemY);
             _gemText.fontSize = UIStyles.HUD_GEM_SIZE;
-            _gemText.color = UIStyles.TEXT_HUD;
+        }
+
+        // Builds an authored stat card (cream panel + red title tab) and returns the number label.
+        private TextMeshProUGUI BuildStatPanel(string name, Sprite titleSprite, Vector2 pos)
+        {
+            Image card = UIFactory.CreateImage(_canvas.transform, name, UiArt.Load("ui_panel_card"),
+                new Vector2(0f, 1f), pos, UIStyles.HUD_PANEL_SIZE);
+
+            if (titleSprite != null)
+            {
+                float aspect = titleSprite.rect.width / titleSprite.rect.height;
+                Vector2 titleSize = new(UIStyles.HUD_PANEL_TITLE_HEIGHT * aspect, UIStyles.HUD_PANEL_TITLE_HEIGHT);
+                UIFactory.CreateImage(card.transform, "Title", titleSprite,
+                    new Vector2(0.5f, 0.5f), new Vector2(0f, UIStyles.HUD_PANEL_TITLE_Y), titleSize);
+            }
+
+            GameObject numObj = new GameObject("Number");
+            numObj.transform.SetParent(card.transform, false);
+            RectTransform rect = numObj.AddComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = new Vector2(0f, UIStyles.HUD_PANEL_NUMBER_Y);
+            rect.sizeDelta = UIStyles.HUD_PANEL_SIZE;
+
+            TextMeshProUGUI tmp = numObj.AddComponent<TextMeshProUGUI>();
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = UIStyles.HUD_PANEL_NUMBER_COLOR;
+            tmp.fontSize = UIStyles.HUD_PANEL_NUMBER_SIZE;
+            tmp.fontStyle = FontStyles.Bold;
+            tmp.textWrappingMode = TextWrappingModes.NoWrap;
+            return tmp;
         }
 
         private TextMeshProUGUI CreateHUDText(string name, float yOffset)
@@ -68,8 +95,7 @@ namespace DogtorBurguer
                 SaveDataManager.Instance.OnGemsChanged += UpdateGems;
         }
 
-        // Seeds all three lines from the live sources (single init path, no hardcoded
-        // 0/1 duplicating canonical values).
+        // Seeds every readout from the live sources (single init path, no hardcoded duplicates).
         private void RefreshAll()
         {
             UpdateScore(GameManager.Instance != null ? GameManager.Instance.Score : 0);
@@ -79,14 +105,14 @@ namespace DogtorBurguer
 
         private void UpdateScore(int score)
         {
-            if (_scoreText != null)
-                _scoreText.text = $"Score: {score}";
+            if (_scoreNumber != null)
+                _scoreNumber.text = score.ToString();
         }
 
         private void UpdateLevel(int level)
         {
-            if (_levelText != null)
-                _levelText.text = $"Level {level}";
+            if (_levelNumber != null)
+                _levelNumber.text = level.ToString();
         }
 
         private void UpdateGems(int gems)

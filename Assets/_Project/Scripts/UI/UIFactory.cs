@@ -120,6 +120,33 @@ namespace DogtorBurguer
             return panel;
         }
 
+        /// <summary>
+        /// Creates a sprite Image anchored to a point on its parent. Non-interactive (no raycast).
+        /// If <paramref name="size"/> is zero, the sprite's native size is used.
+        /// </summary>
+        public static Image CreateImage(Transform parent, string name, Sprite sprite,
+            Vector2 anchor, Vector2 anchoredPos, Vector2 size)
+        {
+            GameObject obj = new GameObject(name);
+            obj.transform.SetParent(parent, false);
+
+            RectTransform rect = obj.AddComponent<RectTransform>();
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = anchoredPos;
+
+            Image img = obj.AddComponent<Image>();
+            img.sprite = sprite;
+            img.raycastTarget = false;
+            if (size == Vector2.zero && sprite != null)
+                img.SetNativeSize();
+            else
+                rect.sizeDelta = size;
+
+            return img;
+        }
+
         // --- shared construction helpers ---
 
         private static void SetCenteredRect(GameObject obj, Vector2 position, Vector2 size)

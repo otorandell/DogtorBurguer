@@ -77,10 +77,18 @@ namespace DogtorBurguer
         #endregion
 
         #region Font Sizes - HUD
-        public const float HUD_SCORE_SIZE = 22f;
-        public const float HUD_LEVEL_SIZE = 18f;
-        public const float HUD_GEM_SIZE = 16f;
-        public const float HUD_LINE_SPACING = 40f;
+        public const float HUD_GEM_SIZE = 16f; // temporary gem readout (moves to the status bar)
+        #endregion
+
+        #region HUD Stat Panels (authored Level/Score cards — anchored top-left, reference px)
+        public static readonly Vector2 HUD_PANEL_SIZE = new(150f, 115f);   // the cream card
+        public const float HUD_PANEL_TITLE_HEIGHT = 46f;                   // red title tab (width follows aspect)
+        public const float HUD_PANEL_TITLE_Y = 44f;                        // tab offset up within the card
+        public const float HUD_PANEL_NUMBER_SIZE = 40f;                    // the big number font
+        public const float HUD_PANEL_NUMBER_Y = -16f;                      // number offset down within the card
+        public static readonly Color HUD_PANEL_NUMBER_COLOR = new(0.28f, 0.17f, 0.1f);
+        public static readonly Vector2 HUD_LEVEL_PANEL_POS = new(100f, -80f);
+        public static readonly Vector2 HUD_SCORE_PANEL_POS = new(265f, -80f);
         #endregion
 
         #region Font Sizes - Menu
@@ -161,7 +169,6 @@ namespace DogtorBurguer
         public static readonly Vector2 HUD_ANCHOR_MIN = new(0.06f, 0.93f);
         public static readonly Vector2 HUD_ANCHOR_MAX = new(0.46f, 0.93f);
         public static readonly Vector2 HUD_PIVOT = new(0f, 1f);
-        public const float HUD_START_Y = -10f;
         public const float HUD_TEXT_X = 10f;
         public static readonly Vector2 HUD_TEXT_RECT = new(0f, 35f);
         #endregion

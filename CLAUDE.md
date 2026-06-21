@@ -239,6 +239,13 @@ assets from `Resources/Skins/` and serves the active sprite per `SkinSlot`. Cons
   centred over the columns at `GRID_CELLS_Y` + `GRID_CELLS_X_NUDGE`, `SORT_GAME_PANEL`). Layout tunables
   (`RESTAURANT_Y_NUDGE`, `GRID_CELLS_WIDTH`, `GRID_CELLS_X_NUDGE`, `GRID_CELLS_Y`) live in `UIStyles`. The
   old dim-filter overlay was removed entirely. The menu background uses the base layer only.
+- **UI chrome & font** (outside the Theme/Skins pipeline): authored UI sprites load directly from
+  `Resources/UI` via `UiArt.Load(name)`; build UGUI Images with `UIFactory.CreateImage`. The game
+  font is **Panton-Trial-ExtraBold** (SDF in `Assets/_Project/Fonts/`), wired as the **TMP default
+  font** (`TMP Settings.asset`), so all TMP text follows it — no per-component font is set. `GameHUD`
+  builds the authored **Level/Score panels** (card + title tab + TMP number). ⚠️ Panton is a **trial**
+  font (replace before release); regenerate any SDF at **1024 atlas / ~12 padding / SDFAA** (a
+  512/low-padding atlas renders pixelated).
 - **Reskin the game** = edit the slot's asset in `Resources/Skins/` (set its **Sprite** field; for
   `bun_default` also **Secondary Sprite** = bottom bun, for `chef_default` = flipped facing), or
   just replace a PNG's contents keeping its filename. Works from the Project window with any scene
@@ -358,8 +365,6 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - **Chef size/position tuning**: knobs are the chef sprite **PPU** (currently 2009 = ~33% of the original
   import) for size, and `Constants.CHEF_BOTTOM_OFFSET` (1.76) for the feet line — `GetWorldPosition` anchors
   the feet and derives the centre from the live sprite height, so resizing keeps the chef on the bottom border.
-- **★ glyph in `ChallengeLevel`**: LiberationSans SDF lacks U+2605, so the challenge star renders as □
-  (harmless warning). Fix later via a sprite/glyph swap or a font with the star.
 - **Verify skin import (Phase 1)**: open Unity, confirm a clean compile and that `Resources/Skins/*.asset`
   each show their sprite (not "None"); the game should look identical to before.
 - **Assign placeholder sprite**: In Unity Inspector, select BurgerChallenge component → set `_spritePlaceholder` field to the silhouette PNG in `Assets/_Project/Sprites/Ingredients/`
@@ -368,6 +373,21 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   should not be able to *start* on the kill screen. One-line flip (comment marks it).
 
 ## Pending Features
+- **UI panels → 9-slice + `_no_tex`**: redo the Level/Score (and future) panels with the `_no_tex`
+  art (clean card + blank title tab) 9-sliced (`spriteBorder` in the meta + `Image.type = Sliced`),
+  rendering labels as TMP so they scale + stay dynamic. Loses the halftone dots — no standalone
+  texture exists in the drop; would need the artist to export a tileable halftone to overlay.
+- **★ glyph**: Panton (ASCII) lacks U+2605 → challenge "★ X" shows □; add a fallback font or use the
+  `Star` sprite.
+- **UI integration ≠ pure art-swap**: several elements in the artist's UI imply functionality we
+  haven't built yet, so wiring the art will surface real coding work. Known gaps:
+  - **Stars (★)** as a real currency — today it's only challenge progress, not earned/spent/persisted.
+  - **Consumables**: artist UI shows **3 slots + per-slot quantity + purchasable with gems**; current
+    system is 2 slots, FIFO, no quantities, not buyable (see Consumables roadmap).
+  - **Shop**: real gem/star spending against products (today the IAP buttons just grant gems for testing).
+  - **Mult meter**: a filling multiplier gauge — needs wiring to the live multiplier value.
+  - **Consumable effect VFX** (e.g. the in-use ketchup bottle) — art exists, needs hooking to use.
+  Plan each of these as its own code task alongside the visual wiring.
 - Remove the procedural `GameLayout` cell squares once the authored UI/background fully lands — kept
   for now only as positioning helpers (the real grid is the `GridCellsSkin` background mat).
 - Consumable polish: real SFX (override slots ready) + final slot layout/sizes (placeholders in `UIStyles`)
