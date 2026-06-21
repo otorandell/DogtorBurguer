@@ -25,6 +25,7 @@ namespace DogtorBurguer
             IngredientType.Meat,
             IngredientType.Cheese,
             IngredientType.Tomato,
+            IngredientType.Bacon,
             IngredientType.Onion,
             IngredientType.Pickle,
             IngredientType.Lettuce,
@@ -73,8 +74,8 @@ namespace DogtorBurguer
         public const float MIN_FALL_STEP_DURATION = 0.06f;
         public const int MAX_LEVEL = 20;
         public const int KILLER_LEVEL = 21; // Tetris-style kill screen, above the normal curve.
-        public const int STARTING_INGREDIENT_COUNT = 3;
-        public const int MAX_INGREDIENT_COUNT = 7;
+        public const int STARTING_INGREDIENT_COUNT = 4;
+        public const int MAX_INGREDIENT_COUNT = 8;
 
         // Highest level selectable from Settings. TESTING: set to KILLER_LEVEL so the kill
         // screen can be entered directly from the stepper; drop to MAX_LEVEL for release.
@@ -88,8 +89,8 @@ namespace DogtorBurguer
             0.19f, 0.18f, 0.17f, 0.16f, 0.15f, 0.14f, 0.13f, 0.12f, 0.11f, 0.10f
         };
         public static readonly int[] INGREDIENT_COUNT_BY_LEVEL = {
-            3, 3, 3, 4, 4, 4, 4, 5, 5, 5,
-            5, 6, 6, 6, 6, 7, 7, 7, 7, 7
+            4, 4, 4, 5, 5, 5, 5, 6, 6, 6,
+            6, 7, 7, 7, 7, 8, 8, 8, 8, 8
         };
         public static readonly float[] TRIPLE_CHANCE_BY_LEVEL = {
             0f,    0f,    0f,    0f,    0f,    0.05f, 0.08f, 0.11f, 0.15f, 0.18f,

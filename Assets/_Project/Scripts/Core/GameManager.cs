@@ -69,6 +69,7 @@ namespace DogtorBurguer
             MonoBehaviourUtil.EnsureComponent<ConsumableInventoryView>();
             MonoBehaviourUtil.EnsureComponent<ConsumableDragController>();
             MonoBehaviourUtil.EnsureComponent<BurgerChallenge>();
+            MonoBehaviourUtil.EnsureComponent<PlateManager>();
 
             // Persistent managers (normally already alive from the menu).
             AppBootstrap.EnsureCoreManagers();

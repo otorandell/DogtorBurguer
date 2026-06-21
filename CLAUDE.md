@@ -18,7 +18,7 @@ These extend or override the global rules in `~/.claude/CLAUDE.md`.
 ## Project Structure
 ```
 Assets/_Project/Scripts/
-  Chef/          ChefController
+  Chef/          ChefController, PlateManager
   Core/          GameManager, GameState, Constants, GameplayConfig, MonetizationConfig,
                  UIStyles, AnimConfig, DifficultyManager, SaveDataManager, ControlMode,
                  FeedbackManager, Rng, SceneLoader, Singleton<T> (manager base)
@@ -128,12 +128,12 @@ The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]
   length `MAX_LEVEL`, indexed `level - 1`: `FALL_STEP_BY_LEVEL`, `INGREDIENT_COUNT_BY_LEVEL`,
   `TRIPLE_CHANCE_BY_LEVEL`. `ApplyDifficulty` indexes them directly — edit one cell to retune
   one level. An `Awake` assert enforces all tables (+ `LEVEL_THRESHOLDS`) stay `MAX_LEVEL` long.
-- **Curve shape** (front-loaded): L1 fall 0.45s / 3 types; L10 ≈ 0.205s (the old L15 speed);
-  L20 0.10s / 7 types. Triple waves start L6, ramp to 0.50 at L20.
+- **Curve shape** (front-loaded): L1 fall 0.45s / 4 types; L10 ≈ 0.205s (the old L15 speed);
+  L20 0.10s / 8 types. Triple waves start L6, ramp to 0.50 at L20.
 - **Pacing**: `LEVEL_THRESHOLDS` (ingredients placed per level) — reaches L20 at 394 placements
   (longer early levels than before, much shorter late ones).
 - **Killer level (21)** — Tetris-style kill screen above the curve, NOT in the tables: always-triple
-  waves at `MIN_FALL_STEP_DURATION` (0.06s, the absolute fall floor) with 7 types. Entered by
+  waves at `MIN_FALL_STEP_DURATION` (0.06s, the absolute fall floor) with 8 types. Entered by
   sustained survival past `KILLER_LEVEL_THRESHOLD` (434 placements); selectable from Settings only
   while `SETTINGS_LEVEL_CAP == KILLER_LEVEL` (testing — see Pending Manual Steps).
 - **Starting level**: `SaveDataManager.StartingLevel` (persisted, set via the Settings stepper)
@@ -219,12 +219,22 @@ All gameplay sprites flow through one place: `Theme` (static) reads `Skin` Scrip
 assets from `Resources/Skins/` and serves the active sprite per `SkinSlot`. Consumers
 (`IngredientSpawner`, `ChefController`, `Background`) call `Theme.Ingredient(type)` /
 `Theme.Chef` / `Theme.Background(type)` — there is **no** per-scene sprite wiring anymore.
-- **Slots** (`SkinSlot`, suffixed `…Skin`): the 7 ingredients + `BunSkin` (carries top **and**
-  bottom — the one slot with two sprites) + `ChefSkin` + `GameBackgroundSkin` + `MenuBackgroundSkin`.
-  `SkinMap.SlotFor(IngredientType)` maps ingredients → slot (both buns collapse to `BunSkin`).
+- **Slots** (`SkinSlot`, suffixed `…Skin`): the 8 ingredients + `BunSkin` + `ChefSkin` +
+  `PlateSkin` + `GameBackgroundSkin` + `MenuBackgroundSkin`. Two slots carry **two sprites**:
+  `BunSkin` (top **+** bottom bun) and `ChefSkin` (front **+** flipped facing; `Theme.Chef` /
+  `Theme.ChefFlipped`). `SkinMap.SlotFor(IngredientType)` maps ingredients → slot (both buns
+  collapse to `BunSkin`).
+- **Chef flip**: `ChefController.SwapPlates` keeps the 3D Y-rotation but swaps the SpriteRenderer
+  Front↔Flipped at the edge-on midpoint (+ toggles `flipX` to cancel the 180° mirror so the
+  Flipped art reads un-mirrored). Single renderer, so no second sprite to hide.
+- **Plates** (`PlateManager`, `Theme.Plate`): four decorative, **static** plates, one under each
+  column (`Constants.PLATE_Y_OFFSET` below row 0), purely cosmetic. Sort order `SORT_CHEF (-3) <
+  SORT_PLATE (-2) < ingredients (0+)` so the chef's hands tuck under the plates and the bottom
+  ingredient sits on one. They don't move on a flip (identical per column — nothing to swap).
 - **Reskin the game** = edit the slot's asset in `Resources/Skins/` (set its **Sprite** field; for
-  `bun_default` also **Secondary Sprite** = bottom bun), or just replace a PNG's contents keeping its
-  filename. Works from the Project window with any scene open — no more opening `Game.unity`.
+  `bun_default` also **Secondary Sprite** = bottom bun, for `chef_default` = flipped facing), or
+  just replace a PNG's contents keeping its filename. Works from the Project window with any scene
+  open — no more opening `Game.unity`.
 - **Spare art ready for the catalog**: `meat_alt`, `chef_happy`, `chef_alt` (renamed, not yet wired).
 - **Status**: Phase 1 only = one default skin per slot (`_isDefault = true`). Runtime *selection* and
   *unlock/buy* are not built yet — see the Skin System roadmap entry.
@@ -276,6 +286,24 @@ balance values are centralized in `AnimConfig` / `UIStyles` / `GameplayConfig`. 
 - **Audio** — real SFX/music via the authored-clip override path (`AudioManager._*Override` fields) or procedural/mix tuning (`AudioConfig`)
 - **Visual** — the text-outline fix (see Known Issues), readability/contrast, the placeholder sprite (`UIStyles`)
 
+### Phase 3 — Backlog (potential next work; noted 2026-06-12, not yet started)
+Dev-flagged directions for future sessions, roughly in priority order. Nothing here is designed
+or committed yet — capture only.
+- **Gem & Star economy** — make the currencies real: where each is earned/spent, balancing,
+  persistence. Gems already exist (`SaveDataManager`, `OnGemsChanged`); the challenge "★" is
+  currently just challenge progress — decide whether it becomes a spendable/meta currency.
+- **Shop** — flesh out `ShopPanel` against the real economy (today the IAP buttons just grant
+  gems for testing). Ties into the gem economy + IAP + (deferred) skin unlocks.
+- **Prepare for real assets** — replace placeholder art across the game. Pipeline is ready
+  (`Theme` / `Resources/Skins` for gameplay art, `RewardArt` for consumables) — mostly a content swap.
+- **Prepare for real UI components** — UI is currently code-built/procedural (`UIFactory`,
+  `WorldTextFactory`, `SpriteFactory`); move toward authored UI components / polish, plus the
+  text-outline fix (see Known Issues).
+- **Full advertisement implementation** — replace the mock `AdManager` with a real ad SDK
+  (rewarded continue, interstitials every 3 games, gem-pack rewards).
+- **Sound / music** — optional; dev is fairly happy with the current procedural SFX. Real
+  SFX/music can drop in via the `AudioManager._*Override` slots and `Resources/Music/` when wanted.
+
 ### Skin System
 Configured centrally via `Theme` / `Resources/Skins` (see Core Systems → Skins & Theme).
 Granular: one skin = one slot = one sprite (bun = top+bottom).
@@ -302,8 +330,28 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   project's default is **Multiple**, which auto-slices multi-blob images into fragments and breaks
   `Resources.Load<Sprite>` (it returns only the first fragment). `SpriteFit` sizes them by world-height,
   so PPU / source size doesn't matter.
+- **Sizing gameplay sprites (ingredients/chef/plate)**: they render at `localScale=1`, so on-screen size =
+  `pixelWidth / spritePixelsToUnits`. Normalise by setting per-file `spritePixelsToUnits = pixelWidth /
+  targetWorldWidth` in the `.png.meta` (no pixel editing, no distortion — PPU scales both axes equally).
+  Current targets: ingredients ~1.2 wide (some hand-tuned ±%), buns ~1.38, chef PPU 663, plate PPU 756.
+- **Large sources (>2048 px)**: bump `maxTextureSize` to **4096** in the `.png.meta` (top-level + the
+  non-512 platform entries). Otherwise Unity downscales the texture below the hand-authored sprite rect →
+  *"sprite rect out of bounds"* import error, which **wipes the meta's sprite definition** (`sprites: []`),
+  leaving dangling `_sprite`/scene refs → invisible. The chef (2387px) and the backgrounds (2604px) need this.
+- **Crispy / aliased fine-lined sprites shown small**: enable **mipmaps** (`enableMipMap: 1`) so minified
+  thin lines don't shimmer/pixelate. All gameplay sprites have it on; the plate is also `textureCompression: 0`
+  (uncompressed) as it's a single fine-lined hero sprite.
+- **Sprite internalID collisions**: never create a sprite by copying another's `.png.meta` and only changing
+  the `guid` — the sprite `internalID` (fileID) gets duplicated, and two textures claiming one fileID
+  cross-wire references (this caused the chef↔chef_alt bug). Each sprite needs a **unique** internalID across
+  `internalIDToNameTable`, `spriteSheet.sprites[].internalID`, and `nameFileIdTable`.
 
 ## Pending Manual Steps
+- **Chef size/position tuning**: the new Dogtor sprite works (front + flip) but still needs a size/position
+  pass against the plates (PPU 663 is the knob; position via `ChefController.GetWorldPosition`). Deferred to
+  the next "resize" session.
+- **★ glyph in `ChallengeLevel`**: LiberationSans SDF lacks U+2605, so the challenge star renders as □
+  (harmless warning). Fix later via a sprite/glyph swap or a font with the star.
 - **Verify skin import (Phase 1)**: open Unity, confirm a clean compile and that `Resources/Skins/*.asset`
   each show their sprite (not "None"); the game should look identical to before.
 - **Assign placeholder sprite**: In Unity Inspector, select BurgerChallenge component → set `_spritePlaceholder` field to the silhouette PNG in `Assets/_Project/Sprites/Ingredients/`

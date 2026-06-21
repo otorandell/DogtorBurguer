@@ -59,6 +59,18 @@ namespace DogtorBurguer
 
         public static Sprite Chef => Sprite(SkinSlot.ChefSkin);
 
+        /// <summary>The chef's flipped-facing sprite (secondary), shown after a plate flip.</summary>
+        public static Sprite ChefFlipped
+        {
+            get
+            {
+                Skin skin = Active(SkinSlot.ChefSkin);
+                return skin != null ? skin.SecondarySprite : null;
+            }
+        }
+
+        public static Sprite Plate => Sprite(SkinSlot.PlateSkin);
+
         public static Sprite Background(BackgroundType type) =>
             Sprite(type == BackgroundType.Menu ? SkinSlot.MenuBackgroundSkin : SkinSlot.GameBackgroundSkin);
     }

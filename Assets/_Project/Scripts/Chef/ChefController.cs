@@ -11,7 +11,8 @@ namespace DogtorBurguer
         [Header("Visual")]
         [SerializeField] private SpriteRenderer _spriteRenderer;
 
-        [Header("Position Bubbles")]
+        [Header("Tap Radius")]
+        [Tooltip("World radius around the cook that counts as a tap-to-flip (× CHEF_TAP_RADIUS_MULT).")]
         [SerializeField] private float _bubbleRadius = UIStyles.BUBBLE_RADIUS;
 
         private int _currentPosition; // 0, 1, or 2 (between column pairs)
@@ -19,8 +20,6 @@ namespace DogtorBurguer
         private Tween _moveTween;
         private Tween _flipTween;
         private bool _isFlipped;
-        private GameObject[] _bubbles;
-        private SpriteRenderer[] _bubbleRenderers;
 
         public int CurrentPosition => _currentPosition;
         public bool IsMoving => _isMoving;
@@ -39,14 +38,16 @@ namespace DogtorBurguer
             {
                 _spriteRenderer.sprite = Theme.Chef;
             }
+
+            // The chef tucks behind the plates (its hands hide under them).
+            if (_spriteRenderer != null)
+                _spriteRenderer.sortingOrder = Constants.SORT_CHEF;
         }
 
         private void Start()
         {
             _currentPosition = Constants.CHEF_START_POSITION;
             transform.position = GetWorldPosition(_currentPosition);
-            CreatePositionBubbles();
-            UpdateBubbleColors();
             Debug.Log($"[Chef] Started at position {_currentPosition}");
         }
 
@@ -74,7 +75,6 @@ namespace DogtorBurguer
             _isMoving = true;
 
             Vector3 targetPos = GetWorldPosition(_currentPosition);
-            UpdateBubbleColors();
 
             _moveTween?.Kill();
             _moveTween = transform
@@ -101,19 +101,46 @@ namespace DogtorBurguer
 
             Debug.Log($"[Chef] Swapping columns {LeftColumnIndex} and {RightColumnIndex}");
 
-            // Snap to the current logical rotation before starting the new flip — if
-            // SwapPlates is called mid-flip, tweening from a partial angle looks wrong.
+            // Snap to the current logical state before starting the new flip — if
+            // SwapPlates is called mid-flip, tweening from a partial angle (or with a
+            // half-applied sprite swap) looks wrong.
             _flipTween?.Kill();
-            float targetY = _isFlipped ? 0f : 180f;
             transform.rotation = Quaternion.Euler(0, _isFlipped ? 180f : 0f, 0);
+            ApplyFlipVisual(_isFlipped);
 
-            // 2D Flip effect - 180 degree rotation on Y axis
-            _isFlipped = !_isFlipped;
-            _flipTween = transform.DORotate(new Vector3(0, targetY, 0), AnimConfig.CHEF_FLIP_DURATION)
-                .SetEase(Ease.InOutQuad);
+            bool target = !_isFlipped;
+            _isFlipped = target;
+            float targetY = target ? 180f : 0f;
 
-            // Tell GridManager to swap with wave effect
+            // 3D flip: a single 180° Y-rotation (unchanged motion). At the edge-on
+            // midpoint the sprite is ~zero-width, so we swap Front<->Flipped there —
+            // the half that expands back out reveals the correct authored art.
+            Sequence seq = DOTween.Sequence();
+            seq.Append(transform.DORotate(new Vector3(0, targetY, 0), AnimConfig.CHEF_FLIP_DURATION)
+                .SetEase(Ease.InOutQuad));
+            seq.InsertCallback(AnimConfig.CHEF_FLIP_DURATION * 0.5f, () => ApplyFlipVisual(target));
+            _flipTween = seq;
+
+            // Tell GridManager to swap with wave effect (plates stay put — they're identical
+            // per column, so there's nothing to flip).
             GridManager.Instance?.SwapColumnsWithWaveEffect(LeftColumnIndex, RightColumnIndex);
+        }
+
+        // Shows the correct chef sprite for the current facing. When flipped, the body is
+        // rotated 180° on Y (which renders the sprite mirrored), so flipX cancels that
+        // mirror and the Flipped art reads as drawn (e.g. the "D" badge stays correct).
+        private void ApplyFlipVisual(bool flipped)
+        {
+            if (_spriteRenderer == null) return;
+            Sprite front = Theme.Chef;
+            Sprite back = Theme.ChefFlipped;
+            // Prefer the facing-appropriate sprite, fall back to the other, and never blank
+            // the renderer (a missing lookup must not make the chef vanish).
+            Sprite chosen = flipped ? (back != null ? back : front)
+                                    : (front != null ? front : back);
+            if (chosen != null)
+                _spriteRenderer.sprite = chosen;
+            _spriteRenderer.flipX = flipped;
         }
 
         public Vector3 GetPositionWorldPos(int position)
@@ -122,64 +149,6 @@ namespace DogtorBurguer
         }
 
         public float BubbleRadius => _bubbleRadius;
-
-        private void CreatePositionBubbles()
-        {
-            Sprite circleSprite = GenerateCircleSprite();
-
-            _bubbles = new GameObject[Constants.CHEF_POSITION_COUNT];
-            _bubbleRenderers = new SpriteRenderer[Constants.CHEF_POSITION_COUNT];
-
-            for (int i = 0; i < Constants.CHEF_POSITION_COUNT; i++)
-            {
-                GameObject bubble = new GameObject($"PositionBubble_{i}");
-                bubble.transform.position = GetWorldPosition(i);
-                bubble.transform.localScale = Vector3.one * (_bubbleRadius * 2f);
-
-                SpriteRenderer sr = bubble.AddComponent<SpriteRenderer>();
-                sr.sprite = circleSprite;
-                sr.sortingOrder = Constants.SORT_CHEF_BUBBLE;
-
-                _bubbles[i] = bubble;
-                _bubbleRenderers[i] = sr;
-            }
-        }
-
-        private void UpdateBubbleColors()
-        {
-            if (_bubbleRenderers == null) return;
-
-            for (int i = 0; i < _bubbleRenderers.Length; i++)
-            {
-                _bubbleRenderers[i].color = (i == _currentPosition) ? UIStyles.BUBBLE_ACTIVE : UIStyles.BUBBLE_INACTIVE;
-            }
-        }
-
-        private Sprite GenerateCircleSprite()
-        {
-            int size = 64;
-            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
-            float center = size / 2f;
-            float radius = center - 1f;
-
-            for (int y = 0; y < size; y++)
-            {
-                for (int x = 0; x < size; x++)
-                {
-                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
-                    if (dist <= radius)
-                        tex.SetPixel(x, y, Color.white);
-                    else
-                        tex.SetPixel(x, y, Color.clear);
-                }
-            }
-
-            tex.Apply();
-            tex.filterMode = FilterMode.Bilinear;
-
-            return Sprite.Create(tex, new Rect(0, 0, size, size),
-                new Vector2(0.5f, 0.5f), size);
-        }
 
         private void OnDestroy()
         {

@@ -17,6 +17,10 @@ namespace DogtorBurguer
         BunSkin,
         ChefSkin,
         GameBackgroundSkin,
-        MenuBackgroundSkin
+        MenuBackgroundSkin,
+        // Appended (value 11). SkinSlot ints are serialized in every Skin .asset (_slot:),
+        // so this enum is append-only — never reorder.
+        BaconSkin,
+        PlateSkin
     }
 }

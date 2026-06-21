@@ -139,9 +139,8 @@ namespace DogtorBurguer
         public const float BG_FILTER_OPACITY = 0.35f;
         #endregion
 
-        #region Chef Bubbles
-        public static readonly Color BUBBLE_INACTIVE = new(1f, 1f, 1f, 0.6f);
-        public static readonly Color BUBBLE_ACTIVE = new(1f, 1f, 1f, 0.85f);
+        #region Chef Tap Radius
+        // World radius around the cook that registers a tap-to-flip (see ChefController).
         public const float BUBBLE_RADIUS = 0.5f;
         #endregion
 

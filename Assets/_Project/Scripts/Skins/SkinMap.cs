@@ -18,6 +18,7 @@ namespace DogtorBurguer
             IngredientType.Pickle => SkinSlot.PickleSkin,
             IngredientType.Lettuce => SkinSlot.LettuceSkin,
             IngredientType.Egg => SkinSlot.EggSkin,
+            IngredientType.Bacon => SkinSlot.BaconSkin,
             IngredientType.BunBottom => SkinSlot.BunSkin,
             IngredientType.BunTop => SkinSlot.BunSkin,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, "No SkinSlot mapped for this IngredientType.")

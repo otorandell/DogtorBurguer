@@ -100,3 +100,7 @@ DOTween_1_2_790.zip
 
 # Unity scene auto-recovery backups
 /Assets/_Recovery/
+
+# Raw artist drops (local source-of-truth; only finals are committed under _Project)
+/Assets/RawArt/
+/Assets/RawArt.meta

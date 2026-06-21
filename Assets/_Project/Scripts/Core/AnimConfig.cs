@@ -38,8 +38,8 @@ namespace DogtorBurguer
 
         #region Burger Compress
         public const float COMPRESS_STEP_DURATION = 0.12f;
-        public const float COMPRESS_TRAVEL_SPACING_MULT = 0.2f;
-        public const float COMPRESS_SMACK_SPACING_MULT = 0.15f;
+        public const float COMPRESS_TRAVEL_SPACING_MULT = 0.30f;
+        public const float COMPRESS_SMACK_SPACING_MULT = 0.225f;
         public const float COMPRESS_PAUSE = 0.1f;
         public const float COMPRESS_SMACK_DURATION = 0.08f;
         public const float COMPRESS_PITCH_START = 0.6f;
