@@ -28,8 +28,8 @@ namespace DogtorBurguer
         // Sorting layers (sprite/text render order; higher = nearer the camera).
         // Structural — these define z-ordering between systems, not gameplay feel.
         public const int SORT_BACKGROUND = -100;
-        public const int SORT_BACKGROUND_FILTER = -99;
-        public const int SORT_GAME_PANEL = -50;
+        public const int SORT_RESTAURANT = -90; // diner scene, above the base fill, below the play mat
+        public const int SORT_GAME_PANEL = -50; // blue grid-cell play mat
         // Plate at the back; chef renders over the ingredients (which sort by row, falling = MAX_ROWS+1)
         // but below the challenge/preview/UI layers (60+).
         public const int SORT_PLATE = -2;
@@ -52,7 +52,6 @@ namespace DogtorBurguer
         // by the SORT_* sorting orders above; this positions the panel in world z).
         public const float Z_GAME_PANEL = 5f;
         public const float Z_BACKGROUND = 10f;
-        public const float Z_BACKGROUND_FILTER = 9.9f;
 
         // Gem-pack fly-across spawn geometry (off-screen X, upper-area Y band).
         public const float GEM_SPAWN_EDGE_X = 5f;

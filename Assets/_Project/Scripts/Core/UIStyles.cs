@@ -132,11 +132,20 @@ namespace DogtorBurguer
         #endregion
 
         #region Background Gradients
+        // Fallback gradient colours, used only when a background skin sprite is missing.
         public static readonly Color BG_MENU_TOP = new(0.08f, 0.06f, 0.18f);
         public static readonly Color BG_MENU_BOTTOM = new(0.18f, 0.08f, 0.25f);
         public static readonly Color BG_GAME_TOP = new(0.04f, 0.08f, 0.14f);
         public static readonly Color BG_GAME_BOTTOM = new(0.06f, 0.14f, 0.18f);
-        public const float BG_FILTER_OPACITY = 0.35f;
+        #endregion
+
+        #region Background Layers (game scene — tune to taste in the editor)
+        // Restaurant strip: scaled to fill camera width, pinned to the top, nudged by this much (world units).
+        public const float RESTAURANT_Y_NUDGE = 0f;
+        // Blue play-mat: scaled to this world width and centred over the grid, nudged by X/Y (world units).
+        public const float GRID_CELLS_WIDTH = 6.42f;
+        public const float GRID_CELLS_X_NUDGE = 0.11f;
+        public const float GRID_CELLS_Y = -0.8f;
         #endregion
 
         #region Chef Tap Radius

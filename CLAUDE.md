@@ -221,10 +221,10 @@ assets from `Resources/Skins/` and serves the active sprite per `SkinSlot`. Cons
 (`IngredientSpawner`, `ChefController`, `Background`) call `Theme.Ingredient(type)` /
 `Theme.Chef` / `Theme.Background(type)` — there is **no** per-scene sprite wiring anymore.
 - **Slots** (`SkinSlot`, suffixed `…Skin`): the 8 ingredients + `BunSkin` + `ChefSkin` +
-  `PlateSkin` + `GameBackgroundSkin` + `MenuBackgroundSkin`. Two slots carry **two sprites**:
-  `BunSkin` (top **+** bottom bun) and `ChefSkin` (front **+** flipped facing; `Theme.Chef` /
-  `Theme.ChefFlipped`). `SkinMap.SlotFor(IngredientType)` maps ingredients → slot (both buns
-  collapse to `BunSkin`).
+  `PlateSkin` + `GameBackgroundSkin` + `MenuBackgroundSkin` + `RestaurantSkin` + `GridCellsSkin`.
+  Two slots carry **two sprites**: `BunSkin` (top **+** bottom bun) and `ChefSkin` (front **+**
+  flipped facing; `Theme.Chef` / `Theme.ChefFlipped`). `SkinMap.SlotFor(IngredientType)` maps
+  ingredients → slot (both buns collapse to `BunSkin`).
 - **Chef flip**: `ChefController.SwapPlates` keeps the 3D Y-rotation but swaps the SpriteRenderer
   Front↔Flipped at the edge-on midpoint (+ toggles `flipX` to cancel the 180° mirror so the
   Flipped art reads un-mirrored). Single renderer, so no second sprite to hide.
@@ -233,6 +233,12 @@ assets from `Resources/Skins/` and serves the active sprite per `SkinSlot`. Cons
   ingredients (0+), then `SORT_CHEF (50)` — the chef renders **over the plates and the ingredients**
   (intentional final look). The bottom ingredient still sits on the plate. On a flip the two active
   plates **slide** to swap columns (`PlateManager.SwapColumns`, position-only DOMove — sprite never flips).
+- **Game background** (`Background`): three stacked layers built in code — base (`GameBackgroundSkin`,
+  camera-fill, `SORT_BACKGROUND`), diner strip (`RestaurantSkin`, fills camera width pinned to the top,
+  `SORT_RESTAURANT -90`), and the blue play-mat (`GridCellsSkin`, scaled to `UIStyles.GRID_CELLS_WIDTH`
+  centred over the columns at `GRID_CELLS_Y` + `GRID_CELLS_X_NUDGE`, `SORT_GAME_PANEL`). Layout tunables
+  (`RESTAURANT_Y_NUDGE`, `GRID_CELLS_WIDTH`, `GRID_CELLS_X_NUDGE`, `GRID_CELLS_Y`) live in `UIStyles`. The
+  old dim-filter overlay was removed entirely. The menu background uses the base layer only.
 - **Reskin the game** = edit the slot's asset in `Resources/Skins/` (set its **Sprite** field; for
   `bun_default` also **Secondary Sprite** = bottom bun, for `chef_default` = flipped facing), or
   just replace a PNG's contents keeping its filename. Works from the Project window with any scene
@@ -362,6 +368,8 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   should not be able to *start* on the kill screen. One-line flip (comment marks it).
 
 ## Pending Features
+- Remove the procedural `GameLayout` cell squares once the authored UI/background fully lands — kept
+  for now only as positioning helpers (the real grid is the `GridCellsSkin` background mat).
 - Consumable polish: real SFX (override slots ready) + final slot layout/sizes (placeholders in `UIStyles`)
 - Skin selection + unlock/buy UI (DEFERRED — foundation done; see Skin System roadmap)
 - Text outline shader fix

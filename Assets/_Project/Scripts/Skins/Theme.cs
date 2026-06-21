@@ -71,6 +71,12 @@ namespace DogtorBurguer
 
         public static Sprite Plate => Sprite(SkinSlot.PlateSkin);
 
+        /// <summary>The diner-scene strip behind the top of the playfield (game background only).</summary>
+        public static Sprite Restaurant => Sprite(SkinSlot.RestaurantSkin);
+
+        /// <summary>The blue play-mat cells under the falling ingredients (game background only).</summary>
+        public static Sprite GridCells => Sprite(SkinSlot.GridCellsSkin);
+
         public static Sprite Background(BackgroundType type) =>
             Sprite(type == BackgroundType.Menu ? SkinSlot.MenuBackgroundSkin : SkinSlot.GameBackgroundSkin);
     }

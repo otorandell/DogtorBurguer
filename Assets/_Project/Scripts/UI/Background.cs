@@ -2,13 +2,16 @@ using UnityEngine;
 
 namespace DogtorBurguer
 {
+    /// <summary>
+    /// Builds the scene background. The game background is three stacked layers: a camera-filling
+    /// base, the diner-scene strip pinned to the top, and the blue play-mat cells centred over the
+    /// grid columns. The menu background is just the base. An optional dim filter sits over the base.
+    /// </summary>
     public class Background : MonoBehaviour
     {
         [SerializeField] private BackgroundType _type = BackgroundType.Game;
-        [SerializeField, Range(0f, 1f)] private float _filterOpacity = UIStyles.BG_FILTER_OPACITY;
 
         private SpriteRenderer _renderer;
-        private SpriteRenderer _filter;
         private Camera _cam;
         private float _camWidth;
         private float _camHeight;
@@ -16,11 +19,19 @@ namespace DogtorBurguer
         private void Start()
         {
             CacheCameraDimensions();
+            BuildBase();
 
-            GameObject bgObj = new GameObject("BackgroundSprite");
-            bgObj.transform.SetParent(transform, false);
-            _renderer = bgObj.AddComponent<SpriteRenderer>();
-            _renderer.sortingOrder = Constants.SORT_BACKGROUND;
+            if (_type == BackgroundType.Game)
+            {
+                BuildRestaurant();
+                BuildGridCells();
+            }
+        }
+
+        // Camera-filling base layer (themed sprite, or a gradient fallback if none is authored).
+        private void BuildBase()
+        {
+            _renderer = CreateLayer("BackgroundSprite", Constants.SORT_BACKGROUND);
 
             Sprite themeSprite = Theme.Background(_type);
             if (themeSprite != null)
@@ -38,23 +49,54 @@ namespace DogtorBurguer
             Vector2 spriteSize = _renderer.sprite.bounds.size;
             float scale = _cam != null ? Mathf.Max(_camWidth / spriteSize.x, _camHeight / spriteSize.y) : 1f;
             FitToCamera(_renderer.transform, Constants.Z_BACKGROUND, new Vector3(scale, scale, 1f));
-
-            CreateFilter();
         }
 
-        private void CreateFilter()
+        // Diner scene scaled to fill the camera width and pinned to the top edge.
+        private void BuildRestaurant()
         {
-            if (_filterOpacity <= 0f || _cam == null) return;
+            Sprite sprite = Theme.Restaurant;
+            if (sprite == null || _cam == null) return;
 
-            GameObject filterObj = new GameObject("BackgroundFilter");
-            filterObj.transform.SetParent(transform, false);
-            _filter = filterObj.AddComponent<SpriteRenderer>();
-            _filter.sortingOrder = Constants.SORT_BACKGROUND_FILTER;
-            _filter.sprite = SpriteFactory.White();
-            _filter.color = new Color(1f, 1f, 1f, _filterOpacity);
+            SpriteRenderer layer = CreateLayer("RestaurantLayer", Constants.SORT_RESTAURANT);
+            layer.sprite = sprite;
 
-            // Stretch the 1x1 white sprite to exactly cover the camera.
-            FitToCamera(_filter.transform, Constants.Z_BACKGROUND_FILTER, new Vector3(_camWidth, _camHeight, 1f));
+            Vector2 size = sprite.bounds.size;
+            float scale = _camWidth / size.x;
+            float scaledHalfHeight = size.y * scale * 0.5f;
+            float camTop = _cam.transform.position.y + _camHeight * 0.5f;
+
+            layer.transform.localScale = new Vector3(scale, scale, 1f);
+            layer.transform.position = new Vector3(
+                _cam.transform.position.x,
+                camTop - scaledHalfHeight + UIStyles.RESTAURANT_Y_NUDGE,
+                Constants.Z_BACKGROUND);
+        }
+
+        // Blue play-mat scaled to a target world width and centred over the grid columns.
+        private void BuildGridCells()
+        {
+            Sprite sprite = Theme.GridCells;
+            if (sprite == null) return;
+
+            SpriteRenderer layer = CreateLayer("GridCellsLayer", Constants.SORT_GAME_PANEL);
+            layer.sprite = sprite;
+
+            Vector2 size = sprite.bounds.size;
+            float scale = UIStyles.GRID_CELLS_WIDTH / size.x;
+            float gridCenterX = Constants.GRID_ORIGIN_X + (Constants.COLUMN_COUNT - 1) * Constants.CELL_WIDTH * 0.5f;
+
+            layer.transform.localScale = new Vector3(scale, scale, 1f);
+            layer.transform.position = new Vector3(
+                gridCenterX + UIStyles.GRID_CELLS_X_NUDGE, UIStyles.GRID_CELLS_Y, Constants.Z_BACKGROUND);
+        }
+
+        private SpriteRenderer CreateLayer(string name, int sortingOrder)
+        {
+            GameObject obj = new GameObject(name);
+            obj.transform.SetParent(transform, false);
+            SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
+            sr.sortingOrder = sortingOrder;
+            return sr;
         }
 
         private void CacheCameraDimensions()

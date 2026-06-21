@@ -165,7 +165,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DogtorBurguer.Background
   _backgroundSprite: {fileID: 5248246998658570430, guid: 6b8dbc4273afdf04a8bfcd291bbb619b, type: 3}
   _type: 1
-  _filterOpacity: 0.35
 --- !u!1 &500000000
 GameObject:
   m_ObjectHideFlags: 0
