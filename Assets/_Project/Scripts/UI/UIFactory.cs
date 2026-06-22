@@ -123,13 +123,9 @@ namespace DogtorBurguer
         /// <summary>
         /// Creates a sprite Image anchored to a point on its parent. Non-interactive (no raycast).
         /// If <paramref name="size"/> is zero, the sprite's native size is used.
-        /// When <paramref name="sliced"/> is true the sprite renders 9-sliced (the sprite must
-        /// carry a border); <paramref name="ppuMultiplier"/> scales the border down on screen
-        /// (higher = thinner corners).
         /// </summary>
         public static Image CreateImage(Transform parent, string name, Sprite sprite,
-            Vector2 anchor, Vector2 anchoredPos, Vector2 size,
-            bool sliced = false, float ppuMultiplier = 1f)
+            Vector2 anchor, Vector2 anchoredPos, Vector2 size)
         {
             GameObject obj = new GameObject(name);
             obj.transform.SetParent(parent, false);
@@ -143,17 +139,40 @@ namespace DogtorBurguer
             Image img = obj.AddComponent<Image>();
             img.sprite = sprite;
             img.raycastTarget = false;
-            if (sliced)
-            {
-                img.type = Image.Type.Sliced;
-                img.pixelsPerUnitMultiplier = ppuMultiplier;
-            }
             if (size == Vector2.zero && sprite != null)
                 img.SetNativeSize();
             else
                 rect.sizeDelta = size;
 
             return img;
+        }
+
+        /// <summary>
+        /// Creates a sprite-backed button anchored to a point on its parent (no text label).
+        /// Used for icon buttons like the top-bar shop/settings buttons.
+        /// </summary>
+        public static Button CreateSpriteButton(Transform parent, string name, Sprite sprite,
+            Vector2 anchor, Vector2 anchoredPos, Vector2 size, UnityEngine.Events.UnityAction onClick)
+        {
+            GameObject obj = new GameObject(name);
+            obj.transform.SetParent(parent, false);
+
+            RectTransform rect = obj.AddComponent<RectTransform>();
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = anchoredPos;
+            rect.sizeDelta = size;
+
+            Image img = obj.AddComponent<Image>();
+            img.sprite = sprite;
+
+            Button btn = obj.AddComponent<Button>();
+            btn.targetGraphic = img;
+            if (onClick != null)
+                btn.onClick.AddListener(onClick);
+
+            return btn;
         }
 
         // --- shared construction helpers ---
