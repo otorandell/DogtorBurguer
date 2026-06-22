@@ -21,8 +21,8 @@ namespace DogtorBurguer
 
         private void CreateHUDElements()
         {
-            _levelNumber = BuildStatPanel("LevelPanel", UiArt.Load("ui_title_level"), UIStyles.HUD_LEVEL_PANEL_POS);
-            _scoreNumber = BuildStatPanel("ScorePanel", UiArt.Load("ui_title_score"), UIStyles.HUD_SCORE_PANEL_POS);
+            _levelNumber = BuildStatPanel("LevelPanel", "Level", UIStyles.HUD_LEVEL_PANEL_POS);
+            _scoreNumber = BuildStatPanel("ScorePanel", "Score", UIStyles.HUD_SCORE_PANEL_POS);
 
             // Temporary gem readout, parked below the panels until the status-bar step.
             float gemY = UIStyles.HUD_LEVEL_PANEL_POS.y - UIStyles.HUD_PANEL_SIZE.y;
@@ -30,19 +30,21 @@ namespace DogtorBurguer
             _gemText.fontSize = UIStyles.HUD_GEM_SIZE;
         }
 
-        // Builds an authored stat card (cream panel + red title tab) and returns the number label.
-        private TextMeshProUGUI BuildStatPanel(string name, Sprite titleSprite, Vector2 pos)
+        // Builds an authored stat card (9-sliced cream panel + red title tab with a TMP label)
+        // and returns the number label.
+        private TextMeshProUGUI BuildStatPanel(string name, string title, Vector2 pos)
         {
             Image card = UIFactory.CreateImage(_canvas.transform, name, UiArt.Load("ui_panel_card"),
-                new Vector2(0f, 1f), pos, UIStyles.HUD_PANEL_SIZE);
+                new Vector2(0f, 1f), pos, UIStyles.HUD_PANEL_SIZE, sliced: true, ppuMultiplier: UIStyles.HUD_CARD_PPU_MULT);
 
-            if (titleSprite != null)
-            {
-                float aspect = titleSprite.rect.width / titleSprite.rect.height;
-                Vector2 titleSize = new(UIStyles.HUD_PANEL_TITLE_HEIGHT * aspect, UIStyles.HUD_PANEL_TITLE_HEIGHT);
-                UIFactory.CreateImage(card.transform, "Title", titleSprite,
-                    new Vector2(0.5f, 0.5f), new Vector2(0f, UIStyles.HUD_PANEL_TITLE_Y), titleSize);
-            }
+            Image tab = UIFactory.CreateImage(card.transform, "Title", UiArt.Load("ui_title_tab"),
+                new Vector2(0.5f, 0.5f), new Vector2(0f, UIStyles.HUD_PANEL_TITLE_Y), UIStyles.HUD_PANEL_TITLE_SIZE,
+                sliced: true, ppuMultiplier: UIStyles.HUD_TITLE_PPU_MULT);
+
+            TextMeshProUGUI titleLabel = UIFactory.CreateText(tab.transform, title, Vector2.zero,
+                UIStyles.HUD_PANEL_TITLE_SIZE, UIStyles.HUD_TITLE_LABEL_SIZE, FontStyles.Bold,
+                UIStyles.HUD_TITLE_LABEL_COLOR);
+            titleLabel.textWrappingMode = TextWrappingModes.NoWrap;
 
             GameObject numObj = new GameObject("Number");
             numObj.transform.SetParent(card.transform, false);

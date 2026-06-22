@@ -81,9 +81,15 @@ namespace DogtorBurguer
         #endregion
 
         #region HUD Stat Panels (authored Level/Score cards — anchored top-left, reference px)
+        // Card + title tab are 9-sliced flat art (ui_panel_card / ui_title_tab); the title text
+        // and number are TMP, so the boxes size freely without the corners distorting.
         public static readonly Vector2 HUD_PANEL_SIZE = new(150f, 115f);   // the cream card
-        public const float HUD_PANEL_TITLE_HEIGHT = 46f;                   // red title tab (width follows aspect)
+        public const float HUD_CARD_PPU_MULT = 4f;                         // card 9-slice corner scale (higher = thinner)
+        public static readonly Vector2 HUD_PANEL_TITLE_SIZE = new(130f, 46f); // red title tab box
+        public const float HUD_TITLE_PPU_MULT = 5f;                        // tab 9-slice corner scale
         public const float HUD_PANEL_TITLE_Y = 44f;                        // tab offset up within the card
+        public const float HUD_TITLE_LABEL_SIZE = 26f;                     // "Level"/"Score" TMP font
+        public static readonly Color HUD_TITLE_LABEL_COLOR = new(0.96f, 0.93f, 0.82f); // cream
         public const float HUD_PANEL_NUMBER_SIZE = 40f;                    // the big number font
         public const float HUD_PANEL_NUMBER_Y = -16f;                      // number offset down within the card
         public static readonly Color HUD_PANEL_NUMBER_COLOR = new(0.28f, 0.17f, 0.1f);
