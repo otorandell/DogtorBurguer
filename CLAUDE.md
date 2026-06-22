@@ -21,7 +21,7 @@ Assets/_Project/Scripts/
   Chef/          ChefController, PlateManager
   Core/          GameManager, GameState, Constants, GameplayConfig, MonetizationConfig,
                  UIStyles, AnimConfig, DifficultyManager, SaveDataManager, ControlMode,
-                 FeedbackManager, Rng, SceneLoader, Singleton<T> (manager base)
+                 FeedbackManager, Rng, SceneLoader, CameraFit, Singleton<T> (manager base)
   Grid/          GridManager, Column, MatchDetector, MatchResult, BurgerAnimator, BurgerData
   Ingredients/   Ingredient, IngredientState, IngredientSpawner, SpawnerState,
                  IngredientType, WavePreviewManager, WaveComposer, WaveSlot, IngredientBag
@@ -29,14 +29,14 @@ Assets/_Project/Scripts/
   Scoring/       Scoring (points/tiers), BurgerTier, BurgerNamer
   Skins/         Skin (ScriptableObject), SkinSlot, UnlockMethod, SkinMap, Theme (static accessor)
   UI/            MainMenuUI, GameHUD, GameOverPanel, SettingsPanel, ShopPanel,
-                 BurgerChallenge, BurgerPopup, FloatingText, ScorePopup,
-                 Background, GameLayout, OrderType, UIFactory
+                 BurgerChallenge, BurgerChallengeView, BurgerPopup, FloatingText, ScorePopup,
+                 Background, OrderType, NumberFormat, UIFactory
     Factory/     SpriteFactory (cached procedural sprites), WorldTextFactory (world-space TMP)
   Audio/         AudioManager, MusicManager, MusicCategory
   Monetization/  AdManager, GemProduct, BurgerFairy, BurgerFairySpawner
   Consumables/   ConsumableType, ConsumableEffect (+ Ketchup/Mustard/Skewer), ConsumableEffects,
-                 ConsumableFaller, ConsumableInventory, ConsumableInventoryView,
-                 ConsumableDragController, ConsumableSlotLayout, FairyPayload, FairyPayloadKind,
+                 ConsumableFaller, ConsumableInventory, ConsumableInventoryView, ConsumableSlotWidget,
+                 ConsumableDragController, FairyPayload, FairyPayloadKind,
                  RewardArt, SpriteFit
 ```
 
@@ -146,11 +146,15 @@ The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]
 - Two order types, randomly chosen:
   - **Size**: "N+ Ingredients" — any burger with at least N ingredients matches
   - **Contains**: "Has: Meat, Cheese" — burger must include required ingredients (extras OK)
-- Panel shows "Special Order!" title, requirement text, and visual with silhouette placeholder sprites
-- Silhouette sprite (`_spritePlaceholder` SerializeField) with text overlays ("+N" or "?")
-- On match: popup shows "Order Complete!" instead of generated burger name (via GridManager `IsOrderMatch` check)
+- **Screen-space UGUI panel** (top-right, `BurgerChallengeView`): authored card + the SPECIAL ORDER
+  banner (blank art + TMP word) + the **required-burger stack** (bun → "+N" mystery silhouette /
+  required ingredients → bun, on a `Theme.Plate`) + a **multiplier badge** (`GetGlobalMultiplier`).
+  No requirement text / progress meter (the burger conveys the order; matches the art).
+- `BurgerChallenge` is logic + read-only state only; the view owns all layout (`UIStyles.SPECIAL_*`).
+- On match: the burger flashes gold; popup shows "Order Complete!" instead of the generated name (via
+  GridManager `IsOrderMatch`). Level-up flashes + punches the card, then rolls the next order.
 - 3x challenge multiplier on match; global multiplier: `1 + (level - 1) * 5`
-- Level up requires `level + 1` matches; star label "★ X" (distinguishes from difficulty level)
+- Level up requires `level + 1` matches (`Level` still exposed; the in-panel ★ readout was dropped)
 
 ### Scoring
 - Match: 10 pts per matched pair
@@ -163,6 +167,21 @@ The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]
 - Cell: 1.4w x 0.4h visual height (60% overlap)
 - Grid origin: (-2.1, -4.2)
 - Chef has 3 positions (between the 4 columns)
+
+### Camera & UI scaling (CameraFit) — design for WIDTH
+The game is framed by **width** so it fits any phone aspect. `Core/CameraFit` self-attaches to
+`Camera.main` (no scene wiring) and sets `orthographicSize = max(DESIGN_ORTHO_SIZE, (PLAY_AREA_WIDTH
+/2)/aspect)` — the 4 columns always fill the screen width and never clip; wide screens fall back to
+the design height. The HUD canvas **matches width** (`UIStyles.MATCH_WIDTH_OR_HEIGHT = 0`), so the
+UI scales by the same rule and stays locked to the playfield. No-op at the reference 9:16.
+- **All in-game HUD is screen-space UGUI** (top bar, Level/Score cards, consumable row, Special
+  Order panel) — so it scales with the camera. The consumable **carry/drop** and gameplay sprites
+  stay world-space; the drag controller hit-tests the screen-space slot, then works in world space.
+- **Aspect-preserving sizing**: size authored sprites by a target **height**; width =
+  `height × sprite.aspect`. Forcing a square or a fixed `Vector2` distorts non-square art (caused the
+  "trophy/star look weird" bug). Baked dotted cards must display at their **native aspect** or the
+  halftone dots smear (the Special Order card is a deliberate exception — stretched taller).
+- Tunables: `Constants.PLAY_AREA_WIDTH` / `DESIGN_ORTHO_SIZE`; all HUD layout in `UIStyles`.
 
 ### Audio
 - **AudioManager**: All SFX procedurally generated (sin waves, envelopes, harmonics). No audio asset
@@ -186,13 +205,17 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   `CONSUMABLE_SPAWN_WEIGHTS`, even thirds). `BurgerFairySpawner` rolls it. Tap to collect
   (routed **first** in `ProcessInput`, above preview/falling, since it's on top of the playfield).
   Gems → `AddGems`; consumable → `ConsumableInventory`.
-- **Inventory** (`ConsumableInventory`): per-run, **2 slots, FIFO** (a 3rd collect evicts the
-  oldest); not persisted. `ConsumableInventoryView` renders world-space icons in the score panel.
-- **Use — drag-to-column**: press a slot icon → carry (icon follows finger, a translucent ghost
-  snaps to the nearest column) → release **over the playfield** to use, **off it** to cancel.
-  Owned by `ConsumableDragController`, driven by `TouchInputHandler` (origin disambiguates: a
-  press on a slot becomes a carry and suppresses chef gestures). **World keeps moving while
-  carrying** — a cancellable pause would be a free stop-time exploit.
+- **Inventory** (`ConsumableInventory`): per-run **quantity per type** — 3 fixed slots
+  (Ketchup/Mustard/Skewer), `Add` increments, `TryConsume(type)` decrements; not persisted.
+  `ConsumableInventoryView` + `ConsumableSlotWidget` render a **screen-space UGUI** row below
+  Level/Score: round plate + icon + corner badge (**red num box with the live count**, or **green
+  plus box** when empty — buying not wired, plus box is visual only).
+- **Use — drag-to-column**: press a slot (a stocked one) → carry (a world-space icon follows the
+  finger, a translucent ghost snaps to the nearest column) → release **over the playfield** to use,
+  **off it** to cancel. `ConsumableDragController.TryBegin` hit-tests the **screen-space** slot
+  (only stocked slots carry); the carry/drop are world-space. Driven by `TouchInputHandler` (origin
+  disambiguates: a press on a slot becomes a carry and suppresses chef gestures). **World keeps
+  moving while carrying** — a cancellable pause would be a free stop-time exploit.
 - **Faller + effects**: on release a `ConsumableFaller` drops fast and **resolves on impact**;
   reaching the floor with no target **fizzles** (item still spent). Each `ConsumableEffect`
   supplies a target rule + on-impact behavior (polymorphic, no switch) calling granular
@@ -367,29 +390,27 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   the feet and derives the centre from the live sprite height, so resizing keeps the chef on the bottom border.
 - **Verify skin import (Phase 1)**: open Unity, confirm a clean compile and that `Resources/Skins/*.asset`
   each show their sprite (not "None"); the game should look identical to before.
-- **Assign placeholder sprite**: In Unity Inspector, select BurgerChallenge component → set `_spritePlaceholder` field to the silhouette PNG in `Assets/_Project/Sprites/Ingredients/`
 - **Before release: lower `SETTINGS_LEVEL_CAP` to `MAX_LEVEL`** (`GameplayConfig`). It's currently
   `KILLER_LEVEL` (21) so the kill screen is reachable from the Settings stepper for testing; players
   should not be able to *start* on the kill screen. One-line flip (comment marks it).
 
 ## Pending Features
-- **UI panels → 9-slice + `_no_tex`**: redo the Level/Score (and future) panels with the `_no_tex`
-  art (clean card + blank title tab) 9-sliced (`spriteBorder` in the meta + `Image.type = Sliced`),
-  rendering labels as TMP so they scale + stay dynamic. Loses the halftone dots — no standalone
-  texture exists in the drop; would need the artist to export a tileable halftone to overlay.
-- **★ glyph**: Panton (ASCII) lacks U+2605 → challenge "★ X" shows □; add a fallback font or use the
-  `Star` sprite.
-- **UI integration ≠ pure art-swap**: several elements in the artist's UI imply functionality we
-  haven't built yet, so wiring the art will surface real coding work. Known gaps:
-  - **Stars (★)** as a real currency — today it's only challenge progress, not earned/spent/persisted.
-  - **Consumables**: artist UI shows **3 slots + per-slot quantity + purchasable with gems**; current
-    system is 2 slots, FIFO, no quantities, not buyable (see Consumables roadmap).
+- **HUD done so far** (authored, screen-space UGUI): top bar (currencies + shop/settings buttons),
+  Level/Score cards, the 3-slot consumable row, the Special Order panel. The HUD scales with the
+  camera (both frame by width — see Camera & UI scaling). **Boxes are baked art at native aspect**
+  (the 9-slice route was dropped — fixed-size HUD boxes don't need it).
+- **★ glyph**: Panton (ASCII) lacks U+2605; add a fallback font or the `Star` sprite where needed.
+- **UI integration ≠ pure art-swap** — remaining wiring that implies real code:
+  - **Stars (★)** as a real currency — top-bar star is a **placeholder 0**; not earned/spent/persisted.
+  - **Consumables — buying**: 3 per-type slots with quantities now exist, but the **green plus box is
+    visual only** (no gem-spend to buy yet).
+  - **Shop / Settings buttons** (top bar) — **click-stubbed**; need in-game pause + the panels brought
+    into the Game scene (today they only exist in the menu).
   - **Shop**: real gem/star spending against products (today the IAP buttons just grant gems for testing).
-  - **Mult meter**: a filling multiplier gauge — needs wiring to the live multiplier value.
+  - **Mult meter**: a filling multiplier gauge (right of Special Order) — needs wiring to the live
+    multiplier value. **Not built yet.**
   - **Consumable effect VFX** (e.g. the in-use ketchup bottle) — art exists, needs hooking to use.
   Plan each of these as its own code task alongside the visual wiring.
-- Remove the procedural `GameLayout` cell squares once the authored UI/background fully lands — kept
-  for now only as positioning helpers (the real grid is the `GridCellsSkin` background mat).
 - Consumable polish: real SFX (override slots ready) + final slot layout/sizes (placeholders in `UIStyles`)
 - Skin selection + unlock/buy UI (DEFERRED — foundation done; see Skin System roadmap)
 - Text outline shader fix

@@ -42,11 +42,6 @@ namespace DogtorBurguer
         public static readonly Color SCREEN_FLASH = new(1f, 1f, 1f, 0.6f);
         #endregion
 
-        #region Game Layout / Challenge Colors
-        public static readonly Color LAYOUT_BORDER = new(0f, 0f, 0f, 0.8f);
-        public static readonly Color LAYOUT_FILL = new(0f, 0f, 0f, 0.15f);
-        #endregion
-
         #region Button Colors
         public static readonly Color BTN_PLAY = new(0.2f, 0.8f, 0.3f);
         public static readonly Color BTN_SHOP = new(0.9f, 0.7f, 0.1f);
@@ -82,16 +77,17 @@ namespace DogtorBurguer
         public static readonly Vector2 CONSUMABLE_BADGE_OFFSET = new(28f, -28f);// badge offset (bottom-right of plate)
         public const float CONSUMABLE_COUNT_SIZE = 22f;                         // count number on the num box
         public static readonly Color CONSUMABLE_COUNT_COLOR = new(0.96f, 0.93f, 0.82f); // cream
-        public const float CONSUMABLE_ROW_Y = -215f;                            // row Y (below the Level/Score cards)
-        public const float CONSUMABLE_SLOT_X_START = 62f;                       // first slot center X
-        public const float CONSUMABLE_SLOT_SPACING = 84f;                       // gap between slot centers
+        public const float CONSUMABLE_ROW_Y = -233f;                            // row Y (margin below the Level/Score cards)
+        // Span the same zone as Level/Score: 80-wide plates at 58/144/230 → left edge 18, right edge 270.
+        public const float CONSUMABLE_SLOT_X_START = 58f;                       // first slot center X
+        public const float CONSUMABLE_SLOT_SPACING = 86f;                       // gap between slot centers
         #endregion
 
 
         #region HUD Stat Panels (authored Level/Score cards — anchored top-left, reference px)
         // Baked fixed-size art (dotted card ui_panel_card). Keep box sizes at the art's native
         // aspect or the halftone dots smear (card art is 500x380 ≈ 1.32:1).
-        public static readonly Vector2 HUD_PANEL_SIZE = new(124f, 94f);    // the cream card (≈ native 1.32:1)
+        public static readonly Vector2 HUD_PANEL_SIZE = new(122f, 92f);    // the cream card (≈ native 1.32:1)
         // Placeholder title tab: the blank no_tex red tab (ui_title_tab) with the word written on it
         // as TMP — swapped for the artist's final per-word art when it arrives. Sized by HEIGHT with
         // width following the native aspect (≈1.84:1) so it never stretches; raise the height to widen.
@@ -104,29 +100,31 @@ namespace DogtorBurguer
         public const float HUD_PANEL_NUMBER_SIZE_MIN = 14f;                // auto-size floor for the number
         public const float HUD_PANEL_NUMBER_Y = -18f;                      // number offset down within the card
         public static readonly Color HUD_PANEL_NUMBER_COLOR = new(0.28f, 0.17f, 0.1f);
-        // The pair sits in the left half: ~124 wide each, ~12 gap → ≈ half the screen (270) wide.
-        public static readonly Vector2 HUD_LEVEL_PANEL_POS = new(74f, -135f); // lowered to clear the top bar
-        public static readonly Vector2 HUD_SCORE_PANEL_POS = new(210f, -135f);
+        // Shared left-column zone: 18px left margin → right edge at half the screen (270). Two 122-wide
+        // cards, ~8 gap. The consumable row spans this same zone (start/end aligned).
+        public static readonly Vector2 HUD_LEVEL_PANEL_POS = new(79f, -125f);
+        public static readonly Vector2 HUD_SCORE_PANEL_POS = new(209f, -125f);
         #endregion
 
         #region HUD Special Order panel (screen-space UGUI, top-right — anchored top-right, reference px)
-        // Dotted card + the SPECIAL ORDER banner overhanging its top-left, the required-burger stack,
-        // a requirement line, and a multiplier badge. Keep the card at its native aspect (≈1.35:1).
-        public static readonly Vector2 SPECIAL_CARD_SIZE = new(228f, 169f);   // cream card
-        public static readonly Vector2 SPECIAL_CARD_POS = new(-128f, -172f);  // anchored top-right
-        public const float SPECIAL_BANNER_H = 46f;                            // SPECIAL ORDER banner (width follows aspect)
-        public static readonly Vector2 SPECIAL_BANNER_OFFSET = new(-48f, 80f);// banner offset within the card (overhangs top-left)
-        public const float SPECIAL_BANNER_LABEL_SIZE = 14f;                   // "SPECIAL ORDER" TMP (auto-size max)
+        // Card + the SPECIAL ORDER banner overhanging its top-left, the required-burger stack (on a
+        // plate), and a multiplier badge. The card is stretched taller than its native aspect to about
+        // the height of the left column (Score + consumables) — deliberate, it's a completed burger.
+        // Height matches the left column: top aligns with the Level/Score top, bottom with the
+        // consumables bottom (≈194 tall here) — stretched past native aspect on purpose.
+        public static readonly Vector2 SPECIAL_CARD_SIZE = new(228f, 194f);   // cream card (stretched taller)
+        public static readonly Vector2 SPECIAL_CARD_POS = new(-128f, -176f);  // anchored top-right
+        public const float SPECIAL_BANNER_H = 60f;                            // SPECIAL ORDER banner (width follows aspect)
+        public static readonly Vector2 SPECIAL_BANNER_OFFSET = new(-40f, 78f);// banner offset within the card (overhangs top-left)
+        public const float SPECIAL_BANNER_LABEL_SIZE = 13f;                   // "SPECIAL ORDER" TMP (auto-size max)
         public const float SPECIAL_BANNER_LABEL_SIZE_MIN = 7f;                // auto-size floor
-        public static readonly Vector2 SPECIAL_BANNER_LABEL_OFFSET = new(0f, 4f); // up a touch to clear the bubble tail
-        public const float SPECIAL_REQ_TEXT_SIZE = 15f;                       // requirement line ("4+ Ingredients")
-        public const float SPECIAL_REQ_TEXT_Y = 46f;                          // requirement Y within the card
-        public static readonly Vector2 SPECIAL_REQ_TEXT_RECT = new(200f, 34f);
-        public static readonly Color SPECIAL_REQ_TEXT_COLOR = new(0.28f, 0.17f, 0.1f); // brown
-        public const float SPECIAL_INGREDIENT_H = 28f;                        // each stack ingredient (width follows aspect)
-        public const float SPECIAL_INGREDIENT_SPACING = 20f;                  // vertical stack spacing (overlap)
-        public const float SPECIAL_STACK_Y = -16f;                            // stack center Y within the card
-        public const float SPECIAL_PLACEHOLDER_LABEL_SIZE = 16f;              // "+N" / "?" on the mystery silhouette
+        public static readonly Vector2 SPECIAL_BANNER_LABEL_OFFSET = new(0f, 5f); // up a touch to clear the bubble tail
+        public const float SPECIAL_INGREDIENT_H = 38f;                        // each stack ingredient (width follows aspect)
+        public const float SPECIAL_INGREDIENT_SPACING = 26f;                  // vertical stack spacing (overlap)
+        public const float SPECIAL_STACK_Y = -12f;                            // stack center Y within the card
+        public const float SPECIAL_PLACEHOLDER_LABEL_SIZE = 18f;              // "+N" on the mystery silhouette
+        public const float SPECIAL_PLATE_H = 18f;                             // plate under the bottom bun (width follows aspect)
+        public const float SPECIAL_PLATE_Y_OFFSET = 13f;                      // plate drop below the bottom bun
         public const float SPECIAL_MULT_BADGE_H = 42f;                        // multiplier badge (reuses the red num box)
         public static readonly Vector2 SPECIAL_MULT_BADGE_OFFSET = new(86f, -60f); // badge offset within the card (bottom-right)
         public const float SPECIAL_MULT_TEXT_SIZE = 20f;
@@ -264,17 +262,6 @@ namespace DogtorBurguer
         public const float SHOP_BTN_START_Y = 40f;
         public const float SHOP_BTN_SPACING = -80f;
         public static readonly Vector2 SHOP_CLOSE_POS = new(0f, -190f);
-        #endregion
-
-        #region Layout — Game Layout Panels (world-space frames)
-        public static readonly Vector2 GRID_PANEL_CENTER = new(0f, -1.9f);
-        public static readonly Vector2 GRID_PANEL_SIZE = new(5.2f, 5.8f);
-        public static readonly Vector2 TOP_LEFT_PANEL_CENTER = new(-1.35f, 2.4f);
-        public static readonly Vector2 TOP_LEFT_PANEL_SIZE = new(2.5f, 2.6f);
-        public static readonly Vector2 TOP_RIGHT_PANEL_CENTER = new(1.35f, 2.4f);
-        public static readonly Vector2 TOP_RIGHT_PANEL_SIZE = new(2.5f, 2.6f);
-        public const int PANEL_BORDER_WIDTH = 4;
-        public const int PANEL_CORNER_RADIUS = 24;
         #endregion
     }
 }

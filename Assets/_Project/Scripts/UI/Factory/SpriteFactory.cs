@@ -55,59 +55,6 @@ namespace DogtorBurguer
             });
         }
 
-        /// <summary>
-        /// Rounded-rect panel sprite with an anti-aliased border, set up for 9-slice
-        /// (corners protected). Cached per (border, fill, cornerRadius, borderWidth, size).
-        /// </summary>
-        public static Sprite RoundedPanel(Color border, Color fill, int cornerRadius, int borderWidth, int size)
-        {
-            return GetOrCreate($"panel:{border}:{fill}:{cornerRadius}:{borderWidth}:{size}", () =>
-            {
-                int r = Mathf.Min(cornerRadius, size / 2);
-                Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false)
-                {
-                    filterMode = FilterMode.Bilinear
-                };
-                Color transparent = new Color(0, 0, 0, 0);
-
-                for (int y = 0; y < size; y++)
-                {
-                    for (int x = 0; x < size; x++)
-                    {
-                        float dist = DistanceInside(x, y, size, size, r);
-
-                        if (dist < 0f)
-                        {
-                            tex.SetPixel(x, y, transparent);
-                        }
-                        else if (dist < borderWidth)
-                        {
-                            float t = Mathf.Clamp01(dist / 1.5f); // edge anti-aliasing
-                            Color c = border;
-                            c.a *= t;
-                            tex.SetPixel(x, y, c);
-                        }
-                        else
-                        {
-                            tex.SetPixel(x, y, fill);
-                        }
-                    }
-                }
-                tex.Apply();
-
-                Vector4 spriteBorder = new Vector4(r, r, r, r);
-                return Sprite.Create(
-                    tex,
-                    new Rect(0, 0, size, size),
-                    new Vector2(0.5f, 0.5f),
-                    size,
-                    0,
-                    SpriteMeshType.FullRect,
-                    spriteBorder
-                );
-            });
-        }
-
         private static Sprite GetOrCreate(string key, Func<Sprite> create)
         {
             // Unity's overloaded == treats a destroyed sprite as null — regenerate if so.
@@ -117,33 +64,6 @@ namespace DogtorBurguer
             sprite = create();
             _cache[key] = sprite;
             return sprite;
-        }
-
-        /// <summary>Signed distance from pixel to the rounded-rect edge (negative = outside).</summary>
-        private static float DistanceInside(int px, int py, int w, int h, int r)
-        {
-            float x = px;
-            float y = py;
-            float cr = r;
-
-            bool left = x < cr;
-            bool right = x > w - 1 - cr;
-            bool bottom = y < cr;
-            bool top = y > h - 1 - cr;
-
-            if ((left || right) && (bottom || top))
-            {
-                float cx = left ? cr : w - 1 - cr;
-                float cy = bottom ? cr : h - 1 - cr;
-                float dist = Mathf.Sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
-                return cr - dist;
-            }
-
-            float dL = x;
-            float dR = w - 1 - x;
-            float dB = y;
-            float dT = h - 1 - y;
-            return Mathf.Min(dL, dR, dB, dT);
         }
     }
 }

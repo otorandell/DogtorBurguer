@@ -20,7 +20,6 @@ namespace DogtorBurguer
         private RectTransform _card;
         private RectTransform _stackRoot;
         private readonly List<Image> _stackImages = new List<Image>();
-        private TextMeshProUGUI _reqText;
         private TextMeshProUGUI _multText;
 
         public void Initialize(BurgerChallenge model)
@@ -65,10 +64,6 @@ namespace DogtorBurguer
             bannerLabel.fontSizeMin = UIStyles.SPECIAL_BANNER_LABEL_SIZE_MIN;
             bannerLabel.fontSizeMax = UIStyles.SPECIAL_BANNER_LABEL_SIZE;
 
-            // Requirement line ("4+ Ingredients" / "Has: Meat, Cheese").
-            _reqText = UIFactory.CreateText(_card, "Requirement", new Vector2(0f, UIStyles.SPECIAL_REQ_TEXT_Y),
-                UIStyles.SPECIAL_REQ_TEXT_RECT, UIStyles.SPECIAL_REQ_TEXT_SIZE, FontStyles.Bold, UIStyles.SPECIAL_REQ_TEXT_COLOR);
-
             // Burger stack container (centred a touch below the card middle).
             GameObject stackObj = new GameObject("Stack");
             stackObj.transform.SetParent(_card, false);
@@ -108,6 +103,18 @@ namespace DogtorBurguer
 
             float spacing = UIStyles.SPECIAL_INGREDIENT_SPACING;
             float startY = -(rows.Count - 1) * spacing * 0.5f;
+
+            // Plate under the bottom bun (added first → renders behind the stack).
+            Sprite plate = Theme.Plate;
+            if (plate != null)
+            {
+                float plateAspect = plate.rect.width / plate.rect.height;
+                Image plateImg = UIFactory.CreateImage(_stackRoot, "Plate", plate, new Vector2(0.5f, 0.5f),
+                    new Vector2(0f, startY - UIStyles.SPECIAL_PLATE_Y_OFFSET),
+                    new Vector2(UIStyles.SPECIAL_PLATE_H * plateAspect, UIStyles.SPECIAL_PLATE_H));
+                _stackImages.Add(plateImg);
+            }
+
             for (int i = 0; i < rows.Count; i++)
             {
                 float y = startY + i * spacing;
@@ -117,7 +124,6 @@ namespace DogtorBurguer
                     AddSprite(UiArt.Load("ui_mystery"), "Placeholder", y, placeholder);
             }
 
-            _reqText.text = _model.ChallengeName;
             _multText.text = $"x{_model.GetGlobalMultiplier()}";
         }
 
