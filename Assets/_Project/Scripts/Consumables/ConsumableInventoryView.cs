@@ -3,13 +3,15 @@ using UnityEngine;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// Renders the per-run consumable inventory as world-space icons in the top-left score panel.
-    /// Driven by <see cref="ConsumableInventory.OnChanged"/>. The drag controller hides a slot while
-    /// its item is being carried (see <see cref="SetSlotHidden"/>).
+    /// Renders the per-run consumable inventory as a screen-space row of three slots below the
+    /// Level/Score panels (one per type — Ketchup, Mustard, Skewer). Driven by
+    /// <see cref="ConsumableInventory.OnChanged"/>. The drag controller hit-tests slots via
+    /// <see cref="TryGetSlotTypeAt"/> and hides a slot's icon while its item is carried.
     /// </summary>
     public class ConsumableInventoryView : Singleton<ConsumableInventoryView>
     {
-        private SpriteRenderer[] _slots;
+        private Canvas _canvas;
+        private ConsumableSlotWidget[] _slots;
 
         protected override void Awake()
         {
@@ -34,47 +36,48 @@ namespace DogtorBurguer
 
         private void BuildSlots()
         {
-            _slots = new SpriteRenderer[ConsumableInventory.CAPACITY];
+            _canvas = UIFactory.CreateCanvas(transform, "ConsumableCanvas", Constants.SORT_CONSUMABLE_SLOT);
+            _slots = new ConsumableSlotWidget[ConsumableInventory.TypeCount];
             for (int i = 0; i < _slots.Length; i++)
             {
-                GameObject obj = new GameObject($"ConsumableSlot_{i}");
-                obj.transform.SetParent(transform, false);
-                obj.transform.position = ConsumableSlotLayout.Position(i);
-
-                SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
-                sr.sortingOrder = Constants.SORT_CONSUMABLE_SLOT;
-                sr.enabled = false;
-                _slots[i] = sr;
+                Vector2 pos = new(
+                    UIStyles.CONSUMABLE_SLOT_X_START + i * UIStyles.CONSUMABLE_SLOT_SPACING,
+                    UIStyles.CONSUMABLE_ROW_Y);
+                _slots[i] = new ConsumableSlotWidget(_canvas.transform, (ConsumableType)i, pos);
             }
         }
 
         private void Refresh()
         {
             if (_slots == null) return;
-
             ConsumableInventory inv = ConsumableInventory.Instance;
-            int count = inv != null ? inv.Count : 0;
-
             for (int i = 0; i < _slots.Length; i++)
-            {
-                if (i < count)
-                {
-                    _slots[i].sprite = RewardArt.Badge(inv[i]);
-                    SpriteFit.Height(_slots[i], UIStyles.CONSUMABLE_ICON_HEIGHT);
-                    _slots[i].enabled = true;
-                }
-                else
-                {
-                    _slots[i].enabled = false;
-                }
-            }
+                _slots[i].Refresh(inv != null ? inv.CountOf((ConsumableType)i) : 0);
         }
 
-        /// <summary>Hide/show a single slot icon while its item is carried.</summary>
-        public void SetSlotHidden(int index, bool hidden)
+        /// <summary>If the screen point is on a stocked slot, returns its type (used to begin a carry).</summary>
+        public bool TryGetSlotTypeAt(Vector2 screenPos, out ConsumableType type)
         {
-            if (_slots == null || index < 0 || index >= _slots.Length) return;
-            _slots[index].enabled = !hidden;
+            type = default;
+            if (_slots == null) return false;
+
+            ConsumableInventory inv = ConsumableInventory.Instance;
+            foreach (ConsumableSlotWidget slot in _slots)
+            {
+                if (slot.Contains(screenPos) && inv != null && inv.CountOf(slot.Type) > 0)
+                {
+                    type = slot.Type;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>Hide/show a type's icon while its item is carried.</summary>
+        public void SetTypeHidden(ConsumableType type, bool hidden)
+        {
+            if (_slots == null) return;
+            _slots[(int)type].SetIconHidden(hidden);
         }
     }
 }

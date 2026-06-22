@@ -96,7 +96,7 @@ namespace DogtorBurguer
 
 #if UNITY_EDITOR
         // Debug (editor-only): 1/2/3 grant Ketchup/Mustard/Skewer so the effects can be tested
-        // without farming fairies. Respects the 2-slot FIFO inventory; never ships.
+        // without farming fairies. Increments the per-type inventory; never ships.
         private void HandleDebugConsumableHotkeys(Keyboard keyboard)
         {
             ConsumableInventory inv = ConsumableInventory.Instance;
@@ -236,7 +236,11 @@ namespace DogtorBurguer
 
         private void TryBeginCarry(Vector2 screenPos)
         {
-            ConsumableDragController.Instance?.TryBegin(ToWorld(screenPos));
+            // Slots are screen-space UGUI, so TryBegin hit-tests the raw screen position; once a carry
+            // starts, position the icon immediately (world space) so it doesn't flash at the origin.
+            ConsumableDragController drag = ConsumableDragController.Instance;
+            if (drag != null && drag.TryBegin(screenPos))
+                drag.UpdateCarry(ToWorld(screenPos));
         }
 
         private void UpdateCarry(Vector2 screenPos)

@@ -85,11 +85,15 @@ namespace DogtorBurguer
             Image card = UIFactory.CreateImage(_canvas.transform, name, UiArt.Load("ui_panel_card"),
                 new Vector2(0f, 1f), pos, UIStyles.HUD_PANEL_SIZE);
 
-            Image tab = UIFactory.CreateImage(card.transform, "Title", UiArt.Load("ui_title_tab"),
-                new Vector2(0.5f, 0.5f), new Vector2(0f, UIStyles.HUD_PANEL_TITLE_Y), UIStyles.HUD_PANEL_TITLE_SIZE);
+            // Size the tab by height, width following native aspect — never force a size (distorts).
+            Sprite tabSprite = UiArt.Load("ui_title_tab");
+            float tabAspect = tabSprite != null ? tabSprite.rect.width / tabSprite.rect.height : 1f;
+            Vector2 tabSize = new(UIStyles.HUD_PANEL_TITLE_HEIGHT * tabAspect, UIStyles.HUD_PANEL_TITLE_HEIGHT);
+            Image tab = UIFactory.CreateImage(card.transform, "Title", tabSprite,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, UIStyles.HUD_PANEL_TITLE_Y), tabSize);
 
             TextMeshProUGUI titleLabel = UIFactory.CreateText(tab.transform, title, Vector2.zero,
-                UIStyles.HUD_PANEL_TITLE_SIZE, UIStyles.HUD_TITLE_LABEL_SIZE, FontStyles.Bold,
+                tabSize, UIStyles.HUD_TITLE_LABEL_SIZE, FontStyles.Bold,
                 UIStyles.HUD_TITLE_LABEL_COLOR);
             AutoFit(titleLabel, UIStyles.HUD_TITLE_LABEL_SIZE_MIN, UIStyles.HUD_TITLE_LABEL_SIZE);
 

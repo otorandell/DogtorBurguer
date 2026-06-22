@@ -1,41 +1,38 @@
 using System;
-using System.Collections.Generic;
 
 namespace DogtorBurguer
 {
     /// <summary>
-    /// Per-run consumable inventory: a FIFO ring of <see cref="CAPACITY"/> slots. Collecting while
-    /// full evicts the oldest. Not persisted — lost on game over. Drives the HUD slots and is the
-    /// source the drag controller consumes from.
+    /// Per-run consumable inventory: a quantity per consumable type (three fixed slots — Ketchup,
+    /// Mustard, Skewer). Collecting increments the type; using decrements it. Not persisted — lost on
+    /// game over. Drives the HUD slots and is the source the drag controller consumes from.
     /// </summary>
     public class ConsumableInventory : Singleton<ConsumableInventory>
     {
-        public const int CAPACITY = 2;
+        public const int TypeCount = 3; // Ketchup, Mustard, Skewer — one slot each, indexed by enum
 
-        private readonly List<ConsumableType> _slots = new List<ConsumableType>(CAPACITY);
+        private readonly int[] _counts = new int[TypeCount];
 
-        /// <summary>Fired whenever the slot contents change (add / consume).</summary>
+        /// <summary>Fired whenever any count changes (collect / use).</summary>
         public event Action OnChanged;
 
-        public int Count => _slots.Count;
+        public int CountOf(ConsumableType type) => _counts[(int)type];
 
-        public ConsumableType this[int index] => _slots[index];
-
-        /// <summary>Adds a consumable; evicts the oldest if both slots are already full.</summary>
+        /// <summary>Adds one of a consumable (no cap).</summary>
         public void Add(ConsumableType type)
         {
-            if (_slots.Count >= CAPACITY)
-                _slots.RemoveAt(0);
-            _slots.Add(type);
+            _counts[(int)type]++;
             OnChanged?.Invoke();
         }
 
-        /// <summary>Removes the consumable at a slot once it has been used. No-op if out of range.</summary>
-        public void ConsumeAt(int index)
+        /// <summary>Uses one if available. Returns false (no-op) when that slot is empty.</summary>
+        public bool TryConsume(ConsumableType type)
         {
-            if (index < 0 || index >= _slots.Count) return;
-            _slots.RemoveAt(index);
+            int i = (int)type;
+            if (_counts[i] <= 0) return false;
+            _counts[i]--;
             OnChanged?.Invoke();
+            return true;
         }
     }
 }

@@ -12,7 +12,6 @@ namespace DogtorBurguer
     public class ConsumableDragController : Singleton<ConsumableDragController>
     {
         private bool _carrying;
-        private int _slotIndex;
         private ConsumableType _type;
 
         private SpriteRenderer _carryIcon;
@@ -20,22 +19,18 @@ namespace DogtorBurguer
 
         public bool IsCarrying => _carrying;
 
-        /// <summary>Starts a carry if the press landed on an occupied slot. Returns true if it did.</summary>
-        public bool TryBegin(Vector3 worldPos)
+        /// <summary>Starts a carry if the press landed on a stocked slot. Returns true if it did. Takes a
+        /// SCREEN position (slots are screen-space UGUI); the carry/drop then work in world space.</summary>
+        public bool TryBegin(Vector2 screenPos)
         {
-            ConsumableInventory inv = ConsumableInventory.Instance;
-            if (_carrying || inv == null) return false;
+            if (_carrying) return false;
 
-            for (int i = 0; i < inv.Count; i++)
-            {
-                if (Vector2.Distance(worldPos, ConsumableSlotLayout.Position(i)) <= ConsumableSlotLayout.TapRadius)
-                {
-                    StartCarry(i, inv[i]);
-                    UpdateCarry(worldPos);
-                    return true;
-                }
-            }
-            return false;
+            ConsumableInventoryView view = ConsumableInventoryView.Instance;
+            if (view == null || !view.TryGetSlotTypeAt(screenPos, out ConsumableType type))
+                return false;
+
+            StartCarry(type);
+            return true;
         }
 
         public void UpdateCarry(Vector3 worldPos)
@@ -60,12 +55,12 @@ namespace DogtorBurguer
             {
                 Column col = GridManager.Instance?.GetColumn(NearestColumn(worldPos.x));
                 ConsumableFaller.Spawn(_type, col);
-                ConsumableInventory.Instance?.ConsumeAt(_slotIndex); // OnChanged → view refresh
+                ConsumableInventory.Instance?.TryConsume(_type); // OnChanged → view refresh
             }
             else
             {
-                // Cancel: restore the source slot (no OnChanged fires since nothing was consumed).
-                ConsumableInventoryView.Instance?.SetSlotHidden(_slotIndex, false);
+                // Cancel: restore the source slot icon (no OnChanged fires — nothing was consumed).
+                ConsumableInventoryView.Instance?.SetTypeHidden(_type, false);
             }
 
             EndCarry();
@@ -74,17 +69,16 @@ namespace DogtorBurguer
         public void Cancel()
         {
             if (!_carrying) return;
-            ConsumableInventoryView.Instance?.SetSlotHidden(_slotIndex, false);
+            ConsumableInventoryView.Instance?.SetTypeHidden(_type, false);
             EndCarry();
         }
 
-        private void StartCarry(int slotIndex, ConsumableType type)
+        private void StartCarry(ConsumableType type)
         {
             _carrying = true;
-            _slotIndex = slotIndex;
             _type = type;
 
-            ConsumableInventoryView.Instance?.SetSlotHidden(slotIndex, true);
+            ConsumableInventoryView.Instance?.SetTypeHidden(type, true);
 
             _carryIcon = CreateRenderer("CarryIcon", Constants.SORT_CONSUMABLE_CARRY, 1f, UIStyles.CONSUMABLE_CARRY_HEIGHT);
             _ghost = CreateRenderer("ColumnGhost", Constants.SORT_CONSUMABLE_GHOST, UIStyles.CONSUMABLE_GHOST_ALPHA, UIStyles.CONSUMABLE_GHOST_HEIGHT);

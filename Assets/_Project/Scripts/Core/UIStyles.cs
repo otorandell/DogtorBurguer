@@ -71,11 +71,22 @@ namespace DogtorBurguer
         public const float CONSUMABLE_FALLER_HEIGHT = 2.0f;  // matches the column ghost (what it previews)
         public const float CONSUMABLE_GHOST_HEIGHT = 2.0f;   // column preview (+100%)
         public const float CONSUMABLE_GHOST_ALPHA = 0.5f;    // translucency of the column preview
-        public const float CONSUMABLE_CARRY_HEIGHT = 1.8f;   // matches the inventory icon (same item lifted)
-        public const float CONSUMABLE_ICON_HEIGHT = 1.8f;    // inventory slot icon (+100%)
-        // Inventory slots live in the top-left score panel (world space). Tune these to taste.
-        public static readonly Vector2 CONSUMABLE_SLOT_0_POS = new(-2.0f, 1.55f);
-        public static readonly Vector2 CONSUMABLE_SLOT_1_POS = new(-1.1f, 1.55f);
+        public const float CONSUMABLE_CARRY_HEIGHT = 1.8f;   // the lifted item that follows the finger
+        #endregion
+
+        #region HUD Consumable Slots (screen-space UGUI, below Level/Score — anchored top-left, reference px)
+        // Three slots (Ketchup, Mustard, Skewer): a round plate + the consumable icon + a corner badge
+        // (red num box with the count, or green plus box when empty). Left-aligned ≈ the Level/Score width.
+        public static readonly Vector2 CONSUMABLE_SLOT_SIZE = new(80f, 80f);    // round plate
+        public const float CONSUMABLE_SLOT_ICON_H = 58f;                        // consumable icon (width follows aspect)
+        public static readonly Vector2 CONSUMABLE_ICON_OFFSET = new(0f, 3f);    // icon offset within the plate
+        public const float CONSUMABLE_BADGE_H = 34f;                            // num/plus badge (width follows aspect)
+        public static readonly Vector2 CONSUMABLE_BADGE_OFFSET = new(28f, -28f);// badge offset (bottom-right of plate)
+        public const float CONSUMABLE_COUNT_SIZE = 22f;                         // count number on the num box
+        public static readonly Color CONSUMABLE_COUNT_COLOR = new(0.96f, 0.93f, 0.82f); // cream
+        public const float CONSUMABLE_ROW_Y = -215f;                            // row Y (below the Level/Score cards)
+        public const float CONSUMABLE_SLOT_X_START = 62f;                       // first slot center X
+        public const float CONSUMABLE_SLOT_SPACING = 84f;                       // gap between slot centers
         #endregion
 
 
@@ -84,11 +95,12 @@ namespace DogtorBurguer
         // aspect or the halftone dots smear (card art is 500x380 ≈ 1.32:1).
         public static readonly Vector2 HUD_PANEL_SIZE = new(124f, 94f);    // the cream card (≈ native 1.32:1)
         // Placeholder title tab: the blank no_tex red tab (ui_title_tab) with the word written on it
-        // as TMP — swapped for the artist's final per-word art when it arrives. Almost as wide as the card.
-        public static readonly Vector2 HUD_PANEL_TITLE_SIZE = new(116f, 40f); // red title tab box
+        // as TMP — swapped for the artist's final per-word art when it arrives. Sized by HEIGHT with
+        // width following the native aspect (≈1.84:1) so it never stretches; raise the height to widen.
+        public const float HUD_PANEL_TITLE_HEIGHT = 56f;                   // red title tab height (width follows aspect; +16%)
         public const float HUD_PANEL_TITLE_Y = 30f;                        // tab offset up within the card
-        public const float HUD_TITLE_LABEL_SIZE = 24f;                     // tab word TMP font (auto-size max)
-        public const float HUD_TITLE_LABEL_SIZE_MIN = 12f;                 // auto-size floor for the tab word
+        public const float HUD_TITLE_LABEL_SIZE = 12f;                     // tab word TMP font (auto-size max)
+        public const float HUD_TITLE_LABEL_SIZE_MIN = 8f;                  // auto-size floor for the tab word
         public static readonly Color HUD_TITLE_LABEL_COLOR = new(0.96f, 0.93f, 0.82f); // cream
         public const float HUD_PANEL_NUMBER_SIZE = 30f;                    // the big number font (auto-size max)
         public const float HUD_PANEL_NUMBER_SIZE_MIN = 14f;                // auto-size floor for the number
