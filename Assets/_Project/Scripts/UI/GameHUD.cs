@@ -32,9 +32,9 @@ namespace DogtorBurguer
         private void CreateTopBar()
         {
             // Star isn't a real currency yet (seeded to 0) — widget added now, wired soon.
-            _starNumber = BuildCurrencyWidget("Stars", "ui_star", UIStyles.TOPBAR_STAR_POS);
-            _gemNumber = BuildCurrencyWidget("Gems", "ui_gem", UIStyles.TOPBAR_GEM_POS);
-            _highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy", UIStyles.TOPBAR_SCORE_POS);
+            _starNumber = BuildCurrencyWidget("Stars", "ui_star", UIStyles.TOPBAR_STAR_POS, UIStyles.TOPBAR_STAR_ICON_H);
+            _gemNumber = BuildCurrencyWidget("Gems", "ui_gem", UIStyles.TOPBAR_GEM_POS, UIStyles.TOPBAR_GEM_ICON_H);
+            _highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy", UIStyles.TOPBAR_SCORE_POS, UIStyles.TOPBAR_SCORE_ICON_H);
 
             // TODO: in-game shop/settings need pause + panel wiring (panels currently only exist in
             // the menu scene). Visual placeholders for now so the bar layout is complete.
@@ -45,17 +45,22 @@ namespace DogtorBurguer
         }
 
         // A currency pill (baked box) with an overhanging icon and a number; returns the number label.
-        private TextMeshProUGUI BuildCurrencyWidget(string name, string iconArt, Vector2 pos)
+        private TextMeshProUGUI BuildCurrencyWidget(string name, string iconArt, Vector2 pos, float iconHeight)
         {
             Image box = UIFactory.CreateImage(_canvas.transform, name, UiArt.Load("ui_currency_box"),
                 new Vector2(0f, 1f), pos, UIStyles.TOPBAR_BOX_SIZE);
 
-            UIFactory.CreateImage(box.transform, "Icon", UiArt.Load(iconArt),
-                new Vector2(0.5f, 0.5f), new Vector2(UIStyles.TOPBAR_ICON_X, 0f), UIStyles.TOPBAR_ICON_SIZE);
+            // Size the icon by height, width following native aspect — never force a square (distorts).
+            Sprite iconSprite = UiArt.Load(iconArt);
+            float aspect = iconSprite != null ? iconSprite.rect.width / iconSprite.rect.height : 1f;
+            Vector2 iconSize = new(iconHeight * aspect, iconHeight);
+            UIFactory.CreateImage(box.transform, "Icon", iconSprite,
+                new Vector2(0.5f, 0.5f), new Vector2(UIStyles.TOPBAR_ICON_X, 0f), iconSize);
 
             TextMeshProUGUI number = UIFactory.CreateText(box.transform, "0",
                 new Vector2(UIStyles.TOPBAR_NUMBER_X, 0f), UIStyles.TOPBAR_NUMBER_RECT,
-                UIStyles.TOPBAR_NUMBER_SIZE, FontStyles.Bold, UIStyles.HUD_PANEL_NUMBER_COLOR);
+                UIStyles.TOPBAR_NUMBER_SIZE, FontStyles.Bold, UIStyles.HUD_PANEL_NUMBER_COLOR,
+                TextAlignmentOptions.Left);
             AutoFit(number, UIStyles.TOPBAR_NUMBER_SIZE_MIN, UIStyles.TOPBAR_NUMBER_SIZE);
             return number;
         }

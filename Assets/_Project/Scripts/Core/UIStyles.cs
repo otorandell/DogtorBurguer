@@ -82,37 +82,43 @@ namespace DogtorBurguer
         #region HUD Stat Panels (authored Level/Score cards — anchored top-left, reference px)
         // Baked fixed-size art (dotted card ui_panel_card). Keep box sizes at the art's native
         // aspect or the halftone dots smear (card art is 500x380 ≈ 1.32:1).
-        public static readonly Vector2 HUD_PANEL_SIZE = new(150f, 115f);   // the cream card (≈ native 1.32:1)
+        public static readonly Vector2 HUD_PANEL_SIZE = new(124f, 94f);    // the cream card (≈ native 1.32:1)
         // Placeholder title tab: the blank no_tex red tab (ui_title_tab) with the word written on it
-        // as TMP — swapped for the artist's final per-word art when it arrives.
-        public static readonly Vector2 HUD_PANEL_TITLE_SIZE = new(88f, 46f); // red title tab box
-        public const float HUD_PANEL_TITLE_Y = 44f;                        // tab offset up within the card
+        // as TMP — swapped for the artist's final per-word art when it arrives. Almost as wide as the card.
+        public static readonly Vector2 HUD_PANEL_TITLE_SIZE = new(116f, 40f); // red title tab box
+        public const float HUD_PANEL_TITLE_Y = 30f;                        // tab offset up within the card
         public const float HUD_TITLE_LABEL_SIZE = 24f;                     // tab word TMP font (auto-size max)
         public const float HUD_TITLE_LABEL_SIZE_MIN = 12f;                 // auto-size floor for the tab word
         public static readonly Color HUD_TITLE_LABEL_COLOR = new(0.96f, 0.93f, 0.82f); // cream
-        public const float HUD_PANEL_NUMBER_SIZE = 40f;                    // the big number font (auto-size max)
-        public const float HUD_PANEL_NUMBER_SIZE_MIN = 18f;                // auto-size floor for the number
-        public const float HUD_PANEL_NUMBER_Y = -16f;                      // number offset down within the card
+        public const float HUD_PANEL_NUMBER_SIZE = 30f;                    // the big number font (auto-size max)
+        public const float HUD_PANEL_NUMBER_SIZE_MIN = 14f;                // auto-size floor for the number
+        public const float HUD_PANEL_NUMBER_Y = -18f;                      // number offset down within the card
         public static readonly Color HUD_PANEL_NUMBER_COLOR = new(0.28f, 0.17f, 0.1f);
-        public static readonly Vector2 HUD_LEVEL_PANEL_POS = new(100f, -135f); // lowered to clear the top bar
-        public static readonly Vector2 HUD_SCORE_PANEL_POS = new(265f, -135f);
+        // The pair sits in the left half: ~124 wide each, ~12 gap → ≈ half the screen (270) wide.
+        public static readonly Vector2 HUD_LEVEL_PANEL_POS = new(74f, -135f); // lowered to clear the top bar
+        public static readonly Vector2 HUD_SCORE_PANEL_POS = new(210f, -135f);
         #endregion
 
         #region HUD Top Bar (authored currency widgets + buttons — anchored top-left, reference px)
         public const float TOPBAR_Y = -38f;                                // vertical center of the bar
-        public static readonly Vector2 TOPBAR_BOX_SIZE = new(110f, 52f);   // currency pill (ui_currency_box ≈ native 2.12:1)
-        public static readonly Vector2 TOPBAR_ICON_SIZE = new(52f, 52f);   // currency icon (overhangs the pill's left)
-        public const float TOPBAR_ICON_X = -50f;                           // icon offset within the widget
-        public const float TOPBAR_NUMBER_X = 22f;                          // number offset within the widget (clears icon)
-        public const float TOPBAR_NUMBER_SIZE = 26f;                       // auto-size max
-        public const float TOPBAR_NUMBER_SIZE_MIN = 12f;                   // auto-size floor
-        public static readonly Vector2 TOPBAR_NUMBER_RECT = new(72f, 44f);
-        public static readonly Vector2 TOPBAR_STAR_POS = new(80f, TOPBAR_Y);   // star widget (placeholder — not a real currency yet)
-        public static readonly Vector2 TOPBAR_GEM_POS = new(200f, TOPBAR_Y);   // gem widget
-        public static readonly Vector2 TOPBAR_SCORE_POS = new(320f, TOPBAR_Y); // high-score trophy widget
+        public static readonly Vector2 TOPBAR_BOX_SIZE = new(88f, 42f);    // currency pill (ui_currency_box ≈ native 2.12:1) — shrunk 20%
+        // Per-icon HEIGHT — width follows the sprite's native aspect (forcing a square distorted the
+        // non-square trophy/star). The art has different visual weight; all overhang the pill's left.
+        public const float TOPBAR_SCORE_ICON_H = 69f; // high-score trophy (wide art)
+        public const float TOPBAR_STAR_ICON_H = 62f;  // star — a touch smaller
+        public const float TOPBAR_GEM_ICON_H = 78f;   // gem/diamond — a touch bigger
+        public const float TOPBAR_ICON_X = -44f;                           // icon offset within the widget (overhangs the pill's left edge)
+        public const float TOPBAR_NUMBER_X = 18f;                          // number offset — left-clamped, just right of the icon
+        public const float TOPBAR_NUMBER_SIZE = 20f;                       // auto-size max
+        public const float TOPBAR_NUMBER_SIZE_MIN = 10f;                   // auto-size floor
+        public static readonly Vector2 TOPBAR_NUMBER_RECT = new(52f, 40f);
+        // Order left→right: high-score, star, gem (wider spacing to clear the bigger icons).
+        public static readonly Vector2 TOPBAR_SCORE_POS = new(90f, TOPBAR_Y);  // high-score trophy widget (leftmost)
+        public static readonly Vector2 TOPBAR_STAR_POS = new(225f, TOPBAR_Y);  // star widget (placeholder — not a real currency yet)
+        public static readonly Vector2 TOPBAR_GEM_POS = new(360f, TOPBAR_Y);   // gem widget
         public static readonly Vector2 TOPBAR_BUTTON_SIZE = new(54f, 54f);
-        public static readonly Vector2 TOPBAR_CONFIG_POS = new(440f, TOPBAR_Y); // settings/gear button
-        public static readonly Vector2 TOPBAR_SHOP_POS = new(500f, TOPBAR_Y);   // shop button
+        public static readonly Vector2 TOPBAR_SHOP_POS = new(440f, TOPBAR_Y);   // shop button (left of settings)
+        public static readonly Vector2 TOPBAR_CONFIG_POS = new(500f, TOPBAR_Y); // settings/gear button (rightmost)
         #endregion
 
         #region Font Sizes - Menu
