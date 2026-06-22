@@ -14,6 +14,13 @@ namespace DogtorBurguer
         public const float GRID_ORIGIN_X = -2.1f;
         public const float GRID_ORIGIN_Y = -4.2f;
 
+        // Camera framing (see CameraFit). The game is designed for WIDTH: the camera is sized so this
+        // world width always fills the screen (the 4 columns span 5.6; +tiny margin). DESIGN_ORTHO_SIZE
+        // is the floor for wide screens. At the reference 9:16 these reproduce orthographic size 5.
+        // Raise PLAY_AREA_WIDTH for more side margin around the columns.
+        public const float PLAY_AREA_WIDTH = 5.625f;
+        public const float DESIGN_ORTHO_SIZE = 5f;
+
         // Chef positions (between columns) — always one fewer than the columns
         public const int CHEF_POSITION_COUNT = COLUMN_COUNT - 1;
         public const int CHEF_START_POSITION = 1; // default middle position
