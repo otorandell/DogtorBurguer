@@ -10,7 +10,9 @@ namespace DogtorBurguer
     {
         #region Canvas Setup
         public static readonly Vector2 REFERENCE_RESOLUTION = new(540, 960);
-        public const float MATCH_WIDTH_OR_HEIGHT = 0.5f;
+        // Match WIDTH (0) so the HUD scales by the same rule as the camera (CameraFit frames the
+        // playfield by width), keeping the UI locked to the playfield across phone aspect ratios.
+        public const float MATCH_WIDTH_OR_HEIGHT = 0f;
         #endregion
 
         #region Text Outlines
