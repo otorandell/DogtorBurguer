@@ -8,31 +8,12 @@ namespace DogtorBurguer
     /// <summary>
     /// Special Orders challenge — the logic/model half (F-56). Owns the current order,
     /// match checking, progression, and score award; raises events the view renders.
-    /// All on-screen construction + animation lives in <see cref="BurgerChallengeView"/>,
-    /// which this creates at runtime.
-    ///
-    /// Visual config stays here as SerializeFields (kept on the scene component so the
-    /// inspector-assigned placeholder sprite survives) and is exposed read-only to the view.
+    /// All on-screen construction + animation lives in <see cref="BurgerChallengeView"/>, a
+    /// screen-space UGUI panel this creates at runtime. Layout is owned by the view (UIStyles), so the
+    /// model holds only logic + the read-only state the view renders.
     /// </summary>
     public class BurgerChallenge : Singleton<BurgerChallenge>
     {
-        [Header("Panel Position")]
-        [SerializeField] private Vector2 _panelCenter = new Vector2(1.35f, 2.4f);
-
-        [Header("Burger Display")]
-        [SerializeField] private float _ingredientSpacing = 0.18f;
-        [SerializeField] private float _ingredientScale = 1.0f;
-        [SerializeField] private int _sortingOrder = Constants.SORT_CHALLENGE_BASE;
-
-        [Header("Placeholder")]
-        [SerializeField] private Sprite _spritePlaceholder;
-
-        [Header("Meter")]
-        [SerializeField] private float _meterWidth = 0.2f;
-        [SerializeField] private float _meterHeight = 1.6f;
-        [SerializeField] private Color _meterBgColor = UIStyles.CHALLENGE_METER_BG;
-        [SerializeField] private Color _meterFillColor = UIStyles.CHALLENGE_METER_FILL;
-
         // --- challenge state ---
         private OrderType _orderType;
         private int _requiredSize;
@@ -55,19 +36,8 @@ namespace DogtorBurguer
         public IReadOnlyList<IngredientType> TargetIngredients => _targetIngredients;
         public string ChallengeName => _challengeName;
         public int Level => _challengeLevel;
-        public int Progress => _challengeProgress;
-        public int ProgressTarget => _challengeLevel + 1;
 
-        // --- visual config exposed to the view ---
-        public Vector2 PanelCenter => _panelCenter;
-        public float IngredientSpacing => _ingredientSpacing;
-        public float IngredientScale => _ingredientScale;
-        public int SortingOrder => _sortingOrder;
-        public Sprite PlaceholderSprite => _spritePlaceholder;
-        public float MeterWidth => _meterWidth;
-        public float MeterHeight => _meterHeight;
-        public Color MeterBgColor => _meterBgColor;
-        public Color MeterFillColor => _meterFillColor;
+        private int ProgressTarget => _challengeLevel + 1; // matches needed to level up
 
         // --- spawner-backed lookups (resolved once, F-59) ---
         public int ActiveIngredientCount =>

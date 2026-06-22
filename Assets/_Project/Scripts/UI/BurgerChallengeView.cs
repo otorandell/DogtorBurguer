@@ -1,31 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
 
 namespace DogtorBurguer
 {
     /// <summary>
-    /// The view half of the Special Orders challenge (F-56). Builds and animates all of
-    /// the on-screen elements; owns no challenge logic. Created at runtime by
-    /// BurgerChallenge (the model) and driven entirely by its events + read-only state.
+    /// The view half of Special Orders — a screen-space UGUI panel (top-right): a dotted card + the
+    /// SPECIAL ORDER banner, the required-burger ingredient stack, the requirement line, and a
+    /// multiplier badge. Built at runtime by <see cref="BurgerChallenge"/> (the model) and driven by
+    /// its events; owns no challenge logic.
     /// </summary>
     public class BurgerChallengeView : MonoBehaviour
     {
         private BurgerChallenge _model;
-
-        private readonly List<GameObject> _burgerVisuals = new List<GameObject>();
-        private GameObject _displayRoot;
-        private TextMeshPro _titleText;
-        private TextMeshPro _nameText;
-        private TextMeshPro _levelText;
-        private SpriteRenderer _meterBg;
-        private SpriteRenderer _meterFill;
-
-        // Meter anchor (local to the display root)
-        private const float MeterX = UIStyles.CHALLENGE_METER_X;
-        private const float MeterY = UIStyles.CHALLENGE_METER_Y;
+        private Canvas _canvas;
+        private RectTransform _card;
+        private RectTransform _stackRoot;
+        private readonly List<Image> _stackImages = new List<Image>();
+        private TextMeshProUGUI _reqText;
+        private TextMeshProUGUI _multText;
 
         public void Initialize(BurgerChallenge model)
         {
@@ -47,221 +43,131 @@ namespace DogtorBurguer
 
         private void BuildPanel()
         {
-            int order = _model.SortingOrder;
+            _canvas = UIFactory.CreateCanvas(transform, "ChallengeCanvas", Constants.SORT_CHALLENGE_BASE);
 
-            _displayRoot = new GameObject("ChallengeDisplay");
-            _displayRoot.transform.SetParent(transform, false);
-            _displayRoot.transform.position = new Vector3(_model.PanelCenter.x, _model.PanelCenter.y, 0f);
+            Image card = UIFactory.CreateImage(_canvas.transform, "SpecialCard", UiArt.Load("ui_special_card"),
+                new Vector2(1f, 1f), UIStyles.SPECIAL_CARD_POS, UIStyles.SPECIAL_CARD_SIZE);
+            _card = card.rectTransform;
 
-            // Title ("Special Order!")
-            GameObject titleObj = new GameObject("ChallengeTitle");
-            titleObj.transform.SetParent(_displayRoot.transform, false);
-            titleObj.transform.localPosition = new Vector3(0f, UIStyles.CHALLENGE_TITLE_Y, 0f);
-            _titleText = WorldTextFactory.Create(titleObj, "Special Order!",
-                UIStyles.WORLD_CHALLENGE_NAME_SIZE, UIStyles.GOLD, order + 1,
-                new Vector2(2.2f, 0.5f), FontStyles.Bold, UIStyles.OUTLINE_WIDTH_UI);
+            // SPECIAL ORDER banner (blank art), sized by height (aspect), overhanging the card's
+            // top-left, with the word as TMP — like the Level/Score tabs.
+            Sprite banner = UiArt.Load("ui_special_title");
+            float bannerAspect = banner != null ? banner.rect.width / banner.rect.height : 1f;
+            Vector2 bannerSize = new(UIStyles.SPECIAL_BANNER_H * bannerAspect, UIStyles.SPECIAL_BANNER_H);
+            Image bannerImg = UIFactory.CreateImage(_card, "Banner", banner, new Vector2(0.5f, 0.5f),
+                UIStyles.SPECIAL_BANNER_OFFSET, bannerSize);
 
-            // Requirement description (below title)
-            GameObject nameObj = new GameObject("ChallengeName");
-            nameObj.transform.SetParent(_displayRoot.transform, false);
-            nameObj.transform.localPosition = new Vector3(0f, UIStyles.CHALLENGE_NAME_Y, 0f);
-            _nameText = WorldTextFactory.Create(nameObj, string.Empty,
-                UIStyles.WORLD_CHALLENGE_NAME_SIZE * 0.8f, UIStyles.TEXT_UI, order + 1,
-                new Vector2(2.2f, 0.5f), FontStyles.Normal, UIStyles.OUTLINE_WIDTH_UI);
+            TextMeshProUGUI bannerLabel = UIFactory.CreateText(bannerImg.transform, "SPECIAL ORDER",
+                UIStyles.SPECIAL_BANNER_LABEL_OFFSET, bannerSize, UIStyles.SPECIAL_BANNER_LABEL_SIZE,
+                FontStyles.Bold, UIStyles.HUD_TITLE_LABEL_COLOR);
+            bannerLabel.textWrappingMode = TextWrappingModes.NoWrap;
+            bannerLabel.enableAutoSizing = true;
+            bannerLabel.fontSizeMin = UIStyles.SPECIAL_BANNER_LABEL_SIZE_MIN;
+            bannerLabel.fontSizeMax = UIStyles.SPECIAL_BANNER_LABEL_SIZE;
 
-            // Meter background
-            GameObject meterBgObj = new GameObject("MeterBg");
-            meterBgObj.transform.SetParent(_displayRoot.transform, false);
-            meterBgObj.transform.localPosition = new Vector3(MeterX, MeterY, 0f);
-            _meterBg = meterBgObj.AddComponent<SpriteRenderer>();
-            _meterBg.sprite = SpriteFactory.White();
-            _meterBg.color = _model.MeterBgColor;
-            _meterBg.sortingOrder = order;
-            meterBgObj.transform.localScale = new Vector3(_model.MeterWidth, _model.MeterHeight, 1f);
+            // Requirement line ("4+ Ingredients" / "Has: Meat, Cheese").
+            _reqText = UIFactory.CreateText(_card, "Requirement", new Vector2(0f, UIStyles.SPECIAL_REQ_TEXT_Y),
+                UIStyles.SPECIAL_REQ_TEXT_RECT, UIStyles.SPECIAL_REQ_TEXT_SIZE, FontStyles.Bold, UIStyles.SPECIAL_REQ_TEXT_COLOR);
 
-            // Meter fill
-            GameObject meterFillObj = new GameObject("MeterFill");
-            meterFillObj.transform.SetParent(_displayRoot.transform, false);
-            meterFillObj.transform.localPosition = new Vector3(MeterX, MeterY - _model.MeterHeight * 0.5f, 0f);
-            _meterFill = meterFillObj.AddComponent<SpriteRenderer>();
-            _meterFill.sprite = SpriteFactory.White();
-            _meterFill.color = _model.MeterFillColor;
-            _meterFill.sortingOrder = order + 1;
-            meterFillObj.transform.localScale = new Vector3(_model.MeterWidth, 0f, 1f);
+            // Burger stack container (centred a touch below the card middle).
+            GameObject stackObj = new GameObject("Stack");
+            stackObj.transform.SetParent(_card, false);
+            _stackRoot = stackObj.AddComponent<RectTransform>();
+            _stackRoot.anchorMin = _stackRoot.anchorMax = new Vector2(0.5f, 0.5f);
+            _stackRoot.anchoredPosition = new Vector2(0f, UIStyles.SPECIAL_STACK_Y);
+            _stackRoot.sizeDelta = Vector2.zero;
 
-            // Level text
-            GameObject levelObj = new GameObject("ChallengeLevel");
-            levelObj.transform.SetParent(_displayRoot.transform, false);
-            levelObj.transform.localPosition = new Vector3(MeterX, MeterY - _model.MeterHeight * 0.5f - UIStyles.CHALLENGE_LEVEL_GAP, 0f);
-            _levelText = WorldTextFactory.Create(levelObj, string.Empty,
-                UIStyles.WORLD_CHALLENGE_LEVEL_SIZE, UIStyles.TEXT_UI, order + 1,
-                new Vector2(1f, 0.4f), FontStyles.Normal, UIStyles.OUTLINE_WIDTH_UI);
+            // Multiplier badge (bottom-right) — reuses the red num box sprite.
+            Image badge = UIFactory.CreateImage(_card, "MultBadge", UiArt.Load("ui_consumable_num"),
+                new Vector2(0.5f, 0.5f), UIStyles.SPECIAL_MULT_BADGE_OFFSET,
+                new Vector2(UIStyles.SPECIAL_MULT_BADGE_H, UIStyles.SPECIAL_MULT_BADGE_H));
+            _multText = UIFactory.CreateText(badge.transform, "x1", Vector2.zero,
+                new Vector2(UIStyles.SPECIAL_MULT_BADGE_H, UIStyles.SPECIAL_MULT_BADGE_H),
+                UIStyles.SPECIAL_MULT_TEXT_SIZE, FontStyles.Bold, UIStyles.CONSUMABLE_COUNT_COLOR);
+            _multText.textWrappingMode = TextWrappingModes.NoWrap;
         }
 
         private void HandleChallengeChanged()
         {
-            ClearBurgerVisuals();
+            ClearStack();
 
+            // bun bottom → (size: a "+N" mystery placeholder | contains: each required ingredient) → bun top
+            List<IngredientType?> rows = new List<IngredientType?> { IngredientType.BunBottom };
+            string placeholder = null;
             if (_model.CurrentOrderType == OrderType.Size)
-                CreateSizeVisual();
+            {
+                rows.Add(null); // mystery placeholder
+                placeholder = $"+{_model.RequiredSize}";
+            }
             else
-                CreateContainsVisual();
-
-            _nameText.text = _model.ChallengeName;
-            UpdateMeter();
-            UpdateLevelText();
-        }
-
-        private void HandleLevelUp()
-        {
-            StartCoroutine(LevelUpEffect());
-        }
-
-        private void CreateSizeVisual()
-        {
-            float startY = -(2 * _model.IngredientSpacing) * 0.5f;
-
-            CreateIngredientVisual(IngredientType.BunBottom, startY, 0);
-            CreatePlaceholderVisual($"+{_model.RequiredSize}", startY + _model.IngredientSpacing, 1);
-            CreateIngredientVisual(IngredientType.BunTop, startY + 2 * _model.IngredientSpacing, 2);
-        }
-
-        private void CreateContainsVisual()
-        {
-            IReadOnlyList<IngredientType> targets = _model.TargetIngredients;
-            int totalSlots = targets.Count + 2; // two "?" placeholders
-            float startY = -(totalSlots + 1) * _model.IngredientSpacing * 0.5f;
-            int order = 0;
-
-            CreateIngredientVisual(IngredientType.BunBottom, startY, order++);
-
-            CreatePlaceholderVisual("?", startY + order * _model.IngredientSpacing, order);
-            order++;
-
-            for (int i = 0; i < targets.Count; i++)
             {
-                CreateIngredientVisual(targets[i], startY + order * _model.IngredientSpacing, order);
-                order++;
+                foreach (IngredientType t in _model.TargetIngredients)
+                    rows.Add(t);
+            }
+            rows.Add(IngredientType.BunTop);
+
+            float spacing = UIStyles.SPECIAL_INGREDIENT_SPACING;
+            float startY = -(rows.Count - 1) * spacing * 0.5f;
+            for (int i = 0; i < rows.Count; i++)
+            {
+                float y = startY + i * spacing;
+                if (rows[i].HasValue)
+                    AddSprite(_model.GetIngredientSprite(rows[i].Value), $"Ing_{rows[i].Value}", y, null);
+                else
+                    AddSprite(UiArt.Load("ui_mystery"), "Placeholder", y, placeholder);
             }
 
-            CreatePlaceholderVisual("?", startY + order * _model.IngredientSpacing, order);
-            order++;
-
-            CreateIngredientVisual(IngredientType.BunTop, startY + order * _model.IngredientSpacing, order);
+            _reqText.text = _model.ChallengeName;
+            _multText.text = $"x{_model.GetGlobalMultiplier()}";
         }
 
-        private void CreatePlaceholderVisual(string label, float localY, int orderIndex)
+        // Adds one stacked image (ingredient or placeholder), sized by height preserving aspect, with
+        // an optional centred label (the "+N" on the mystery silhouette).
+        private void AddSprite(Sprite sprite, string name, float y, string label)
         {
-            Sprite placeholder = _model.PlaceholderSprite;
-            if (placeholder == null) return;
-
-            GameObject obj = new GameObject($"Placeholder_{label}");
-            obj.transform.SetParent(_displayRoot.transform, false);
-            obj.transform.localPosition = new Vector3(0f, localY, 0f);
-            obj.transform.localScale = Vector3.one * _model.IngredientScale;
-
-            SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
-            sr.sprite = placeholder;
-            sr.sortingOrder = _model.SortingOrder + 2 + orderIndex;
-            _burgerVisuals.Add(obj);
-
-            GameObject textObj = new GameObject("Label");
-            textObj.transform.SetParent(obj.transform, false);
-            textObj.transform.localPosition = Vector3.zero;
-            WorldTextFactory.Create(textObj, label,
-                UIStyles.WORLD_CHALLENGE_NAME_SIZE, UIStyles.TEXT_UI, sr.sortingOrder + 1,
-                new Vector2(1f, 0.5f), FontStyles.Bold, UIStyles.OUTLINE_WIDTH_WORLD);
-            _burgerVisuals.Add(textObj);
-        }
-
-        private void CreateIngredientVisual(IngredientType type, float localY, int orderIndex)
-        {
-            Sprite sprite = _model.GetIngredientSprite(type);
             if (sprite == null) return;
+            float aspect = sprite.rect.width / sprite.rect.height;
+            Image img = UIFactory.CreateImage(_stackRoot, name, sprite, new Vector2(0.5f, 0.5f),
+                new Vector2(0f, y), new Vector2(UIStyles.SPECIAL_INGREDIENT_H * aspect, UIStyles.SPECIAL_INGREDIENT_H));
+            _stackImages.Add(img);
 
-            GameObject obj = new GameObject($"Challenge_{type}");
-            obj.transform.SetParent(_displayRoot.transform, false);
-            obj.transform.localPosition = new Vector3(0f, localY, 0f);
-            obj.transform.localScale = Vector3.one * _model.IngredientScale;
-
-            SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.sortingOrder = _model.SortingOrder + 2 + orderIndex;
-            _burgerVisuals.Add(obj);
-        }
-
-        private void ClearBurgerVisuals()
-        {
-            foreach (var obj in _burgerVisuals)
+            if (!string.IsNullOrEmpty(label))
             {
-                if (obj == null) continue;
-                obj.transform.DOKill();
-                SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
-                if (sr != null) sr.DOKill();
-                Destroy(obj);
+                TextMeshProUGUI t = UIFactory.CreateText(img.transform, label, Vector2.zero,
+                    img.rectTransform.sizeDelta, UIStyles.SPECIAL_PLACEHOLDER_LABEL_SIZE, FontStyles.Bold, UIStyles.TEXT_UI);
+                t.textWrappingMode = TextWrappingModes.NoWrap;
             }
-            _burgerVisuals.Clear();
         }
 
-        private void UpdateMeter()
+        private void ClearStack()
         {
-            if (_meterFill == null) return;
-
-            float fill = (float)_model.Progress / _model.ProgressTarget;
-            float fillHeight = _model.MeterHeight * fill;
-            float bottomY = MeterY - _model.MeterHeight * 0.5f + fillHeight * 0.5f;
-            _meterFill.transform.localPosition = new Vector3(MeterX, bottomY, 0f);
-            _meterFill.transform.localScale = new Vector3(_model.MeterWidth, fillHeight, 1f);
-        }
-
-        private void UpdateLevelText()
-        {
-            if (_levelText != null)
-                _levelText.text = $"★ {_model.Level}";
+            foreach (Image img in _stackImages)
+            {
+                if (img == null) continue;
+                img.transform.DOKill();
+                Destroy(img.gameObject);
+            }
+            _stackImages.Clear();
         }
 
         private void FlashOrder()
         {
-            foreach (var obj in _burgerVisuals)
+            foreach (Image img in _stackImages)
             {
-                if (obj == null) continue;
-                SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
-                if (sr == null) continue;
-
-                Color original = sr.color;
-                sr.color = UIStyles.GOLD;
-                sr.DOColor(original, AnimConfig.LEVELUP_COLOR_RESTORE_DURATION);
+                if (img == null) continue;
+                img.DOKill();
+                img.color = UIStyles.GOLD;
+                img.DOColor(Color.white, AnimConfig.LEVELUP_COLOR_RESTORE_DURATION);
             }
         }
 
+        private void HandleLevelUp() => StartCoroutine(LevelUpEffect());
+
         private IEnumerator LevelUpEffect()
         {
-            if (_meterFill == null) yield break;
-
-            float width = _model.MeterWidth;
-            float height = _model.MeterHeight;
-
-            // Fill the meter to 100%
-            float fullCenter = MeterY;
-            _meterFill.transform.DOLocalMove(new Vector3(MeterX, fullCenter, 0f), AnimConfig.LEVELUP_FILL_DURATION).SetEase(Ease.OutQuad);
-            _meterFill.transform.DOScale(new Vector3(width, height, 1f), AnimConfig.LEVELUP_FILL_DURATION).SetEase(Ease.OutQuad);
-            yield return new WaitForSeconds(AnimConfig.LEVELUP_FILL_DURATION);
-
-            // Flash gold and punch
-            Color originalColor = _model.MeterFillColor;
-            _meterFill.color = UIStyles.GOLD;
-            _meterFill.transform.DOPunchScale(Vector3.one * AnimConfig.LEVELUP_PUNCH_SCALE, AnimConfig.LEVELUP_PUNCH_DURATION, 6);
-            _meterBg.transform.DOPunchScale(Vector3.one * AnimConfig.LEVELUP_BG_PUNCH_SCALE, AnimConfig.LEVELUP_PUNCH_DURATION, 6);
-            _levelText.transform.DOPunchScale(Vector3.one * AnimConfig.LEVELUP_TEXT_PUNCH_SCALE, AnimConfig.LEVELUP_TEXT_PUNCH_DURATION);
+            FlashOrder();
+            _card.DOPunchScale(Vector3.one * AnimConfig.LEVELUP_PUNCH_SCALE, AnimConfig.LEVELUP_PUNCH_DURATION, 6);
             yield return new WaitForSeconds(AnimConfig.LEVELUP_HOLD);
-
-            // Fade back and shrink to empty
-            _meterFill.DOColor(originalColor, AnimConfig.LEVELUP_FADE_COLOR_DURATION);
-            float emptyBottom = MeterY - height * 0.5f;
-            _meterFill.transform.DOLocalMove(new Vector3(MeterX, emptyBottom, 0f), AnimConfig.LEVELUP_SHRINK_DURATION).SetEase(Ease.InQuad);
-            _meterFill.transform.DOScale(new Vector3(width, 0f, 1f), AnimConfig.LEVELUP_SHRINK_DURATION).SetEase(Ease.InQuad);
-            yield return new WaitForSeconds(AnimConfig.LEVELUP_WAIT);
-
             _model.GenerateNewChallenge();
         }
     }

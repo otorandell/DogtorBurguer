@@ -45,8 +45,6 @@ namespace DogtorBurguer
         #region Game Layout / Challenge Colors
         public static readonly Color LAYOUT_BORDER = new(0f, 0f, 0f, 0.8f);
         public static readonly Color LAYOUT_FILL = new(0f, 0f, 0f, 0.15f);
-        public static readonly Color CHALLENGE_METER_BG = new(0.2f, 0.2f, 0.2f, 0.8f);
-        public static readonly Color CHALLENGE_METER_FILL = new(0.2f, 0.9f, 0.3f);
         #endregion
 
         #region Button Colors
@@ -111,6 +109,29 @@ namespace DogtorBurguer
         public static readonly Vector2 HUD_SCORE_PANEL_POS = new(210f, -135f);
         #endregion
 
+        #region HUD Special Order panel (screen-space UGUI, top-right — anchored top-right, reference px)
+        // Dotted card + the SPECIAL ORDER banner overhanging its top-left, the required-burger stack,
+        // a requirement line, and a multiplier badge. Keep the card at its native aspect (≈1.35:1).
+        public static readonly Vector2 SPECIAL_CARD_SIZE = new(228f, 169f);   // cream card
+        public static readonly Vector2 SPECIAL_CARD_POS = new(-128f, -172f);  // anchored top-right
+        public const float SPECIAL_BANNER_H = 46f;                            // SPECIAL ORDER banner (width follows aspect)
+        public static readonly Vector2 SPECIAL_BANNER_OFFSET = new(-48f, 80f);// banner offset within the card (overhangs top-left)
+        public const float SPECIAL_BANNER_LABEL_SIZE = 14f;                   // "SPECIAL ORDER" TMP (auto-size max)
+        public const float SPECIAL_BANNER_LABEL_SIZE_MIN = 7f;                // auto-size floor
+        public static readonly Vector2 SPECIAL_BANNER_LABEL_OFFSET = new(0f, 4f); // up a touch to clear the bubble tail
+        public const float SPECIAL_REQ_TEXT_SIZE = 15f;                       // requirement line ("4+ Ingredients")
+        public const float SPECIAL_REQ_TEXT_Y = 46f;                          // requirement Y within the card
+        public static readonly Vector2 SPECIAL_REQ_TEXT_RECT = new(200f, 34f);
+        public static readonly Color SPECIAL_REQ_TEXT_COLOR = new(0.28f, 0.17f, 0.1f); // brown
+        public const float SPECIAL_INGREDIENT_H = 28f;                        // each stack ingredient (width follows aspect)
+        public const float SPECIAL_INGREDIENT_SPACING = 20f;                  // vertical stack spacing (overlap)
+        public const float SPECIAL_STACK_Y = -16f;                            // stack center Y within the card
+        public const float SPECIAL_PLACEHOLDER_LABEL_SIZE = 16f;              // "+N" / "?" on the mystery silhouette
+        public const float SPECIAL_MULT_BADGE_H = 42f;                        // multiplier badge (reuses the red num box)
+        public static readonly Vector2 SPECIAL_MULT_BADGE_OFFSET = new(86f, -60f); // badge offset within the card (bottom-right)
+        public const float SPECIAL_MULT_TEXT_SIZE = 20f;
+        #endregion
+
         #region HUD Top Bar (authored currency widgets + buttons — anchored top-left, reference px)
         public const float TOPBAR_Y = -38f;                                // vertical center of the bar
         public static readonly Vector2 TOPBAR_BOX_SIZE = new(88f, 42f);    // currency pill (ui_currency_box ≈ native 2.12:1) — shrunk 20%
@@ -161,8 +182,6 @@ namespace DogtorBurguer
         public const float WORLD_BURGER_NAME_SIZE = 4f;
         public const float WORLD_BURGER_SCORE_SIZE = 3.5f;
         public const float WORLD_FLOATING_TEXT_SIZE = 4f;
-        public const float WORLD_CHALLENGE_NAME_SIZE = 2.2f;
-        public const float WORLD_CHALLENGE_LEVEL_SIZE = 2f;
         #endregion
 
         #region Button Sizes
@@ -245,14 +264,6 @@ namespace DogtorBurguer
         public const float SHOP_BTN_START_Y = 40f;
         public const float SHOP_BTN_SPACING = -80f;
         public static readonly Vector2 SHOP_CLOSE_POS = new(0f, -190f);
-        #endregion
-
-        #region Layout — Challenge Panel (world-space)
-        public const float CHALLENGE_TITLE_Y = 1.25f;
-        public const float CHALLENGE_NAME_Y = 1.05f;
-        public const float CHALLENGE_METER_X = 0.9f;
-        public const float CHALLENGE_METER_Y = -0.2f;
-        public const float CHALLENGE_LEVEL_GAP = 0.2f; // level text gap below the meter
         #endregion
 
         #region Layout — Game Layout Panels (world-space frames)
