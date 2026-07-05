@@ -2,8 +2,9 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// The three consumables a Burger Fairy can carry. Int order is load-bearing: it indexes
-    /// GameplayConfig.CONSUMABLE_SPAWN_WEIGHTS, and the sprite is loaded as the lowercased name
-    /// (Resources/Rewards/{name}).
+    /// GameplayConfig.CONSUMABLE_SPAWN_WEIGHTS, and sprites are loaded as the lowercased name
+    /// (Resources/Rewards/{name} for the fairy/ghost/faller badge, Resources/UI/ui_consumable_{name}
+    /// for the inventory slot icon).
     /// </summary>
     public enum ConsumableType
     {

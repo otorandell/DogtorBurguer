@@ -21,6 +21,7 @@ namespace DogtorBurguer
         private RectTransform _stackRoot;
         private readonly List<Image> _stackImages = new List<Image>();
         private TextMeshProUGUI _multText;
+        private Image _meterFill;
 
         public void Initialize(BurgerChallenge model)
         {
@@ -28,15 +29,16 @@ namespace DogtorBurguer
             BuildPanel();
 
             _model.OnChallengeChanged += HandleChallengeChanged;
-            _model.OnMatched += FlashOrder;
+            _model.OnMatched += HandleMatched;
             _model.OnLevelUp += HandleLevelUp;
         }
 
         private void OnDestroy()
         {
+            if (_meterFill != null) _meterFill.DOKill();
             if (_model == null) return;
             _model.OnChallengeChanged -= HandleChallengeChanged;
-            _model.OnMatched -= FlashOrder;
+            _model.OnMatched -= HandleMatched;
             _model.OnLevelUp -= HandleLevelUp;
         }
 
@@ -58,7 +60,8 @@ namespace DogtorBurguer
 
             TextMeshProUGUI bannerLabel = UIFactory.CreateText(bannerImg.transform, "SPECIAL ORDER",
                 UIStyles.SPECIAL_BANNER_LABEL_OFFSET, bannerSize, UIStyles.SPECIAL_BANNER_LABEL_SIZE,
-                FontStyles.Bold, UIStyles.HUD_TITLE_LABEL_COLOR);
+                FontStyles.Bold);
+            UIFactory.StyleHudText(bannerLabel);
             bannerLabel.textWrappingMode = TextWrappingModes.NoWrap;
             bannerLabel.enableAutoSizing = true;
             bannerLabel.fontSizeMin = UIStyles.SPECIAL_BANNER_LABEL_SIZE_MIN;
@@ -72,14 +75,61 @@ namespace DogtorBurguer
             _stackRoot.anchoredPosition = new Vector2(0f, UIStyles.SPECIAL_STACK_Y);
             _stackRoot.sizeDelta = Vector2.zero;
 
+            // Mult meter (built before the badge so the badge renders on top of it).
+            BuildMultMeter();
+
             // Multiplier badge (bottom-right) — reuses the red num box sprite.
             Image badge = UIFactory.CreateImage(_card, "MultBadge", UiArt.Load("ui_consumable_num"),
                 new Vector2(0.5f, 0.5f), UIStyles.SPECIAL_MULT_BADGE_OFFSET,
                 new Vector2(UIStyles.SPECIAL_MULT_BADGE_H, UIStyles.SPECIAL_MULT_BADGE_H));
             _multText = UIFactory.CreateText(badge.transform, "x1", Vector2.zero,
                 new Vector2(UIStyles.SPECIAL_MULT_BADGE_H, UIStyles.SPECIAL_MULT_BADGE_H),
-                UIStyles.SPECIAL_MULT_TEXT_SIZE, FontStyles.Bold, UIStyles.CONSUMABLE_COUNT_COLOR);
+                UIStyles.SPECIAL_MULT_TEXT_SIZE, FontStyles.Bold);
+            UIFactory.StyleHudText(_multText);
             _multText.textWrappingMode = TextWrappingModes.NoWrap;
+        }
+
+        // The mult meter: a vertical capsule from three stacked layers at one rect — brown well (back) →
+        // green fill (middle, an Image.Filled driven bottom-up) → frame (front). Parented to the card and
+        // built before the badge, so the multiplier badge renders on top of it (sharing its x).
+        private void BuildMultMeter()
+        {
+            Sprite back = UiArt.Load("ui_mult_meter_back");
+            Sprite fill = UiArt.Load("ui_mult_meter_fill");
+            Sprite frame = UiArt.Load("ui_mult_meter_front");
+
+            float aspect = back != null ? back.rect.width / back.rect.height : 0.3f;
+            Vector2 size = new(UIStyles.MULT_METER_H * aspect, UIStyles.MULT_METER_H);
+            Vector2 anchor = new(0.5f, 0.5f); // centred in the card, like the mult badge
+            Vector2 pos = UIStyles.MULT_METER_OFFSET;
+
+            UIFactory.CreateImage(_card, "MultMeterBack", back, anchor, pos, size);
+
+            // The green capsule is inset above the well bottom; extend its rect downward (top fixed) so the
+            // fill seats on the well bottom and there's no gap below it.
+            float extend = UIStyles.MULT_METER_FILL_BOTTOM_EXTEND;
+            Vector2 fillSize = new(size.x, size.y + extend);
+            Vector2 fillPos = pos + new Vector2(0f, -extend * 0.5f);
+            _meterFill = UIFactory.CreateImage(_card, "MultMeterFill", fill, anchor, fillPos, fillSize);
+            _meterFill.type = Image.Type.Filled;
+            _meterFill.fillMethod = Image.FillMethod.Vertical;
+            _meterFill.fillOrigin = (int)Image.OriginVertical.Bottom;
+            _meterFill.fillAmount = 0f;
+
+            UIFactory.CreateImage(_card, "MultMeterFront", frame, anchor, pos, size);
+        }
+
+        // Drives the green fill to the current progress-to-next-level (0..1). Animated on a match /
+        // order roll; the leveling match fills to full, then the post-level new order drains it to empty.
+        private void UpdateMeter(bool animate)
+        {
+            if (_meterFill == null) return;
+            float target = _model.ChallengeFill;
+            _meterFill.DOKill();
+            if (animate)
+                _meterFill.DOFillAmount(target, AnimConfig.MULT_METER_FILL_DURATION);
+            else
+                _meterFill.fillAmount = target;
         }
 
         private void HandleChallengeChanged()
@@ -125,6 +175,14 @@ namespace DogtorBurguer
             }
 
             _multText.text = $"x{_model.GetGlobalMultiplier()}";
+            UpdateMeter(animate: true);
+        }
+
+        // A matching burger landed: flash the order and climb the meter toward the next level.
+        private void HandleMatched()
+        {
+            FlashOrder();
+            UpdateMeter(animate: true);
         }
 
         // Adds one stacked image (ingredient or placeholder), sized by height preserving aspect, with

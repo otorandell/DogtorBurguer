@@ -85,6 +85,7 @@ namespace DogtorBurguer
         #endregion
 
         #region Challenge Level Up
+        public const float MULT_METER_FILL_DURATION = 0.4f;  // mult meter fill tween (progress to next mult)
         public const float LEVELUP_FILL_DURATION = 0.15f;
         public const float LEVELUP_PUNCH_SCALE = 0.15f;
         public const float LEVELUP_PUNCH_DURATION = 0.3f;

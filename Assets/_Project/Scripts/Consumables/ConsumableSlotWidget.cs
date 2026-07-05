@@ -27,8 +27,9 @@ namespace DogtorBurguer
                 new Vector2(0f, 1f), pos, UIStyles.CONSUMABLE_SLOT_SIZE);
             _plateRect = plate.rectTransform;
 
-            // Consumable icon, sized by height preserving aspect (the icons are non-square).
-            Sprite iconSprite = RewardArt.Badge(type);
+            // Consumable icon — the splashy slot version from the Consumables UI Kit (the plainer
+            // Rewards badge stays on the fairy/ghost/faller). Sized by height preserving aspect.
+            Sprite iconSprite = UiArt.Load("ui_consumable_" + type.ToString().ToLowerInvariant());
             float aspect = iconSprite != null ? iconSprite.rect.width / iconSprite.rect.height : 1f;
             Vector2 iconSize = new(UIStyles.CONSUMABLE_SLOT_ICON_H * aspect, UIStyles.CONSUMABLE_SLOT_ICON_H);
             _icon = UIFactory.CreateImage(plate.transform, "Icon", iconSprite,
@@ -40,7 +41,8 @@ namespace DogtorBurguer
 
             _count = UIFactory.CreateText(_numBox.transform, "0", Vector2.zero,
                 new Vector2(UIStyles.CONSUMABLE_BADGE_H, UIStyles.CONSUMABLE_BADGE_H),
-                UIStyles.CONSUMABLE_COUNT_SIZE, FontStyles.Bold, UIStyles.CONSUMABLE_COUNT_COLOR);
+                UIStyles.CONSUMABLE_COUNT_SIZE, FontStyles.Bold);
+            UIFactory.StyleHudText(_count);
             _count.textWrappingMode = TextWrappingModes.NoWrap;
         }
 

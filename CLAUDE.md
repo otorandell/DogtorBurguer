@@ -149,7 +149,15 @@ The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]
 - **Screen-space UGUI panel** (top-right, `BurgerChallengeView`): authored card + the SPECIAL ORDER
   banner (blank art + TMP word) + the **required-burger stack** (bun → "+N" mystery silhouette /
   required ingredients → bun, on a `Theme.Plate`) + a **multiplier badge** (`GetGlobalMultiplier`).
-  No requirement text / progress meter (the burger conveys the order; matches the art).
+  No requirement text (the burger conveys the order; matches the art).
+- **Mult meter**: a vertical capsule (`ui_mult_meter_back/fill/front` — brown well + green fill + frame,
+  3 layers stacked at one rect) whose green fill is a UGUI `Image.Filled` (vertical, bottom-origin). Fill =
+  `BurgerChallenge.ChallengeFill` (`_challengeProgress / ProgressTarget`, progress to the next challenge
+  level). Climbs on each Special Order match → tops out on the leveling match → the post-level new order
+  drains it to empty. Animated via `DOFillAmount` (`AnimConfig.MULT_METER_FILL_DURATION`). A **child of the
+  card**, built **before** the mult badge so the badge renders on top (meter sits under it, sharing its x);
+  taller than the card so it overflows a touch. The green capsule's rect is extended downward
+  (`MULT_METER_FILL_BOTTOM_EXTEND`) to seat the fill on the well bottom. Layout: `UIStyles.MULT_METER_*`.
 - `BurgerChallenge` is logic + read-only state only; the view owns all layout (`UIStyles.SPECIAL_*`).
 - On match: the burger flashes gold; popup shows "Order Complete!" instead of the generated name (via
   GridManager `IsOrderMatch`). Level-up flashes + punches the card, then rolls the next order.
@@ -229,8 +237,9 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   multiplier; **buns score nothing** (Ketchup-cleared and Skewer-destroyed alike). Cascades
   score normally via `OnMatchEliminated`.
 - **Art** (`RewardArt` + `SpriteFit`): one badge per payload from `Resources/Rewards/`
-  (`gem`/`ketchup`/`mustard`/`skewer`) doubles as fairy badge, inventory icon, column ghost
-  (alpha) and faller; the carrier from `Resources/Fairy/fairy`. `SpriteFit.Height` normalizes
+  (`gem`/`ketchup`/`mustard`/`skewer`) doubles as fairy badge, column ghost (alpha) and faller;
+  the **inventory slot icons** are the splashy kit versions (`Resources/UI/ui_consumable_{name}`,
+  via `UiArt`); the carrier from `Resources/Fairy/fairy`. `SpriteFit.Height` normalizes
   every sprite to a world-height so source PPU/size doesn't matter. Sizes/positions/sorts live in
   `UIStyles` (`*_HEIGHT`, `CONSUMABLE_SLOT_*`) and `Constants` (`SORT_CONSUMABLE_*`).
 - **Status**: audio is placeholder procedural tones on the hooks (`PlayConsumableCollect` /
@@ -287,18 +296,22 @@ Rng.Value              // float 0-1
 
 ## Known Issues
 
-### Text Outline Rendering (UNRESOLVED)
-Setting `tmp.outlineWidth`/`tmp.outlineColor` after `AddComponent<TextMeshPro>()` doesn't reliably render outlines. Shader keyword `OUTLINE_ON` isn't enabled and material may not be initialized. Current workaround: black text color for readability.
-
-**Fix when ready:**
-1. Enable `ShaderUtilities.Keyword_Outline` ("OUTLINE_ON") on the material
-2. Wait one frame for TMP to initialize before modifying `fontMaterial`
-3. Call `tmp.UpdateMeshPadding()` and `tmp.ForceMeshUpdate()`
+### Text Outline Rendering (RESOLVED for UGUI — playtested 2026-07-05)
+Setting `tmp.outlineWidth`/`tmp.outlineColor` on a runtime-created TMP component doesn't reliably
+render outlines (keyword `OUTLINE_ON` never enabled; material init timing). **The working path is
+`UIFactory.StyleFillAndBorder`**: clone the font's material once per style (cached per
+font+color+width, shared — batched), `EnableKeyword(ShaderUtilities.Keyword_Outline)`, set
+`ID_OutlineColor`/`ID_OutlineWidth`, assign via `fontSharedMaterial`, then `UpdateMeshPadding()`.
+The broken per-component setters were removed from `UIFactory.AddStyledText`. World-space
+(`WorldTextFactory`) still uses the old setters — migrate the same way if world outlines are wanted.
 
 ### UI Text Color Convention
-- Main Menu + In-game HUD: black text
-- Buttons/popups/panels: white with outline (when outline fix is applied)
-- World-space popups: white with outline
+- **HUD numbers + all red-box labels** (Level/Score numbers, tab words, SPECIAL ORDER banner,
+  mult badge, consumable counts): the reference palette — cream fill `#FCFAF1` + dark-brown border
+  `#492611` via `UIFactory.StyleHudText` (`UIStyles.HUD_TEXT_*`).
+- Top-bar currency pill numbers: plain dark brown (`TOPBAR_NUMBER_COLOR`), no border.
+- Buttons/popups/panels (menu): white text.
+- World-space popups: white (world outline still pending — see above).
 
 ## Roadmap
 
@@ -322,7 +335,7 @@ balance values are centralized in `AnimConfig` / `UIStyles` / `GameplayConfig`. 
 - **Game feel / juice** — animation timing, screen shake, squash/stretch, popups (`AnimConfig`)
 - **Difficulty & balance** — level curve, wave speed, triple-wave chance, Special Order difficulty, scoring (`GameplayConfig`)
 - **Audio** — real SFX/music via the authored-clip override path (`AudioManager._*Override` fields) or procedural/mix tuning (`AudioConfig`)
-- **Visual** — the text-outline fix (see Known Issues), readability/contrast, the placeholder sprite (`UIStyles`)
+- **Visual** — readability/contrast, the placeholder sprite (`UIStyles`); the text-outline fix landed 2026-07-05 (see Known Issues)
 
 ### Phase 3 — Backlog (potential next work; noted 2026-06-12, not yet started)
 Dev-flagged directions for future sessions, roughly in priority order. Nothing here is designed
@@ -335,8 +348,7 @@ or committed yet — capture only.
 - **Prepare for real assets** — replace placeholder art across the game. Pipeline is ready
   (`Theme` / `Resources/Skins` for gameplay art, `RewardArt` for consumables) — mostly a content swap.
 - **Prepare for real UI components** — UI is currently code-built/procedural (`UIFactory`,
-  `WorldTextFactory`, `SpriteFactory`); move toward authored UI components / polish, plus the
-  text-outline fix (see Known Issues).
+  `WorldTextFactory`, `SpriteFactory`); move toward authored UI components / polish.
 - **Full advertisement implementation** — replace the mock `AdManager` with a real ad SDK
   (rewarded continue, interstitials every 3 games, gem-pack rewards).
 - **Sound / music** — optional; dev is fairly happy with the current procedural SFX. Real
@@ -407,13 +419,13 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   - **Shop / Settings buttons** (top bar) — **click-stubbed**; need in-game pause + the panels brought
     into the Game scene (today they only exist in the menu).
   - **Shop**: real gem/star spending against products (today the IAP buttons just grant gems for testing).
-  - **Mult meter**: a filling multiplier gauge (right of Special Order) — needs wiring to the live
-    multiplier value. **Not built yet.**
+  - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next
+    challenge level. **Built** (`BurgerChallengeView.BuildMultMeter`, `ChallengeFill`) — slot
+    position/size are eyeball defaults in `UIStyles.MULT_METER_*`, tune live.
   - **Consumable effect VFX** (e.g. the in-use ketchup bottle) — art exists, needs hooking to use.
   Plan each of these as its own code task alongside the visual wiring.
 - Consumable polish: real SFX (override slots ready) + final slot layout/sizes (placeholders in `UIStyles`)
 - Skin selection + unlock/buy UI (DEFERRED — foundation done; see Skin System roadmap)
-- Text outline shader fix
 - Leaderboard integration (button exists, logs "Coming Soon")
 - IAP integration (buttons exist, currently grant gems for testing)
 - Ad SDK integration (AdManager is placeholder)

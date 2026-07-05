@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -203,9 +204,45 @@ namespace DogtorBurguer
             tmp.fontStyle = style;
             tmp.color = color;
             tmp.alignment = alignment;
-            tmp.outlineWidth = UIStyles.OUTLINE_WIDTH_UI;
-            tmp.outlineColor = UIStyles.OUTLINE_COLOR;
             return tmp;
+        }
+
+        // --- fill + border styling ---
+
+        // One material per (font material, border color, width) style, shared by every text using it —
+        // keeps draws batched and avoids per-component material instances (mutating tmp.outlineWidth /
+        // fontMaterial right after AddComponent is the path that never rendered reliably).
+        private static readonly Dictionary<(Material font, Color32 border, float width), Material> _outlineMaterials = new();
+
+        /// <summary>
+        /// Styles a text with the standard HUD palette: cream fill + dark-brown border
+        /// (see UIStyles.HUD_TEXT_*). Used on the big card numbers and all red-box labels.
+        /// </summary>
+        public static void StyleHudText(TextMeshProUGUI tmp) =>
+            StyleFillAndBorder(tmp, UIStyles.HUD_TEXT_FILL, UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH);
+
+        /// <summary>
+        /// Gives a text a solid fill color and a rendered border: assigns a cached shared outline
+        /// material (outline keyword enabled, mesh padding updated) instead of the per-component
+        /// outlineWidth setter, which doesn't reliably render on runtime-created TMP components.
+        /// </summary>
+        public static void StyleFillAndBorder(TextMeshProUGUI tmp, Color fill, Color32 border, float width)
+        {
+            tmp.color = fill;
+
+            Material fontMat = tmp.font.material;
+            var key = (fontMat, border, width);
+            if (!_outlineMaterials.TryGetValue(key, out Material mat))
+            {
+                mat = new Material(fontMat);
+                mat.EnableKeyword(ShaderUtilities.Keyword_Outline);
+                mat.SetColor(ShaderUtilities.ID_OutlineColor, (Color)border);
+                mat.SetFloat(ShaderUtilities.ID_OutlineWidth, width);
+                _outlineMaterials[key] = mat;
+            }
+
+            tmp.fontSharedMaterial = mat;
+            tmp.UpdateMeshPadding();
         }
     }
 }

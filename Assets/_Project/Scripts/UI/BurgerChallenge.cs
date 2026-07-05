@@ -37,6 +37,9 @@ namespace DogtorBurguer
         public string ChallengeName => _challengeName;
         public int Level => _challengeLevel;
 
+        /// <summary>Progress toward the next challenge level (0..1) — drives the Mult meter.</summary>
+        public float ChallengeFill => ProgressTarget > 0 ? (float)_challengeProgress / ProgressTarget : 0f;
+
         private int ProgressTarget => _challengeLevel + 1; // matches needed to level up
 
         // --- spawner-backed lookups (resolved once, F-59) ---

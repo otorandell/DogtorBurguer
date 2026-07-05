@@ -16,9 +16,14 @@ namespace DogtorBurguer
         #endregion
 
         #region Text Outlines
-        public const float OUTLINE_WIDTH_UI = 0.2f;
         public const float OUTLINE_WIDTH_WORLD = 0.25f;
         public static readonly Color32 OUTLINE_COLOR = new(0, 0, 0, 255);
+        // HUD text palette (sampled from the look reference IMG_1645): cream fill + thick dark-brown
+        // border, applied via UIFactory.StyleHudText (a real TMP outline material, not the broken
+        // per-component outlineWidth path). Used on the big numbers and all red-box labels.
+        public static readonly Color HUD_TEXT_FILL = new(0.988f, 0.980f, 0.945f);      // #FCFAF1 cream white
+        public static readonly Color32 HUD_TEXT_BORDER = new(0x49, 0x26, 0x11, 0xFF);  // #492611 dark brown
+        public const float HUD_TEXT_BORDER_WIDTH = 0.25f;                              // TMP outline width (0..1) — tune live
         #endregion
 
         #region Text Colors
@@ -75,8 +80,7 @@ namespace DogtorBurguer
         public static readonly Vector2 CONSUMABLE_ICON_OFFSET = new(0f, 3f);    // icon offset within the plate
         public const float CONSUMABLE_BADGE_H = 34f;                            // num/plus badge (width follows aspect)
         public static readonly Vector2 CONSUMABLE_BADGE_OFFSET = new(28f, -28f);// badge offset (bottom-right of plate)
-        public const float CONSUMABLE_COUNT_SIZE = 22f;                         // count number on the num box
-        public static readonly Color CONSUMABLE_COUNT_COLOR = new(0.96f, 0.93f, 0.82f); // cream
+        public const float CONSUMABLE_COUNT_SIZE = 26f;                         // count number on the num box
         public const float CONSUMABLE_ROW_Y = -233f;                            // row Y (margin below the Level/Score cards)
         // Span the same zone as Level/Score: 80-wide plates at 58/144/230 → left edge 18, right edge 270.
         public const float CONSUMABLE_SLOT_X_START = 58f;                       // first slot center X
@@ -93,13 +97,11 @@ namespace DogtorBurguer
         // width following the native aspect (≈1.84:1) so it never stretches; raise the height to widen.
         public const float HUD_PANEL_TITLE_HEIGHT = 56f;                   // red title tab height (width follows aspect; +16%)
         public const float HUD_PANEL_TITLE_Y = 30f;                        // tab offset up within the card
-        public const float HUD_TITLE_LABEL_SIZE = 12f;                     // tab word TMP font (auto-size max)
+        public const float HUD_TITLE_LABEL_SIZE = 22f;                     // tab word TMP font (auto-size max)
         public const float HUD_TITLE_LABEL_SIZE_MIN = 8f;                  // auto-size floor for the tab word
-        public static readonly Color HUD_TITLE_LABEL_COLOR = new(0.96f, 0.93f, 0.82f); // cream
-        public const float HUD_PANEL_NUMBER_SIZE = 30f;                    // the big number font (auto-size max)
+        public const float HUD_PANEL_NUMBER_SIZE = 54f;                    // the big number font (auto-size max)
         public const float HUD_PANEL_NUMBER_SIZE_MIN = 14f;                // auto-size floor for the number
         public const float HUD_PANEL_NUMBER_Y = -18f;                      // number offset down within the card
-        public static readonly Color HUD_PANEL_NUMBER_COLOR = new(0.28f, 0.17f, 0.1f);
         // Shared left-column zone: 18px left margin → right edge at half the screen (270). Two 122-wide
         // cards, ~8 gap. The consumable row spans this same zone (start/end aligned).
         public static readonly Vector2 HUD_LEVEL_PANEL_POS = new(79f, -125f);
@@ -116,7 +118,7 @@ namespace DogtorBurguer
         public static readonly Vector2 SPECIAL_CARD_POS = new(-128f, -176f);  // anchored top-right
         public const float SPECIAL_BANNER_H = 60f;                            // SPECIAL ORDER banner (width follows aspect)
         public static readonly Vector2 SPECIAL_BANNER_OFFSET = new(-40f, 78f);// banner offset within the card (overhangs top-left)
-        public const float SPECIAL_BANNER_LABEL_SIZE = 13f;                   // "SPECIAL ORDER" TMP (auto-size max)
+        public const float SPECIAL_BANNER_LABEL_SIZE = 18f;                   // "SPECIAL ORDER" TMP (auto-size max)
         public const float SPECIAL_BANNER_LABEL_SIZE_MIN = 7f;                // auto-size floor
         public static readonly Vector2 SPECIAL_BANNER_LABEL_OFFSET = new(0f, 5f); // up a touch to clear the bubble tail
         public const float SPECIAL_INGREDIENT_H = 38f;                        // each stack ingredient (width follows aspect)
@@ -126,8 +128,16 @@ namespace DogtorBurguer
         public const float SPECIAL_PLATE_H = 18f;                             // plate under the bottom bun (width follows aspect)
         public const float SPECIAL_PLATE_Y_OFFSET = 13f;                      // plate drop below the bottom bun
         public const float SPECIAL_MULT_BADGE_H = 42f;                        // multiplier badge (reuses the red num box)
-        public static readonly Vector2 SPECIAL_MULT_BADGE_OFFSET = new(86f, -60f); // badge offset within the card (bottom-right)
-        public const float SPECIAL_MULT_TEXT_SIZE = 20f;
+        // Badge sits on the meter's bottom cap (meter bottom ≈ offset.y − H/2 = -123): reference shows
+        // the xN badge overlapping the capsule's bottom end, not floating mid-meter.
+        public static readonly Vector2 SPECIAL_MULT_BADGE_OFFSET = new(86f, -110f); // badge offset within the card (on the meter bottom)
+        public const float SPECIAL_MULT_TEXT_SIZE = 24f;
+        // Mult meter — a vertical capsule (back well + green fill + frame), 3 stacked layers at one rect.
+        // A child of the card, built before the mult badge so the badge renders on top (meter sits under
+        // it, sharing its x). Taller than the card so it overflows top/bottom a touch. Eyeball defaults.
+        public const float MULT_METER_H = 215f;                              // meter height (width follows the 302:1011 aspect)
+        public static readonly Vector2 MULT_METER_OFFSET = new(86f, -16f);   // within the card, x aligned to the mult badge
+        public const float MULT_METER_FILL_BOTTOM_EXTEND = 20f;              // extend the green fill's rect down to meet the well bottom (closes the gap)
         #endregion
 
         #region HUD Top Bar (authored currency widgets + buttons — anchored top-left, reference px)
@@ -142,6 +152,7 @@ namespace DogtorBurguer
         public const float TOPBAR_NUMBER_X = 18f;                          // number offset — left-clamped, just right of the icon
         public const float TOPBAR_NUMBER_SIZE = 20f;                       // auto-size max
         public const float TOPBAR_NUMBER_SIZE_MIN = 10f;                   // auto-size floor
+        public static readonly Color TOPBAR_NUMBER_COLOR = new(0.28f, 0.17f, 0.1f); // dark brown, no border (pill numbers)
         public static readonly Vector2 TOPBAR_NUMBER_RECT = new(52f, 40f);
         // Order left→right: high-score, star, gem (wider spacing to clear the bigger icons).
         public static readonly Vector2 TOPBAR_SCORE_POS = new(90f, TOPBAR_Y);  // high-score trophy widget (leftmost)

@@ -59,7 +59,7 @@ namespace DogtorBurguer
 
             TextMeshProUGUI number = UIFactory.CreateText(box.transform, "0",
                 new Vector2(UIStyles.TOPBAR_NUMBER_X, 0f), UIStyles.TOPBAR_NUMBER_RECT,
-                UIStyles.TOPBAR_NUMBER_SIZE, FontStyles.Bold, UIStyles.HUD_PANEL_NUMBER_COLOR,
+                UIStyles.TOPBAR_NUMBER_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR,
                 TextAlignmentOptions.Left);
             AutoFit(number, UIStyles.TOPBAR_NUMBER_SIZE_MIN, UIStyles.TOPBAR_NUMBER_SIZE);
             return number;
@@ -93,8 +93,8 @@ namespace DogtorBurguer
                 new Vector2(0.5f, 0.5f), new Vector2(0f, UIStyles.HUD_PANEL_TITLE_Y), tabSize);
 
             TextMeshProUGUI titleLabel = UIFactory.CreateText(tab.transform, title, Vector2.zero,
-                tabSize, UIStyles.HUD_TITLE_LABEL_SIZE, FontStyles.Bold,
-                UIStyles.HUD_TITLE_LABEL_COLOR);
+                tabSize, UIStyles.HUD_TITLE_LABEL_SIZE, FontStyles.Bold);
+            UIFactory.StyleHudText(titleLabel);
             AutoFit(titleLabel, UIStyles.HUD_TITLE_LABEL_SIZE_MIN, UIStyles.HUD_TITLE_LABEL_SIZE);
 
             GameObject numObj = new GameObject("Number");
@@ -107,8 +107,8 @@ namespace DogtorBurguer
 
             TextMeshProUGUI tmp = numObj.AddComponent<TextMeshProUGUI>();
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.color = UIStyles.HUD_PANEL_NUMBER_COLOR;
             tmp.fontStyle = FontStyles.Bold;
+            UIFactory.StyleHudText(tmp);
             AutoFit(tmp, UIStyles.HUD_PANEL_NUMBER_SIZE_MIN, UIStyles.HUD_PANEL_NUMBER_SIZE);
             return tmp;
         }
