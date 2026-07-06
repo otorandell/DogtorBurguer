@@ -45,8 +45,10 @@ namespace DogtorBurguer
         #endregion
 
         #region Tap Interaction
-        public const float PREVIEW_TAP_RADIUS_MULT = 0.7f;
-        public const float FALLING_TAP_RADIUS_MULT = 0.6f;
+        // 0.5 × CELL_WIDTH = adjacent columns' tap circles touch exactly: no dead gap between
+        // columns and no cross-column overlap (an edge tap can't grab the neighbor's piece).
+        public const float PREVIEW_TAP_RADIUS_MULT = 0.5f;
+        public const float FALLING_TAP_RADIUS_MULT = 0.5f;
         public const float CHEF_TAP_RADIUS_MULT = 2f; // tap within this × bubble radius of the chef = swap
         public const float CHEF_MOVE_ZONE_TOP_OFFSET = 0.6f; // Tap-mode move zone extends this far above the grid floor
         public const float FAST_DROP_POINTS_PER_UNIT = 2f;

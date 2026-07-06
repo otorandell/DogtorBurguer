@@ -62,7 +62,12 @@
       "WebFetch(domain:turbine.games)",
       "PowerShell(New-Item *)",
       "PowerShell(git rm *)",
-      "PowerShell(git *)"
+      "PowerShell(git *)",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; foreach \\($f in @\\(\"Ketchup_Effects.png\",\"Ketchup_Effects_2.png\",\"Mustard_Effects.png\"\\)\\) { $p = \"Assets\\\\RawArt\\\\Dogtor Burger-20260621T101024Z-3-001\\\\Dogtor Burger\\\\Assets\\\\Consumibles\\\\$f\"; $img = [System.Drawing.Image]::FromFile\\(\\(Resolve-Path $p\\)\\); Write-Output \"$f : $\\($img.Width\\) x $\\($img.Height\\)\"; $img.Dispose\\(\\) })",
+      "PowerShell(foreach \\($f in @\\(\"fx_ketchup_stream.png.meta\",\"fx_mustard_nozzle.png.meta\"\\)\\) { $p = \\(Resolve-Path \"Assets\\\\_Project\\\\Resources\\\\Effects\\\\$f\"\\).Path; $text = [System.IO.File]::ReadAllText\\($p\\); [System.IO.File]::WriteAllText\\($p, $text, \\(New-Object System.Text.UTF8Encoding\\($false\\)\\)\\); $bytes = [System.IO.File]::ReadAllBytes\\($p\\); Write-Output \"$f first bytes: $\\($bytes[0]\\) $\\($bytes[1]\\) $\\($bytes[2]\\)\" })",
+      "PowerShell(Get-ChildItem \"Assets\\\\RawArt\\\\Dogtor Burger-20260705T163113Z-3-001\" -Recurse -File | Where-Object { $_.Extension -ne \".meta\" } | ForEach-Object { $_.FullName.Replace\\(\\(Get-Location\\).Path + \"\\\\Assets\\\\RawArt\\\\Dogtor Burger-20260705T163113Z-3-001\\\\\", \"\"\\) + \"  \\(\" + [math]::Round\\($_.Length/1KB\\) + \" KB\\)\" })",
+      "PowerShell(Copy-Item *)",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $bmp = New-Object System.Drawing.Bitmap\\(\\(Resolve-Path \"Assets\\\\_Project\\\\Sprites\\\\Background\\\\bg_grid_cells.png\"\\).Path\\); $w = $bmp.Width; $h = $bmp.Height; $minX = $w; $maxX = 0; $minY = $h; $maxY = 0; for \\($y = 0; $y -lt $h; $y += 8\\) { for \\($x = 0; $x -lt $w; $x += 4\\) { if \\($bmp.GetPixel\\($x, $y\\).A -gt 40\\) { if \\($x -lt $minX\\) { $minX = $x }; if \\($x -gt $maxX\\) { $maxX = $x }; if \\($y -lt $minY\\) { $minY = $y }; if \\($y -gt $maxY\\) { $maxY = $y } } } }; Write-Output \"sprite: ${w}x${h}  panel X: $minX..$maxX \\(center $\\(\\($minX+$maxX\\)/2\\)\\)  panel Y: $minY..$maxY\"; $bmp.Dispose\\(\\))"
     ]
   }
 }

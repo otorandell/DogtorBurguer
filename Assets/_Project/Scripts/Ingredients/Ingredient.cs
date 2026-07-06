@@ -270,7 +270,9 @@ namespace DogtorBurguer
             });
         }
 
-        public void DestroyWithFlash()
+        /// <summary>Flash-blink out and destroy. <paramref name="delay"/> postpones the visual only
+        /// (state is already removed) — the ketchup clear staggers rows with it.</summary>
+        public void DestroyWithFlash(float delay = 0f)
         {
             _currentTween?.Kill();
             _waveTween?.Kill();
@@ -281,6 +283,7 @@ namespace DogtorBurguer
 
             Sequence seq = DOTween.Sequence();
             seq.SetTarget(gameObject);
+            if (delay > 0f) seq.AppendInterval(delay);
             // Blink twice (visible -> invisible -> visible -> invisible -> visible)
             seq.Append(_spriteRenderer.DOColor(Color.clear, AnimConfig.FLASH_BLINK_DURATION));
             seq.Append(_spriteRenderer.DOColor(Color.white, AnimConfig.FLASH_BLINK_DURATION));

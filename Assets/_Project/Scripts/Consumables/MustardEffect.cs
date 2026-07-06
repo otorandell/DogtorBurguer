@@ -13,6 +13,8 @@ namespace DogtorBurguer
         public override bool CanApply(Column column) => column != null && !column.IsEmpty;
         public override Sprite FallerSprite => RewardArt.MustardDrop;
         public override float FallerHeight => UIStyles.FX_MUSTARD_DROP_HEIGHT;
+        public override Sprite GhostSprite => RewardArt.MustardNozzle;
+        public override bool GhostLingers => true; // the ghost nozzle "drops" the falling blob
 
         public override void Apply(Column column)
         {
@@ -20,7 +22,5 @@ namespace DogtorBurguer
             if (top == null) return;
             GridManager.Instance?.ConsumableSweepType(top.Type, column);
         }
-
-        public override void PlayVfx(Column column) => ConsumableVfx.MustardBurst(column);
     }
 }

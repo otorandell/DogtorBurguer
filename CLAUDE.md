@@ -185,8 +185,13 @@ keeps live-earned order stars but forfeits the end-of-run score payout.
 
 ### Grid
 - 4 columns, 13 max rows
-- Cell: 1.4w x 0.4h visual height (60% overlap)
-- Grid origin: (-2.1, -4.2)
+- Cell: **1.234w** x 0.4h visual height (60% overlap). The width equals the play-mat's painted
+  lane pitch at its current scale (measured 507.7px × `GRID_CELLS_WIDTH`/2604px) so every column
+  sits exactly on its painted lane — **the mat leads, the grid follows**; re-derive `CELL_WIDTH`
+  if `GRID_CELLS_WIDTH` changes. `GRID_CELLS_X_NUDGE` (0.111) is the measured correction for the
+  mat texture's asymmetric transparent padding.
+- Grid origin: (-1.851, -4.2) — always `-(COLUMN_COUNT-1)*CELL_WIDTH/2` to stay centered on x=0
+- Pieces are wider than the lanes (buns 1.38): adjacent stacks slightly overlap — accepted look
 - Chef has 3 positions (between the 4 columns)
 
 ### Camera & UI scaling (CameraFit) — design for WIDTH
@@ -289,8 +294,9 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
 - **Faller + effects**: on release a `ConsumableFaller` drops fast and **resolves on impact**;
   reaching the floor with no target **fizzles** (item still spent). Each `ConsumableEffect`
   supplies a target rule + on-impact behavior + its falling visual (`FallerSprite`/`FallerHeight`;
-  ketchup drops its badge bottle, mustard an authored drop, the skewer the full stick — all
-  polymorphic, no switch) calling granular `GridManager` helpers:
+  mustard drops its authored blob, the skewer the full stick; **ketchup's is null → nothing
+  falls and it resolves instantly on release** — all polymorphic, no switch) calling granular
+  `GridManager` helpers:
   - **Ketchup** → clears the whole targeted column (`ConsumableClearColumn`).
   - **Mustard** → removes the targeted column's top type **board-wide** (`ConsumableSweepType`),
     per-column collapse + cascade (chain reactions reuse the normal pair-match loop).
@@ -299,15 +305,18 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
 - **Scoring**: non-bun removals score `POINTS_CONSUMABLE_PER_INGREDIENT` (10), flat, no
   multiplier; **buns score nothing** (Ketchup-cleared and Skewer-destroyed alike). Cascades
   score normally via `OnMatchEliminated`.
-- **Use VFX** (`ConsumableVfx`, fired via the polymorphic `ConsumableEffect.PlayVfx` alongside
-  `Apply` — cosmetic, non-blocking, self-destroying). Art direction: **the nozzle locks onto the
-  used column**; the per-type faller is the "thing that drops". Ketchup = nozzle + a stream
-  squirted down the column (`fx_ketchup_nozzle/stream`); Mustard = nozzle burst in place
-  (`fx_mustard_nozzle`) with the authored drop as its faller (`fx_mustard_drop`); Skewer = the
-  full stick falls tip-first (`fx_skewer_falling`, `FallerImpactLift` seats the tip on the
-  floor), then only its **head stays pinned** at the base for the went-through depth read
-  (`fx_skewer_head`). Sizes `UIStyles.FX_*`, timings `AnimConfig.FX_*`, sorts
-  `SORT_CONSUMABLE_FX_*` (between ghost and faller).
+- **Use VFX** (`ConsumableVfx` + the drag ghost — cosmetic, non-blocking, self-destroying).
+  Art direction: the **column ghost IS the nozzle** (ketchup/mustard ghosts are the nozzle art
+  via `GhostSprite`); for `GhostLingers` effects it survives the release, holding "locked on"
+  over the column (`GHOST_LINGER_DURATION`) before fading. **Ketchup**: nothing falls — on
+  release the stream (`fx_ketchup_stream`) extends linearly from the ghost's tip down the column
+  while the clear flashes **stagger top→bottom in step with the stream front**
+  (`KETCHUP_CLEAR_START_DELAY`/`_STAGGER` paired with `FX_STREAM_EXTEND_DURATION`). **Mustard**:
+  the authored blob (`fx_mustard_drop`) falls from the lingering ghost; the sweep resolves on its
+  impact. **Skewer**: the full stick falls tip-first (`fx_skewer_falling`, `FallerImpactLift`
+  seats the tip), then only its **head stays pinned** at the base (`fx_skewer_head`,
+  `ConsumableVfx.SkewerPin`). Sizes `UIStyles.FX_*`/ghost knobs, timings `AnimConfig.FX_*`,
+  sorts `SORT_CONSUMABLE_FX_*`.
 - **Art** (`RewardArt` + `SpriteFit`): the **fairy is one full-body illustration per payload**
   (`Resources/Fairy/fairy_{gems,stars,ketchup,mustard,skewer}` — the cargo is drawn into the
   art; the old body+badge overlay is gone). The `Resources/Rewards/` badges

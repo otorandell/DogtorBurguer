@@ -6,19 +6,22 @@ namespace DogtorBurguer
         public const int COLUMN_COUNT = 4;
         public const int MAX_ROWS = 13;
 
-        // Cell size in world units
-        public const float CELL_WIDTH = 1.4f;
+        // Cell size in world units. Spacing = the play-mat's PAINTED lane pitch at the mat's
+        // current scale (507.7px × GRID_CELLS_WIDTH/2604px = 1.234), so every column sits exactly
+        // on its painted lane (2026-07-06, measured — see session doc). The mat leads, the grid
+        // follows: retune this if GRID_CELLS_WIDTH ever changes.
+        public const float CELL_WIDTH = 1.234f;
         public const float CELL_VISUAL_HEIGHT = 0.40f; // 60% overlap between rows
 
-        // Grid positioning (bottom-left of grid)
-        public const float GRID_ORIGIN_X = -2.1f;
+        // Grid positioning (bottom-left of grid). ORIGIN_X = -(COLUMN_COUNT-1)*CELL_WIDTH/2 so the
+        // 4 columns stay centered on x = 0.
+        public const float GRID_ORIGIN_X = -1.851f;
         public const float GRID_ORIGIN_Y = -4.2f;
 
         // Camera framing (see CameraFit). The game is designed for WIDTH: the camera is sized so this
-        // world width always fills the screen (the 4 columns span 5.6; +tiny margin). DESIGN_ORTHO_SIZE
-        // is the floor for wide screens. At the reference 9:16 these reproduce orthographic size 5.
-        // Raise PLAY_AREA_WIDTH for more side margin around the columns.
-        public const float PLAY_AREA_WIDTH = 5.625f;
+        // world width always fills the screen (the mat panel spans ~5.12). DESIGN_ORTHO_SIZE
+        // is the floor for wide screens. Raise PLAY_AREA_WIDTH for more side margin around the columns.
+        public const float PLAY_AREA_WIDTH = 5.55f;
         public const float DESIGN_ORTHO_SIZE = 5f;
 
         // Chef positions (between columns) — always one fewer than the columns

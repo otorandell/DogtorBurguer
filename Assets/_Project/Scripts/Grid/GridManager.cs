@@ -286,20 +286,24 @@ namespace DogtorBurguer
         private static bool IsBun(IngredientType type) =>
             type == IngredientType.BunBottom || type == IngredientType.BunTop;
 
-        /// <summary>Ketchup: removes the entire column.</summary>
+        /// <summary>Ketchup: removes the entire column. State clears at once; the flashes stagger
+        /// top→bottom so pieces vanish as the squirt stream sweeps down them (ConsumableVfx).</summary>
         public void ConsumableClearColumn(Column column)
         {
             if (column == null || column.IsEmpty) return;
 
             Vector3 pos = column.GetWorldPositionForRow(column.StackHeight);
-            List<Ingredient> all = column.TakeAllIngredients();
+            List<Ingredient> all = column.TakeAllIngredients(); // index == row (bottom → top)
 
             int nonBun = 0;
-            foreach (Ingredient ing in all)
+            int topRow = all.Count - 1;
+            for (int row = 0; row < all.Count; row++)
             {
+                Ingredient ing = all[row];
                 if (ing == null) continue;
                 if (!IsBun(ing.Type)) nonBun++;
-                ing.DestroyWithFlash();
+                ing.DestroyWithFlash(AnimConfig.KETCHUP_CLEAR_START_DELAY
+                    + (topRow - row) * AnimConfig.KETCHUP_CLEAR_STAGGER);
             }
             AwardConsumablePoints(nonBun, pos);
         }

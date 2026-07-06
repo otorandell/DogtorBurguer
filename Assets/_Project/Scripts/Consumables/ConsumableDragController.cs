@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 namespace DogtorBurguer
@@ -43,7 +44,8 @@ namespace DogtorBurguer
             if (col != null)
             {
                 _ghost.enabled = true;
-                _ghost.transform.position = col.GetWorldPositionForRow(Constants.MAX_ROWS);
+                _ghost.transform.position = col.GetWorldPositionForRow(Constants.MAX_ROWS)
+                    + Vector3.up * UIStyles.CONSUMABLE_GHOST_Y_OFFSET;
             }
         }
 
@@ -54,6 +56,19 @@ namespace DogtorBurguer
             if (IsOverPlayfield(worldPos))
             {
                 Column col = GridManager.Instance?.GetColumn(NearestColumn(worldPos.x));
+
+                // For linger effects the ghost survives the release as the "locked on" nozzle:
+                // it holds over the column while the effect plays, then fades out.
+                if (_ghost != null && ConsumableEffects.For(_type).GhostLingers)
+                {
+                    SpriteRenderer ghost = _ghost;
+                    _ghost = null; // EndCarry leaves it alone
+                    DOTween.Sequence().SetLink(ghost.gameObject)
+                        .AppendInterval(AnimConfig.GHOST_LINGER_DURATION)
+                        .Append(ghost.DOFade(0f, AnimConfig.FX_FADE_DURATION))
+                        .OnComplete(() => { if (ghost != null) Destroy(ghost.gameObject); });
+                }
+
                 ConsumableFaller.Spawn(_type, col);
                 ConsumableInventory.Instance?.TryConsume(_type); // OnChanged → view refresh
             }
@@ -80,16 +95,20 @@ namespace DogtorBurguer
 
             ConsumableInventoryView.Instance?.SetTypeHidden(type, true);
 
-            _carryIcon = CreateRenderer("CarryIcon", Constants.SORT_CONSUMABLE_CARRY, 1f, UIStyles.CONSUMABLE_CARRY_HEIGHT);
-            _ghost = CreateRenderer("ColumnGhost", Constants.SORT_CONSUMABLE_GHOST, UIStyles.CONSUMABLE_GHOST_ALPHA, UIStyles.CONSUMABLE_GHOST_HEIGHT);
+            // The held item stays the badge; the column ghost is the effect's targeting art
+            // (ketchup/mustard nozzles — the visual that "locks onto" the column).
+            _carryIcon = CreateRenderer("CarryIcon", RewardArt.Badge(type),
+                Constants.SORT_CONSUMABLE_CARRY, 1f, UIStyles.CONSUMABLE_CARRY_HEIGHT);
+            _ghost = CreateRenderer("ColumnGhost", ConsumableEffects.For(type).GhostSprite,
+                Constants.SORT_CONSUMABLE_GHOST, UIStyles.CONSUMABLE_GHOST_ALPHA, UIStyles.CONSUMABLE_GHOST_HEIGHT);
             _ghost.enabled = false; // revealed once a column is targeted
         }
 
-        private SpriteRenderer CreateRenderer(string name, int sortingOrder, float alpha, float height)
+        private static SpriteRenderer CreateRenderer(string name, Sprite sprite, int sortingOrder, float alpha, float height)
         {
             GameObject obj = new GameObject(name);
             SpriteRenderer sr = obj.AddComponent<SpriteRenderer>();
-            sr.sprite = RewardArt.Badge(_type);
+            sr.sprite = sprite;
             sr.sortingOrder = sortingOrder;
             sr.color = new Color(1f, 1f, 1f, alpha);
             SpriteFit.Height(sr, height);

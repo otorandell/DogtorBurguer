@@ -67,13 +67,12 @@ namespace DogtorBurguer
         // Full-body per-payload illustration (the cargo is drawn in) — a touch bigger than the
         // old body-only sprite so the payload stays readable without the badge overlay.
         public const float FAIRY_BODY_HEIGHT = 1.5f;
-        public const float CONSUMABLE_FALLER_HEIGHT = 2.0f;  // matches the column ghost (what it previews)
-        public const float CONSUMABLE_GHOST_HEIGHT = 2.0f;   // column preview (+100%)
+        public const float CONSUMABLE_FALLER_HEIGHT = 2.0f;  // default falling item (badge art)
+        public const float CONSUMABLE_GHOST_HEIGHT = 1.4f;   // column preview (nozzle art; 30% down from 2.0)
+        public const float CONSUMABLE_GHOST_Y_OFFSET = -0.35f;// ghost sits a touch below the column-top anchor
         public const float CONSUMABLE_GHOST_ALPHA = 0.5f;    // translucency of the column preview
         public const float CONSUMABLE_CARRY_HEIGHT = 1.8f;   // the lifted item that follows the finger
-        // Use-effect art (ConsumableVfx): nozzles lock over the used column; per-type fallers.
-        public const float FX_NOZZLE_HEIGHT = 1.5f;          // nozzle world height
-        public const float FX_NOZZLE_TOP_OFFSET = 0.6f;      // nozzle center above the top row
+        // Use-effect art (ConsumableVfx): the lingering ghost plays the locked-on nozzle.
         public const float FX_STREAM_FLOOR_OVERLAP = 0.2f;   // ketchup stream reaches a touch below row 0
         public const float FX_MUSTARD_DROP_HEIGHT = 1.2f;    // the falling mustard drop
         public const float FX_SKEWER_FALLING_HEIGHT = 4f;    // the full skewer while falling
@@ -230,9 +229,13 @@ namespace DogtorBurguer
         #region Background Layers (game scene — tune to taste in the editor)
         // Restaurant strip: scaled to fill camera width, pinned to the top, nudged by this much (world units).
         public const float RESTAURANT_Y_NUDGE = 0f;
-        // Blue play-mat: scaled to this world width and centred over the grid, nudged by X/Y (world units).
-        public const float GRID_CELLS_WIDTH = 6.42f;
-        public const float GRID_CELLS_X_NUDGE = 0.11f;
+        // Blue play-mat: scaled to this world width and centred over the grid, nudged by X/Y (world
+        // units). The mat LEADS the layout — CELL_WIDTH is derived from its painted lane pitch at
+        // this width (see Constants.CELL_WIDTH); change them together.
+        public const float GRID_CELLS_WIDTH = 6.33f;
+        // Measured: the painted lanes sit 45.75px left of the sprite's center (asymmetric
+        // transparent padding), so the sprite shifts right by that in world units to compensate.
+        public const float GRID_CELLS_X_NUDGE = 0.111f;
         public const float GRID_CELLS_Y = -0.8f;
         #endregion
 

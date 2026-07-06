@@ -16,8 +16,17 @@ namespace DogtorBurguer
         public abstract int ImpactRow(Column column);
 
         /// <summary>What visually falls when this consumable is used. Defaults to the reward
-        /// badge; effects with authored drop art override (mustard drop, full skewer).</summary>
+        /// badge; effects with authored drop art override (mustard drop, full skewer).
+        /// Null → nothing falls and the effect resolves instantly on release (ketchup).</summary>
         public virtual Sprite FallerSprite => RewardArt.Badge(Type);
+
+        /// <summary>True → the column ghost survives the release, lingering as the "locked on"
+        /// nozzle over the column while the effect plays, then fades (ketchup/mustard).</summary>
+        public virtual bool GhostLingers => false;
+
+        /// <summary>The translucent column-targeting ghost shown while carrying. Defaults to the
+        /// reward badge; ketchup/mustard show their nozzle (it "locks onto" the column).</summary>
+        public virtual Sprite GhostSprite => RewardArt.Badge(Type);
 
         /// <summary>World height of the falling visual.</summary>
         public virtual float FallerHeight => UIStyles.CONSUMABLE_FALLER_HEIGHT;

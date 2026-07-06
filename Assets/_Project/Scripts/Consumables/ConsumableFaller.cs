@@ -21,6 +21,15 @@ namespace DogtorBurguer
         {
             ConsumableEffect effect = ConsumableEffects.For(type);
 
+            // No falling visual (ketchup: the lingering ghost nozzle squirts instead) —
+            // resolve immediately on release, no travel time.
+            if (effect.FallerSprite == null)
+            {
+                transform.position = column.GetWorldPositionForRow(effect.ImpactRow(column));
+                Resolve(effect, column);
+                return;
+            }
+
             SpriteRenderer sr = gameObject.AddComponent<SpriteRenderer>();
             sr.sprite = effect.FallerSprite;
             sr.sortingOrder = Constants.SORT_CONSUMABLE_FALLER;
