@@ -23,7 +23,7 @@ namespace DogtorBurguer
         // per-component outlineWidth path). Used on the big numbers and all red-box labels.
         public static readonly Color HUD_TEXT_FILL = new(0.988f, 0.980f, 0.945f);      // #FCFAF1 cream white
         public static readonly Color32 HUD_TEXT_BORDER = new(0x49, 0x26, 0x11, 0xFF);  // #492611 dark brown
-        public const float HUD_TEXT_BORDER_WIDTH = 0.25f;                              // TMP outline width (0..1) — tune live
+        public const float HUD_TEXT_BORDER_WIDTH = 0.35f;                              // TMP outline width (0..1) — tune live
         #endregion
 
         #region Text Colors
