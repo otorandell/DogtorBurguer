@@ -53,6 +53,24 @@ Each item: concern → impact → mitigation → status.
 **Recommended split:** harden the mock into a production-shaped interface *now* (load/ready state, reward-only-on-callback, `timeScale` save/restore) so the rest of the game already codes against the real contract; then the launch task is a body-swap of the mock methods for SDK calls rather than re-architecting callers. Interface hardening is deliberately **out of scope for the current code review** — tracked here, not as a review finding.
 **Status:** interface hardening **DONE 2026-07-05** (`IAdProvider` + `MockAdProvider`: async init, preload/ready state with simulated no-fill, auto-reload + retry, reward-only-on-callback, timeScale save/restore; ad buttons track live availability). Remaining = SDK body-swap (launch-gated): network account + app registration + per-platform ad-unit IDs, a `LevelPlayAdProvider` (or AdMob equivalent), test-mode toggle, on-device testing. Gated on the consent item below.
 
+### Ad network setup — process & costs (reference, discussed 2026-07-05)
+**The ads side is free** — networks pay us, taking their cut before payout. The only real costs
+are the store developer accounts (needed for release regardless): **Google Play $25 one-time**,
+**Apple Developer $99/year** (iOS only). Chosen direction: **Unity LevelPlay** (Unity's own
+ads/mediation; account is free via the existing Unity account). Setup order:
+1. Unity Dashboard → LevelPlay → **add the app** (works pre-release: "app not live yet").
+2. Create **ad units** per platform: 1 Rewarded + 1 Interstitial → yields the App Key +
+   ad-unit IDs (the only inputs `LevelPlayAdProvider` will need).
+3. Install the LevelPlay package (UPM), enable **test mode** → fake test ads on device
+   immediately, no store listing needed.
+4. Before real revenue (not before development): payout bank details + tax form in the
+   dashboard, a hosted **privacy policy** URL (also a store requirement), consent flow (below).
+5. **Real fill only serves to a published app** — so: develop/test with test ads now, real ads
+   arrive at launch. No urgency; the sensible trigger is "ready to test on a physical device".
+   The Google Play $25 account is worth doing early (store registration has lead time).
+Dashboard flows/prices drift — treat as the shape, re-verify screens when executing.
+**Status:** reference — execute alongside the SDK body-swap above.
+
 ### Ad consent & privacy prerequisites (GDPR / ATT)
 **Impact:** EU GDPR consent and iOS App Tracking Transparency are required before ads will serve and for store compliance. Missing them → ads don't fill and/or the app violates platform policy.
 **Mitigation:** integrate the SDK's consent management (e.g. Google/Unity UMP) for GDPR and trigger the ATT prompt on iOS. Depends on a published privacy policy (see below).
