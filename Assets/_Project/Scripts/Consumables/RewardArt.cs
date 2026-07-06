@@ -13,17 +13,22 @@ namespace DogtorBurguer
     {
         private static readonly Dictionary<string, Sprite> _cache = new Dictionary<string, Sprite>();
 
-        public static Sprite Fairy => Load("Fairy/fairy");
-        public static Sprite Gem => Load("Rewards/gem");
         public static Sprite Badge(ConsumableType type) => Load("Rewards/" + type.ToString().ToLowerInvariant());
 
         public static Sprite KetchupNozzle => Load("Effects/fx_ketchup_nozzle");
         public static Sprite KetchupStream => Load("Effects/fx_ketchup_stream");
         public static Sprite MustardNozzle => Load("Effects/fx_mustard_nozzle");
 
-        /// <summary>Badge sprite for a payload — the gem or the consumable icon.</summary>
-        public static Sprite Badge(FairyPayload payload) =>
-            payload.Kind == FairyPayloadKind.Gems ? Gem : Badge(payload.Consumable);
+        /// <summary>The full-body fairy illustration for a payload (each carries its cargo in-art).</summary>
+        public static Sprite Fairy(FairyPayload payload)
+        {
+            switch (payload.Kind)
+            {
+                case FairyPayloadKind.Gems: return Load("Fairy/fairy_gems");
+                case FairyPayloadKind.Stars: return Load("Fairy/fairy_stars");
+                default: return Load("Fairy/fairy_" + payload.Consumable.ToString().ToLowerInvariant());
+            }
+        }
 
         private static Sprite Load(string path)
         {

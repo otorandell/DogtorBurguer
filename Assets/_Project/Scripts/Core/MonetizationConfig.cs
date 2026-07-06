@@ -10,6 +10,8 @@ namespace DogtorBurguer
         public const int CONTINUE_GEM_COST = 50;
         public const int GEM_REWARD_AD = 25;
         public const int GEM_PACK_VALUE = 5;
+        // Star fairies award ~the gem pack's worth (5 stars/gem shop rate → 5 gems ≈ 25 stars).
+        public const int STAR_PACK_VALUE = 25;
         #endregion
 
         #region Ads
@@ -17,11 +19,14 @@ namespace DogtorBurguer
         #endregion
 
         #region Fairy Drops
-        // Burger Fairies carry gems OR a consumable (see GameplayConfig.FAIRY_CONSUMABLE_CHANCE).
-        // This is the per-interval chance one appears; raising it scales BOTH gem and consumable
-        // fairies (the 60/40 payload split is unchanged).
+        // Burger Fairies carry a consumable (GameplayConfig.FAIRY_CONSUMABLE_CHANCE, 60%) or
+        // currency (the rest), which splits gems vs stars by FAIRY_STAR_SHARE. This is the
+        // per-interval chance one appears; raising it scales ALL payload kinds equally.
         public const float FAIRY_SPAWN_CHANCE = 0.20f;
         public const float FAIRY_SPAWN_INTERVAL = 10f;
+        // Share of currency fairies that carry stars instead of gems (0.5 → 20% stars / 20% gems
+        // of all fairies at the 60% consumable rate).
+        public const float FAIRY_STAR_SHARE = 0.5f;
         #endregion
 
         #region IAP Products — gem packs (real money; mock until the IAP SDK lands)

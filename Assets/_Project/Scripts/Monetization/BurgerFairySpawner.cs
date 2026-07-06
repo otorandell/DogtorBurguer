@@ -3,8 +3,9 @@ using UnityEngine;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// Periodically spawns a <see cref="BurgerFairy"/> while the game is playing. Each fairy rolls a
-    /// payload: gems (~40%) or a consumable (~60%, weighted by GameplayConfig). Replaces GemPackSpawner.
+    /// Periodically spawns a <see cref="BurgerFairy"/> while the game is playing. Each fairy rolls
+    /// a payload: a consumable (~60%, weighted by GameplayConfig) or currency (~40%, split gems vs
+    /// stars by MonetizationConfig.FAIRY_STAR_SHARE). Replaces GemPackSpawner.
     /// </summary>
     public class BurgerFairySpawner : MonoBehaviour
     {
@@ -57,7 +58,12 @@ namespace DogtorBurguer
         private FairyPayload RollPayload()
         {
             if (Rng.Value >= GameplayConfig.FAIRY_CONSUMABLE_CHANCE)
-                return FairyPayload.Gems();
+            {
+                // Currency fairy — split between the two currencies.
+                return Rng.Value < MonetizationConfig.FAIRY_STAR_SHARE
+                    ? FairyPayload.Stars()
+                    : FairyPayload.Gems();
+            }
             return FairyPayload.Of(RollConsumable());
         }
 

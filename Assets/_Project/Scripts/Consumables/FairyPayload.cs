@@ -1,9 +1,9 @@
 namespace DogtorBurguer
 {
     /// <summary>
-    /// What a fairy carries. Gems award currency on collect; a consumable goes into the per-run
-    /// inventory. The badge sprite is uniform either way (see <see cref="RewardArt"/>); only the
-    /// collect logic diverges.
+    /// What a fairy carries. Gems/stars award currency on collect; a consumable goes into the
+    /// inventory. Each payload has its own full-body fairy sprite (see <see cref="RewardArt"/>);
+    /// only the collect logic diverges.
     /// </summary>
     public readonly struct FairyPayload
     {
@@ -17,6 +17,7 @@ namespace DogtorBurguer
         }
 
         public static FairyPayload Gems() => new FairyPayload(FairyPayloadKind.Gems, default);
+        public static FairyPayload Stars() => new FairyPayload(FairyPayloadKind.Stars, default);
         public static FairyPayload Of(ConsumableType type) => new FairyPayload(FairyPayloadKind.Consumable, type);
     }
 }

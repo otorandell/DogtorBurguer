@@ -5,8 +5,8 @@ using DG.Tweening;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// A fairy that flies across the screen carrying a payload (gems or a consumable) and can be
-    /// tapped to collect. Replaces the old GemPack — the gem is now just one possible payload.
+    /// A fairy that flies across the screen carrying a payload (gems, stars, or a consumable) and
+    /// can be tapped to collect. Each payload has its own full-body fairy illustration.
     /// Taps are routed from TouchInputHandler (New Input System → OnMouseDown never fires).
     /// </summary>
     public class BurgerFairy : MonoBehaviour
@@ -32,22 +32,15 @@ namespace DogtorBurguer
 
         private void BuildVisual()
         {
-            // Body + badge on children so the root transform stays free for the fly path + pulse,
-            // and each sprite is normalized to a world height (reward sprites import large).
+            // One full-body illustration per payload (the cargo is drawn into the art — the old
+            // body + badge overlay is gone). On a child so the root transform stays free for the
+            // fly path + pulse; normalized to a world height (the art imports large).
             GameObject bodyObj = new GameObject("Body");
             bodyObj.transform.SetParent(transform, false);
             SpriteRenderer body = bodyObj.AddComponent<SpriteRenderer>();
-            body.sprite = RewardArt.Fairy;
+            body.sprite = RewardArt.Fairy(_payload);
             body.sortingOrder = Constants.SORT_GEM_PACK;
             SpriteFit.Height(body, UIStyles.FAIRY_BODY_HEIGHT);
-
-            // Payload badge rides on the fairy (gem or consumable icon), drawn just above it.
-            GameObject badgeObj = new GameObject("Badge");
-            badgeObj.transform.SetParent(transform, false);
-            SpriteRenderer badge = badgeObj.AddComponent<SpriteRenderer>();
-            badge.sprite = RewardArt.Badge(_payload);
-            badge.sortingOrder = Constants.SORT_FAIRY_BADGE;
-            SpriteFit.Height(badge, UIStyles.FAIRY_BADGE_HEIGHT);
         }
 
         private void PlayFlyIn(Vector3 startPos, Vector3 endPos, float duration)
@@ -107,17 +100,22 @@ namespace DogtorBurguer
 
         private void Award()
         {
-            if (_payload.Kind == FairyPayloadKind.Gems)
+            switch (_payload.Kind)
             {
-                if (SaveDataManager.Instance != null)
-                    SaveDataManager.Instance.AddGems(MonetizationConfig.GEM_PACK_VALUE);
-                Debug.Log($"[BurgerFairy] Collected gems! +{MonetizationConfig.GEM_PACK_VALUE}");
-            }
-            else
-            {
-                ConsumableInventory.Instance?.Add(_payload.Consumable);
-                AudioManager.Instance?.PlayConsumableCollect();
-                Debug.Log($"[BurgerFairy] Collected consumable: {_payload.Consumable}");
+                case FairyPayloadKind.Gems:
+                    SaveDataManager.Instance?.AddGems(MonetizationConfig.GEM_PACK_VALUE);
+                    Debug.Log($"[BurgerFairy] Collected gems! +{MonetizationConfig.GEM_PACK_VALUE}");
+                    break;
+                case FairyPayloadKind.Stars:
+                    // Via GameManager so the stars count toward the run total on the game-over panel.
+                    GameManager.Instance?.AwardStars(MonetizationConfig.STAR_PACK_VALUE);
+                    Debug.Log($"[BurgerFairy] Collected stars! +{MonetizationConfig.STAR_PACK_VALUE}");
+                    break;
+                default:
+                    ConsumableInventory.Instance?.Add(_payload.Consumable);
+                    AudioManager.Instance?.PlayConsumableCollect();
+                    Debug.Log($"[BurgerFairy] Collected consumable: {_payload.Consumable}");
+                    break;
             }
         }
 

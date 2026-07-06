@@ -215,9 +215,10 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   - **Gems** (hard/premium): rare — Burger Fairy drops (~40% of fairies), rewarded ads, IAP packs.
   - **Stars** (soft/free): earned by playing — **per completed Special Order**
     (`STARS_PER_ORDER_BASE + PER_LEVEL·(challengeLevel−1)`, awarded live with a gold "+N STARS"
-    popup) plus an **end-of-run score payout** (1★ per `STAR_SCORE_DIVISOR` score; continues pay
-    only the un-paid delta). `GameManager.AwardStars` grants + tracks `StarsEarnedThisRun` (shown
-    on the game-over panel). Also from gem→star shop packs; editor debug key **4** grants 500.
+    popup), an **end-of-run score payout** (1★ per `STAR_SCORE_DIVISOR` score; continues pay
+    only the un-paid delta), and **star fairies** (`STAR_PACK_VALUE` 25). `GameManager.AwardStars`
+    grants + tracks `StarsEarnedThisRun` (shown on the game-over panel). Also from gem→star shop
+    packs; editor debug key **4** grants 500.
 - One-directional exchange: gems buy stars, never the reverse (standard freemium convention).
 - Continue after game over: 50 gems or watch ad
 - Interstitial ads every 3 games, shown only on the two **restart** buttons (game over + in-game
@@ -226,8 +227,10 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   costs more friction than it saves and gating Play felt hostile. Don't "fix" it; if ad pacing
   ever needs rework, use a time cooldown at break points instead. **Suppressed once Remove Ads
   is bought** (`SaveDataManager.AdsRemoved`, in `ShouldShowInterstitial`). Rewarded ads stay.
-- **Burger Fairy** drops during gameplay (`FAIRY_SPAWN_CHANCE` 0.20 / 10s) carry gems (~40%) or
-  a consumable (~60%) — see Core Systems → Consumables. Gem fairies award `GEM_PACK_VALUE`.
+- **Burger Fairy** drops during gameplay (`FAIRY_SPAWN_CHANCE` 0.20 / 10s) carry a consumable
+  (~60%) or currency (~40%, split gems/stars by `FAIRY_STAR_SHARE` → ~20% each) — see Core
+  Systems → Consumables. Gem fairies award `GEM_PACK_VALUE` (5), star fairies `STAR_PACK_VALUE`
+  (25, routed via `GameManager.AwardStars` so it counts toward the run total).
 - **Ad architecture** (production-shaped, 2026-07-05): `AdManager` is a facade owning one
   `IAdProvider` (contract in `Monetization/Abstractions/`) plus the ad policy (cadence,
   remove-ads suppression). The provider models the real SDK lifecycle: async init, **preload**
@@ -265,10 +268,11 @@ all shop tweens run unscaled. Rebuilt each open, destroyed on close (no stale st
 Per-run consumable items delivered by fairies; drag onto a column to use. Design doc:
 `Docs/consumables-design.md`. **Feature-complete.**
 - **Delivery**: `BurgerFairy` (replaced the old GemPack) flies across the screen carrying a
-  **payload** — gems or a consumable (`FAIRY_CONSUMABLE_CHANCE` 0.60; which one per
-  `CONSUMABLE_SPAWN_WEIGHTS`, even thirds). `BurgerFairySpawner` rolls it. Tap to collect
-  (routed **first** in `ProcessInput`, above preview/falling, since it's on top of the playfield).
-  Gems → `AddGems`; consumable → `ConsumableInventory`.
+  **payload** — a consumable (`FAIRY_CONSUMABLE_CHANCE` 0.60; which one per
+  `CONSUMABLE_SPAWN_WEIGHTS`, even thirds), gems, or stars (currency split:
+  `FAIRY_STAR_SHARE`). `BurgerFairySpawner` rolls it. Tap to collect (routed **first** in
+  `ProcessInput`, above preview/falling, since it's on top of the playfield). Gems → `AddGems`;
+  stars → `GameManager.AwardStars`; consumable → `ConsumableInventory`.
 - **Inventory** (`ConsumableInventory`): **persistent quantity per type** — 3 fixed slots
   (Ketchup/Mustard/Skewer), `Add` increments, `TryConsume(type)` decrements. The counts live in
   `SaveDataManager` (fairy drops and shop purchases feed the same pool, stock carries across
@@ -300,11 +304,13 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   the nozzle sweeps across the board (`fx_mustard_nozzle`). Skewer has **no authored effect art
   yet** — empty default until art lands. Sizes `UIStyles.FX_*`, timings `AnimConfig.FX_*`,
   sorts `SORT_CONSUMABLE_FX_*` (between ghost and faller).
-- **Art** (`RewardArt` + `SpriteFit`): one badge per payload from `Resources/Rewards/`
-  (`gem`/`ketchup`/`mustard`/`skewer`) doubles as fairy badge, column ghost (alpha) and faller;
-  the **inventory slot icons** are the splashy kit versions (`Resources/UI/ui_consumable_{name}`,
-  via `UiArt`); the carrier from `Resources/Fairy/fairy`. `SpriteFit.Height` normalizes
-  every sprite to a world-height so source PPU/size doesn't matter. Sizes/positions/sorts live in
+- **Art** (`RewardArt` + `SpriteFit`): the **fairy is one full-body illustration per payload**
+  (`Resources/Fairy/fairy_{gems,stars,ketchup,mustard,skewer}` — the cargo is drawn into the
+  art; the old body+badge overlay is gone). The `Resources/Rewards/` badges
+  (`ketchup`/`mustard`/`skewer`) remain the column ghost (alpha) + faller sprites; the
+  **inventory slot icons** are the splashy kit versions (`Resources/UI/ui_consumable_{name}`,
+  via `UiArt`). `SpriteFit.Height` normalizes every sprite to a world-height so source PPU/size
+  doesn't matter. Sizes/positions/sorts live in
   `UIStyles` (`*_HEIGHT`, `CONSUMABLE_SLOT_*`) and `Constants` (`SORT_CONSUMABLE_*`).
 - **Status**: audio is placeholder procedural tones on the hooks (`PlayConsumableCollect` /
   `PlayConsumableUse(type)` / `PlayConsumableFizzle`) — real sound design deferred. Slot

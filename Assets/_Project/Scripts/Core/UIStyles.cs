@@ -64,8 +64,9 @@ namespace DogtorBurguer
         #region Consumable / Fairy Sizes (world-space heights)
         // Reward sprites import large (100 PPU); everything is normalized to a target world height
         // via SpriteFit rather than a raw scale, so the source pixel size doesn't matter.
-        public const float FAIRY_BODY_HEIGHT = 1.3f;
-        public const float FAIRY_BADGE_HEIGHT = 1.1f;        // payload badge on the fairy (+50%)
+        // Full-body per-payload illustration (the cargo is drawn in) — a touch bigger than the
+        // old body-only sprite so the payload stays readable without the badge overlay.
+        public const float FAIRY_BODY_HEIGHT = 1.5f;
         public const float CONSUMABLE_FALLER_HEIGHT = 2.0f;  // matches the column ghost (what it previews)
         public const float CONSUMABLE_GHOST_HEIGHT = 2.0f;   // column preview (+100%)
         public const float CONSUMABLE_GHOST_ALPHA = 0.5f;    // translucency of the column preview
