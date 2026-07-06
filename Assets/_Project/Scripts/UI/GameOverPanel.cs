@@ -12,6 +12,7 @@ namespace DogtorBurguer
         private GameObject _panel;
         private TextMeshProUGUI _scoreText;
         private TextMeshProUGUI _levelText;
+        private TextMeshProUGUI _starsText;
         private Button _continueGemsButton;
         private GameObject _continueGemsObj;
         private GameObject _continueAdObj;
@@ -49,6 +50,9 @@ namespace DogtorBurguer
 
             _levelText = UIFactory.CreateText(_panel.transform, "Level: 1", UIStyles.GAMEOVER_LEVEL_POS, UIStyles.GAMEOVER_TEXT_RECT,
                 UIStyles.PANEL_LEVEL_SIZE);
+
+            _starsText = UIFactory.CreateText(_panel.transform, "", UIStyles.GAMEOVER_STARS_POS, UIStyles.GAMEOVER_TEXT_RECT,
+                UIStyles.PANEL_LEVEL_SIZE, FontStyles.Bold, UIStyles.GOLD);
 
             // Continue with gems button
             var gemsBtn = UIFactory.CreateButton(_panel.transform, $"Continue ({MonetizationConfig.CONTINUE_GEM_COST} gems)",
@@ -91,6 +95,9 @@ namespace DogtorBurguer
             _scoreText.text = $"Score: {score}";
             _levelText.text = $"Level: {level}";
             // High score is persisted by GameManager's game-over flow (F-67), not here.
+            // Stars (orders + score payout) are already granted by that flow too — display only.
+            int stars = GameManager.Instance != null ? GameManager.Instance.StarsEarnedThisRun : 0;
+            _starsText.text = stars > 0 ? $"+{stars} Stars earned!" : "";
 
             _continueGemsObj.SetActive(!_hasContinued);
             _continueAdObj.SetActive(!_hasContinued);

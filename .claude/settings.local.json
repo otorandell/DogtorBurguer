@@ -61,7 +61,8 @@
       "WebFetch(domain:medium.com)",
       "WebFetch(domain:turbine.games)",
       "PowerShell(New-Item *)",
-      "PowerShell(git rm *)"
+      "PowerShell(git rm *)",
+      "PowerShell(git *)"
     ]
   }
 }

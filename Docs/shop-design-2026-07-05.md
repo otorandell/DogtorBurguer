@@ -71,10 +71,22 @@ to 4096). Chef alts have no flipped-facing art yet, so the secondary sprite reus
 (shows mirrored after a flip — placeholder until flipped art exists).
 `UnlockMethod` gained `Stars` (append-only), `Skin` gained `_starCost`.
 
+## Star earning (added later the same day — closes the economy loop)
+Two faucets, both routed through `GameManager.AwardStars` (grants immediately + tracks
+`StarsEarnedThisRun` for the game-over panel):
+- **Per completed Special Order** (in `BurgerChallenge`): `3 + 2·(challengeLevel−1)` stars,
+  awarded live with a gold "+N STARS" world popup under the xN multiplier text. Scaling with
+  challenge level makes the mult meter fantasy pay out in currency, not just score.
+- **End-of-run score payout** (in `GameManager.HandleGameOver`): 1★ per 500 score. A continue
+  keeps the run going, so a second game over pays only the score slice not already paid.
+- Game-over panel shows **"+N Stars earned!"** (gold, under Level).
+- Expected yields: casual run ~10–20★, a good run reaching challenge level 4 ~60–70★ →
+  consumable (150★) every few runs, first skin (500★) in ~10–25 runs. Knobs:
+  `MonetizationConfig.STARS_PER_ORDER_BASE / STARS_PER_ORDER_PER_LEVEL / STAR_SCORE_DIVISOR`.
+
 ## Open items (deliberate, not forgotten)
-- **Star earning in play** — the one economy hole. Recommendation: stars per completed Special
-  Order (scaling with challenge level) + a small end-of-run score payout; then balance prices.
-  Until then: editor key **4** grants 500 stars; gem→star packs work everywhere.
+- **Economy balance pass** — earn rates vs prices are reasoned guesses; tune from real runs
+  (all knobs in `MonetizationConfig`).
 - **Unity verify pass** — I can't compile/run Unity. Open the editor, check console, then:
   menu → Shop (buy/equip a skin, buy consumables, star pack confirm, remove-ads hides + no
   interstitials), in-game shop button pauses/resumes, plus-box deep link, stock persists across

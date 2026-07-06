@@ -191,6 +191,7 @@ namespace DogtorBurguer
         public const float WORLD_BURGER_NAME_SIZE = 4f;
         public const float WORLD_BURGER_SCORE_SIZE = 3.5f;
         public const float WORLD_FLOATING_TEXT_SIZE = 4f;
+        public const float WORLD_STAR_POPUP_SIZE = 3f;   // "+N STARS" on an order match (below the xN)
         #endregion
 
         #region Button Sizes
@@ -245,6 +246,7 @@ namespace DogtorBurguer
         public static readonly Vector2 GAMEOVER_TITLE_POS = new(0f, 200f);
         public static readonly Vector2 GAMEOVER_SCORE_POS = new(0f, 140f);
         public static readonly Vector2 GAMEOVER_LEVEL_POS = new(0f, 100f);
+        public static readonly Vector2 GAMEOVER_STARS_POS = new(0f, 65f);   // "+N Stars earned!"
         public static readonly Vector2 GAMEOVER_TEXT_RECT = new(350f, 50f);
         public const float GAMEOVER_BTN_START_Y = 30f;
         public const float GAMEOVER_BTN_SPACING = -75f;

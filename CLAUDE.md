@@ -166,6 +166,7 @@ The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]
   GridManager `IsOrderMatch`). Level-up flashes + punches the card, then rolls the next order.
 - 3x challenge multiplier on match; global multiplier: `1 + (level - 1) * 5`
 - Level up requires `level + 1` matches (`Level` still exposed; the in-panel ★ readout was dropped)
+- Each match also **awards stars** (the currency faucet — see Monetization & Currencies)
 
 ### Scoring
 - Match: 10 pts per matched pair
@@ -203,9 +204,11 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
 ### Monetization & Currencies
 - **Two currencies**, both persisted in SaveDataManager and spendable in the Shop:
   - **Gems** (hard/premium): rare — Burger Fairy drops (~40% of fairies), rewarded ads, IAP packs.
-  - **Stars** (soft/free): meant to flow from playing. **Earning is NOT built yet** — today stars
-    come only from gem→star packs in the shop (editor debug: key **4** grants 500). Design the
-    earn rule (Special Orders / score payout) as its own task.
+  - **Stars** (soft/free): earned by playing — **per completed Special Order**
+    (`STARS_PER_ORDER_BASE + PER_LEVEL·(challengeLevel−1)`, awarded live with a gold "+N STARS"
+    popup) plus an **end-of-run score payout** (1★ per `STAR_SCORE_DIVISOR` score; continues pay
+    only the un-paid delta). `GameManager.AwardStars` grants + tracks `StarsEarnedThisRun` (shown
+    on the game-over panel). Also from gem→star shop packs; editor debug key **4** grants 500.
 - One-directional exchange: gems buy stars, never the reverse (standard freemium convention).
 - Continue after game over: 50 gems or watch ad
 - Interstitial ads every 3 games — **suppressed once Remove Ads is bought**
@@ -383,10 +386,11 @@ balance values are centralized in `AnimConfig` / `UIStyles` / `GameplayConfig`. 
 ### Phase 3 — Backlog (potential next work; noted 2026-06-12, not yet started)
 Dev-flagged directions for future sessions, roughly in priority order. Nothing here is designed
 or committed yet — capture only.
-- **Gem & Star economy** — PARTIALLY DONE (Shop session 2026-07-05): both currencies are
-  persisted and spendable (skins/consumables in stars, star packs in gems, gem packs via mock
-  IAP, remove-ads). **Still open: how stars are EARNED in play** (Special Orders? run payout?)
-  and overall balancing once earning exists.
+- **Gem & Star economy** — DONE 2026-07-05 (Shop session): both currencies persisted, spendable
+  (skins/consumables in stars, star packs in gems, gem packs via mock IAP, remove-ads) and
+  **earnable** (stars per Special Order + end-of-run score payout; gems from fairies/ads/IAP).
+  Still open: **balance pass** on the earn rates vs prices once real runs generate data
+  (all knobs in `MonetizationConfig`).
 - **Shop** — DONE 2026-07-05 (full-screen `ShopScreen`, replaces the old `ShopPanel`): skins
   (buy+equip), consumables (persistent stock), currency bundles, remove-ads. Still open: real
   IAP SDK, authored shop art, on-device layout pass.
@@ -459,9 +463,6 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   (the 9-slice route was dropped — fixed-size HUD boxes don't need it).
 - **★ glyph**: Panton (ASCII) lacks U+2605; add a fallback font or the `Star` sprite where needed.
 - **UI integration ≠ pure art-swap** — remaining wiring that implies real code:
-  - **Star earning** — stars are now persisted/spendable (Shop, 2026-07-05) and the top-bar star
-    is live, but nothing *awards* them in play yet (only gem→star packs; editor key 4). Design the
-    earn rule (Special Orders / end-of-run payout) as its own task.
   - **Settings button** (top bar) — still **click-stubbed**; needs the settings panel brought into
     the Game scene (the shop button is wired and pauses; reuse that pattern).
   - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next

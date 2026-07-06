@@ -26,6 +26,8 @@ namespace DogtorBurguer
         private bool _isPaused;
         private int _resolutionDepth;
         private int _score;
+        private int _starsEarnedThisRun;
+        private int _starsPaidFromScore; // score payout already granted (continues don't double-pay)
 
         public GameState CurrentState => _currentState;
         public bool IsPaused => _isPaused;
@@ -33,6 +35,7 @@ namespace DogtorBurguer
         // concurrent resolutions in different columns nest correctly (F-31).
         public bool IsResolving => _resolutionDepth > 0;
         public int Score => _score;
+        public int StarsEarnedThisRun => _starsEarnedThisRun;
         public int CurrentLevel => _difficultyManager != null ? _difficultyManager.CurrentLevel : 1;
 
         public event Action<GameState> OnStateChanged;
@@ -114,6 +117,8 @@ namespace DogtorBurguer
         public void StartGame()
         {
             _score = 0;
+            _starsEarnedThisRun = 0;
+            _starsPaidFromScore = 0;
             OnScoreChanged?.Invoke(_score);
 
             SetState(GameState.Playing);
@@ -194,6 +199,16 @@ namespace DogtorBurguer
             if (SaveDataManager.Instance != null)
                 SaveDataManager.Instance.SetHighScore(_score);
 
+            // End-of-run star payout from score — only the slice not paid out by an earlier
+            // game over this run (a continue keeps the score, so pay the delta). Awarded before
+            // the state change so the game-over panel reads the final run total.
+            int payout = _score / MonetizationConfig.STAR_SCORE_DIVISOR - _starsPaidFromScore;
+            if (payout > 0)
+            {
+                _starsPaidFromScore += payout;
+                AwardStars(payout);
+            }
+
             SetState(GameState.GameOver);
             _spawner?.StopSpawning();
 
@@ -209,6 +224,17 @@ namespace DogtorBurguer
         public void AddExtraScore(int points)
         {
             AddScore(points);
+        }
+
+        /// <summary>Grants stars (persisted immediately) and counts them toward this run's total
+        /// (shown on the game-over panel). The award sources are Special Orders and the
+        /// end-of-run score payout — rates in MonetizationConfig.</summary>
+        public void AwardStars(int amount)
+        {
+            if (amount <= 0) return;
+
+            _starsEarnedThisRun += amount;
+            SaveDataManager.Instance?.AddStars(amount);
         }
 
         private void AddScore(int points)

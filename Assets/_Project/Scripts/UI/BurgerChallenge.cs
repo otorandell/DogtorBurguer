@@ -174,6 +174,14 @@ namespace DogtorBurguer
             if (!isMatch) return;
 
             _challengeProgress++;
+
+            // Completed orders are the star faucet: award scales with the challenge level.
+            int stars = MonetizationConfig.STARS_PER_ORDER_BASE
+                + MonetizationConfig.STARS_PER_ORDER_PER_LEVEL * (_challengeLevel - 1);
+            GameManager.Instance?.AwardStars(stars);
+            FloatingText.Spawn(pos + Vector3.up * 1.1f, $"+{stars} STARS", UIStyles.GOLD,
+                UIStyles.WORLD_STAR_POPUP_SIZE);
+
             AudioManager.Instance?.PlayChallengeMatch();
             OnMatched?.Invoke();
 
