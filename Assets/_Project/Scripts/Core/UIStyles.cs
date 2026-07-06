@@ -71,15 +71,17 @@ namespace DogtorBurguer
         public const float CONSUMABLE_GHOST_HEIGHT = 1.4f;   // column preview (nozzle art; 30% down from 2.0)
         public const float CONSUMABLE_GHOST_Y_OFFSET = -0.35f;// ghost sits a touch below the column-top anchor
         public const float CONSUMABLE_GHOST_ALPHA = 0.5f;    // translucency of the column preview
-        public const float CONSUMABLE_CARRY_HEIGHT = 1.8f;   // the lifted item that follows the finger
         // Use-effect art (ConsumableVfx): the lingering ghost plays the locked-on nozzle.
         public const float FX_STREAM_FLOOR_OVERLAP = 0.2f;   // ketchup stream reaches a touch below row 0
         public const float FX_MUSTARD_DROP_HEIGHT = 1.2f;    // the falling mustard drop
-        public const float FX_SKEWER_FALLING_HEIGHT = 4f;    // the full skewer while falling
-        public const float FX_SKEWER_IMPACT_LIFT = 1.4f;     // raises the fall end so the TIP meets the floor
-        public const float FX_SKEWER_HEAD_HEIGHT = 0.8f;     // the pinned head left at the base
-        public const float FX_SKEWER_HEAD_PIN_Y = 0.9f;      // head rest height above row 0
-        public const float FX_SKEWER_HEAD_DROP_FROM = 0.7f;  // head slam start, above the rest height
+        public const float FX_SKEWER_FALLING_HEIGHT = 2f;    // the full skewer while falling
+        // The stick falls to the BUN's row; lift = FALLING_HEIGHT/2 + bun half-height so the
+        // tip meets the bun's top edge.
+        public const float FX_SKEWER_IMPACT_LIFT = 1.2f;
+        public const float FX_SKEWER_HEAD_HEIGHT = 0.7f;     // the head pinned into the bun
+        // Head center above the bun's row, while riding it down and at rest: PIN_Y −
+        // HEAD_HEIGHT/2 ≈ the bun's top edge, so the head base touches the bread.
+        public const float FX_SKEWER_HEAD_PIN_Y = 0.55f;
         #endregion
 
         #region HUD Consumable Slots (screen-space UGUI, below Level/Score — anchored top-left, reference px)

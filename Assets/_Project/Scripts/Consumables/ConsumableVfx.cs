@@ -50,22 +50,26 @@ namespace DogtorBurguer
                 .OnComplete(() => Object.Destroy(root));
         }
 
-        /// <summary>After the skewer lands, only its head stays visible, slamming down to hover
-        /// just above the pinned base — the depth read of the stick going through the stack.</summary>
+        /// <summary>The stick becomes the head the moment it touches the bun, then rides the bun
+        /// down to row 0 — same duration and default ease as the bun's own relocation tween
+        /// (Ingredient.FallToRow, COLLAPSE_DURATION), so they fall as one skewered unit.
+        /// Fired BEFORE Apply, while the bun is still at its original row.</summary>
         public static void SkewerPin(Column column)
         {
             if (column == null) return;
+            int bunRow = SkewerEffect.TopBottomBunRow(column);
+            if (bunRow < 0) return;
 
             GameObject root = new GameObject("Vfx_SkewerPin");
-            Vector3 floor = column.GetWorldPositionForRow(0);
-            float pinY = floor.y + UIStyles.FX_SKEWER_HEAD_PIN_Y;
+            Vector3 bunPos = column.GetWorldPositionForRow(bunRow);
+            float restY = column.GetWorldPositionForRow(0).y + UIStyles.FX_SKEWER_HEAD_PIN_Y;
 
             SpriteRenderer head = MakeSprite(root.transform, RewardArt.SkewerHead,
-                new Vector3(floor.x, pinY + UIStyles.FX_SKEWER_HEAD_DROP_FROM, 0f),
+                new Vector3(bunPos.x, bunPos.y + UIStyles.FX_SKEWER_HEAD_PIN_Y, 0f),
                 Constants.SORT_CONSUMABLE_FX_NOZZLE, UIStyles.FX_SKEWER_HEAD_HEIGHT);
 
             DOTween.Sequence().SetLink(root)
-                .Append(head.transform.DOMoveY(pinY, AnimConfig.FX_SKEWER_PIN_DROP_DURATION).SetEase(Ease.InQuad))
+                .Append(head.transform.DOMoveY(restY, AnimConfig.COLLAPSE_DURATION))
                 .AppendInterval(AnimConfig.FX_SKEWER_PIN_HOLD_DURATION)
                 .Append(head.DOFade(0f, AnimConfig.FX_FADE_DURATION))
                 .OnComplete(() => Object.Destroy(root));

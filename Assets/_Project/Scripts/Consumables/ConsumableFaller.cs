@@ -54,6 +54,14 @@ namespace DogtorBurguer
                 effect.PlayVfx(column); // cosmetic overlay; the grid resolves underneath it
                 effect.Apply(column);
                 AudioManager.Instance?.PlayConsumableUse(effect.Type);
+
+                // Some effects hand their motion straight to the VFX (the skewer stick "sinks
+                // in", leaving its head) — no exit animation, the swap must be seamless.
+                if (effect.FallerVanishesOnImpact)
+                {
+                    Destroy(gameObject);
+                    return;
+                }
             }
             else
             {

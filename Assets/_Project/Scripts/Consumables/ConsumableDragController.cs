@@ -4,10 +4,11 @@ using UnityEngine;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// The carry interaction: a press that starts on an inventory slot lifts that consumable, which
-    /// then follows the finger with a translucent ghost clamped to the nearest column. Releasing over
-    /// the playfield drops the faller (and consumes the slot); releasing elsewhere cancels. Driven by
-    /// TouchInputHandler (the single raw-input reader), which suppresses chef gestures while carrying.
+    /// The carry interaction: a press that starts on an inventory slot lifts that consumable
+    /// (its slot icon hides); the only carry visual is the translucent ghost locked to the
+    /// nearest column — nothing follows the finger. Releasing over the playfield drops the
+    /// faller (and consumes the slot); releasing elsewhere cancels. Driven by TouchInputHandler
+    /// (the single raw-input reader), which suppresses chef gestures while carrying.
     /// The world keeps moving throughout — deliberately no pause.
     /// </summary>
     public class ConsumableDragController : Singleton<ConsumableDragController>
@@ -15,7 +16,6 @@ namespace DogtorBurguer
         private bool _carrying;
         private ConsumableType _type;
 
-        private SpriteRenderer _carryIcon;
         private SpriteRenderer _ghost;
 
         public bool IsCarrying => _carrying;
@@ -37,8 +37,6 @@ namespace DogtorBurguer
         public void UpdateCarry(Vector3 worldPos)
         {
             if (!_carrying) return;
-
-            _carryIcon.transform.position = worldPos;
 
             Column col = GridManager.Instance?.GetColumn(NearestColumn(worldPos.x));
             if (col != null)
@@ -95,10 +93,8 @@ namespace DogtorBurguer
 
             ConsumableInventoryView.Instance?.SetTypeHidden(type, true);
 
-            // The held item stays the badge; the column ghost is the effect's targeting art
-            // (ketchup/mustard nozzles — the visual that "locks onto" the column).
-            _carryIcon = CreateRenderer("CarryIcon", RewardArt.Badge(type),
-                Constants.SORT_CONSUMABLE_CARRY, 1f, UIStyles.CONSUMABLE_CARRY_HEIGHT);
+            // The one carry visual: the effect's targeting art locked to the nearest column
+            // (ketchup/mustard nozzles, skewer tip). Nothing is pinned to the finger.
             _ghost = CreateRenderer("ColumnGhost", ConsumableEffects.For(type).GhostSprite,
                 Constants.SORT_CONSUMABLE_GHOST, UIStyles.CONSUMABLE_GHOST_ALPHA, UIStyles.CONSUMABLE_GHOST_HEIGHT);
             _ghost.enabled = false; // revealed once a column is targeted
@@ -118,9 +114,7 @@ namespace DogtorBurguer
         private void EndCarry()
         {
             _carrying = false;
-            if (_carryIcon != null) Destroy(_carryIcon.gameObject);
             if (_ghost != null) Destroy(_ghost.gameObject);
-            _carryIcon = null;
             _ghost = null;
         }
 

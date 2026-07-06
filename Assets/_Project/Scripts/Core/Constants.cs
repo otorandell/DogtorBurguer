@@ -52,7 +52,6 @@ namespace DogtorBurguer
         public const int SORT_CONSUMABLE_FX_STREAM = 93; // ketchup stream (under its nozzle)
         public const int SORT_CONSUMABLE_FX_NOZZLE = 94; // use-effect nozzles (under the faller)
         public const int SORT_CONSUMABLE_FALLER = 95;// the consumable dropping into a column
-        public const int SORT_CONSUMABLE_CARRY = 150;// the icon held under the finger (on top of all)
         public const int SORT_FLOATING_TEXT = 100;
         public const int SORT_SCORE_POPUP = 100;
         public const int SORT_FEEDBACK_TEXT = 100;

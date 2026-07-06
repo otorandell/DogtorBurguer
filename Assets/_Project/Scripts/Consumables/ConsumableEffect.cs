@@ -35,6 +35,11 @@ namespace DogtorBurguer
         /// so its tip, not its middle, meets the impact row).</summary>
         public virtual float FallerImpactLift => 0f;
 
+        /// <summary>True → on a successful impact the faller disappears instantly and its VFX
+        /// continues the motion (the skewer stick "sinks in", leaving its head). A fizzle still
+        /// plays the normal scale-out.</summary>
+        public virtual bool FallerVanishesOnImpact => false;
+
         /// <summary>
         /// False → the faller reaches the floor and fizzles with no effect (the item is still spent).
         /// </summary>

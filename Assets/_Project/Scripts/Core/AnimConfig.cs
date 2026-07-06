@@ -95,7 +95,7 @@ namespace DogtorBurguer
         public const float KETCHUP_CLEAR_STAGGER = 0.05f;      // per-row delay, sweeping downward
         public const float FX_HOLD_DURATION = 0.2f;           // full squirt held before the fade
         public const float FX_FADE_DURATION = 0.3f;           // effect fade-out
-        public const float FX_SKEWER_PIN_DROP_DURATION = 0.15f; // head slam down to its pin rest
+        // (the head's ride down uses COLLAPSE_DURATION — it moves WITH the bun's own tween)
         public const float FX_SKEWER_PIN_HOLD_DURATION = 0.5f;  // pinned head lingers before fading
         #endregion
 

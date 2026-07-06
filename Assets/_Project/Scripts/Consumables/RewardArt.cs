@@ -21,6 +21,7 @@ namespace DogtorBurguer
         public static Sprite MustardDrop => Load("Effects/fx_mustard_drop");
         public static Sprite SkewerFalling => Load("Effects/fx_skewer_falling");
         public static Sprite SkewerHead => Load("Effects/fx_skewer_head");
+        public static Sprite SkewerTip => Load("Effects/fx_skewer_tip");
 
         /// <summary>The full-body fairy illustration for a payload (each carries its cargo in-art).</summary>
         public static Sprite Fairy(FairyPayload payload)

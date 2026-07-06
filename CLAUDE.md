@@ -285,9 +285,9 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   `ConsumableInventoryView` + `ConsumableSlotWidget` render a **screen-space UGUI** row below
   Level/Score: round plate + icon + corner badge (**red num box with the live count**, or **green
   plus box** when empty — the plus box **opens the Shop** paused, the "buy more" deep link).
-- **Use — drag-to-column**: press a slot (a stocked one) → carry (a world-space icon follows the
-  finger, a translucent ghost snaps to the nearest column) → release **over the playfield** to use,
-  **off it** to cancel. `ConsumableDragController.TryBegin` hit-tests the **screen-space** slot
+- **Use — drag-to-column**: press a slot (a stocked one) → carry (the slot icon hides; the only
+  visual is the translucent targeting ghost snapped to the nearest column — **nothing follows
+  the finger**) → release **over the playfield** to use, **off it** to cancel. `ConsumableDragController.TryBegin` hit-tests the **screen-space** slot
   (only stocked slots carry); the carry/drop are world-space. Driven by `TouchInputHandler` (origin
   disambiguates: a press on a slot becomes a carry and suppresses chef gestures). **World keeps
   moving while carrying** — a cancellable pause would be a free stop-time exploit.
