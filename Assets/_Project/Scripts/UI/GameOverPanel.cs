@@ -16,7 +16,9 @@ namespace DogtorBurguer
         private Button _continueGemsButton;
         private GameObject _continueGemsObj;
         private GameObject _continueAdObj;
+        private Button _continueAdButton;
         private TextMeshProUGUI _continueGemsText;
+        private TextMeshProUGUI _continueAdText;
 
         private bool _hasContinued;
 
@@ -62,11 +64,13 @@ namespace DogtorBurguer
             _continueGemsButton = gemsBtn.button;
             _continueGemsText = gemsBtn.label;
 
-            // Continue with ad button
+            // Continue with ad button (availability-driven — see RefreshAdButton)
             var adBtn = UIFactory.CreateButton(_panel.transform, "Watch Ad to Continue",
                 new Vector2(0, UIStyles.GAMEOVER_BTN_START_Y + UIStyles.GAMEOVER_BTN_SPACING), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CONTINUE_AD,
                 UIStyles.PANEL_BUTTON_TEXT_SIZE, OnContinueAdClicked);
             _continueAdObj = adBtn.obj;
+            _continueAdButton = adBtn.button;
+            _continueAdText = adBtn.label;
 
             // Restart button
             UIFactory.CreateButton(_panel.transform, "Restart",
@@ -108,6 +112,7 @@ namespace DogtorBurguer
                 _continueGemsButton.interactable = gems >= MonetizationConfig.CONTINUE_GEM_COST;
                 _continueGemsText.text = $"Continue ({MonetizationConfig.CONTINUE_GEM_COST} gems)";
             }
+            RefreshAdButton();
 
             _canvas.gameObject.SetActive(true);
             _canvasGroup.alpha = 0;
@@ -122,6 +127,23 @@ namespace DogtorBurguer
         private void Hide()
         {
             _canvas.gameObject.SetActive(false);
+        }
+
+        // A rewarded ad can finish loading (or fail) while the panel sits open, so the
+        // ad-continue button tracks live availability instead of freezing its Show-time state.
+        private void Update()
+        {
+            if (_canvas == null || !_canvas.gameObject.activeSelf) return;
+            RefreshAdButton();
+        }
+
+        private void RefreshAdButton()
+        {
+            if (_continueAdObj == null || !_continueAdObj.activeSelf) return;
+
+            bool available = AdManager.Instance != null && AdManager.Instance.IsRewardedAvailable;
+            _continueAdButton.interactable = available;
+            _continueAdText.text = available ? "Watch Ad to Continue" : "Ad loading...";
         }
 
         private void OnContinueGemsClicked()

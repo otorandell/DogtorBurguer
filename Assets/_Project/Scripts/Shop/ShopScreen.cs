@@ -51,6 +51,22 @@ namespace DogtorBurguer
         /// <summary>Sections register their state re-render here; see <see cref="NotifyChanged"/>.</summary>
         public void RegisterRefresh(Action refresh) => _refreshers.Add(refresh);
 
+        /// <summary>For state that changes while the shop just sits open (ad availability) —
+        /// runs once now and then every frame. Keep ticks cheap and change-guarded.</summary>
+        public void RegisterPerFrame(Action tick)
+        {
+            tick();
+            _perFrameTicks.Add(tick);
+        }
+
+        private readonly List<Action> _perFrameTicks = new();
+
+        private void Update()
+        {
+            foreach (Action tick in _perFrameTicks)
+                tick();
+        }
+
         /// <summary>Call after any successful transaction: re-renders every section's state.
         /// (Balance labels update separately, via the SaveDataManager currency events.)</summary>
         public void NotifyChanged()

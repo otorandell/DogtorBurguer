@@ -35,7 +35,9 @@ Assets/_Project/Scripts/
                  Background, OrderType, NumberFormat, UIFactory
     Factory/     SpriteFactory (cached procedural sprites), WorldTextFactory (world-space TMP)
   Audio/         AudioManager, MusicManager, MusicCategory
-  Monetization/  AdManager, GemProduct, StarProduct, ConsumablePack, BurgerFairy, BurgerFairySpawner
+  Monetization/  AdManager (facade), MockAdProvider, GemProduct, StarProduct, ConsumablePack,
+                 BurgerFairy, BurgerFairySpawner
+    Abstractions/ IAdProvider (the ad-network contract)
   Consumables/   ConsumableType, ConsumableEffect (+ Ketchup/Mustard/Skewer), ConsumableEffects,
                  ConsumableFaller, ConsumableInventory, ConsumableInventoryView, ConsumableSlotWidget,
                  ConsumableDragController, FairyPayload, FairyPayloadKind,
@@ -226,8 +228,17 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   is bought** (`SaveDataManager.AdsRemoved`, in `ShouldShowInterstitial`). Rewarded ads stay.
 - **Burger Fairy** drops during gameplay (`FAIRY_SPAWN_CHANCE` 0.20 / 10s) carry gems (~40%) or
   a consumable (~60%) — see Core Systems → Consumables. Gem fairies award `GEM_PACK_VALUE`.
-- AdManager is currently mock (simulated delays). IAP flows (gem packs, remove-ads) are stubs that
-  grant immediately — see `ShopService.BuyGemPack` / `BuyRemoveAds`.
+- **Ad architecture** (production-shaped, 2026-07-05): `AdManager` is a facade owning one
+  `IAdProvider` (contract in `Monetization/Abstractions/`) plus the ad policy (cadence,
+  remove-ads suppression). The provider models the real SDK lifecycle: async init, **preload**
+  (`IsInterstitialReady`/`IsRewardedReady` are real load state), auto-reload after show, retry
+  on failure, **reward only from the reward callback**, and timeScale save/restore (an ad over
+  a paused game hands the pause back). `MockAdProvider` simulates it all, including a
+  `NO_FILL_CHANCE` so not-ready UI paths get exercised — ad buttons (game-over continue, shop
+  FREE) disable + relabel while no ad is loaded. **Swapping in the real SDK = one new provider
+  class + one line in `AdManager.Awake`** (SDK choice leaning Unity LevelPlay — see checklist).
+- IAP flows (gem packs, remove-ads) are stubs that grant immediately — see
+  `ShopService.BuyGemPack` / `BuyRemoveAds`.
 
 ### Shop (full-screen overlay — `Scripts/Shop/`)
 One vertically scrolling page under a fixed header (SHOP title + star/gem pills + close), on its
@@ -409,8 +420,10 @@ or committed yet — capture only.
   (`Theme` / `Resources/Skins` for gameplay art, `RewardArt` for consumables) — mostly a content swap.
 - **Prepare for real UI components** — UI is currently code-built/procedural (`UIFactory`,
   `WorldTextFactory`, `SpriteFactory`); move toward authored UI components / polish.
-- **Full advertisement implementation** — replace the mock `AdManager` with a real ad SDK
-  (rewarded continue, interstitials every 3 games, gem-pack rewards).
+- **Full advertisement implementation** — Phase 1 (production-shaped interface: `IAdProvider`,
+  preload/ready lifecycle, reward-on-callback, timeScale fix) DONE 2026-07-05. Remaining =
+  launch-gated SDK body-swap: pick network (leaning LevelPlay), register app, ad-unit IDs,
+  `LevelPlayAdProvider`, consent (GDPR UMP + iOS ATT, needs privacy policy), on-device testing.
 - **Sound / music** — optional; dev is fairly happy with the current procedural SFX. Real
   SFX/music can drop in via the `AudioManager._*Override` slots and `Resources/Music/` when wanted.
 

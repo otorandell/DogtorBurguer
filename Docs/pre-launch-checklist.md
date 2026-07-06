@@ -51,7 +51,7 @@ Each item: concern → impact → mitigation → status.
 **Dependencies:** real fill typically requires a registered, near-launch app (often in store review). Also gated on the consent/privacy item below.
 **Effort:** ~1–2 days of code once accounts + ad-unit IDs exist. The long pole is platform registration and on-device testing, not the code itself (ads can't be meaningfully tested in the editor).
 **Recommended split:** harden the mock into a production-shaped interface *now* (load/ready state, reward-only-on-callback, `timeScale` save/restore) so the rest of the game already codes against the real contract; then the launch task is a body-swap of the mock methods for SDK calls rather than re-architecting callers. Interface hardening is deliberately **out of scope for the current code review** — tracked here, not as a review finding.
-**Status:** pending (interface hardening optional-now; SDK wiring launch-gated)
+**Status:** interface hardening **DONE 2026-07-05** (`IAdProvider` + `MockAdProvider`: async init, preload/ready state with simulated no-fill, auto-reload + retry, reward-only-on-callback, timeScale save/restore; ad buttons track live availability). Remaining = SDK body-swap (launch-gated): network account + app registration + per-platform ad-unit IDs, a `LevelPlayAdProvider` (or AdMob equivalent), test-mode toggle, on-device testing. Gated on the consent item below.
 
 ### Ad consent & privacy prerequisites (GDPR / ATT)
 **Impact:** EU GDPR consent and iOS App Tracking Transparency are required before ads will serve and for store compliance. Missing them → ads don't fill and/or the app violates platform policy.

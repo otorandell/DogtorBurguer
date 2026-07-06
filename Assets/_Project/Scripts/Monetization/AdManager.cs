@@ -1,16 +1,20 @@
 using System;
-using System.Collections;
 using UnityEngine;
 
 namespace DogtorBurguer
 {
     /// <summary>
-    /// Ad manager wrapper. Currently uses mock ads (simulated delays).
-    /// Replace mock methods with Unity Ads SDK calls when ready for production.
+    /// Game-facing ad facade. Owns one <see cref="IAdProvider"/> (the mock today; the real
+    /// SDK provider at launch — swap it in <see cref="Awake"/>, callers don't change) and the
+    /// ad POLICY: the interstitial cadence and the remove-ads suppression. Availability is
+    /// real load state — callers should disable ad buttons when the checks are false.
     /// </summary>
     public class AdManager : Singleton<AdManager>
     {
-        private bool _isShowingAd;
+        private IAdProvider _provider;
+
+        /// <summary>True when a rewarded ad is loaded and can actually show.</summary>
+        public bool IsRewardedAvailable => _provider != null && _provider.IsRewardedReady;
 
         protected override void Awake()
         {
@@ -18,19 +22,14 @@ namespace DogtorBurguer
             if (Instance != this) return;
             DontDestroyOnLoad(gameObject);
 
-            InitializeAds();
-        }
-
-        private void InitializeAds()
-        {
-            // TODO: Replace with Unity Ads initialization
-            // UnityAds.Initialize(gameId, testMode);
-            Debug.Log("[AdManager] Initialized (mock mode)");
+            // Provider swap point: replace with the real SDK implementation at launch.
+            _provider = gameObject.AddComponent<MockAdProvider>();
+            _provider.Initialize();
         }
 
         /// <summary>
-        /// Ad-cadence policy: show an interstitial every Nth completed game.
-        /// Owns the decision; SaveDataManager only owns the games-played count.
+        /// Ad-cadence policy: an interstitial is due every Nth completed game, and never once
+        /// remove-ads is bought. Owns the decision; SaveDataManager only owns the counters.
         /// </summary>
         public bool ShouldShowInterstitial()
         {
@@ -43,78 +42,36 @@ namespace DogtorBurguer
         }
 
         /// <summary>
-        /// The restart gate: shows an interstitial when the cadence says one is due, then
-        /// continues. Both restart paths (game over, in-game settings) route through this so
-        /// the ad policy can't drift between them.
+        /// The restart gate: shows an interstitial when the cadence says one is due AND one is
+        /// loaded, then continues. Both restart paths (game over, in-game settings) route
+        /// through this so the ad policy can't drift between them. Never blocks the restart —
+        /// a due-but-unloaded ad is skipped, not waited for.
         /// </summary>
         public void MaybeShowInterstitial(Action then)
         {
-            if (ShouldShowInterstitial()) ShowInterstitial(then);
-            else then?.Invoke();
+            if (_provider != null && _provider.IsInterstitialReady && ShouldShowInterstitial())
+                _provider.ShowInterstitial(then);
+            else
+                then?.Invoke();
         }
 
         /// <summary>
-        /// Shows an interstitial ad. Calls onComplete when done.
-        /// </summary>
-        public void ShowInterstitial(Action onComplete = null)
-        {
-            if (_isShowingAd)
-            {
-                onComplete?.Invoke();
-                return;
-            }
-
-            StartCoroutine(MockInterstitial(onComplete));
-        }
-
-        /// <summary>
-        /// Shows a rewarded ad. Calls onResult(true) if watched, (false) if skipped/failed.
+        /// Shows a rewarded ad. onResult(true) only when the reward was actually earned;
+        /// (false) when no ad is available or it was skipped. Check
+        /// <see cref="IsRewardedAvailable"/> to disable the button instead of dead-clicking.
         /// </summary>
         public void ShowRewarded(Action<bool> onResult)
         {
-            if (_isShowingAd)
+            if (_provider == null || !_provider.IsRewardedReady)
             {
                 onResult?.Invoke(false);
                 return;
             }
 
-            StartCoroutine(MockRewarded(onResult));
-        }
-
-        public bool IsAdAvailable()
-        {
-            // TODO: Check Unity Ads availability
-            return true;
-        }
-
-        private IEnumerator MockInterstitial(Action onComplete)
-        {
-            _isShowingAd = true;
-            Debug.Log("[AdManager] Showing interstitial ad (mock - 1s delay)");
-
-            // Simulate ad display
-            Time.timeScale = 0f;
-            yield return new WaitForSecondsRealtime(1f);
-            Time.timeScale = 1f;
-
-            _isShowingAd = false;
-            Debug.Log("[AdManager] Interstitial complete");
-            onComplete?.Invoke();
-        }
-
-        private IEnumerator MockRewarded(Action<bool> onResult)
-        {
-            _isShowingAd = true;
-            Debug.Log("[AdManager] Showing rewarded ad (mock - 2s delay)");
-
-            // Simulate watching a rewarded ad
-            Time.timeScale = 0f;
-            yield return new WaitForSecondsRealtime(2f);
-            Time.timeScale = 1f;
-
-            _isShowingAd = false;
-            Debug.Log("[AdManager] Rewarded ad complete - granting reward");
-            onResult?.Invoke(true);
+            bool rewarded = false;
+            _provider.ShowRewarded(
+                onRewarded: () => rewarded = true,
+                onClosed: () => onResult?.Invoke(rewarded));
         }
     }
 }

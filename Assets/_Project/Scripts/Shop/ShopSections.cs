@@ -142,7 +142,7 @@ namespace DogtorBurguer
             RectTransform adBar = ShopWidgets.CreateBar(content, UIStyles.SHOP_OFFER_BAR_H, UIStyles.SHOP_CARD_BG);
             ShopWidgets.CreateBarTexts(adBar, "ui_gem", $"+{MonetizationConfig.GEM_REWARD_AD} Gems",
                 "Watch an ad", "");
-            ShopWidgets.CreatePriceButton(adBar, new Vector2(1f, 0.5f), UIStyles.SHOP_PRICE_BTN_POS,
+            Button adButton = ShopWidgets.CreatePriceButton(adBar, new Vector2(1f, 0.5f), UIStyles.SHOP_PRICE_BTN_POS,
                 UIStyles.SHOP_PRICE_BTN_SIZE, UIStyles.BTN_SHOP_AD, null, "FREE", () =>
                 {
                     if (AdManager.Instance == null) return;
@@ -152,6 +152,16 @@ namespace DogtorBurguer
                             SaveDataManager.Instance.AddGems(MonetizationConfig.GEM_REWARD_AD);
                     });
                 });
+
+            // Track live rewarded availability — an ad may finish loading while the shop is open.
+            TextMeshProUGUI adLabel = adButton.GetComponentInChildren<TextMeshProUGUI>();
+            screen.RegisterPerFrame(() =>
+            {
+                bool available = AdManager.Instance != null && AdManager.Instance.IsRewardedAvailable;
+                if (adButton.interactable == available) return;
+                adButton.interactable = available;
+                adLabel.text = available ? "FREE" : "LOADING...";
+            });
 
             foreach (GemProduct product in MonetizationConfig.GEM_PRODUCTS)
             {
