@@ -22,13 +22,13 @@ namespace DogtorBurguer
             ConsumableEffect effect = ConsumableEffects.For(type);
 
             SpriteRenderer sr = gameObject.AddComponent<SpriteRenderer>();
-            sr.sprite = RewardArt.Badge(type);
+            sr.sprite = effect.FallerSprite;
             sr.sortingOrder = Constants.SORT_CONSUMABLE_FALLER;
-            SpriteFit.Height(sr, UIStyles.CONSUMABLE_FALLER_HEIGHT);
+            SpriteFit.Height(sr, effect.FallerHeight);
 
             int impactRow = effect.ImpactRow(column);
             transform.position = column.GetWorldPositionForRow(Constants.MAX_ROWS);
-            Vector3 end = column.GetWorldPositionForRow(impactRow);
+            Vector3 end = column.GetWorldPositionForRow(impactRow) + Vector3.up * effect.FallerImpactLift;
 
             float cells = Mathf.Max(1f, Constants.MAX_ROWS - impactRow);
             float duration = cells * GameplayConfig.CONSUMABLE_FALL_STEP_DURATION;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace DogtorBurguer
 {
@@ -10,6 +11,10 @@ namespace DogtorBurguer
     {
         public override ConsumableType Type => ConsumableType.Skewer;
         public override int ImpactRow(Column column) => 0;
+        // The full skewer falls point-first; lifted so its tip (not its middle) meets the floor.
+        public override Sprite FallerSprite => RewardArt.SkewerFalling;
+        public override float FallerHeight => UIStyles.FX_SKEWER_FALLING_HEIGHT;
+        public override float FallerImpactLift => UIStyles.FX_SKEWER_IMPACT_LIFT;
 
         public override bool CanApply(Column column)
         {
@@ -21,5 +26,6 @@ namespace DogtorBurguer
         }
 
         public override void Apply(Column column) => GridManager.Instance?.ConsumableSkewer(column);
+        public override void PlayVfx(Column column) => ConsumableVfx.SkewerPin(column);
     }
 }

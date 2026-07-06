@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace DogtorBurguer
 {
     /// <summary>
@@ -9,6 +11,8 @@ namespace DogtorBurguer
         public override ConsumableType Type => ConsumableType.Mustard;
         public override int ImpactRow(Column column) => column.StackHeight;
         public override bool CanApply(Column column) => column != null && !column.IsEmpty;
+        public override Sprite FallerSprite => RewardArt.MustardDrop;
+        public override float FallerHeight => UIStyles.FX_MUSTARD_DROP_HEIGHT;
 
         public override void Apply(Column column)
         {
@@ -17,6 +21,6 @@ namespace DogtorBurguer
             GridManager.Instance?.ConsumableSweepType(top.Type, column);
         }
 
-        public override void PlayVfx(Column column) => ConsumableVfx.MustardSweep(column);
+        public override void PlayVfx(Column column) => ConsumableVfx.MustardBurst(column);
     }
 }

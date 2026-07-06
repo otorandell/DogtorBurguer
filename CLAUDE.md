@@ -288,8 +288,9 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   moving while carrying** — a cancellable pause would be a free stop-time exploit.
 - **Faller + effects**: on release a `ConsumableFaller` drops fast and **resolves on impact**;
   reaching the floor with no target **fizzles** (item still spent). Each `ConsumableEffect`
-  supplies a target rule + on-impact behavior (polymorphic, no switch) calling granular
-  `GridManager` helpers:
+  supplies a target rule + on-impact behavior + its falling visual (`FallerSprite`/`FallerHeight`;
+  ketchup drops its badge bottle, mustard an authored drop, the skewer the full stick — all
+  polymorphic, no switch) calling granular `GridManager` helpers:
   - **Ketchup** → clears the whole targeted column (`ConsumableClearColumn`).
   - **Mustard** → removes the targeted column's top type **board-wide** (`ConsumableSweepType`),
     per-column collapse + cascade (chain reactions reuse the normal pair-match loop).
@@ -299,11 +300,14 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   multiplier; **buns score nothing** (Ketchup-cleared and Skewer-destroyed alike). Cascades
   score normally via `OnMatchEliminated`.
 - **Use VFX** (`ConsumableVfx`, fired via the polymorphic `ConsumableEffect.PlayVfx` alongside
-  `Apply` — cosmetic, non-blocking, self-destroying): Ketchup = a giant nozzle pops over the
-  column and squirts a stream down it (`Resources/Effects/fx_ketchup_nozzle/stream`); Mustard =
-  the nozzle sweeps across the board (`fx_mustard_nozzle`). Skewer has **no authored effect art
-  yet** — empty default until art lands. Sizes `UIStyles.FX_*`, timings `AnimConfig.FX_*`,
-  sorts `SORT_CONSUMABLE_FX_*` (between ghost and faller).
+  `Apply` — cosmetic, non-blocking, self-destroying). Art direction: **the nozzle locks onto the
+  used column**; the per-type faller is the "thing that drops". Ketchup = nozzle + a stream
+  squirted down the column (`fx_ketchup_nozzle/stream`); Mustard = nozzle burst in place
+  (`fx_mustard_nozzle`) with the authored drop as its faller (`fx_mustard_drop`); Skewer = the
+  full stick falls tip-first (`fx_skewer_falling`, `FallerImpactLift` seats the tip on the
+  floor), then only its **head stays pinned** at the base for the went-through depth read
+  (`fx_skewer_head`). Sizes `UIStyles.FX_*`, timings `AnimConfig.FX_*`, sorts
+  `SORT_CONSUMABLE_FX_*` (between ghost and faller).
 - **Art** (`RewardArt` + `SpriteFit`): the **fairy is one full-body illustration per payload**
   (`Resources/Fairy/fairy_{gems,stars,ketchup,mustard,skewer}` — the cargo is drawn into the
   art; the old body+badge overlay is gone). The `Resources/Rewards/` badges
@@ -502,8 +506,6 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next
     challenge level. **Built** (`BurgerChallengeView.BuildMultMeter`, `ChallengeFill`) — slot
     position/size are eyeball defaults in `UIStyles.MULT_METER_*`, tune live.
-  - **Skewer use VFX** — ketchup/mustard landed 2026-07-05 (`ConsumableVfx`); the skewer has no
-    authored effect art, so it keeps the empty `PlayVfx` default until art arrives.
   Plan each of these as its own code task alongside the visual wiring.
 - **Shop UI is placeholder-styled** (flat color cards/buttons + authored pills/icons) — restyle
   with authored art when the kit grows shop pieces. Layout knobs in `UIStyles.SHOP_*`, untested

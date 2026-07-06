@@ -71,10 +71,16 @@ namespace DogtorBurguer
         public const float CONSUMABLE_GHOST_HEIGHT = 2.0f;   // column preview (+100%)
         public const float CONSUMABLE_GHOST_ALPHA = 0.5f;    // translucency of the column preview
         public const float CONSUMABLE_CARRY_HEIGHT = 1.8f;   // the lifted item that follows the finger
-        // Use-effect art (ConsumableVfx): the giant nozzle over the board + the ketchup stream.
+        // Use-effect art (ConsumableVfx): nozzles lock over the used column; per-type fallers.
         public const float FX_NOZZLE_HEIGHT = 1.5f;          // nozzle world height
         public const float FX_NOZZLE_TOP_OFFSET = 0.6f;      // nozzle center above the top row
-        public const float FX_STREAM_FLOOR_OVERLAP = 0.2f;   // stream reaches a touch below row 0
+        public const float FX_STREAM_FLOOR_OVERLAP = 0.2f;   // ketchup stream reaches a touch below row 0
+        public const float FX_MUSTARD_DROP_HEIGHT = 1.2f;    // the falling mustard drop
+        public const float FX_SKEWER_FALLING_HEIGHT = 4f;    // the full skewer while falling
+        public const float FX_SKEWER_IMPACT_LIFT = 1.4f;     // raises the fall end so the TIP meets the floor
+        public const float FX_SKEWER_HEAD_HEIGHT = 0.8f;     // the pinned head left at the base
+        public const float FX_SKEWER_HEAD_PIN_Y = 0.9f;      // head rest height above row 0
+        public const float FX_SKEWER_HEAD_DROP_FROM = 0.7f;  // head slam start, above the rest height
         #endregion
 
         #region HUD Consumable Slots (screen-space UGUI, below Level/Score — anchored top-left, reference px)

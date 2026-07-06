@@ -88,8 +88,10 @@ namespace DogtorBurguer
         public const float FX_NOZZLE_POP_DURATION = 0.15f;    // nozzle scale-in (OutBack)
         public const float FX_STREAM_EXTEND_DURATION = 0.25f; // ketchup stream growing down the column
         public const float FX_HOLD_DURATION = 0.2f;           // full squirt held before the fade
-        public const float FX_FADE_DURATION = 0.3f;           // nozzle + stream fade-out
-        public const float FX_MUSTARD_SWEEP_DURATION = 0.5f;  // mustard nozzle crossing the board
+        public const float FX_FADE_DURATION = 0.3f;           // effect fade-out
+        public const float FX_MUSTARD_HOLD_DURATION = 0.45f;  // mustard nozzle burst held on the column
+        public const float FX_SKEWER_PIN_DROP_DURATION = 0.15f; // head slam down to its pin rest
+        public const float FX_SKEWER_PIN_HOLD_DURATION = 0.5f;  // pinned head lingers before fading
         #endregion
 
         #region Shop (all unscaled time — the in-game shop runs on a paused game)
