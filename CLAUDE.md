@@ -218,8 +218,12 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
     on the game-over panel). Also from gem→star shop packs; editor debug key **4** grants 500.
 - One-directional exchange: gems buy stars, never the reverse (standard freemium convention).
 - Continue after game over: 50 gems or watch ad
-- Interstitial ads every 3 games — **suppressed once Remove Ads is bought**
-  (`SaveDataManager.AdsRemoved`, checked in `AdManager.ShouldShowInterstitial`). Rewarded ads stay.
+- Interstitial ads every 3 games, shown only on the two **restart** buttons (game over + in-game
+  settings, both via `AdManager.MaybeShowInterstitial`). Menu Play and Quit-to-Menu are ad-free —
+  yes, quit→menu→Play can dodge a restart ad; **deliberate decision (2026-07-05)**: the dodge
+  costs more friction than it saves and gating Play felt hostile. Don't "fix" it; if ad pacing
+  ever needs rework, use a time cooldown at break points instead. **Suppressed once Remove Ads
+  is bought** (`SaveDataManager.AdsRemoved`, in `ShouldShowInterstitial`). Rewarded ads stay.
 - **Burger Fairy** drops during gameplay (`FAIRY_SPAWN_CHANCE` 0.20 / 10s) carry gems (~40%) or
   a consumable (~60%) — see Core Systems → Consumables. Gem fairies award `GEM_PACK_VALUE`.
 - AdManager is currently mock (simulated delays). IAP flows (gem packs, remove-ads) are stubs that
