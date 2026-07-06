@@ -70,6 +70,10 @@ namespace DogtorBurguer
         public const float CONSUMABLE_GHOST_HEIGHT = 2.0f;   // column preview (+100%)
         public const float CONSUMABLE_GHOST_ALPHA = 0.5f;    // translucency of the column preview
         public const float CONSUMABLE_CARRY_HEIGHT = 1.8f;   // the lifted item that follows the finger
+        // Use-effect art (ConsumableVfx): the giant nozzle over the board + the ketchup stream.
+        public const float FX_NOZZLE_HEIGHT = 1.5f;          // nozzle world height
+        public const float FX_NOZZLE_TOP_OFFSET = 0.6f;      // nozzle center above the top row
+        public const float FX_STREAM_FLOOR_OVERLAP = 0.2f;   // stream reaches a touch below row 0
         #endregion
 
         #region HUD Consumable Slots (screen-space UGUI, below Level/Score — anchored top-left, reference px)

@@ -4,9 +4,10 @@ using UnityEngine;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// Loads and caches the consumable-system sprites from Resources (Fairy/ + Rewards/), the same
-    /// load-by-convention approach used for Music/Skins. One reward badge per payload doubles as the
-    /// inventory icon, the column ghost (alpha-tinted by the consumer), and the faller.
+    /// Loads and caches the consumable-system sprites from Resources (Fairy/ + Rewards/ +
+    /// Effects/), the same load-by-convention approach used for Music/Skins. One reward badge per
+    /// payload doubles as the inventory icon, the column ghost (alpha-tinted by the consumer),
+    /// and the faller; the Effects/ sprites are the use-effect art (see ConsumableVfx).
     /// </summary>
     public static class RewardArt
     {
@@ -15,6 +16,10 @@ namespace DogtorBurguer
         public static Sprite Fairy => Load("Fairy/fairy");
         public static Sprite Gem => Load("Rewards/gem");
         public static Sprite Badge(ConsumableType type) => Load("Rewards/" + type.ToString().ToLowerInvariant());
+
+        public static Sprite KetchupNozzle => Load("Effects/fx_ketchup_nozzle");
+        public static Sprite KetchupStream => Load("Effects/fx_ketchup_stream");
+        public static Sprite MustardNozzle => Load("Effects/fx_mustard_nozzle");
 
         /// <summary>Badge sprite for a payload — the gem or the consumable icon.</summary>
         public static Sprite Badge(FairyPayload payload) =>

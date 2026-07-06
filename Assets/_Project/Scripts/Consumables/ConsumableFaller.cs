@@ -42,6 +42,7 @@ namespace DogtorBurguer
             // Resolve against live state at impact (robust to a piece landing mid-drop).
             if (effect.CanApply(column))
             {
+                effect.PlayVfx(column); // cosmetic overlay; the grid resolves underneath it
                 effect.Apply(column);
                 AudioManager.Instance?.PlayConsumableUse(effect.Type);
             }

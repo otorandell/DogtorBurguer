@@ -47,6 +47,8 @@ namespace DogtorBurguer
         public const int SORT_FAIRY_BADGE = 101;     // payload badge, just above the fairy body
         public const int SORT_CONSUMABLE_SLOT = 90;  // inventory icons in the score panel
         public const int SORT_CONSUMABLE_GHOST = 92; // translucent column preview while dragging
+        public const int SORT_CONSUMABLE_FX_STREAM = 93; // ketchup stream (under its nozzle)
+        public const int SORT_CONSUMABLE_FX_NOZZLE = 94; // use-effect nozzles (under the faller)
         public const int SORT_CONSUMABLE_FALLER = 95;// the consumable dropping into a column
         public const int SORT_CONSUMABLE_CARRY = 150;// the icon held under the finger (on top of all)
         public const int SORT_FLOATING_TEXT = 100;

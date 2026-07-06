@@ -39,9 +39,9 @@ Assets/_Project/Scripts/
                  BurgerFairy, BurgerFairySpawner
     Abstractions/ IAdProvider (the ad-network contract)
   Consumables/   ConsumableType, ConsumableEffect (+ Ketchup/Mustard/Skewer), ConsumableEffects,
-                 ConsumableFaller, ConsumableInventory, ConsumableInventoryView, ConsumableSlotWidget,
-                 ConsumableDragController, FairyPayload, FairyPayloadKind,
-                 RewardArt, SpriteFit
+                 ConsumableFaller, ConsumableVfx (use effects), ConsumableInventory,
+                 ConsumableInventoryView, ConsumableSlotWidget, ConsumableDragController,
+                 FairyPayload, FairyPayloadKind, RewardArt, SpriteFit
 ```
 
 ## Singletons
@@ -294,6 +294,12 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
 - **Scoring**: non-bun removals score `POINTS_CONSUMABLE_PER_INGREDIENT` (10), flat, no
   multiplier; **buns score nothing** (Ketchup-cleared and Skewer-destroyed alike). Cascades
   score normally via `OnMatchEliminated`.
+- **Use VFX** (`ConsumableVfx`, fired via the polymorphic `ConsumableEffect.PlayVfx` alongside
+  `Apply` — cosmetic, non-blocking, self-destroying): Ketchup = a giant nozzle pops over the
+  column and squirts a stream down it (`Resources/Effects/fx_ketchup_nozzle/stream`); Mustard =
+  the nozzle sweeps across the board (`fx_mustard_nozzle`). Skewer has **no authored effect art
+  yet** — empty default until art lands. Sizes `UIStyles.FX_*`, timings `AnimConfig.FX_*`,
+  sorts `SORT_CONSUMABLE_FX_*` (between ghost and faller).
 - **Art** (`RewardArt` + `SpriteFit`): one badge per payload from `Resources/Rewards/`
   (`gem`/`ketchup`/`mustard`/`skewer`) doubles as fairy badge, column ghost (alpha) and faller;
   the **inventory slot icons** are the splashy kit versions (`Resources/UI/ui_consumable_{name}`,
@@ -490,7 +496,8 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next
     challenge level. **Built** (`BurgerChallengeView.BuildMultMeter`, `ChallengeFill`) — slot
     position/size are eyeball defaults in `UIStyles.MULT_METER_*`, tune live.
-  - **Consumable effect VFX** (e.g. the in-use ketchup bottle) — art exists, needs hooking to use.
+  - **Skewer use VFX** — ketchup/mustard landed 2026-07-05 (`ConsumableVfx`); the skewer has no
+    authored effect art, so it keeps the empty `PlayVfx` default until art arrives.
   Plan each of these as its own code task alongside the visual wiring.
 - **Shop UI is placeholder-styled** (flat color cards/buttons + authored pills/icons) — restyle
   with authored art when the kit grows shop pieces. Layout knobs in `UIStyles.SHOP_*`, untested

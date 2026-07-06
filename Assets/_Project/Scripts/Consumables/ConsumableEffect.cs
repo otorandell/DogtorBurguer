@@ -20,5 +20,9 @@ namespace DogtorBurguer
 
         /// <summary>Resolve the effect on the targeted column. Only called when CanApply is true.</summary>
         public abstract void Apply(Column column);
+
+        /// <summary>Cosmetic use effect, fired alongside Apply (see ConsumableVfx). Effects with
+        /// no authored art yet keep the empty default.</summary>
+        public virtual void PlayVfx(Column column) { }
     }
 }

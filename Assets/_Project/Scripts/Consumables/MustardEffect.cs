@@ -16,5 +16,7 @@ namespace DogtorBurguer
             if (top == null) return;
             GridManager.Instance?.ConsumableSweepType(top.Type, column);
         }
+
+        public override void PlayVfx(Column column) => ConsumableVfx.MustardSweep(column);
     }
 }
