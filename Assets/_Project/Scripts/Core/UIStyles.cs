@@ -266,6 +266,12 @@ namespace DogtorBurguer
         // Stepper row: centered value label flanked by square −/+ buttons.
         public static readonly Vector2 SETTINGS_STEPPER_LABEL_SIZE = new(210f, 55f);
         public static readonly Vector2 SETTINGS_STEPPER_BTN_SIZE = new(55f, 55f);
+        // In-game variant: a taller panel with a Restart | Quit-to-menu row above Close.
+        public static readonly Vector2 SETTINGS_PANEL_SIZE_INGAME = new(350f, 470f);
+        public static readonly Vector2 SETTINGS_RUN_BTN_SIZE = new(135f, 55f);
+        public static readonly Vector2 SETTINGS_RESTART_POS = new(-73f, -125f);
+        public static readonly Vector2 SETTINGS_QUIT_POS = new(73f, -125f);
+        public static readonly Vector2 SETTINGS_CLOSE_POS_INGAME = new(0f, -195f);
         #endregion
 
         #region Layout — Shop Screen (full-screen overlay; header + vertical page scroll)

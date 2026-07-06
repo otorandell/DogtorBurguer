@@ -81,7 +81,7 @@ namespace DogtorBurguer
             {
                 Canvas settingsCanvas = UIFactory.CreateCanvas(transform, "Settings_Canvas", UIStyles.SETTINGS_CANVAS_SORT);
                 _settingsPanel = gameObject.AddComponent<SettingsPanel>();
-                _settingsPanel.Initialize(settingsCanvas);
+                _settingsPanel.Initialize(settingsCanvas, showRunButtons: true);
                 _settingsPanel.OnClosed += HandleSettingsClosed;
             }
 

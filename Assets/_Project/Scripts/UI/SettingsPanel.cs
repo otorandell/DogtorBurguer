@@ -15,10 +15,15 @@ namespace DogtorBurguer
         /// <summary>Fired when the panel closes — the in-game opener resumes the run on this.</summary>
         public event System.Action OnClosed;
 
-        /// <summary>Injects the menu canvas to build into (F-77), instead of scanning the scene.</summary>
-        public void Initialize(Canvas canvas)
+        private bool _showRunButtons;
+
+        /// <summary>Injects the canvas to build into (F-77), instead of scanning the scene.
+        /// Pass <paramref name="showRunButtons"/> from the in-game opener to add the
+        /// Restart / Quit-to-menu row (meaningless in the menu, so off by default).</summary>
+        public void Initialize(Canvas canvas, bool showRunButtons = false)
         {
             _canvas = canvas;
+            _showRunButtons = showRunButtons;
         }
 
         public void Show()
@@ -48,8 +53,9 @@ namespace DogtorBurguer
             // Overlay container
             _panel = UIFactory.CreateOverlay(_canvas.transform, UIStyles.OVERLAY_DARK);
 
-            // Inner panel
-            GameObject inner = UIFactory.CreatePanel(_panel.transform, UIStyles.SETTINGS_PANEL_SIZE, UIStyles.INNER_PANEL_BG);
+            // Inner panel (taller in-game — it grows the Restart/Quit row)
+            Vector2 panelSize = _showRunButtons ? UIStyles.SETTINGS_PANEL_SIZE_INGAME : UIStyles.SETTINGS_PANEL_SIZE;
+            GameObject inner = UIFactory.CreatePanel(_panel.transform, panelSize, UIStyles.INNER_PANEL_BG);
 
             // Title
             UIFactory.CreateText(inner.transform, "Settings", UIStyles.SETTINGS_TITLE_POS, UIStyles.SETTINGS_TITLE_RECT,
@@ -84,10 +90,33 @@ namespace DogtorBurguer
                 UIStyles.SETTINGS_STEPPER_BTN_SIZE, UIStyles.BTN_SETTINGS_TOGGLE,
                 UIStyles.SETTINGS_BUTTON_TEXT_SIZE, () => OnLevelStep(1));
 
+            // In-game run controls: Restart | Quit to menu. Scene loads reset timeScale
+            // (SceneLoader), so leaving from the paused panel is safe.
+            if (_showRunButtons)
+            {
+                UIFactory.CreateButton(inner.transform, "Restart", UIStyles.SETTINGS_RESTART_POS,
+                    UIStyles.SETTINGS_RUN_BTN_SIZE, UIStyles.BTN_RESTART,
+                    UIStyles.SETTINGS_BUTTON_TEXT_SIZE, OnRestartClicked);
+                UIFactory.CreateButton(inner.transform, "Quit to Menu", UIStyles.SETTINGS_QUIT_POS,
+                    UIStyles.SETTINGS_RUN_BTN_SIZE, UIStyles.BTN_CLOSE,
+                    UIStyles.SETTINGS_BUTTON_TEXT_SIZE, OnQuitClicked);
+            }
+
             // Close button
-            UIFactory.CreateButton(inner.transform, "Close", UIStyles.SETTINGS_CLOSE_POS,
+            UIFactory.CreateButton(inner.transform, "Close",
+                _showRunButtons ? UIStyles.SETTINGS_CLOSE_POS_INGAME : UIStyles.SETTINGS_CLOSE_POS,
                 UIStyles.CLOSE_BUTTON_SIZE, UIStyles.BTN_CLOSE,
                 UIStyles.SETTINGS_BUTTON_TEXT_SIZE, Hide);
+        }
+
+        private void OnRestartClicked()
+        {
+            GameManager.Instance?.RestartGame();
+        }
+
+        private void OnQuitClicked()
+        {
+            SceneLoader.LoadMainMenu();
         }
 
         private void OnSoundToggleClicked()
