@@ -12,6 +12,9 @@ namespace DogtorBurguer
         private TextMeshProUGUI _controlLabel;
         private TextMeshProUGUI _levelLabel;
 
+        /// <summary>Fired when the panel closes — the in-game opener resumes the run on this.</summary>
+        public event System.Action OnClosed;
+
         /// <summary>Injects the menu canvas to build into (F-77), instead of scanning the scene.</summary>
         public void Initialize(Canvas canvas)
         {
@@ -34,8 +37,10 @@ namespace DogtorBurguer
 
         public void Hide()
         {
-            if (_panel != null)
-                _panel.SetActive(false);
+            if (_panel == null) return;
+
+            _panel.SetActive(false);
+            OnClosed?.Invoke();
         }
 
         private void CreatePanel()

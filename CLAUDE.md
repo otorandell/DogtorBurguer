@@ -125,6 +125,10 @@ play-mode only, runtime-spawned). Toggle per-script via Unity's Gizmos menu.
 
 The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]`) → persists
 `SaveDataManager.StartingLevel`; clamped 1..`SETTINGS_LEVEL_CAP`. See Difficulty.
+**Settings opens in-game too** (top-bar gear, `GameHUD.OnConfigClicked`): same pause pattern as
+the shop — pauses a running game, panel on its own canvas (`SETTINGS_CANVAS_SORT` 110, above
+game-over, below shop), resumes via `SettingsPanel.OnClosed`. Sound/control-mode apply live
+mid-run; Start Level applies next run.
 
 ### Difficulty (DifficultyManager)
 - 20 levels scaling fall speed, active ingredient (type) count, and triple-wave chance.
@@ -463,8 +467,6 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   (the 9-slice route was dropped — fixed-size HUD boxes don't need it).
 - **★ glyph**: Panton (ASCII) lacks U+2605; add a fallback font or the `Star` sprite where needed.
 - **UI integration ≠ pure art-swap** — remaining wiring that implies real code:
-  - **Settings button** (top bar) — still **click-stubbed**; needs the settings panel brought into
-    the Game scene (the shop button is wired and pauses; reuse that pattern).
   - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next
     challenge level. **Built** (`BurgerChallengeView.BuildMultMeter`, `ChallengeFill`) — slot
     position/size are eyeball defaults in `UIStyles.MULT_METER_*`, tune live.

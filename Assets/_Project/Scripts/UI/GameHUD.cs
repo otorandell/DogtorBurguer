@@ -12,6 +12,8 @@ namespace DogtorBurguer
         private TextMeshProUGUI _highScoreNumber;
         private TextMeshProUGUI _starNumber;
         private Canvas _canvas;
+        private SettingsPanel _settingsPanel;
+        private bool _settingsPausedRun;
 
         private void Start()
         {
@@ -35,8 +37,6 @@ namespace DogtorBurguer
             _gemNumber = BuildCurrencyWidget("Gems", "ui_gem", UIStyles.TOPBAR_GEM_POS, UIStyles.TOPBAR_GEM_ICON_H);
             _highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy", UIStyles.TOPBAR_SCORE_POS, UIStyles.TOPBAR_SCORE_ICON_H);
 
-            // TODO: in-game settings needs pause + the panel brought into the Game scene.
-            // Visual placeholder for now so the bar layout is complete.
             UIFactory.CreateSpriteButton(_canvas.transform, "ConfigButton", UiArt.Load("ui_config_button"),
                 new Vector2(0f, 1f), UIStyles.TOPBAR_CONFIG_POS, UIStyles.TOPBAR_BUTTON_SIZE, OnConfigClicked);
             UIFactory.CreateSpriteButton(_canvas.transform, "ShopButton", UiArt.Load("ui_shop_button"),
@@ -73,7 +73,32 @@ namespace DogtorBurguer
             tmp.fontSizeMax = max;
         }
 
-        private void OnConfigClicked() { Debug.Log("[GameHUD] Config button — in-game settings not wired yet."); }
+        // In-game settings: same pause pattern as the shop — pause a running game, show the
+        // panel on its own canvas (above game-over, below the shop), resume when it closes.
+        private void OnConfigClicked()
+        {
+            if (_settingsPanel == null)
+            {
+                Canvas settingsCanvas = UIFactory.CreateCanvas(transform, "Settings_Canvas", UIStyles.SETTINGS_CANVAS_SORT);
+                _settingsPanel = gameObject.AddComponent<SettingsPanel>();
+                _settingsPanel.Initialize(settingsCanvas);
+                _settingsPanel.OnClosed += HandleSettingsClosed;
+            }
+
+            GameManager manager = GameManager.Instance;
+            _settingsPausedRun = manager != null && manager.CurrentState == GameState.Playing && !manager.IsPaused;
+            if (_settingsPausedRun) manager.PauseGame();
+            _settingsPanel.Show();
+        }
+
+        private void HandleSettingsClosed()
+        {
+            if (!_settingsPausedRun) return;
+
+            _settingsPausedRun = false;
+            GameManager.Instance?.ResumeGame();
+        }
+
         private void OnShopClicked() { ShopScreen.OpenInGame(); }
 
         // Builds an authored stat card (dotted cream panel + blank red title tab with the word as
@@ -165,6 +190,9 @@ namespace DogtorBurguer
 
         private void OnDestroy()
         {
+            if (_settingsPanel != null)
+                _settingsPanel.OnClosed -= HandleSettingsClosed;
+
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnScoreChanged -= UpdateScore;

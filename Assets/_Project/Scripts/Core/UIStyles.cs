@@ -253,6 +253,8 @@ namespace DogtorBurguer
         #endregion
 
         #region Layout — Settings Panel
+        // In-game it gets its own canvas: above the game-over panel (100), below the shop (120).
+        public const int SETTINGS_CANVAS_SORT = 110;
         public static readonly Vector2 SETTINGS_TITLE_POS = new(0f, 165f);
         public static readonly Vector2 SETTINGS_TITLE_RECT = new(300f, 50f);
         public static readonly Vector2 SETTINGS_SOUND_POS = new(0f, 90f);
