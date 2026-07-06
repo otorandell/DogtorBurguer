@@ -27,6 +27,7 @@ namespace DogtorBurguer
         [Header("Unlock")]
         [SerializeField] private UnlockMethod _unlock = UnlockMethod.Free;
         [SerializeField] private int _gemCost;
+        [SerializeField] private int _starCost;
 
         public string Id => _id;
         public string DisplayName => _displayName;
@@ -37,5 +38,6 @@ namespace DogtorBurguer
         public Sprite Preview => _preview != null ? _preview : _sprite;
         public UnlockMethod Unlock => _unlock;
         public int GemCost => _gemCost;
+        public int StarCost => _starCost;
     }
 }

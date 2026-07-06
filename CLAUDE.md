@@ -28,12 +28,14 @@ Assets/_Project/Scripts/
   Input/         TouchInputHandler
   Scoring/       Scoring (points/tiers), BurgerTier, BurgerNamer
   Skins/         Skin (ScriptableObject), SkinSlot, UnlockMethod, SkinMap, Theme (static accessor)
-  UI/            MainMenuUI, GameHUD, GameOverPanel, SettingsPanel, ShopPanel,
+  Shop/          ShopScreen (full-screen overlay), ShopSections, ShopWidgets, ShopSkinCell,
+                 ShopRowScroll (nested h-scroll), ShopService (purchase rules), ShopCatalog
+  UI/            MainMenuUI, GameHUD, GameOverPanel, SettingsPanel,
                  BurgerChallenge, BurgerChallengeView, BurgerPopup, FloatingText, ScorePopup,
                  Background, OrderType, NumberFormat, UIFactory
     Factory/     SpriteFactory (cached procedural sprites), WorldTextFactory (world-space TMP)
   Audio/         AudioManager, MusicManager, MusicCategory
-  Monetization/  AdManager, GemProduct, BurgerFairy, BurgerFairySpawner
+  Monetization/  AdManager, GemProduct, StarProduct, ConsumablePack, BurgerFairy, BurgerFairySpawner
   Consumables/   ConsumableType, ConsumableEffect (+ Ketchup/Mustard/Skewer), ConsumableEffects,
                  ConsumableFaller, ConsumableInventory, ConsumableInventoryView, ConsumableSlotWidget,
                  ConsumableDragController, FairyPayload, FairyPayloadKind,
@@ -49,7 +51,7 @@ These classes use the singleton pattern. Initialization order matters:
 5. **GridManager** -- column/grid state
 6. **AudioManager** -- procedural SFX generation
 7. **BurgerChallenge** -- challenge UI and tracking
-8. **ConsumableInventory** -- per-run consumable slots (2, FIFO); created by GameManager
+8. **ConsumableInventory** -- gameplay facade over the persistent consumable stock (SaveDataManager); created by GameManager
 9. **ConsumableInventoryView** -- world-space inventory slot icons
 10. **ConsumableDragController** -- the drag-to-column carry interaction
 11. **PlateManager** -- the four decorative under-column plates; slides two to swap on the chef flip
@@ -64,8 +66,9 @@ Key events for cross-system communication:
 - `GridManager.OnBurgerWithIngredients(List)` -- challenge matching
 - `GridManager.OnIngredientPlaced` -- post-landing
 - `DifficultyManager.OnLevelChanged(int)` -- difficulty progression
-- `SaveDataManager.OnGemsChanged(int)` -- currency updates
-- `ConsumableInventory.OnChanged` -- consumable slots changed (add / consume)
+- `SaveDataManager.OnGemsChanged(int)`, `OnStarsChanged(int)` -- currency updates
+- `SaveDataManager.OnConsumablesChanged` -- persistent consumable stock changed
+- `ConsumableInventory.OnChanged` -- consumable slots changed (forwards the SaveDataManager event)
 
 ## Core Systems
 
@@ -112,7 +115,7 @@ falling piece) never move or swap the cook (`ProcessInput`):
 **Consumable carry**: a press that *starts on an inventory slot* becomes a drag-to-column carry
 (see Core Systems → Consumables) — `TouchInputHandler` hands the gesture to
 `ConsumableDragController` and suppresses chef logic for its duration. **Editor-only debug**: keys
-**1/2/3** grant Ketchup/Mustard/Skewer to the inventory (`#if UNITY_EDITOR`).
+**1/2/3** grant Ketchup/Mustard/Skewer to the inventory, **4** grants 500 stars (`#if UNITY_EDITOR`).
 
 **Input-area debug gizmos** (editor-only, `#if UNITY_EDITOR`): each clickable zone is drawn by the
 component owning its hit-test, one color per interaction (`GizmoStyles`): falling fast-drop (green,
@@ -197,13 +200,41 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   `PlayConsumableCollect` / `PlayConsumableUse(type)` / `PlayConsumableFizzle` (placeholder tones).
 - **MusicManager**: Loads tracks from Resources/Music/. Random selection per scene
 
-### Monetization
-- Gems currency (earned via ads, Burger Fairy drops, IAP)
+### Monetization & Currencies
+- **Two currencies**, both persisted in SaveDataManager and spendable in the Shop:
+  - **Gems** (hard/premium): rare — Burger Fairy drops (~40% of fairies), rewarded ads, IAP packs.
+  - **Stars** (soft/free): meant to flow from playing. **Earning is NOT built yet** — today stars
+    come only from gem→star packs in the shop (editor debug: key **4** grants 500). Design the
+    earn rule (Special Orders / score payout) as its own task.
+- One-directional exchange: gems buy stars, never the reverse (standard freemium convention).
 - Continue after game over: 50 gems or watch ad
-- Interstitial ads every 3 games
+- Interstitial ads every 3 games — **suppressed once Remove Ads is bought**
+  (`SaveDataManager.AdsRemoved`, checked in `AdManager.ShouldShowInterstitial`). Rewarded ads stay.
 - **Burger Fairy** drops during gameplay (`FAIRY_SPAWN_CHANCE` 0.20 / 10s) carry gems (~40%) or
   a consumable (~60%) — see Core Systems → Consumables. Gem fairies award `GEM_PACK_VALUE`.
-- AdManager is currently mock (simulated delays). IAP buttons grant gems for testing
+- AdManager is currently mock (simulated delays). IAP flows (gem packs, remove-ads) are stubs that
+  grant immediately — see `ShopService.BuyGemPack` / `BuyRemoveAds`.
+
+### Shop (full-screen overlay — `Scripts/Shop/`)
+One vertically scrolling page under a fixed header (SHOP title + star/gem pills + close), on its
+own canvas (`SHOP_CANVAS_SORT` 120, above everything). Opened via `ShopScreen.Open()` (menu Shop
+button) or `ShopScreen.OpenInGame()` (in-game top-bar shop button and the consumable slots' green
+plus box) — the in-game path **pauses** the run (`GameManager.PauseGame`) and resumes on close;
+all shop tweens run unscaled. Rebuilt each open, destroyed on close (no stale state).
+- **Sections, top → bottom** (order follows freemium-shop research: offer banner up top, currency
+  near the bottom): Remove-Ads banner (hidden once bought) → DOGTOR SKINS → INGREDIENT SKINS
+  (horizontal `ShopRowScroll` rows; vertical drags route to the page scroll) → POWER-UPS (3
+  consumable cards, star-priced pack ladder) → GET STARS (gem-priced, **confirm dialog** — the
+  only confirm; soft spends and equips are instant) → GET GEMS (free rewarded-ad rung first, then
+  IAP packs with MOST POPULAR / BEST VALUE badges).
+- **Skin cells**: 3 states — EQUIPPED (green highlight), owned (tap = equip instantly), priced
+  (currency icon + cost; tap = buy **and auto-equip**; insufficient funds shakes the cell).
+  The shop *is* the wardrobe — no separate skins screen.
+- **Layer split**: `ShopScreen` (frame/orchestration + confirm dialog + balance pills),
+  `ShopSections` (page composition), `ShopWidgets` (low-level UGUI builders), `ShopSkinCell`
+  (cell widget), `ShopService` (atomic purchase rules, UI-free), `ShopCatalog` (groups skins;
+  a slot appears only once it has a non-default skin). Layout knobs: `UIStyles.SHOP_*`;
+  prices: `MonetizationConfig` (packs/ladders) + per-skin `_starCost` on the Skin asset.
 
 ### Consumables ("Burger Fairy" deliveries)
 Per-run consumable items delivered by fairies; drag onto a column to use. Design doc:
@@ -213,11 +244,13 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   `CONSUMABLE_SPAWN_WEIGHTS`, even thirds). `BurgerFairySpawner` rolls it. Tap to collect
   (routed **first** in `ProcessInput`, above preview/falling, since it's on top of the playfield).
   Gems → `AddGems`; consumable → `ConsumableInventory`.
-- **Inventory** (`ConsumableInventory`): per-run **quantity per type** — 3 fixed slots
-  (Ketchup/Mustard/Skewer), `Add` increments, `TryConsume(type)` decrements; not persisted.
+- **Inventory** (`ConsumableInventory`): **persistent quantity per type** — 3 fixed slots
+  (Ketchup/Mustard/Skewer), `Add` increments, `TryConsume(type)` decrements. The counts live in
+  `SaveDataManager` (fairy drops and shop purchases feed the same pool, stock carries across
+  runs); the inventory is a thin gameplay facade forwarding `OnConsumablesChanged` as `OnChanged`.
   `ConsumableInventoryView` + `ConsumableSlotWidget` render a **screen-space UGUI** row below
   Level/Score: round plate + icon + corner badge (**red num box with the live count**, or **green
-  plus box** when empty — buying not wired, plus box is visual only).
+  plus box** when empty — the plus box **opens the Shop** paused, the "buy more" deep link).
 - **Use — drag-to-column**: press a slot (a stocked one) → carry (a world-space icon follows the
   finger, a translucent ghost snaps to the nearest column) → release **over the playfield** to use,
   **off it** to cancel. `ConsumableDragController.TryBegin` hit-tests the **screen-space** slot
@@ -249,9 +282,14 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
 
 ### Skins & Theme (cosmetics)
 All gameplay sprites flow through one place: `Theme` (static) reads `Skin` ScriptableObject
-assets from `Resources/Skins/` and serves the active sprite per `SkinSlot`. Consumers
-(`IngredientSpawner`, `ChefController`, `Background`) call `Theme.Ingredient(type)` /
-`Theme.Chef` / `Theme.Background(type)` — there is **no** per-scene sprite wiring anymore.
+assets from `Resources/Skins/` and serves the **active** sprite per `SkinSlot` — the persisted
+equipped skin when one is set (`SaveDataManager.GetEquippedSkinId`, applied lazily so early Theme
+access can't beat the save layer), otherwise the slot's default. `Theme.Equip(skin)` switches +
+persists (ownership is `ShopService`'s concern). Consumers (`IngredientSpawner`, `ChefController`,
+`Background`) call `Theme.Ingredient(type)` / `Theme.Chef` / `Theme.Background(type)` — there is
+**no** per-scene sprite wiring anymore. Consumers read at spawn/build time, so an equip applies to
+everything created afterwards (an in-game chef equip shows on the next scene load, not the live
+sprite — acceptable; menu equips always show in-game).
 - **Slots** (`SkinSlot`, suffixed `…Skin`): the 8 ingredients + `BunSkin` + `ChefSkin` +
   `PlateSkin` + `GameBackgroundSkin` + `MenuBackgroundSkin` + `RestaurantSkin` + `GridCellsSkin`.
   Two slots carry **two sprites**: `BunSkin` (top **+** bottom bun) and `ChefSkin` (front **+**
@@ -282,9 +320,14 @@ assets from `Resources/Skins/` and serves the active sprite per `SkinSlot`. Cons
   `bun_default` also **Secondary Sprite** = bottom bun, for `chef_default` = flipped facing), or
   just replace a PNG's contents keeping its filename. Works from the Project window with any scene
   open — no more opening `Game.unity`.
-- **Spare art ready for the catalog**: `meat_alt`, `chef_happy`, `chef_alt` (renamed, not yet wired).
-- **Status**: Phase 1 only = one default skin per slot (`_isDefault = true`). Runtime *selection* and
-  *unlock/buy* are not built yet — see the Skin System roadmap entry.
+- **Purchasable skins (live)**: `meat_alt` ("Deluxe Patty", 500★), `chef_happy` ("Happy Dogtor",
+  800★), `chef_alt` ("Dogtor Deluxe", 1000★) — non-default Skin assets with `_unlock: Stars` +
+  `_starCost`, sold and equipped in the Shop. Chef alts reuse their front sprite as the
+  flipped-facing secondary (mirrored on flip) until flipped art exists. **Adding a shop skin =
+  authoring one Skin asset** (id, slot, sprite, star cost) — no code.
+- **Status**: selection + star-unlock shipped with the Shop (2026-07-05). Gem/IAP-priced skins and
+  Pack bundles remain unbuilt (`UnlockMethod.Gems/Iap` exist; `ShopService.TryBuySkin` already
+  handles Gems).
 
 ## Randomness
 All randomness uses `Rng` static class, never `UnityEngine.Random`:
@@ -340,11 +383,13 @@ balance values are centralized in `AnimConfig` / `UIStyles` / `GameplayConfig`. 
 ### Phase 3 — Backlog (potential next work; noted 2026-06-12, not yet started)
 Dev-flagged directions for future sessions, roughly in priority order. Nothing here is designed
 or committed yet — capture only.
-- **Gem & Star economy** — make the currencies real: where each is earned/spent, balancing,
-  persistence. Gems already exist (`SaveDataManager`, `OnGemsChanged`); the challenge "★" is
-  currently just challenge progress — decide whether it becomes a spendable/meta currency.
-- **Shop** — flesh out `ShopPanel` against the real economy (today the IAP buttons just grant
-  gems for testing). Ties into the gem economy + IAP + (deferred) skin unlocks.
+- **Gem & Star economy** — PARTIALLY DONE (Shop session 2026-07-05): both currencies are
+  persisted and spendable (skins/consumables in stars, star packs in gems, gem packs via mock
+  IAP, remove-ads). **Still open: how stars are EARNED in play** (Special Orders? run payout?)
+  and overall balancing once earning exists.
+- **Shop** — DONE 2026-07-05 (full-screen `ShopScreen`, replaces the old `ShopPanel`): skins
+  (buy+equip), consumables (persistent stock), currency bundles, remove-ads. Still open: real
+  IAP SDK, authored shop art, on-device layout pass.
 - **Prepare for real assets** — replace placeholder art across the game. Pipeline is ready
   (`Theme` / `Resources/Skins` for gameplay art, `RewardArt` for consumables) — mostly a content swap.
 - **Prepare for real UI components** — UI is currently code-built/procedural (`UIFactory`,
@@ -362,10 +407,11 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   scene. `Skins/` foundation + 11 default skin assets; `IngredientSpawner`, `ChefController`, `Background`
   refactored off scattered SerializeFields. All art renamed to short names (files **and** sprite
   sub-assets), fileIDs preserved.
-- **Phases 2-3 (DEFERRED)** — the cosmetic *feature* (runtime per-slot selection + persistence, then
-  unlock/buy flows via gems/IAP/ad, a Skins UI, and Pack bundles) is intentionally parked. The foundation
-  is built to support it (`UnlockMethod`, `_isDefault`, per-slot model), so it can be picked up later if
-  cosmetic monetization is wanted — but it is **not** active work.
+- **Phase 2 (DONE 2026-07-05, via the Shop)** — runtime per-slot selection + persistence
+  (`Theme.Equip` / `SaveDataManager` equipped-per-slot) and the star-unlock buy flow, surfaced in
+  the Shop's skin rows (the shop is the wardrobe — no separate Skins UI).
+- **Phase 3 (DEFERRED)** — gem/IAP/ad-unlock skins and Pack bundles. `UnlockMethod` and
+  `ShopService.TryBuySkin` already support Gems; the rest is authoring + shop surfacing.
 
 ## Asset Conventions
 - **Renaming a sprite**: rename the file *and* the sprite **sub-asset** (the fold-out child) — the latter
@@ -413,21 +459,24 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   (the 9-slice route was dropped — fixed-size HUD boxes don't need it).
 - **★ glyph**: Panton (ASCII) lacks U+2605; add a fallback font or the `Star` sprite where needed.
 - **UI integration ≠ pure art-swap** — remaining wiring that implies real code:
-  - **Stars (★)** as a real currency — top-bar star is a **placeholder 0**; not earned/spent/persisted.
-  - **Consumables — buying**: 3 per-type slots with quantities now exist, but the **green plus box is
-    visual only** (no gem-spend to buy yet).
-  - **Shop / Settings buttons** (top bar) — **click-stubbed**; need in-game pause + the panels brought
-    into the Game scene (today they only exist in the menu).
-  - **Shop**: real gem/star spending against products (today the IAP buttons just grant gems for testing).
+  - **Star earning** — stars are now persisted/spendable (Shop, 2026-07-05) and the top-bar star
+    is live, but nothing *awards* them in play yet (only gem→star packs; editor key 4). Design the
+    earn rule (Special Orders / end-of-run payout) as its own task.
+  - **Settings button** (top bar) — still **click-stubbed**; needs the settings panel brought into
+    the Game scene (the shop button is wired and pauses; reuse that pattern).
   - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next
     challenge level. **Built** (`BurgerChallengeView.BuildMultMeter`, `ChallengeFill`) — slot
     position/size are eyeball defaults in `UIStyles.MULT_METER_*`, tune live.
   - **Consumable effect VFX** (e.g. the in-use ketchup bottle) — art exists, needs hooking to use.
   Plan each of these as its own code task alongside the visual wiring.
+- **Shop UI is placeholder-styled** (flat color cards/buttons + authored pills/icons) — restyle
+  with authored art when the kit grows shop pieces. Layout knobs in `UIStyles.SHOP_*`, untested
+  on-device — eyeball defaults, tune live.
+- **IAP**: gem packs + Remove Ads are stubs granting instantly (`ShopService`); need the real IAP
+  SDK + a **Restore Purchases** path for Remove Ads (iOS review requirement).
 - Consumable polish: real SFX (override slots ready) + final slot layout/sizes (placeholders in `UIStyles`)
-- Skin selection + unlock/buy UI (DEFERRED — foundation done; see Skin System roadmap)
 - Leaderboard integration (button exists, logs "Coming Soon")
-- IAP integration (buttons exist, currently grant gems for testing)
+- IAP integration (ShopService stubs grant instantly; see Shop section)
 - Ad SDK integration (AdManager is placeholder)
 
 ## Pre-Launch Checklist

@@ -7,8 +7,8 @@ namespace DogtorBurguer
     {
         private Canvas _canvas;
         private TextMeshProUGUI _gemText;
+        private TextMeshProUGUI _starText;
         private TextMeshProUGUI _highScoreText;
-        private ShopPanel _shopPanel;
         private SettingsPanel _settingsPanel;
         private UnityEngine.GameObject _creditsOverlay;
 
@@ -20,7 +20,10 @@ namespace DogtorBurguer
             CreateUI();
 
             if (SaveDataManager.Instance != null)
+            {
                 SaveDataManager.Instance.OnGemsChanged += UpdateGemDisplay;
+                SaveDataManager.Instance.OnStarsChanged += UpdateStarDisplay;
+            }
         }
 
         private void CreateUI()
@@ -37,7 +40,7 @@ namespace DogtorBurguer
             _highScoreText = UIFactory.CreateText(_canvas.transform, $"Best: {highScore}", UIStyles.MENU_HIGHSCORE_POS, UIStyles.MENU_TEXT_RECT,
                 UIStyles.MENU_HIGHSCORE_SIZE, color: UIStyles.TEXT_HUD);
 
-            // Gem counter (top-right). The anchor/pivot post-patch below is deferred to
+            // Gem + star counters (top-right). The anchor/pivot post-patch below is deferred to
             // F-64/Wave 4 (UIFactory anchor params); the (0,400) position arg is dead
             // (overridden at anchoredPosition), so it is left untouched until then.
             int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
@@ -49,6 +52,16 @@ namespace DogtorBurguer
             gemRect.pivot = new Vector2(1f, 1f);
             gemRect.anchoredPosition = new Vector2(-20, -20);
             _gemText.alignment = TMPro.TextAlignmentOptions.TopRight;
+
+            int stars = SaveDataManager.Instance != null ? SaveDataManager.Instance.Stars : 0;
+            _starText = UIFactory.CreateText(_canvas.transform, $"Stars: {stars}", new Vector2(0, 400), UIStyles.MENU_GEM_RECT,
+                UIStyles.MENU_GEM_SIZE, TMPro.FontStyles.Bold, UIStyles.TEXT_HUD);
+            RectTransform starRect = _starText.GetComponent<RectTransform>();
+            starRect.anchorMin = new Vector2(1f, 1f);
+            starRect.anchorMax = new Vector2(1f, 1f);
+            starRect.pivot = new Vector2(1f, 1f);
+            starRect.anchoredPosition = new Vector2(-20, -52);
+            _starText.alignment = TMPro.TextAlignmentOptions.TopRight;
 
             // Buttons
             float btnY = UIStyles.MENU_BTN_START_Y;
@@ -68,7 +81,6 @@ namespace DogtorBurguer
                 UIStyles.MENU_BUTTON_SIZE, UIStyles.BTN_CLOSE, UIStyles.MENU_BUTTON_TEXT_SIZE, OnCreditsClicked);
 
             // Sub-panels
-            _shopPanel = gameObject.AddComponent<ShopPanel>();
             _settingsPanel = gameObject.AddComponent<SettingsPanel>();
             _settingsPanel.Initialize(_canvas);
         }
@@ -79,6 +91,12 @@ namespace DogtorBurguer
                 _gemText.text = $"Gems: {gems}";
         }
 
+        private void UpdateStarDisplay(int stars)
+        {
+            if (_starText != null)
+                _starText.text = $"Stars: {stars}";
+        }
+
         private void OnPlayClicked()
         {
             SceneLoader.LoadGame();
@@ -86,7 +104,7 @@ namespace DogtorBurguer
 
         private void OnShopClicked()
         {
-            _shopPanel?.Show();
+            ShopScreen.Open();
         }
 
         private void OnSettingsClicked()
@@ -121,7 +139,10 @@ namespace DogtorBurguer
         private void OnDestroy()
         {
             if (SaveDataManager.Instance != null)
+            {
                 SaveDataManager.Instance.OnGemsChanged -= UpdateGemDisplay;
+                SaveDataManager.Instance.OnStarsChanged -= UpdateStarDisplay;
+            }
         }
     }
 }

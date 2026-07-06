@@ -84,6 +84,13 @@ namespace DogtorBurguer
         public const float GAMEOVER_START_SCALE = 0.5f;
         #endregion
 
+        #region Shop (all unscaled time — the in-game shop runs on a paused game)
+        public const float SHOP_PILL_PUNCH_SCALE = 0.2f;    // header pill pop on a balance change
+        public const float SHOP_PILL_PUNCH_DURATION = 0.3f;
+        public const float SHOP_DENY_DURATION = 0.3f;       // insufficient-funds shake
+        public const float SHOP_DENY_STRENGTH = 8f;
+        #endregion
+
         #region Challenge Level Up
         public const float MULT_METER_FILL_DURATION = 0.4f;  // mult meter fill tween (progress to next mult)
         public const float LEVELUP_FILL_DURATION = 0.15f;

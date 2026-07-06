@@ -10,7 +10,7 @@ namespace DogtorBurguer
     /// <summary>
     /// Shared factory for programmatic UI construction.
     /// Eliminates duplicated canvas, text, button, panel, and overlay creation
-    /// across GameHUD, GameOverPanel, MainMenuUI, SettingsPanel, and ShopPanel.
+    /// across GameHUD, GameOverPanel, MainMenuUI, SettingsPanel, and the Shop screen.
     /// </summary>
     public static class UIFactory
     {

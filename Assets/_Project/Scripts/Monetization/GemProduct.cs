@@ -9,11 +9,14 @@ namespace DogtorBurguer
     {
         public readonly int Amount;
         public readonly string PriceLabel;
+        /// <summary>Merchandising tag shown on the card ("MOST POPULAR", "BEST VALUE"); "" for none.</summary>
+        public readonly string Badge;
 
-        public GemProduct(int amount, string priceLabel)
+        public GemProduct(int amount, string priceLabel, string badge = "")
         {
             Amount = amount;
             PriceLabel = priceLabel;
+            Badge = badge;
         }
     }
 }

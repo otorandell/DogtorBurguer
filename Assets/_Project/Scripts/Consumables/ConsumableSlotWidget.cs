@@ -35,9 +35,13 @@ namespace DogtorBurguer
             _icon = UIFactory.CreateImage(plate.transform, "Icon", iconSprite,
                 new Vector2(0.5f, 0.5f), UIStyles.CONSUMABLE_ICON_OFFSET, iconSize);
 
-            // Corner badge (bottom-right): the num box + count when stocked, or the plus box when empty.
+            // Corner badge (bottom-right): the num box + count when stocked, or the plus box when
+            // empty. The plus box deep-links into the Shop (paused) — the standard "buy more" path.
             _numBox = MakeBadge(plate.transform, "NumBox", "ui_consumable_num");
             _plusBox = MakeBadge(plate.transform, "PlusBox", "ui_consumable_plus");
+            Button plusButton = _plusBox.gameObject.AddComponent<Button>();
+            plusButton.targetGraphic = _plusBox;
+            plusButton.onClick.AddListener(ShopScreen.OpenInGame);
 
             _count = UIFactory.CreateText(_numBox.transform, "0", Vector2.zero,
                 new Vector2(UIStyles.CONSUMABLE_BADGE_H, UIStyles.CONSUMABLE_BADGE_H),

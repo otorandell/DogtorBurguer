@@ -31,13 +31,12 @@ namespace DogtorBurguer
         // Builds the top status bar: star + gem + high-score currency widgets, plus settings/shop buttons.
         private void CreateTopBar()
         {
-            // Star isn't a real currency yet (seeded to 0) — widget added now, wired soon.
             _starNumber = BuildCurrencyWidget("Stars", "ui_star", UIStyles.TOPBAR_STAR_POS, UIStyles.TOPBAR_STAR_ICON_H);
             _gemNumber = BuildCurrencyWidget("Gems", "ui_gem", UIStyles.TOPBAR_GEM_POS, UIStyles.TOPBAR_GEM_ICON_H);
             _highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy", UIStyles.TOPBAR_SCORE_POS, UIStyles.TOPBAR_SCORE_ICON_H);
 
-            // TODO: in-game shop/settings need pause + panel wiring (panels currently only exist in
-            // the menu scene). Visual placeholders for now so the bar layout is complete.
+            // TODO: in-game settings needs pause + the panel brought into the Game scene.
+            // Visual placeholder for now so the bar layout is complete.
             UIFactory.CreateSpriteButton(_canvas.transform, "ConfigButton", UiArt.Load("ui_config_button"),
                 new Vector2(0f, 1f), UIStyles.TOPBAR_CONFIG_POS, UIStyles.TOPBAR_BUTTON_SIZE, OnConfigClicked);
             UIFactory.CreateSpriteButton(_canvas.transform, "ShopButton", UiArt.Load("ui_shop_button"),
@@ -75,7 +74,7 @@ namespace DogtorBurguer
         }
 
         private void OnConfigClicked() { Debug.Log("[GameHUD] Config button — in-game settings not wired yet."); }
-        private void OnShopClicked() { Debug.Log("[GameHUD] Shop button — in-game shop not wired yet."); }
+        private void OnShopClicked() { ShopScreen.OpenInGame(); }
 
         // Builds an authored stat card (dotted cream panel + blank red title tab with the word as
         // TMP) and returns the number label. The blank-tab + TMP is a placeholder until the artist's
@@ -122,7 +121,10 @@ namespace DogtorBurguer
             }
 
             if (SaveDataManager.Instance != null)
+            {
                 SaveDataManager.Instance.OnGemsChanged += UpdateGems;
+                SaveDataManager.Instance.OnStarsChanged += UpdateStars;
+            }
         }
 
         // Seeds every readout from the live sources (single init path, no hardcoded duplicates).
@@ -134,9 +136,7 @@ namespace DogtorBurguer
             // High score only changes at game over, so a one-time seed is enough (no live event).
             if (_highScoreNumber != null)
                 _highScoreNumber.text = NumberFormat.Abbreviate(SaveDataManager.Instance != null ? SaveDataManager.Instance.HighScore : 0);
-            // Stars aren't a real currency yet — placeholder 0 until the system is built.
-            if (_starNumber != null)
-                _starNumber.text = "0";
+            UpdateStars(SaveDataManager.Instance != null ? SaveDataManager.Instance.Stars : 0);
         }
 
         private void UpdateScore(int score)
@@ -157,6 +157,12 @@ namespace DogtorBurguer
                 _gemNumber.text = NumberFormat.Abbreviate(gems);
         }
 
+        private void UpdateStars(int stars)
+        {
+            if (_starNumber != null)
+                _starNumber.text = NumberFormat.Abbreviate(stars);
+        }
+
         private void OnDestroy()
         {
             if (GameManager.Instance != null)
@@ -166,7 +172,10 @@ namespace DogtorBurguer
             }
 
             if (SaveDataManager.Instance != null)
+            {
                 SaveDataManager.Instance.OnGemsChanged -= UpdateGems;
+                SaveDataManager.Instance.OnStarsChanged -= UpdateStars;
+            }
         }
     }
 }

@@ -34,6 +34,10 @@ namespace DogtorBurguer
         /// </summary>
         public bool ShouldShowInterstitial()
         {
+            // Remove-ads kills forced ads only — rewarded ads (continue, freebies) stay available.
+            if (SaveDataManager.Instance != null && SaveDataManager.Instance.AdsRemoved)
+                return false;
+
             int played = SaveDataManager.Instance != null ? SaveDataManager.Instance.GamesPlayed : 0;
             return played > 0 && played % MonetizationConfig.INTERSTITIAL_EVERY_N_GAMES == 0;
         }

@@ -3,7 +3,7 @@ using UnityEngine;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// Renders the per-run consumable inventory as a screen-space row of three slots below the
+    /// Renders the persistent consumable inventory as a screen-space row of three slots below the
     /// Level/Score panels (one per type — Ketchup, Mustard, Skewer). Driven by
     /// <see cref="ConsumableInventory.OnChanged"/>. The drag controller hit-tests slots via
     /// <see cref="TryGetSlotTypeAt"/> and hides a slot's icon while its item is carried.

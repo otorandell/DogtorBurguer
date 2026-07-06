@@ -5,9 +5,10 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// Central access point for all gameplay sprites. Loads every <see cref="Skin"/> from
-    /// Resources/Skins and resolves the active skin per <see cref="SkinSlot"/>. Phase 1 always
-    /// serves the default skin for each slot; per-slot selection and persistence arrive later,
-    /// at which point <see cref="_active"/> diverges from <see cref="_defaults"/>.
+    /// Resources/Skins and resolves the active skin per <see cref="SkinSlot"/>: the persisted
+    /// equipped skin when one is set (see <see cref="Equip"/> / the Shop), otherwise the slot's
+    /// default. Consumers read sprites at spawn/build time, so an equip applies to everything
+    /// created afterwards — already-spawned sprites keep the art they were born with.
     /// </summary>
     public static class Theme
     {
@@ -15,25 +16,67 @@ namespace DogtorBurguer
 
         private static Dictionary<SkinSlot, Skin> _defaults;
         private static Dictionary<SkinSlot, Skin> _active;
+        private static Dictionary<string, Skin> _byId;
+        private static bool _persistedApplied;
 
         private static void EnsureLoaded()
         {
-            if (_defaults != null) return;
-
-            _defaults = new Dictionary<SkinSlot, Skin>();
-            _active = new Dictionary<SkinSlot, Skin>();
-
-            Skin[] all = Resources.LoadAll<Skin>(SkinsResourcePath);
-            foreach (Skin skin in all)
+            if (_defaults == null)
             {
-                // An explicit default wins; otherwise the first skin seen for a slot stands in.
-                if (skin.IsDefault || !_defaults.ContainsKey(skin.Slot))
-                    _defaults[skin.Slot] = skin;
+                _defaults = new Dictionary<SkinSlot, Skin>();
+                _active = new Dictionary<SkinSlot, Skin>();
+                _byId = new Dictionary<string, Skin>();
+
+                Skin[] all = Resources.LoadAll<Skin>(SkinsResourcePath);
+                foreach (Skin skin in all)
+                {
+                    // An explicit default wins; otherwise the first skin seen for a slot stands in.
+                    if (skin.IsDefault || !_defaults.ContainsKey(skin.Slot))
+                        _defaults[skin.Slot] = skin;
+                    if (!string.IsNullOrEmpty(skin.Id))
+                        _byId[skin.Id] = skin;
+                }
+
+                foreach (KeyValuePair<SkinSlot, Skin> entry in _defaults)
+                    _active[entry.Key] = entry.Value;
             }
 
-            foreach (KeyValuePair<SkinSlot, Skin> entry in _defaults)
-                _active[entry.Key] = entry.Value;
+            // Persisted equips apply lazily: the first Theme access can beat SaveDataManager.Awake
+            // (scene-object Awake order), so keep retrying until the save layer is alive.
+            if (!_persistedApplied && SaveDataManager.Instance != null)
+            {
+                _persistedApplied = true;
+                foreach (KeyValuePair<SkinSlot, Skin> entry in _defaults)
+                {
+                    string id = SaveDataManager.Instance.GetEquippedSkinId(entry.Key);
+                    if (id.Length > 0 && _byId.TryGetValue(id, out Skin skin) && skin.Slot == entry.Key)
+                        _active[entry.Key] = skin;
+                }
+            }
         }
+
+        /// <summary>All authored skins, for the shop catalog. Do not mutate.</summary>
+        public static IEnumerable<Skin> AllSkins()
+        {
+            EnsureLoaded();
+            return _byId.Values;
+        }
+
+        /// <summary>
+        /// Makes a skin the active one for its slot and persists the choice. Ownership is the
+        /// caller's concern (see ShopService) — this only switches and saves.
+        /// </summary>
+        public static void Equip(Skin skin)
+        {
+            if (skin == null) return;
+            EnsureLoaded();
+
+            _active[skin.Slot] = skin;
+            SaveDataManager.Instance?.SetEquippedSkinId(skin.Slot, skin.IsDefault ? "" : skin.Id);
+        }
+
+        public static bool IsEquipped(Skin skin) =>
+            skin != null && Active(skin.Slot) == skin;
 
         /// <summary>The skin currently active for a slot, or null if none is authored.</summary>
         public static Skin Active(SkinSlot slot)

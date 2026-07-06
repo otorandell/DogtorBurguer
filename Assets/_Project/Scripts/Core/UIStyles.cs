@@ -198,14 +198,12 @@ namespace DogtorBurguer
         public const float MENU_BUTTON_SPACING = -85f;
         public static readonly Vector2 PANEL_BUTTON_SIZE = new(320, 55);
         public static readonly Vector2 SETTINGS_BUTTON_SIZE = new(280, 55);
-        public static readonly Vector2 SHOP_BUTTON_SIZE = new(300, 55);
         public static readonly Vector2 CLOSE_BUTTON_SIZE = new(200, 50);
         #endregion
 
         #region Panel Sizes
         public static readonly Vector2 GAMEOVER_PANEL_SIZE = new(400, 500);
         public static readonly Vector2 SETTINGS_PANEL_SIZE = new(350, 430);
-        public static readonly Vector2 SHOP_PANEL_SIZE = new(380, 420);
         public static readonly Vector2 CREDITS_RECT = new(400, 300);
         #endregion
 
@@ -266,13 +264,90 @@ namespace DogtorBurguer
         public static readonly Vector2 SETTINGS_STEPPER_BTN_SIZE = new(55f, 55f);
         #endregion
 
-        #region Layout — Shop Panel
-        public static readonly Vector2 SHOP_TITLE_POS = new(0f, 160f);
-        public static readonly Vector2 SHOP_BALANCE_POS = new(0f, 110f);
-        public static readonly Vector2 SHOP_TEXT_RECT = new(350f, 50f);
-        public const float SHOP_BTN_START_Y = 40f;
-        public const float SHOP_BTN_SPACING = -80f;
-        public static readonly Vector2 SHOP_CLOSE_POS = new(0f, -190f);
+        #region Layout — Shop Screen (full-screen overlay; header + vertical page scroll)
+        public const int SHOP_CANVAS_SORT = 120;                                // above every in-game canvas (HUD 50, slots 90, game-over 100)
+        public static readonly Color SHOP_BG = new(0.11f, 0.08f, 0.06f, 0.99f); // warm dark brown page
+        public static readonly Color SHOP_CARD_BG = new(0.22f, 0.16f, 0.12f);   // item cells / offer bars
+        public static readonly Color SHOP_CARD_BG_EQUIPPED = new(0.16f, 0.28f, 0.16f);  // equipped skin cell
+        public static readonly Color SHOP_CARD_BG_HIGHLIGHT = new(0.32f, 0.20f, 0.10f); // remove-ads banner
+        public static readonly Color SHOP_SECTION_TITLE_COLOR = new(0.95f, 0.85f, 0.65f);
+        public static readonly Color SHOP_SUBTEXT_COLOR = new(0.75f, 0.70f, 0.62f);
+        public static readonly Color SHOP_BADGE_COLOR = new(1f, 0.85f, 0f);     // "BEST VALUE" tags
+        public static readonly Color SHOP_EQUIPPED_COLOR = new(0.35f, 0.9f, 0.4f);
+
+        // Header (fixed above the scroll): title, both currency pills, close button.
+        public const float SHOP_HEADER_H = 150f;
+        public static readonly Vector2 SHOP_TITLE_POS = new(0f, -42f);
+        public static readonly Vector2 SHOP_TITLE_RECT = new(300f, 60f);
+        public const float SHOP_TITLE_SIZE = 40f;
+        public static readonly Vector2 SHOP_STAR_PILL_POS = new(-95f, -105f);   // anchored top-center
+        public static readonly Vector2 SHOP_GEM_PILL_POS = new(95f, -105f);
+        public const float SHOP_PILL_ICON_H = 56f;                              // header pill icon height
+        public static readonly Vector2 SHOP_CLOSE_POS = new(-40f, -40f);        // anchored top-right
+        public static readonly Vector2 SHOP_CLOSE_SIZE = new(52f, 52f);
+        public const float SHOP_CLOSE_TEXT_SIZE = 24f;
+
+        // Page scroll + sections.
+        public const float SHOP_SCROLL_SENSITIVITY = 30f;
+        public const int SHOP_CONTENT_PADDING = 16;                             // page edges (RectOffset — int)
+        public const int SHOP_CONTENT_BOTTOM_PADDING = 32;
+        public const float SHOP_SECTION_SPACING = 10f;
+        public const float SHOP_SECTION_TITLE_H = 44f;
+        public const float SHOP_SECTION_TITLE_SIZE = 22f;
+        public const float SHOP_CELL_SPACING = 10f;                             // between row cells
+
+        // Skin cells (horizontal rows).
+        public const float SHOP_SKIN_ROW_H = 190f;
+        public static readonly Vector2 SHOP_SKIN_CELL_SIZE = new(124f, 182f);
+        public const float SHOP_SKIN_PREVIEW_H = 82f;
+        public const float SHOP_SKIN_PREVIEW_MARGIN = 12f;
+        public const float SHOP_SKIN_NAME_SIZE = 15f;
+        public const float SHOP_SKIN_NAME_Y = -104f;                            // below the preview
+        public const float SHOP_SKIN_STATE_SIZE = 16f;                          // EQUIPPED / EQUIP / price
+        public const float SHOP_SKIN_STATE_Y = 22f;                             // state row, from cell bottom
+        public const float SHOP_SKIN_STATE_X = 10f;                             // label shift right of the icon
+        public const float SHOP_SKIN_PRICE_ICON_X = -34f;
+        public const float SHOP_SKIN_PRICE_ICON_H = 26f;
+
+        // Consumable cards (horizontal row).
+        public const float SHOP_CONSUMABLE_ROW_H = 240f;
+        public static readonly Vector2 SHOP_CONSUMABLE_CARD_SIZE = new(154f, 232f);
+        public const float SHOP_CONSUMABLE_ICON_H = 64f;
+        public const float SHOP_CONSUMABLE_ICON_Y = -44f;                       // icon center, from card top
+        public const float SHOP_CONSUMABLE_NAME_Y = -92f;
+        public const float SHOP_CONSUMABLE_OWNED_Y = -114f;
+        public const float SHOP_CONSUMABLE_BTN_Y = -150f;                       // first buy button center
+        public const float SHOP_CONSUMABLE_BTN_SPACING = 48f;
+        public static readonly Vector2 SHOP_CONSUMABLE_BTN_SIZE = new(134f, 40f);
+
+        // Offer bars (star packs, gem packs, remove-ads) + their price buttons.
+        public const float SHOP_OFFER_BAR_H = 84f;
+        public const float SHOP_REMOVE_ADS_BAR_H = 110f;
+        public const float SHOP_OFFER_ICON_X = 46f;                             // icon center, from bar left
+        public const float SHOP_OFFER_ICON_H = 54f;
+        public const float SHOP_OFFER_TEXT_X = 88f;                             // title/subtitle left edge
+        public const float SHOP_OFFER_TITLE_SIZE = 20f;
+        public static readonly Vector2 SHOP_OFFER_TITLE_RECT = new(240f, 30f);
+        public const float SHOP_OFFER_SUB_SIZE = 13f;
+        public static readonly Vector2 SHOP_OFFER_SUB_RECT = new(260f, 40f);
+        public const float SHOP_BADGE_SIZE = 12f;
+        public static readonly Vector2 SHOP_BADGE_RECT = new(140f, 20f);
+        public static readonly Vector2 SHOP_BADGE_POS = new(-12f, 34f);         // above the price button
+        public static readonly Vector2 SHOP_PRICE_BTN_POS = new(-80f, 0f);      // anchored right-center
+        public static readonly Vector2 SHOP_PRICE_BTN_SIZE = new(132f, 46f);
+        public const float SHOP_PRICE_TEXT_SIZE = 18f;
+        public const float SHOP_PRICE_ICON_X = 18f;                             // currency icon inside the button
+        public const float SHOP_PRICE_ICON_H = 26f;
+        public const float SHOP_PRICE_TEXT_MARGIN = 26f;                        // label shift right of the icon
+
+        // Gem-spend confirm dialog.
+        public static readonly Vector2 SHOP_CONFIRM_PANEL_SIZE = new(400f, 240f);
+        public static readonly Vector2 SHOP_CONFIRM_TEXT_POS = new(0f, 40f);
+        public static readonly Vector2 SHOP_CONFIRM_TEXT_RECT = new(360f, 110f);
+        public const float SHOP_CONFIRM_TEXT_SIZE = 22f;
+        public const float SHOP_CONFIRM_BTN_X = 92f;                            // buttons flank the center
+        public const float SHOP_CONFIRM_BTN_Y = -75f;
+        public static readonly Vector2 SHOP_CONFIRM_BTN_SIZE = new(160f, 52f);
         #endregion
     }
 }

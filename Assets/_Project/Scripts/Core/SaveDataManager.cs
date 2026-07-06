@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DogtorBurguer
@@ -6,11 +7,16 @@ namespace DogtorBurguer
     public class SaveDataManager : Singleton<SaveDataManager>
     {
         private const string KEY_GEMS = "gems";
+        private const string KEY_STARS = "stars";
         private const string KEY_HIGH_SCORE = "highScore";
         private const string KEY_SOUND_ON = "soundOn";
         private const string KEY_GAMES_PLAYED = "gamesPlayed";
         private const string KEY_CONTROL_MODE = "controlMode";
         private const string KEY_STARTING_LEVEL = "startingLevel";
+        private const string KEY_ADS_REMOVED = "adsRemoved";
+        private const string KEY_OWNED_SKINS = "ownedSkins";          // CSV of skin ids
+        private const string KEY_EQUIPPED_PREFIX = "equippedSkin_";   // + (int)SkinSlot → skin id
+        private const string KEY_CONSUMABLE_PREFIX = "consumable_";   // + (int)ConsumableType → count
 
         // Canonical first-run defaults. Single source of truth — referenced by
         // LoadData and by consumers that need a fallback when Instance is null.
@@ -19,13 +25,20 @@ namespace DogtorBurguer
         public const int DEFAULT_STARTING_LEVEL = 1;
 
         public event Action<int> OnGemsChanged;
+        public event Action<int> OnStarsChanged;
+        public event Action OnConsumablesChanged;
 
         public int Gems { get; private set; }
+        public int Stars { get; private set; }
         public int HighScore { get; private set; }
         public bool SoundOn { get; private set; }
         public int GamesPlayed { get; private set; }
         public ControlMode ControlMode { get; private set; }
         public int StartingLevel { get; private set; }
+        public bool AdsRemoved { get; private set; }
+
+        private readonly HashSet<string> _ownedSkins = new();
+        private readonly int[] _consumableCounts = new int[ConsumableInventory.TypeCount];
 
         protected override void Awake()
         {
@@ -39,12 +52,22 @@ namespace DogtorBurguer
         private void LoadData()
         {
             Gems = PlayerPrefs.GetInt(KEY_GEMS, 0);
+            Stars = PlayerPrefs.GetInt(KEY_STARS, 0);
             HighScore = PlayerPrefs.GetInt(KEY_HIGH_SCORE, 0);
             SoundOn = PlayerPrefs.GetInt(KEY_SOUND_ON, DEFAULT_SOUND_ON ? 1 : 0) == 1;
             GamesPlayed = PlayerPrefs.GetInt(KEY_GAMES_PLAYED, 0);
             ControlMode = (ControlMode)PlayerPrefs.GetInt(KEY_CONTROL_MODE, (int)DEFAULT_CONTROL_MODE);
             StartingLevel = Mathf.Clamp(
                 PlayerPrefs.GetInt(KEY_STARTING_LEVEL, DEFAULT_STARTING_LEVEL), 1, GameplayConfig.SETTINGS_LEVEL_CAP);
+            AdsRemoved = PlayerPrefs.GetInt(KEY_ADS_REMOVED, 0) == 1;
+
+            _ownedSkins.Clear();
+            string owned = PlayerPrefs.GetString(KEY_OWNED_SKINS, "");
+            foreach (string id in owned.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                _ownedSkins.Add(id);
+
+            for (int i = 0; i < _consumableCounts.Length; i++)
+                _consumableCounts[i] = PlayerPrefs.GetInt(KEY_CONSUMABLE_PREFIX + i, 0);
         }
 
         public void AddGems(int amount)
@@ -63,6 +86,25 @@ namespace DogtorBurguer
             PlayerPrefs.SetInt(KEY_GEMS, Gems);
             PlayerPrefs.Save();
             OnGemsChanged?.Invoke(Gems);
+            return true;
+        }
+
+        public void AddStars(int amount)
+        {
+            Stars += amount;
+            PlayerPrefs.SetInt(KEY_STARS, Stars);
+            PlayerPrefs.Save();
+            OnStarsChanged?.Invoke(Stars);
+        }
+
+        public bool SpendStars(int amount)
+        {
+            if (Stars < amount) return false;
+
+            Stars -= amount;
+            PlayerPrefs.SetInt(KEY_STARS, Stars);
+            PlayerPrefs.Save();
+            OnStarsChanged?.Invoke(Stars);
             return true;
         }
 
@@ -102,6 +144,62 @@ namespace DogtorBurguer
             StartingLevel = Mathf.Clamp(level, 1, GameplayConfig.SETTINGS_LEVEL_CAP);
             PlayerPrefs.SetInt(KEY_STARTING_LEVEL, StartingLevel);
             PlayerPrefs.Save();
+        }
+
+        /// <summary>One-way: the remove-ads purchase can't be un-bought (store restore re-grants it).</summary>
+        public void SetAdsRemoved()
+        {
+            AdsRemoved = true;
+            PlayerPrefs.SetInt(KEY_ADS_REMOVED, 1);
+            PlayerPrefs.Save();
+        }
+
+        // --- skins (ownership is by skin id; default skins are implicitly owned — see ShopService) ---
+
+        public bool OwnsSkin(string skinId) => _ownedSkins.Contains(skinId);
+
+        public void GrantSkin(string skinId)
+        {
+            if (!_ownedSkins.Add(skinId)) return;
+            PlayerPrefs.SetString(KEY_OWNED_SKINS, string.Join(",", _ownedSkins));
+            PlayerPrefs.Save();
+        }
+
+        /// <summary>The equipped skin id for a slot, or "" when the default is equipped.</summary>
+        public string GetEquippedSkinId(SkinSlot slot) =>
+            PlayerPrefs.GetString(KEY_EQUIPPED_PREFIX + (int)slot, "");
+
+        /// <summary>Persist a slot's equipped skin. Pass "" to fall back to the default.</summary>
+        public void SetEquippedSkinId(SkinSlot slot, string skinId)
+        {
+            PlayerPrefs.SetString(KEY_EQUIPPED_PREFIX + (int)slot, skinId ?? "");
+            PlayerPrefs.Save();
+        }
+
+        // --- consumables (persistent stock — fairy drops and shop purchases feed the same pool) ---
+
+        public int ConsumableCount(ConsumableType type) => _consumableCounts[(int)type];
+
+        public void AddConsumables(ConsumableType type, int quantity)
+        {
+            int i = (int)type;
+            _consumableCounts[i] += quantity;
+            PlayerPrefs.SetInt(KEY_CONSUMABLE_PREFIX + i, _consumableCounts[i]);
+            PlayerPrefs.Save();
+            OnConsumablesChanged?.Invoke();
+        }
+
+        /// <summary>Uses one if available. Returns false (no-op) when that type is out of stock.</summary>
+        public bool TryConsumeConsumable(ConsumableType type)
+        {
+            int i = (int)type;
+            if (_consumableCounts[i] <= 0) return false;
+
+            _consumableCounts[i]--;
+            PlayerPrefs.SetInt(KEY_CONSUMABLE_PREFIX + i, _consumableCounts[i]);
+            PlayerPrefs.Save();
+            OnConsumablesChanged?.Invoke();
+            return true;
         }
     }
 }

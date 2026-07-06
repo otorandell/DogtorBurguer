@@ -6,6 +6,9 @@ namespace DogtorBurguer
         Free,
         Gems,
         Iap,
-        AdUnlock
+        AdUnlock,
+        // Appended (value 4). UnlockMethod ints are serialized in every Skin .asset (_unlock:),
+        // so this enum is append-only — never reorder.
+        Stars
     }
 }
