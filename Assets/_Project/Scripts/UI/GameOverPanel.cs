@@ -149,17 +149,10 @@ namespace DogtorBurguer
 
         private void OnRestartClicked()
         {
-            if (AdManager.Instance != null && AdManager.Instance.ShouldShowInterstitial())
-            {
-                AdManager.Instance?.ShowInterstitial(() =>
-                {
-                    GameManager.Instance?.RestartGame();
-                });
-            }
+            if (AdManager.Instance != null)
+                AdManager.Instance.MaybeShowInterstitial(() => GameManager.Instance?.RestartGame());
             else
-            {
                 GameManager.Instance?.RestartGame();
-            }
         }
 
         private void OnMenuClicked()

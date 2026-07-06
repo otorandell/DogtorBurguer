@@ -111,7 +111,11 @@ namespace DogtorBurguer
 
         private void OnRestartClicked()
         {
-            GameManager.Instance?.RestartGame();
+            // Same interstitial cadence as the game-over restart — a restart is a new game.
+            if (AdManager.Instance != null)
+                AdManager.Instance.MaybeShowInterstitial(() => GameManager.Instance?.RestartGame());
+            else
+                GameManager.Instance?.RestartGame();
         }
 
         private void OnQuitClicked()

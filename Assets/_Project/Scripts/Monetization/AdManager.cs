@@ -43,6 +43,17 @@ namespace DogtorBurguer
         }
 
         /// <summary>
+        /// The restart gate: shows an interstitial when the cadence says one is due, then
+        /// continues. Both restart paths (game over, in-game settings) route through this so
+        /// the ad policy can't drift between them.
+        /// </summary>
+        public void MaybeShowInterstitial(Action then)
+        {
+            if (ShouldShowInterstitial()) ShowInterstitial(then);
+            else then?.Invoke();
+        }
+
+        /// <summary>
         /// Shows an interstitial ad. Calls onComplete when done.
         /// </summary>
         public void ShowInterstitial(Action onComplete = null)

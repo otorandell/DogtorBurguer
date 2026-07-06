@@ -129,9 +129,9 @@ The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]
 the shop — pauses a running game, panel on its own canvas (`SETTINGS_CANVAS_SORT` 110, above
 game-over, below shop), resumes via `SettingsPanel.OnClosed`. Sound/control-mode apply live
 mid-run; Start Level applies next run. The in-game variant (`Initialize(canvas, showRunButtons:
-true)`) is taller and adds a **Restart | Quit to Menu** row — restart skips the interstitial (an
-escape hatch, not an end-of-run), quitting keeps live-earned order stars but forfeits the
-end-of-run score payout.
+true)`) is taller and adds a **Restart | Quit to Menu** row — restart runs the same interstitial
+cadence as the game-over restart (`AdManager.MaybeShowInterstitial`, the shared gate); quitting
+keeps live-earned order stars but forfeits the end-of-run score payout.
 
 ### Difficulty (DifficultyManager)
 - 20 levels scaling fall speed, active ingredient (type) count, and triple-wave chance.
