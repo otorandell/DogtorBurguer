@@ -19,7 +19,7 @@ namespace DogtorBurguer
         {
             BuildRemoveAds(content, screen);
             BuildSkinRow(content, screen, "DOGTOR SKINS", ShopCatalog.ChefSkins());
-            BuildSkinRow(content, screen, "INGREDIENT SKINS", ShopCatalog.IngredientSkins());
+            BuildIngredientSkins(content, screen);
             BuildConsumables(content, screen);
             BuildStarPacks(content, screen);
             BuildGemPacks(content, screen);
@@ -52,6 +52,23 @@ namespace DogtorBurguer
             RectTransform row = ShopWidgets.CreateHorizontalRow(content, UIStyles.SHOP_SKIN_ROW_H);
             foreach (Skin skin in skins)
                 ShopSkinCell.Create(row, skin, screen);
+        }
+
+        // Ingredient skins: one "INGREDIENT SKINS" header, then a labelled row per ingredient type
+        // (Patty, Cheese, …, Buns) so each type's variants scroll independently.
+        private static void BuildIngredientSkins(RectTransform content, ShopScreen screen)
+        {
+            List<(string Label, List<Skin> Skins)> rows = ShopCatalog.IngredientSkinRows();
+            if (rows.Count == 0) return;
+
+            ShopWidgets.CreateSectionTitle(content, "INGREDIENT SKINS");
+            foreach ((string label, List<Skin> skins) in rows)
+            {
+                ShopWidgets.CreateSubTitle(content, label);
+                RectTransform row = ShopWidgets.CreateHorizontalRow(content, UIStyles.SHOP_SKIN_ROW_H);
+                foreach (Skin skin in skins)
+                    ShopSkinCell.Create(row, skin, screen);
+            }
         }
 
         private static void BuildConsumables(RectTransform content, ShopScreen screen)

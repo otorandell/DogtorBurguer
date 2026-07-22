@@ -255,8 +255,10 @@ button) or `ShopScreen.OpenInGame()` (in-game top-bar shop button and the consum
 plus box) — the in-game path **pauses** the run (`GameManager.PauseGame`) and resumes on close;
 all shop tweens run unscaled. Rebuilt each open, destroyed on close (no stale state).
 - **Sections, top → bottom** (order follows freemium-shop research: offer banner up top, currency
-  near the bottom): Remove-Ads banner (hidden once bought) → DOGTOR SKINS → INGREDIENT SKINS
-  (horizontal `ShopRowScroll` rows; vertical drags route to the page scroll) → POWER-UPS (3
+  near the bottom): Remove-Ads banner (hidden once bought) → DOGTOR SKINS (one row) → INGREDIENT
+  SKINS (**one labelled sub-row per ingredient type** — Patty, Cheese, …, Buns — via
+  `ShopCatalog.IngredientSkinRows()` grouped by slot + `ShopWidgets.CreateSubTitle`; horizontal
+  `ShopRowScroll` rows, vertical drags route to the page scroll) → POWER-UPS (3
   consumable cards, star-priced pack ladder) → GET STARS (gem-priced, **confirm dialog** — the
   only confirm; soft spends and equips are instant) → GET GEMS (free rewarded-ad rung first, then
   IAP packs with MOST POPULAR / BEST VALUE badges).
@@ -370,14 +372,22 @@ sprite — acceptable; menu equips always show in-game).
   `bun_default` also **Secondary Sprite** = bottom bun, for `chef_default` = flipped facing), or
   just replace a PNG's contents keeping its filename. Works from the Project window with any scene
   open — no more opening `Game.unity`.
-- **Purchasable skins (live)**: `meat_alt` ("Deluxe Patty", 500★), `chef_happy` ("Happy Dogtor",
-  800★), `chef_alt` ("Dogtor Deluxe", 1000★) — non-default Skin assets with `_unlock: Stars` +
-  `_starCost`, sold and equipped in the Shop. Chef alts reuse their front sprite as the
-  flipped-facing secondary (mirrored on flip) until flipped art exists. **Adding a shop skin =
-  authoring one Skin asset** (id, slot, sprite, star cost) — no code.
-- **Status**: selection + star-unlock shipped with the Shop (2026-07-05). Gem/IAP-priced skins and
-  Pack bundles remain unbuilt (`UnlockMethod.Gems/Iap` exist; `ShopService.TryBuySkin` already
-  handles Gems).
+- **Purchasable skins (live)**: original three — `meat_alt` ("Deluxe Patty", 500★), `chef_happy`
+  ("Happy Dogtor", 800★), `chef_alt` ("Dogtor Deluxe", 1000★). **Two full ingredient sets added
+  2026-07-21** (art drop №3, `RawArt/…20260720…`): **Gourmet** (400★ each — Chicken Burger, Cheddar,
+  Cherry Tomato, Caramelized Onion, Relish Pickles, Shredded Lettuce, Quail Egg, Bacon Bits, Brioche
+  Buns) and **Gold** (800★ each — the "everything gold" set across all 8 ingredients + buns), plus
+  **5 Dogtor theme chefs** (1200★ — Burger Chain, European, Japanese, Mexican, Royale; Happy pose,
+  front+flip, Burgerchain reuses front as flip). All are non-default Skin assets with `_unlock:
+  Stars` + `_starCost`, sold and equipped in the Shop. **Adding a shop skin = authoring one Skin
+  asset** (id, slot, sprite, star cost) — no code; `Theme.AllSkins()` auto-discovers it and
+  `ShopCatalog` groups it into the right row (slot with ≥2 skins appears). Ingredient alts were
+  exported on the **same canvas dims as the defaults**, so each reuses its slot's default PPU (only
+  Cheddar differed → computed PPU); dogtors are height-normalised to the default chef (worldH 1.929).
+- **Status**: selection + star-unlock shipped with the Shop (2026-07-05); ingredient + dogtor skin
+  content shipped 2026-07-21. Gem/IAP-priced skins and Pack bundles remain unbuilt
+  (`UnlockMethod.Gems/Iap` exist; `ShopService.TryBuySkin` already handles Gems). Prices are eyeball
+  tiers (`_starCost` per asset) — revisit in the economy balance pass.
 
 ## Randomness
 All randomness uses `Rng` static class, never `UnityEngine.Random`:
@@ -474,6 +484,12 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   `.png` so the texture GUID is kept.
 - **Hand-authored metas**: this project writes minimal `.cs.meta` (just `fileFormatVersion` + chosen `guid`)
   and `.asset` YAML directly, since the AI can't drive the Editor.
+- **⚠️ Meta/asset YAML must be CRLF + end with a trailing newline.** Unity's meta parser fails at
+  EOF on the final line otherwise — *"Parser Failure at line N: Expect ':' between key and value"*
+  + *"does not have a valid GUID… will be ignored"* — silently dropping every hand-written `.meta`
+  (both `.png.meta` and `.asset.meta`). LF-only with no trailing newline is the trap (bit the
+  2026-07-21 skin batch). When generating via script, normalise: convert `\n`→`\r\n` and append one
+  trailing `\r\n` before writing (see `scratchpad/gen_skins.ps1`'s `Nl` helper).
 - **Consumable/reward sprites** live in `Resources/Fairy/` + `Resources/Rewards/` (loaded by name via
   `RewardArt`, outside the `Theme`/Skins pipeline). They must import as **Single** sprite mode — the
   project's default is **Multiple**, which auto-slices multi-blob images into fragments and breaks

@@ -320,6 +320,8 @@ namespace DogtorBurguer
         public const float SHOP_SECTION_SPACING = 10f;
         public const float SHOP_SECTION_TITLE_H = 44f;
         public const float SHOP_SECTION_TITLE_SIZE = 22f;
+        public const float SHOP_SUBTITLE_H = 26f;                               // per-ingredient row label
+        public const float SHOP_SUBTITLE_SIZE = 16f;
         public const float SHOP_CELL_SPACING = 10f;                             // between row cells
 
         // Skin cells (horizontal rows).

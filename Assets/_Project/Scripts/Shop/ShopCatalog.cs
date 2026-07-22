@@ -12,6 +12,8 @@ namespace DogtorBurguer
     {
         private static readonly SkinSlot[] ChefSlots = { SkinSlot.ChefSkin };
 
+        // Ordered ingredient slots, each shown as its own labelled shop row. Bun top+bottom collapse
+        // onto the single BunSkin slot, so buns are one row / one purchasable (both sprites per skin).
         private static readonly SkinSlot[] IngredientSlots =
         {
             SkinSlot.MeatSkin, SkinSlot.CheeseSkin, SkinSlot.TomatoSkin, SkinSlot.OnionSkin,
@@ -20,24 +22,57 @@ namespace DogtorBurguer
         };
 
         public static List<Skin> ChefSkins() => SkinsFor(ChefSlots);
-        public static List<Skin> IngredientSkins() => SkinsFor(IngredientSlots);
+
+        /// <summary>Ingredient skins grouped into one labelled row per slot (in <see cref="IngredientSlots"/>
+        /// order). A slot appears only once it owns a purchasable skin beyond its classic default.</summary>
+        public static List<(string Label, List<Skin> Skins)> IngredientSkinRows()
+        {
+            List<(string, List<Skin>)> rows = new();
+            foreach (SkinSlot slot in IngredientSlots)
+            {
+                List<Skin> ofSlot = SkinsForSlot(slot);
+                if (ofSlot.Count < 2) continue; // default only — nothing to sell for this slot
+                rows.Add((SlotLabel(slot), ofSlot));
+            }
+            return rows;
+        }
+
+        /// <summary>Row subtitle for an ingredient slot (BunSkin reads "Buns" — top+bottom together).</summary>
+        public static string SlotLabel(SkinSlot slot) => slot switch
+        {
+            SkinSlot.MeatSkin => "Patty",
+            SkinSlot.CheeseSkin => "Cheese",
+            SkinSlot.TomatoSkin => "Tomato",
+            SkinSlot.OnionSkin => "Onion",
+            SkinSlot.PickleSkin => "Pickles",
+            SkinSlot.LettuceSkin => "Lettuce",
+            SkinSlot.EggSkin => "Egg",
+            SkinSlot.BaconSkin => "Bacon",
+            SkinSlot.BunSkin => "Buns",
+            _ => slot.ToString()
+        };
+
+        // All skins for one slot, default first (the "classic" cell), then cheapest to priciest.
+        private static List<Skin> SkinsForSlot(SkinSlot slot)
+        {
+            List<Skin> ofSlot = new();
+            foreach (Skin skin in Theme.AllSkins())
+                if (skin.Slot == slot)
+                    ofSlot.Add(skin);
+
+            ofSlot.Sort((a, b) => a.IsDefault != b.IsDefault
+                ? (a.IsDefault ? -1 : 1)
+                : a.StarCost.CompareTo(b.StarCost));
+            return ofSlot;
+        }
 
         private static List<Skin> SkinsFor(SkinSlot[] slots)
         {
             List<Skin> result = new();
             foreach (SkinSlot slot in slots)
             {
-                List<Skin> ofSlot = new();
-                foreach (Skin skin in Theme.AllSkins())
-                    if (skin.Slot == slot)
-                        ofSlot.Add(skin);
-
+                List<Skin> ofSlot = SkinsForSlot(slot);
                 if (ofSlot.Count < 2) continue; // default only — nothing to sell for this slot
-
-                // Default first (it's the "classic" cell), then cheapest to priciest.
-                ofSlot.Sort((a, b) => a.IsDefault != b.IsDefault
-                    ? (a.IsDefault ? -1 : 1)
-                    : a.StarCost.CompareTo(b.StarCost));
                 result.AddRange(ofSlot);
             }
             return result;

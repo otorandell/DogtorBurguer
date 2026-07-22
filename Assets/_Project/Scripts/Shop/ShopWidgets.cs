@@ -111,6 +111,15 @@ namespace DogtorBurguer
             title.gameObject.AddComponent<LayoutElement>().preferredHeight = UIStyles.SHOP_SECTION_TITLE_H;
         }
 
+        /// <summary>A smaller row label sitting under a section title (one per ingredient type).</summary>
+        public static void CreateSubTitle(RectTransform pageContent, string text)
+        {
+            TextMeshProUGUI sub = UIFactory.CreateText(pageContent, text, Vector2.zero,
+                Vector2.zero, UIStyles.SHOP_SUBTITLE_SIZE, FontStyles.Bold,
+                UIStyles.SHOP_SUBTEXT_COLOR, TextAlignmentOptions.BottomLeft);
+            sub.gameObject.AddComponent<LayoutElement>().preferredHeight = UIStyles.SHOP_SUBTITLE_H;
+        }
+
         /// <summary>A full-width offer bar (currency packs, remove-ads): background + LayoutElement.
         /// Fill it with <see cref="CreateBarTexts"/> and <see cref="CreatePriceButton"/>.</summary>
         public static RectTransform CreateBar(RectTransform pageContent, float height, Color background)
