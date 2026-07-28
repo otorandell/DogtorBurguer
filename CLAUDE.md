@@ -209,6 +209,20 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   halftone dots smear (the Special Order card is a deliberate exception — stretched taller).
 - Tunables: `Constants.PLAY_AREA_WIDTH` / `DESIGN_ORTHO_SIZE`; all HUD layout in `UIStyles`.
 
+### Render Order Convention
+- The in-game HUD canvas is **Screen Space - Camera** (sorting order 50, via
+  `UIFactory.CreateCanvas(..., Camera.main)`) so world sprites with a higher sorting order render
+  in front of it — fairies (100), floating text/popups (100–110), and the screen flash (200)
+  intentionally fly over the HUD. Don't switch it back to Overlay.
+- All other canvases (Menu 10, ChallengeCanvas 60, ConsumableCanvas 90, Settings, Shop,
+  GameOver 100) are Screen Space **Overlay** and always cover world sprites (GameOver correctly
+  hides fairies). Known cosmetic quirk: a fairy crossing the Special Order panel or consumable
+  slots passes *behind* them. Converting those two canvases to Camera mode would fix it, but
+  `ConsumableSlotWidget.Contains` must then pass the canvas camera (not `null`) to
+  `RectangleContainsScreenPoint`.
+- World sprite sorting orders are centralized in `Constants.SORT_*` (background −100 …
+  screen flash 200).
+
 ### Audio
 - **AudioManager**: All SFX procedurally generated (sin waves, envelopes, harmonics). No audio asset
   files. Each sound has an optional `_*Override` clip slot for authored audio. Consumable hooks:

@@ -15,15 +15,28 @@ namespace DogtorBurguer
     public static class UIFactory
     {
         /// <summary>
-        /// Creates a screen-space overlay canvas with standard scaler settings.
+        /// Creates a screen-space canvas with standard scaler settings.
+        /// Pass a worldCamera to use Screen Space - Camera mode, which lets
+        /// world sprites with a higher sorting order render in front of the
+        /// canvas (e.g. fairies flying over the HUD). Without it, the canvas
+        /// is a Screen Space Overlay and always draws on top of the world.
         /// </summary>
-        public static Canvas CreateCanvas(Transform parent, string name, int sortingOrder)
+        public static Canvas CreateCanvas(Transform parent, string name, int sortingOrder, Camera worldCamera = null)
         {
             GameObject canvasObj = new GameObject(name);
             canvasObj.transform.SetParent(parent, false);
 
             Canvas canvas = canvasObj.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            if (worldCamera != null)
+            {
+                canvas.renderMode = RenderMode.ScreenSpaceCamera;
+                canvas.worldCamera = worldCamera;
+                canvas.planeDistance = 100f;
+            }
+            else
+            {
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            }
             canvas.sortingOrder = sortingOrder;
 
             CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();

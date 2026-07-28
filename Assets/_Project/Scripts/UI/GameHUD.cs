@@ -17,7 +17,9 @@ namespace DogtorBurguer
 
         private void Start()
         {
-            _canvas = UIFactory.CreateCanvas(transform, "HUD_Canvas", 50);
+            // Screen Space - Camera so world sprites above order 50 (fairies,
+            // popups, screen flash) render in front of the HUD.
+            _canvas = UIFactory.CreateCanvas(transform, "HUD_Canvas", 50, Camera.main);
             CreateHUDElements();
             SubscribeEvents();
             RefreshAll();
