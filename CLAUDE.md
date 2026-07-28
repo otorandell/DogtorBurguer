@@ -30,7 +30,7 @@ Assets/_Project/Scripts/
   Skins/         Skin (ScriptableObject), SkinSlot, UnlockMethod, SkinMap, Theme (static accessor)
   Shop/          ShopScreen (full-screen overlay), ShopSections, ShopWidgets, ShopSkinCell,
                  ShopRowScroll (nested h-scroll), ShopService (purchase rules), ShopCatalog
-  UI/            MainMenuUI, GameHUD, GameOverPanel, SettingsPanel,
+  UI/            MainMenuUI, GameHUD, TopBar (shared status bar), GameOverPanel, SettingsPanel,
                  BurgerChallenge, BurgerChallengeView, BurgerPopup, FloatingText, ScorePopup,
                  Background, OrderType, NumberFormat, UIFactory
     Factory/     SpriteFactory (cached procedural sprites), WorldTextFactory (world-space TMP)
@@ -125,7 +125,7 @@ component owning its hit-test, one color per interaction (`GizmoStyles`): fallin
 sides (cyan, `TouchInputHandler` — mode-aware, Tap mode only), fairy tap (orange, `BurgerFairy` —
 play-mode only, runtime-spawned). Toggle per-script via Unity's Gizmos menu.
 
-The Settings panel also has a **Start Level** stepper (`[−] Start Level: N [+]`) → persists
+The Settings panel also has a **Start Level** stepper (`[−] Lv N [+]`) → persists
 `SaveDataManager.StartingLevel`; clamped 1..`SETTINGS_LEVEL_CAP`. See Difficulty.
 **Settings opens in-game too** (top-bar gear, `GameHUD.OnConfigClicked`): same pause pattern as
 the shop — pauses a running game, panel on its own canvas (`SETTINGS_CANVAS_SORT` 110, above
@@ -233,7 +233,7 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
 - **Two currencies**, both persisted in SaveDataManager and spendable in the Shop:
   - **Gems** (hard/premium): rare — Burger Fairy drops (~40% of fairies), rewarded ads, IAP packs.
   - **Stars** (soft/free): earned by playing — **per completed Special Order**
-    (`STARS_PER_ORDER_BASE + PER_LEVEL·(challengeLevel−1)`, awarded live with a gold "+N STARS"
+    (`STARS_PER_ORDER_BASE + PER_LEVEL·(challengeLevel−1)`, awarded live with a gold "N!"
     popup), an **end-of-run score payout** (1★ per `STAR_SCORE_DIVISOR` score; continues pay
     only the un-paid delta), and **star fairies** (`STAR_PACK_VALUE` 25). `GameManager.AwardStars`
     grants + tracks `StarsEarnedThisRun` (shown on the game-over panel). Also from gem→star shop
@@ -263,7 +263,7 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   `ShopService.BuyGemPack` / `BuyRemoveAds`.
 
 ### Shop (full-screen overlay — `Scripts/Shop/`)
-One vertically scrolling page under a fixed header (SHOP title + star/gem pills + close), on its
+One vertically scrolling page under a fixed header (the shared TopBar + SHOP title + close), on its
 own canvas (`SHOP_CANVAS_SORT` 120, above everything). Opened via `ShopScreen.Open()` (menu Shop
 button) or `ShopScreen.OpenInGame()` (in-game top-bar shop button and the consumable slots' green
 plus box) — the in-game path **pauses** the run (`GameManager.PauseGame`) and resumes on close;
@@ -382,6 +382,13 @@ sprite — acceptable; menu equips always show in-game).
   builds the authored **Level/Score panels** (card + title tab + TMP number). ⚠️ Panton is a **trial**
   font (replace before release); regenerate any SDF at **1024 atlas / ~12 padding / SDFAA** (a
   512/low-padding atlas renders pixelated).
+  ⚠️ **Trial-font placeholder glyphs**: the trial TTF maps most symbols — `" # $ % & ' ( ) * + / <
+  = > @ [ \ ] ^ _ ` + backtick + `{ | } ~` — to a single tall sliver glyph (tiny vertical "trial"
+  lettering baked into the SDF atlas). It renders as a weird vertical word, immune to wrapping
+  settings (discovered 2026-07-23 — was misread as a text-wrap bug for a while). **Player-facing
+  strings may only use letters, digits, space, and `! , - . : ; ?`** until the font is replaced.
+  Where a plus sign is needed, use art (`ui_consumable_plus`, e.g. the Settings stepper's
+  increment button) — the score/star popups use `N!` instead of `+N` for this reason.
 - **Reskin the game** = edit the slot's asset in `Resources/Skins/` (set its **Sprite** field; for
   `bun_default` also **Secondary Sprite** = bottom bun, for `chef_default` = flipped facing), or
   just replace a PNG's contents keeping its filename. Works from the Project window with any scene
@@ -421,6 +428,14 @@ font+color+width, shared — batched), `EnableKeyword(ShaderUtilities.Keyword_Ou
 `ID_OutlineColor`/`ID_OutlineWidth`, assign via `fontSharedMaterial`, then `UpdateMeshPadding()`.
 The broken per-component setters were removed from `UIFactory.AddStyledText`. World-space
 (`WorldTextFactory`) still uses the old setters — migrate the same way if world outlines are wanted.
+
+### UI Text Wrapping Convention
+Runtime-created TMP text defaults to wrapping ON (TMP Settings), which renders one character
+per line on label-sized rects ("vertical text"). `UIFactory.AddStyledText` therefore forces
+**NoWrap on every text it builds**; pass `wrap: true` to `CreateText` only for genuinely
+auto-wrapping paragraphs (currently just the shop confirm dialog). Explicit `\n` still breaks
+lines under NoWrap (the credits). Overlong single-line text now overflows its rect instead of
+wrapping — fix by shortening the string or widening the rect, never by re-enabling wrap on labels.
 
 ### UI Text Color Convention
 - **HUD numbers + all red-box labels** (Level/Score numbers, tab words, SPECIAL ORDER banner,
@@ -536,7 +551,10 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   should not be able to *start* on the kill screen. One-line flip (comment marks it).
 
 ## Pending Features
-- **HUD done so far** (authored, screen-space UGUI): top bar (currencies + shop/settings buttons),
+- **HUD done so far** (authored, screen-space UGUI): the shared **TopBar** (`UI/TopBar.cs` —
+  trophy/star/gem pills + optional shop/settings buttons; one recipe used by the game HUD, the
+  main menu, and the shop header, so the bar looks identical and stays put across screens; it
+  self-binds to the SaveDataManager currency events and punches a pill on change),
   Level/Score cards, the 3-slot consumable row, the Special Order panel. The HUD scales with the
   camera (both frame by width — see Camera & UI scaling). **Boxes are baked art at native aspect**
   (the 9-slice route was dropped — fixed-size HUD boxes don't need it).

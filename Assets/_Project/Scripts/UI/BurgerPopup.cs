@@ -33,7 +33,7 @@ namespace DogtorBurguer
             scoreObj.transform.SetParent(transform, false);
             scoreObj.transform.localPosition = new Vector3(0, AnimConfig.BURGER_POPUP_SCORE_OFFSET_Y, 0);
 
-            _scoreText = WorldTextFactory.Create(scoreObj, $"+{points}",
+            _scoreText = WorldTextFactory.Create(scoreObj, $"{points}!",
                 UIStyles.WORLD_BURGER_SCORE_SIZE, UIStyles.TEXT_UI, Constants.SORT_BURGER_POPUP,
                 UIStyles.BURGER_POPUP_SCORE_RECT, FontStyles.Normal, UIStyles.OUTLINE_WIDTH_WORLD);
         }

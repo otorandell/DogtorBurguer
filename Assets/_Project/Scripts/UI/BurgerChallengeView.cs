@@ -50,11 +50,13 @@ namespace DogtorBurguer
                 new Vector2(1f, 1f), UIStyles.SPECIAL_CARD_POS, UIStyles.SPECIAL_CARD_SIZE);
             _card = card.rectTransform;
 
-            // SPECIAL ORDER banner (blank art), sized by height (aspect), overhanging the card's
-            // top-left, with the word as TMP — like the Level/Score tabs.
+            // SPECIAL ORDER banner (blank art), sized by height (aspect, then stretched wider by
+            // SPECIAL_BANNER_STRETCH_X — deliberate), overhanging the card's top-left, with the
+            // word as TMP — like the Level/Score tabs.
             Sprite banner = UiArt.Load("ui_special_title");
             float bannerAspect = banner != null ? banner.rect.width / banner.rect.height : 1f;
-            Vector2 bannerSize = new(UIStyles.SPECIAL_BANNER_H * bannerAspect, UIStyles.SPECIAL_BANNER_H);
+            Vector2 bannerSize = new(UIStyles.SPECIAL_BANNER_H * bannerAspect * UIStyles.SPECIAL_BANNER_STRETCH_X,
+                UIStyles.SPECIAL_BANNER_H);
             Image bannerImg = UIFactory.CreateImage(_card, "Banner", banner, new Vector2(0.5f, 0.5f),
                 UIStyles.SPECIAL_BANNER_OFFSET, bannerSize);
 
@@ -72,7 +74,7 @@ namespace DogtorBurguer
             stackObj.transform.SetParent(_card, false);
             _stackRoot = stackObj.AddComponent<RectTransform>();
             _stackRoot.anchorMin = _stackRoot.anchorMax = new Vector2(0.5f, 0.5f);
-            _stackRoot.anchoredPosition = new Vector2(0f, UIStyles.SPECIAL_STACK_Y);
+            _stackRoot.anchoredPosition = new Vector2(UIStyles.SPECIAL_STACK_X, UIStyles.SPECIAL_STACK_Y);
             _stackRoot.sizeDelta = Vector2.zero;
 
             // Mult meter (built before the badge so the badge renders on top of it).
@@ -142,7 +144,9 @@ namespace DogtorBurguer
             if (_model.CurrentOrderType == OrderType.Size)
             {
                 rows.Add(null); // mystery placeholder
-                placeholder = $"+{_model.RequiredSize}";
+                // Number only: the trial font renders "+" (and most symbols) as a placeholder
+                // sliver glyph, and it has no ≥. Revisit when the font is replaced.
+                placeholder = $"{_model.RequiredSize}";
             }
             else
             {
@@ -158,10 +162,8 @@ namespace DogtorBurguer
             Sprite plate = Theme.Plate;
             if (plate != null)
             {
-                float plateAspect = plate.rect.width / plate.rect.height;
                 Image plateImg = UIFactory.CreateImage(_stackRoot, "Plate", plate, new Vector2(0.5f, 0.5f),
-                    new Vector2(0f, startY - UIStyles.SPECIAL_PLATE_Y_OFFSET),
-                    new Vector2(UIStyles.SPECIAL_PLATE_H * plateAspect, UIStyles.SPECIAL_PLATE_H));
+                    new Vector2(0f, startY - UIStyles.SPECIAL_PLATE_Y_OFFSET), WorldScaled(plate));
                 _stackImages.Add(plateImg);
             }
 
@@ -185,14 +187,18 @@ namespace DogtorBurguer
             UpdateMeter(animate: true);
         }
 
-        // Adds one stacked image (ingredient or placeholder), sized by height preserving aspect, with
-        // an optional centred label (the "+N" on the mystery silhouette).
+        // Adds one stacked image (ingredient or placeholder) with an optional centred label (the
+        // "+N" on the mystery silhouette). Gameplay sprites are sized from their world dimensions
+        // (see WorldScaled); the mystery placeholder is UI art with no tuned PPU, sized by height.
         private void AddSprite(Sprite sprite, string name, float y, string label)
         {
             if (sprite == null) return;
-            float aspect = sprite.rect.width / sprite.rect.height;
+            bool isMystery = !string.IsNullOrEmpty(label);
+            Vector2 size = isMystery
+                ? new Vector2(UIStyles.SPECIAL_MYSTERY_H * sprite.rect.width / sprite.rect.height, UIStyles.SPECIAL_MYSTERY_H)
+                : WorldScaled(sprite);
             Image img = UIFactory.CreateImage(_stackRoot, name, sprite, new Vector2(0.5f, 0.5f),
-                new Vector2(0f, y), new Vector2(UIStyles.SPECIAL_INGREDIENT_H * aspect, UIStyles.SPECIAL_INGREDIENT_H));
+                new Vector2(0f, y), size);
             _stackImages.Add(img);
 
             if (!string.IsNullOrEmpty(label))
@@ -202,6 +208,11 @@ namespace DogtorBurguer
                 t.textWrappingMode = TextWrappingModes.NoWrap;
             }
         }
+
+        // Screen size of a gameplay sprite from its world dimensions (pixel rect / PPU) — the same
+        // per-file normalization the playfield uses, so the stack's proportions match the game.
+        private static Vector2 WorldScaled(Sprite sprite) =>
+            new Vector2(sprite.rect.width, sprite.rect.height) / sprite.pixelsPerUnit * UIStyles.SPECIAL_STACK_PX_PER_UNIT;
 
         private void ClearStack()
         {

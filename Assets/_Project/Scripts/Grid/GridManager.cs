@@ -378,7 +378,7 @@ namespace DogtorBurguer
 
             int points = nonBunCount * GameplayConfig.POINTS_CONSUMABLE_PER_INGREDIENT;
             GameManager.Instance?.AddExtraScore(points);
-            FloatingText.Spawn(pos, $"+{points}", UIStyles.TEXT_FAST_DROP, UIStyles.WORLD_FLOATING_TEXT_SIZE);
+            FloatingText.Spawn(pos, $"{points}!", UIStyles.TEXT_FAST_DROP, UIStyles.WORLD_FLOATING_TEXT_SIZE);
         }
 
 #if UNITY_EDITOR

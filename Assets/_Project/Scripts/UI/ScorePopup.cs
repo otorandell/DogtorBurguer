@@ -14,7 +14,7 @@ namespace DogtorBurguer
             GameObject obj = new GameObject("ScorePopup");
             obj.transform.position = position;
 
-            TextMeshPro text = WorldTextFactory.Create(obj, $"+{points}",
+            TextMeshPro text = WorldTextFactory.Create(obj, $"{points}!",
                 UIStyles.WORLD_SCORE_POPUP_SIZE, color, Constants.SORT_SCORE_POPUP,
                 UIStyles.SCORE_POPUP_RECT, FontStyles.Normal, UIStyles.OUTLINE_WIDTH_WORLD);
 

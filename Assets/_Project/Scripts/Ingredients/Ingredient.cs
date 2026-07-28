@@ -235,7 +235,7 @@ namespace DogtorBurguer
             if (points > 0)
             {
                 GameManager.Instance?.AddExtraScore(points);
-                FloatingText.Spawn(transform.position, $"+{points}", UIStyles.TEXT_FAST_DROP, 3f);
+                FloatingText.Spawn(transform.position, $"{points}!", UIStyles.TEXT_FAST_DROP, 3f);
             }
 
             // Cancel current fall and drop fast

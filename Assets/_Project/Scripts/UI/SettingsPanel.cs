@@ -76,19 +76,21 @@ namespace DogtorBurguer
             _controlLabel = controlBtn.label;
             UpdateControlLabel();
 
-            // Starting-level stepper: [−] value [+]. Buttons step the persisted
+            // Starting-level stepper: [−] Lv N [+]. Buttons step the persisted
             // StartingLevel by one, clamped 1..SETTINGS_LEVEL_CAP; the label shows the value.
             UIFactory.CreateButton(inner.transform, "-", UIStyles.SETTINGS_LEVEL_MINUS_POS,
                 UIStyles.SETTINGS_STEPPER_BTN_SIZE, UIStyles.BTN_SETTINGS_TOGGLE,
                 UIStyles.SETTINGS_BUTTON_TEXT_SIZE, () => OnLevelStep(-1));
 
-            _levelLabel = UIFactory.CreateText(inner.transform, "Start Level: 1", UIStyles.SETTINGS_LEVEL_POS,
+            _levelLabel = UIFactory.CreateText(inner.transform, "Lv 1", UIStyles.SETTINGS_LEVEL_POS,
                 UIStyles.SETTINGS_STEPPER_LABEL_SIZE, UIStyles.SETTINGS_BUTTON_TEXT_SIZE, FontStyles.Bold);
             UpdateLevelLabel();
 
-            UIFactory.CreateButton(inner.transform, "+", UIStyles.SETTINGS_LEVEL_PLUS_POS,
-                UIStyles.SETTINGS_STEPPER_BTN_SIZE, UIStyles.BTN_SETTINGS_TOGGLE,
-                UIStyles.SETTINGS_BUTTON_TEXT_SIZE, () => OnLevelStep(1));
+            // The trial font renders "+" as a placeholder sliver glyph, so the increment
+            // button uses the authored plus art instead of a text label.
+            UIFactory.CreateSpriteButton(inner.transform, "Plus", UiArt.Load("ui_consumable_plus"),
+                new Vector2(0.5f, 0.5f), UIStyles.SETTINGS_LEVEL_PLUS_POS,
+                UIStyles.SETTINGS_STEPPER_BTN_SIZE, () => OnLevelStep(1));
 
             // In-game run controls: Restart | Quit to menu. Scene loads reset timeScale
             // (SceneLoader), so leaving from the paused panel is safe.
@@ -175,7 +177,7 @@ namespace DogtorBurguer
             int level = SaveDataManager.Instance != null
                 ? SaveDataManager.Instance.StartingLevel
                 : SaveDataManager.DEFAULT_STARTING_LEVEL;
-            _levelLabel.text = $"Start Level: {level}";
+            _levelLabel.text = $"Lv {level}";
         }
     }
 }

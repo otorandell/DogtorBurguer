@@ -8,9 +8,6 @@ namespace DogtorBurguer
     {
         private TextMeshProUGUI _scoreNumber;
         private TextMeshProUGUI _levelNumber;
-        private TextMeshProUGUI _gemNumber;
-        private TextMeshProUGUI _highScoreNumber;
-        private TextMeshProUGUI _starNumber;
         private Canvas _canvas;
         private SettingsPanel _settingsPanel;
         private bool _settingsPausedRun;
@@ -27,43 +24,9 @@ namespace DogtorBurguer
 
         private void CreateHUDElements()
         {
-            CreateTopBar();
+            TopBar.Build(_canvas.transform, OnShopClicked, OnConfigClicked);
             _levelNumber = BuildStatPanel("LevelPanel", "Level", UIStyles.HUD_LEVEL_PANEL_POS);
             _scoreNumber = BuildStatPanel("ScorePanel", "Score", UIStyles.HUD_SCORE_PANEL_POS);
-        }
-
-        // Builds the top status bar: star + gem + high-score currency widgets, plus settings/shop buttons.
-        private void CreateTopBar()
-        {
-            _starNumber = BuildCurrencyWidget("Stars", "ui_star", UIStyles.TOPBAR_STAR_POS, UIStyles.TOPBAR_STAR_ICON_H);
-            _gemNumber = BuildCurrencyWidget("Gems", "ui_gem", UIStyles.TOPBAR_GEM_POS, UIStyles.TOPBAR_GEM_ICON_H);
-            _highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy", UIStyles.TOPBAR_SCORE_POS, UIStyles.TOPBAR_SCORE_ICON_H);
-
-            UIFactory.CreateSpriteButton(_canvas.transform, "ConfigButton", UiArt.Load("ui_config_button"),
-                new Vector2(0f, 1f), UIStyles.TOPBAR_CONFIG_POS, UIStyles.TOPBAR_BUTTON_SIZE, OnConfigClicked);
-            UIFactory.CreateSpriteButton(_canvas.transform, "ShopButton", UiArt.Load("ui_shop_button"),
-                new Vector2(0f, 1f), UIStyles.TOPBAR_SHOP_POS, UIStyles.TOPBAR_BUTTON_SIZE, OnShopClicked);
-        }
-
-        // A currency pill (baked box) with an overhanging icon and a number; returns the number label.
-        private TextMeshProUGUI BuildCurrencyWidget(string name, string iconArt, Vector2 pos, float iconHeight)
-        {
-            Image box = UIFactory.CreateImage(_canvas.transform, name, UiArt.Load("ui_currency_box"),
-                new Vector2(0f, 1f), pos, UIStyles.TOPBAR_BOX_SIZE);
-
-            // Size the icon by height, width following native aspect — never force a square (distorts).
-            Sprite iconSprite = UiArt.Load(iconArt);
-            float aspect = iconSprite != null ? iconSprite.rect.width / iconSprite.rect.height : 1f;
-            Vector2 iconSize = new(iconHeight * aspect, iconHeight);
-            UIFactory.CreateImage(box.transform, "Icon", iconSprite,
-                new Vector2(0.5f, 0.5f), new Vector2(UIStyles.TOPBAR_ICON_X, 0f), iconSize);
-
-            TextMeshProUGUI number = UIFactory.CreateText(box.transform, "0",
-                new Vector2(UIStyles.TOPBAR_NUMBER_X, 0f), UIStyles.TOPBAR_NUMBER_RECT,
-                UIStyles.TOPBAR_NUMBER_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR,
-                TextAlignmentOptions.Left);
-            AutoFit(number, UIStyles.TOPBAR_NUMBER_SIZE_MIN, UIStyles.TOPBAR_NUMBER_SIZE);
-            return number;
         }
 
         // Shrink-to-fit: the box stays fixed and the text scales down to stay inside it.
@@ -146,12 +109,6 @@ namespace DogtorBurguer
                 GameManager.Instance.OnScoreChanged += UpdateScore;
                 GameManager.Instance.OnLevelChanged += UpdateLevel;
             }
-
-            if (SaveDataManager.Instance != null)
-            {
-                SaveDataManager.Instance.OnGemsChanged += UpdateGems;
-                SaveDataManager.Instance.OnStarsChanged += UpdateStars;
-            }
         }
 
         // Seeds every readout from the live sources (single init path, no hardcoded duplicates).
@@ -159,11 +116,6 @@ namespace DogtorBurguer
         {
             UpdateScore(GameManager.Instance != null ? GameManager.Instance.Score : 0);
             UpdateLevel(GameManager.Instance != null ? GameManager.Instance.CurrentLevel : 1);
-            UpdateGems(SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0);
-            // High score only changes at game over, so a one-time seed is enough (no live event).
-            if (_highScoreNumber != null)
-                _highScoreNumber.text = NumberFormat.Abbreviate(SaveDataManager.Instance != null ? SaveDataManager.Instance.HighScore : 0);
-            UpdateStars(SaveDataManager.Instance != null ? SaveDataManager.Instance.Stars : 0);
         }
 
         private void UpdateScore(int score)
@@ -178,18 +130,6 @@ namespace DogtorBurguer
                 _levelNumber.text = level.ToString();
         }
 
-        private void UpdateGems(int gems)
-        {
-            if (_gemNumber != null)
-                _gemNumber.text = NumberFormat.Abbreviate(gems);
-        }
-
-        private void UpdateStars(int stars)
-        {
-            if (_starNumber != null)
-                _starNumber.text = NumberFormat.Abbreviate(stars);
-        }
-
         private void OnDestroy()
         {
             if (_settingsPanel != null)
@@ -199,12 +139,6 @@ namespace DogtorBurguer
             {
                 GameManager.Instance.OnScoreChanged -= UpdateScore;
                 GameManager.Instance.OnLevelChanged -= UpdateLevel;
-            }
-
-            if (SaveDataManager.Instance != null)
-            {
-                SaveDataManager.Instance.OnGemsChanged -= UpdateGems;
-                SaveDataManager.Instance.OnStarsChanged -= UpdateStars;
             }
         }
     }
