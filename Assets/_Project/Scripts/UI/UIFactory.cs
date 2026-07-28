@@ -50,17 +50,19 @@ namespace DogtorBurguer
         }
 
         /// <summary>
-        /// Creates a centered TextMeshProUGUI element with standard outline styling.
+        /// Creates a centered TextMeshProUGUI element with standard outline styling. Single-line
+        /// (no wrapping) by default — pass <paramref name="wrap"/> for multi-line paragraphs.
         /// </summary>
         public static TextMeshProUGUI CreateText(
             Transform parent, string text, Vector2 position, Vector2 size,
             float fontSize, FontStyles style = FontStyles.Normal,
-            Color? color = null, TextAlignmentOptions alignment = TextAlignmentOptions.Center)
+            Color? color = null, TextAlignmentOptions alignment = TextAlignmentOptions.Center,
+            bool wrap = false)
         {
             GameObject textObj = new GameObject(text);
             textObj.transform.SetParent(parent, false);
             SetCenteredRect(textObj, position, size);
-            return AddStyledText(textObj, text, fontSize, style, color ?? UIStyles.TEXT_UI, alignment);
+            return AddStyledText(textObj, text, fontSize, style, color ?? UIStyles.TEXT_UI, alignment, wrap);
         }
 
         /// <summary>
@@ -196,7 +198,8 @@ namespace DogtorBurguer
         }
 
         private static TextMeshProUGUI AddStyledText(
-            GameObject obj, string text, float fontSize, FontStyles style, Color color, TextAlignmentOptions alignment)
+            GameObject obj, string text, float fontSize, FontStyles style, Color color, TextAlignmentOptions alignment,
+            bool wrap = false)
         {
             TextMeshProUGUI tmp = obj.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
@@ -204,6 +207,10 @@ namespace DogtorBurguer
             tmp.fontStyle = style;
             tmp.color = color;
             tmp.alignment = alignment;
+            // TMP defaults to wrapping ON (from TMP Settings); on a label-sized rect that renders
+            // one character per line. Explicit newlines still break lines under NoWrap, so only
+            // genuinely auto-wrapping paragraphs need wrap = true.
+            tmp.textWrappingMode = wrap ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;
             return tmp;
         }
 

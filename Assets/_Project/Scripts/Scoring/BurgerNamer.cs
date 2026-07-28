@@ -3,7 +3,8 @@ namespace DogtorBurguer
     /// <summary>Generates the flavor name shown when a burger completes, scaled by size.</summary>
     public static class BurgerNamer
     {
-        private static readonly string[] SmallPrefixes = { "The", "Lil'", "Mini", "Baby" };
+        // "Lil" without the apostrophe — the trial font renders ' as a placeholder sliver.
+        private static readonly string[] SmallPrefixes = { "The", "Lil", "Mini", "Baby" };
         private static readonly string[] MediumPrefixes = { "Super", "Big", "Double", "Triple" };
         private static readonly string[] LargePrefixes = { "Mega", "Ultra", "Giga", "Hyper" };
         private static readonly string[] MegaPrefixes = { "ULTRA", "LEGENDARY", "EPIC", "GODLIKE" };

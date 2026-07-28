@@ -6,7 +6,7 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// Low-level UGUI builders for the Shop screen: the vertical page scroll, horizontal cell
-    /// rows, section titles, offer bars, currency pills and price buttons. Pure construction —
+    /// rows, section titles, offer bars and price buttons. Pure construction —
     /// no purchase logic (that's ShopService) and no section composition (that's ShopSections).
     /// </summary>
     public static class ShopWidgets
@@ -190,30 +190,6 @@ namespace DogtorBurguer
             }
 
             return button;
-        }
-
-        /// <summary>A header currency pill (authored box + overhanging icon + live number).
-        /// Same recipe as the HUD top bar. Returns the number label.</summary>
-        public static TextMeshProUGUI CreateCurrencyPill(Transform parent, string iconArt, Vector2 anchor, Vector2 pos)
-        {
-            Image box = UIFactory.CreateImage(parent, "Pill_" + iconArt, UiArt.Load("ui_currency_box"),
-                anchor, pos, UIStyles.TOPBAR_BOX_SIZE);
-
-            Sprite icon = UiArt.Load(iconArt);
-            float aspect = icon != null ? icon.rect.width / icon.rect.height : 1f;
-            UIFactory.CreateImage(box.transform, "Icon", icon, new Vector2(0.5f, 0.5f),
-                new Vector2(UIStyles.TOPBAR_ICON_X, 0f),
-                new Vector2(UIStyles.SHOP_PILL_ICON_H * aspect, UIStyles.SHOP_PILL_ICON_H));
-
-            TextMeshProUGUI number = UIFactory.CreateText(box.transform, "0",
-                new Vector2(UIStyles.TOPBAR_NUMBER_X, 0f), UIStyles.TOPBAR_NUMBER_RECT,
-                UIStyles.TOPBAR_NUMBER_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR,
-                TextAlignmentOptions.Left);
-            number.textWrappingMode = TextWrappingModes.NoWrap;
-            number.enableAutoSizing = true;
-            number.fontSizeMin = UIStyles.TOPBAR_NUMBER_SIZE_MIN;
-            number.fontSizeMax = UIStyles.TOPBAR_NUMBER_SIZE;
-            return number;
         }
 
         /// <summary>Re-anchors a centered UIFactory text to the left edge of its parent.</summary>

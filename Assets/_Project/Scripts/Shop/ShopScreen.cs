@@ -22,12 +22,11 @@ namespace DogtorBurguer
         private readonly List<Action> _refreshers = new();
         private Action _onClosed;
         private Canvas _canvas;
-        private TextMeshProUGUI _starNumber;
-        private TextMeshProUGUI _gemNumber;
+        private TopBar _topBar;
         private GameObject _dialog;
 
         /// <summary>The gem pill transform — deny-shake target for failed gem spends.</summary>
-        public Transform GemPill => _gemNumber.transform.parent;
+        public Transform GemPill => _topBar.GemPill;
 
         public static void Open(Action onClosed = null)
         {
@@ -92,7 +91,7 @@ namespace DogtorBurguer
 
             GameObject panel = UIFactory.CreatePanel(_dialog.transform, UIStyles.SHOP_CONFIRM_PANEL_SIZE, UIStyles.PANEL_BG);
             UIFactory.CreateText(panel.transform, message, UIStyles.SHOP_CONFIRM_TEXT_POS,
-                UIStyles.SHOP_CONFIRM_TEXT_RECT, UIStyles.SHOP_CONFIRM_TEXT_SIZE);
+                UIStyles.SHOP_CONFIRM_TEXT_RECT, UIStyles.SHOP_CONFIRM_TEXT_SIZE, wrap: true);
             UIFactory.CreateButton(panel.transform, "Buy", new Vector2(-UIStyles.SHOP_CONFIRM_BTN_X, UIStyles.SHOP_CONFIRM_BTN_Y),
                 UIStyles.SHOP_CONFIRM_BTN_SIZE, UIStyles.BTN_SHOP_BUY, UIStyles.PANEL_BUTTON_TEXT_SIZE,
                 () => { CloseDialog(); onConfirm(); });
@@ -117,29 +116,21 @@ namespace DogtorBurguer
 
             RectTransform content = ShopWidgets.CreateVerticalScroll(_canvas.transform, UIStyles.SHOP_HEADER_H);
             ShopSections.BuildAll(content, this);
-
-            SaveDataManager save = SaveDataManager.Instance;
-            if (save != null)
-            {
-                save.OnStarsChanged += HandleStarsChanged;
-                save.OnGemsChanged += HandleGemsChanged;
-            }
-            RefreshBalances();
         }
 
+        // The shared TopBar sits at its standard positions (the bar visually "stays put" when the
+        // shop opens over the game/menu), with the SHOP title below it and a close button in the
+        // slot the HUD's settings button occupies.
         private void BuildHeader()
         {
+            _topBar = TopBar.Build(_canvas.transform);
+
             TextMeshProUGUI title = UIFactory.CreateText(_canvas.transform, "SHOP", Vector2.zero,
                 UIStyles.SHOP_TITLE_RECT, UIStyles.SHOP_TITLE_SIZE, FontStyles.Bold);
             RectTransform titleRect = title.rectTransform;
             titleRect.anchorMin = titleRect.anchorMax = new Vector2(0.5f, 1f);
             titleRect.anchoredPosition = UIStyles.SHOP_TITLE_POS;
             UIFactory.StyleHudText(title);
-
-            _starNumber = ShopWidgets.CreateCurrencyPill(_canvas.transform, "ui_star",
-                new Vector2(0.5f, 1f), UIStyles.SHOP_STAR_PILL_POS);
-            _gemNumber = ShopWidgets.CreateCurrencyPill(_canvas.transform, "ui_gem",
-                new Vector2(0.5f, 1f), UIStyles.SHOP_GEM_PILL_POS);
 
             (GameObject closeObj, Button _, TextMeshProUGUI _) = UIFactory.CreateButton(
                 _canvas.transform, "X", Vector2.zero, UIStyles.SHOP_CLOSE_SIZE, UIStyles.BTN_CLOSE,
@@ -149,47 +140,11 @@ namespace DogtorBurguer
             closeRect.anchoredPosition = UIStyles.SHOP_CLOSE_POS;
         }
 
-        private void HandleStarsChanged(int stars)
-        {
-            _starNumber.text = NumberFormat.Abbreviate(stars);
-            Punch(_starNumber.transform.parent);
-        }
-
-        private void HandleGemsChanged(int gems)
-        {
-            _gemNumber.text = NumberFormat.Abbreviate(gems);
-            Punch(_gemNumber.transform.parent);
-        }
-
-        private void RefreshBalances()
-        {
-            SaveDataManager save = SaveDataManager.Instance;
-            _starNumber.text = NumberFormat.Abbreviate(save != null ? save.Stars : 0);
-            _gemNumber.text = NumberFormat.Abbreviate(save != null ? save.Gems : 0);
-        }
-
-        // Runs on unscaled time — the in-game shop sits on a paused (timeScale 0) run.
-        private static void Punch(Transform target)
-        {
-            target.DOKill(true);
-            target.DOPunchScale(Vector3.one * AnimConfig.SHOP_PILL_PUNCH_SCALE,
-                    AnimConfig.SHOP_PILL_PUNCH_DURATION, 6, 0.7f)
-                .SetUpdate(true).SetLink(target.gameObject);
-        }
-
         private void Close() => Destroy(gameObject);
 
         private void OnDestroy()
         {
             if (_openInstance == this) _openInstance = null;
-
-            SaveDataManager save = SaveDataManager.Instance;
-            if (save != null)
-            {
-                save.OnStarsChanged -= HandleStarsChanged;
-                save.OnGemsChanged -= HandleGemsChanged;
-            }
-
             _onClosed?.Invoke();
         }
     }

@@ -34,7 +34,7 @@ namespace DogtorBurguer
             RectTransform bar = ShopWidgets.CreateBar(content, UIStyles.SHOP_REMOVE_ADS_BAR_H,
                 UIStyles.SHOP_CARD_BG_HIGHLIGHT);
             ShopWidgets.CreateBarTexts(bar, "ui_gem", "REMOVE ADS",
-                $"No more forced ads, +{MonetizationConfig.REMOVE_ADS_BONUS_GEMS} Gems!\n(Reward ads stay available)", "");
+                $"No more forced ads, {MonetizationConfig.REMOVE_ADS_BONUS_GEMS} bonus Gems!\nReward ads stay available.", "");
             ShopWidgets.CreatePriceButton(bar, new Vector2(1f, 0.5f), UIStyles.SHOP_PRICE_BTN_POS,
                 UIStyles.SHOP_PRICE_BTN_SIZE, UIStyles.BTN_SHOP_BUY, null,
                 MonetizationConfig.REMOVE_ADS_PRICE_LABEL,
@@ -121,7 +121,7 @@ namespace DogtorBurguer
                 Button button = null;
                 button = ShopWidgets.CreatePriceButton(card, new Vector2(0.5f, 1f),
                     new Vector2(0f, y), UIStyles.SHOP_CONSUMABLE_BTN_SIZE, UIStyles.BTN_SHOP_BUY,
-                    "ui_star", $"x{pack.Quantity} · {pack.StarCost}", () =>
+                    "ui_star", $"x{pack.Quantity} - {pack.StarCost}", () =>
                     {
                         if (ShopService.TryBuyConsumable(type, pack)) screen.NotifyChanged();
                         else ShopScreen.Deny(button.transform);
@@ -157,7 +157,7 @@ namespace DogtorBurguer
             ShopWidgets.CreateSectionTitle(content, "GET GEMS");
 
             RectTransform adBar = ShopWidgets.CreateBar(content, UIStyles.SHOP_OFFER_BAR_H, UIStyles.SHOP_CARD_BG);
-            ShopWidgets.CreateBarTexts(adBar, "ui_gem", $"+{MonetizationConfig.GEM_REWARD_AD} Gems",
+            ShopWidgets.CreateBarTexts(adBar, "ui_gem", $"Free {MonetizationConfig.GEM_REWARD_AD} Gems",
                 "Watch an ad", "");
             Button adButton = ShopWidgets.CreatePriceButton(adBar, new Vector2(1f, 0.5f), UIStyles.SHOP_PRICE_BTN_POS,
                 UIStyles.SHOP_PRICE_BTN_SIZE, UIStyles.BTN_SHOP_AD, null, "FREE", () =>

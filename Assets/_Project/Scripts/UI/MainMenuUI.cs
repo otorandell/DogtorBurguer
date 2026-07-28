@@ -1,14 +1,10 @@
 using UnityEngine;
-using TMPro;
 
 namespace DogtorBurguer
 {
     public class MainMenuUI : MonoBehaviour
     {
         private Canvas _canvas;
-        private TextMeshProUGUI _gemText;
-        private TextMeshProUGUI _starText;
-        private TextMeshProUGUI _highScoreText;
         private SettingsPanel _settingsPanel;
         private UnityEngine.GameObject _creditsOverlay;
 
@@ -18,12 +14,6 @@ namespace DogtorBurguer
             SoundSettings.Apply();
 
             CreateUI();
-
-            if (SaveDataManager.Instance != null)
-            {
-                SaveDataManager.Instance.OnGemsChanged += UpdateGemDisplay;
-                SaveDataManager.Instance.OnStarsChanged += UpdateStarDisplay;
-            }
         }
 
         private void CreateUI()
@@ -31,37 +21,13 @@ namespace DogtorBurguer
             _canvas = UIFactory.CreateCanvas(transform, "Menu_Canvas", 10);
             UIFactory.EnsureEventSystem();
 
+            // Shared top bar: trophy (best score) + star + gem pills, same look/positions as
+            // in-game. No icon buttons — the menu's big Shop/Settings buttons cover those.
+            TopBar.Build(_canvas.transform);
+
             // Title
             UIFactory.CreateText(_canvas.transform, "Dogtor Burguer!", UIStyles.MENU_TITLE_POS, UIStyles.MENU_TEXT_RECT,
                 UIStyles.MENU_TITLE_SIZE, TMPro.FontStyles.Bold, UIStyles.TEXT_HUD);
-
-            // High Score
-            int highScore = SaveDataManager.Instance != null ? SaveDataManager.Instance.HighScore : 0;
-            _highScoreText = UIFactory.CreateText(_canvas.transform, $"Best: {highScore}", UIStyles.MENU_HIGHSCORE_POS, UIStyles.MENU_TEXT_RECT,
-                UIStyles.MENU_HIGHSCORE_SIZE, color: UIStyles.TEXT_HUD);
-
-            // Gem + star counters (top-right). The anchor/pivot post-patch below is deferred to
-            // F-64/Wave 4 (UIFactory anchor params); the (0,400) position arg is dead
-            // (overridden at anchoredPosition), so it is left untouched until then.
-            int gems = SaveDataManager.Instance != null ? SaveDataManager.Instance.Gems : 0;
-            _gemText = UIFactory.CreateText(_canvas.transform, $"Gems: {gems}", new Vector2(0, 400), UIStyles.MENU_GEM_RECT,
-                UIStyles.MENU_GEM_SIZE, TMPro.FontStyles.Bold, UIStyles.TEXT_HUD);
-            RectTransform gemRect = _gemText.GetComponent<RectTransform>();
-            gemRect.anchorMin = new Vector2(1f, 1f);
-            gemRect.anchorMax = new Vector2(1f, 1f);
-            gemRect.pivot = new Vector2(1f, 1f);
-            gemRect.anchoredPosition = new Vector2(-20, -20);
-            _gemText.alignment = TMPro.TextAlignmentOptions.TopRight;
-
-            int stars = SaveDataManager.Instance != null ? SaveDataManager.Instance.Stars : 0;
-            _starText = UIFactory.CreateText(_canvas.transform, $"Stars: {stars}", new Vector2(0, 400), UIStyles.MENU_GEM_RECT,
-                UIStyles.MENU_GEM_SIZE, TMPro.FontStyles.Bold, UIStyles.TEXT_HUD);
-            RectTransform starRect = _starText.GetComponent<RectTransform>();
-            starRect.anchorMin = new Vector2(1f, 1f);
-            starRect.anchorMax = new Vector2(1f, 1f);
-            starRect.pivot = new Vector2(1f, 1f);
-            starRect.anchoredPosition = new Vector2(-20, -52);
-            _starText.alignment = TMPro.TextAlignmentOptions.TopRight;
 
             // Buttons
             float btnY = UIStyles.MENU_BTN_START_Y;
@@ -83,18 +49,6 @@ namespace DogtorBurguer
             // Sub-panels
             _settingsPanel = gameObject.AddComponent<SettingsPanel>();
             _settingsPanel.Initialize(_canvas);
-        }
-
-        private void UpdateGemDisplay(int gems)
-        {
-            if (_gemText != null)
-                _gemText.text = $"Gems: {gems}";
-        }
-
-        private void UpdateStarDisplay(int stars)
-        {
-            if (_starText != null)
-                _starText.text = $"Stars: {stars}";
         }
 
         private void OnPlayClicked()
@@ -134,15 +88,6 @@ namespace DogtorBurguer
                 "Dogtor Burguer!\n\nA game by Oscar\n\nPowered by Unity\n\nTap to close",
                 Vector2.zero, UIStyles.CREDITS_RECT,
                 UIStyles.CREDITS_TEXT_SIZE);
-        }
-
-        private void OnDestroy()
-        {
-            if (SaveDataManager.Instance != null)
-            {
-                SaveDataManager.Instance.OnGemsChanged -= UpdateGemDisplay;
-                SaveDataManager.Instance.OnStarsChanged -= UpdateStarDisplay;
-            }
         }
     }
 }

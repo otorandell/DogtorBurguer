@@ -103,21 +103,23 @@ namespace DogtorBurguer
         #region HUD Stat Panels (authored Level/Score cards — anchored top-left, reference px)
         // Baked fixed-size art (dotted card ui_panel_card). Keep box sizes at the art's native
         // aspect or the halftone dots smear (card art is 500x380 ≈ 1.32:1).
-        public static readonly Vector2 HUD_PANEL_SIZE = new(122f, 92f);    // the cream card (≈ native 1.32:1)
+        // Grown 15% downwards from the native-aspect 122x92 (top edge kept in place: the panel
+        // POS y dropped by half the added height, and the tab/number offsets compensate).
+        public static readonly Vector2 HUD_PANEL_SIZE = new(122f, 106f);   // the cream card (stretched taller)
         // Placeholder title tab: the blank no_tex red tab (ui_title_tab) with the word written on it
         // as TMP — swapped for the artist's final per-word art when it arrives. Sized by HEIGHT with
         // width following the native aspect (≈1.84:1) so it never stretches; raise the height to widen.
         public const float HUD_PANEL_TITLE_HEIGHT = 56f;                   // red title tab height (width follows aspect; +16%)
-        public const float HUD_PANEL_TITLE_Y = 30f;                        // tab offset up within the card
+        public const float HUD_PANEL_TITLE_Y = 37f;                        // tab offset up within the card
         public const float HUD_TITLE_LABEL_SIZE = 22f;                     // tab word TMP font (auto-size max)
         public const float HUD_TITLE_LABEL_SIZE_MIN = 8f;                  // auto-size floor for the tab word
         public const float HUD_PANEL_NUMBER_SIZE = 54f;                    // the big number font (auto-size max)
         public const float HUD_PANEL_NUMBER_SIZE_MIN = 14f;                // auto-size floor for the number
-        public const float HUD_PANEL_NUMBER_Y = -18f;                      // number offset down within the card
+        public const float HUD_PANEL_NUMBER_Y = -11f;                      // number offset down within the card
         // Shared left-column zone: 18px left margin → right edge at half the screen (270). Two 122-wide
         // cards, ~8 gap. The consumable row spans this same zone (start/end aligned).
-        public static readonly Vector2 HUD_LEVEL_PANEL_POS = new(79f, -125f);
-        public static readonly Vector2 HUD_SCORE_PANEL_POS = new(209f, -125f);
+        public static readonly Vector2 HUD_LEVEL_PANEL_POS = new(79f, -132f);
+        public static readonly Vector2 HUD_SCORE_PANEL_POS = new(209f, -132f);
         #endregion
 
         #region HUD Special Order panel (screen-space UGUI, top-right — anchored top-right, reference px)
@@ -129,15 +131,22 @@ namespace DogtorBurguer
         public static readonly Vector2 SPECIAL_CARD_SIZE = new(228f, 194f);   // cream card (stretched taller)
         public static readonly Vector2 SPECIAL_CARD_POS = new(-128f, -176f);  // anchored top-right
         public const float SPECIAL_BANNER_H = 60f;                            // SPECIAL ORDER banner (width follows aspect)
+        public const float SPECIAL_BANNER_STRETCH_X = 1.15f;                  // widen the red banner past native aspect (deliberate)
         public static readonly Vector2 SPECIAL_BANNER_OFFSET = new(-40f, 78f);// banner offset within the card (overhangs top-left)
         public const float SPECIAL_BANNER_LABEL_SIZE = 18f;                   // "SPECIAL ORDER" TMP (auto-size max)
         public const float SPECIAL_BANNER_LABEL_SIZE_MIN = 7f;                // auto-size floor
-        public static readonly Vector2 SPECIAL_BANNER_LABEL_OFFSET = new(0f, 5f); // up a touch to clear the bubble tail
-        public const float SPECIAL_INGREDIENT_H = 38f;                        // each stack ingredient (width follows aspect)
+        public static readonly Vector2 SPECIAL_BANNER_LABEL_OFFSET = new(6f, 5f); // right + up a touch to sit in the bubble
+        // Stack sprites (ingredients/buns/plate) are sized from their WORLD dimensions (pixel rect /
+        // PPU × this factor) — the same per-file normalization the playfield uses, so the stack's
+        // proportions match the game (pieces ~1.2 world units wide → ~60px, buns 1.38 → ~69px).
+        // Sizing by raw pixel aspect ignored the per-file PPU tuning and transparent padding, which
+        // made the plate tiny and the ingredient ratios inconsistent.
+        public const float SPECIAL_STACK_PX_PER_UNIT = 50f;                   // screen px per world unit
         public const float SPECIAL_INGREDIENT_SPACING = 26f;                  // vertical stack spacing (overlap)
+        public const float SPECIAL_STACK_X = -10f;                            // stack center X within the card (nudged left)
         public const float SPECIAL_STACK_Y = -12f;                            // stack center Y within the card
         public const float SPECIAL_PLACEHOLDER_LABEL_SIZE = 18f;              // "+N" on the mystery silhouette
-        public const float SPECIAL_PLATE_H = 18f;                             // plate under the bottom bun (width follows aspect)
+        public const float SPECIAL_MYSTERY_H = 38f;                           // mystery silhouette (UI art, no tuned PPU — sized by height)
         public const float SPECIAL_PLATE_Y_OFFSET = 13f;                      // plate drop below the bottom bun
         public const float SPECIAL_MULT_BADGE_H = 42f;                        // multiplier badge (reuses the red num box)
         // Badge sits on the meter's bottom cap (meter bottom ≈ offset.y − H/2 = -123): reference shows
@@ -148,37 +157,37 @@ namespace DogtorBurguer
         // A child of the card, built before the mult badge so the badge renders on top (meter sits under
         // it, sharing its x). Taller than the card so it overflows top/bottom a touch. Eyeball defaults.
         public const float MULT_METER_H = 215f;                              // meter height (width follows the 302:1011 aspect)
-        public static readonly Vector2 MULT_METER_OFFSET = new(86f, -16f);   // within the card, x aligned to the mult badge
+        public static readonly Vector2 MULT_METER_OFFSET = new(86f, -8f);    // within the card, x aligned to the mult badge
         public const float MULT_METER_FILL_BOTTOM_EXTEND = 20f;              // extend the green fill's rect down to meet the well bottom (closes the gap)
         #endregion
 
-        #region HUD Top Bar (authored currency widgets + buttons — anchored top-left, reference px)
+        #region Top Bar (shared TopBar component: authored currency widgets + buttons — anchored top-left, reference px)
         public const float TOPBAR_Y = -38f;                                // vertical center of the bar
-        public static readonly Vector2 TOPBAR_BOX_SIZE = new(88f, 42f);    // currency pill (ui_currency_box ≈ native 2.12:1) — shrunk 20%
+        // Pills widened 25% (88→110) keeping each pill's LEFT box edge in place — the centers below
+        // are left edge + 55. The buttons shifted right to clear the wider gem pill.
+        public static readonly Vector2 TOPBAR_BOX_SIZE = new(110f, 42f);   // currency pill (ui_currency_box native ≈ 2.12:1)
         // Per-icon HEIGHT — width follows the sprite's native aspect (forcing a square distorted the
         // non-square trophy/star). The art has different visual weight; all overhang the pill's left.
         public const float TOPBAR_SCORE_ICON_H = 69f; // high-score trophy (wide art)
         public const float TOPBAR_STAR_ICON_H = 62f;  // star — a touch smaller
         public const float TOPBAR_GEM_ICON_H = 78f;   // gem/diamond — a touch bigger
-        public const float TOPBAR_ICON_X = -44f;                           // icon offset within the widget (overhangs the pill's left edge)
-        public const float TOPBAR_NUMBER_X = 18f;                          // number offset — left-clamped, just right of the icon
+        public const float TOPBAR_ICON_X = -55f;                           // icon offset within the widget (centered on the pill's left edge)
+        public const float TOPBAR_NUMBER_X = 20f;                          // number offset — left-clamped, just right of the icon
         public const float TOPBAR_NUMBER_SIZE = 20f;                       // auto-size max
         public const float TOPBAR_NUMBER_SIZE_MIN = 10f;                   // auto-size floor
         public static readonly Color TOPBAR_NUMBER_COLOR = new(0.28f, 0.17f, 0.1f); // dark brown, no border (pill numbers)
-        public static readonly Vector2 TOPBAR_NUMBER_RECT = new(52f, 40f);
+        public static readonly Vector2 TOPBAR_NUMBER_RECT = new(70f, 40f);
         // Order left→right: high-score, star, gem (wider spacing to clear the bigger icons).
-        public static readonly Vector2 TOPBAR_SCORE_POS = new(90f, TOPBAR_Y);  // high-score trophy widget (leftmost)
-        public static readonly Vector2 TOPBAR_STAR_POS = new(225f, TOPBAR_Y);  // star widget (placeholder — not a real currency yet)
-        public static readonly Vector2 TOPBAR_GEM_POS = new(360f, TOPBAR_Y);   // gem widget
+        public static readonly Vector2 TOPBAR_SCORE_POS = new(101f, TOPBAR_Y); // high-score trophy widget (leftmost; box left edge 46)
+        public static readonly Vector2 TOPBAR_STAR_POS = new(236f, TOPBAR_Y);  // star widget (box left edge 181)
+        public static readonly Vector2 TOPBAR_GEM_POS = new(371f, TOPBAR_Y);   // gem widget (box left edge 316)
         public static readonly Vector2 TOPBAR_BUTTON_SIZE = new(54f, 54f);
-        public static readonly Vector2 TOPBAR_SHOP_POS = new(440f, TOPBAR_Y);   // shop button (left of settings)
-        public static readonly Vector2 TOPBAR_CONFIG_POS = new(500f, TOPBAR_Y); // settings/gear button (rightmost)
+        public static readonly Vector2 TOPBAR_SHOP_POS = new(455f, TOPBAR_Y);   // shop button (left of settings)
+        public static readonly Vector2 TOPBAR_CONFIG_POS = new(511f, TOPBAR_Y); // settings/gear button (rightmost)
         #endregion
 
         #region Font Sizes - Menu
         public const float MENU_TITLE_SIZE = 48f;
-        public const float MENU_HIGHSCORE_SIZE = 24f;
-        public const float MENU_GEM_SIZE = 22f;
         public const float MENU_BUTTON_TEXT_SIZE = 28f;
         #endregion
 
@@ -203,7 +212,7 @@ namespace DogtorBurguer
         public const float WORLD_BURGER_NAME_SIZE = 4f;
         public const float WORLD_BURGER_SCORE_SIZE = 3.5f;
         public const float WORLD_FLOATING_TEXT_SIZE = 4f;
-        public const float WORLD_STAR_POPUP_SIZE = 3f;   // "+N STARS" on an order match (below the xN)
+        public const float WORLD_STAR_POPUP_SIZE = 3f;   // "+N!" star award on an order match (below the xN)
         #endregion
 
         #region Button Sizes
@@ -252,9 +261,7 @@ namespace DogtorBurguer
 
         #region Layout — Main Menu
         public static readonly Vector2 MENU_TITLE_POS = new(0f, 300f);
-        public static readonly Vector2 MENU_HIGHSCORE_POS = new(0f, 230f);
         public static readonly Vector2 MENU_TEXT_RECT = new(400f, 60f);
-        public static readonly Vector2 MENU_GEM_RECT = new(200f, 40f);
         public const float MENU_BTN_START_Y = 80f;
         #endregion
 
@@ -301,15 +308,13 @@ namespace DogtorBurguer
         public static readonly Color SHOP_BADGE_COLOR = new(1f, 0.85f, 0f);     // "BEST VALUE" tags
         public static readonly Color SHOP_EQUIPPED_COLOR = new(0.35f, 0.9f, 0.4f);
 
-        // Header (fixed above the scroll): title, both currency pills, close button.
+        // Header (fixed above the scroll): the shared TopBar at its standard positions, the
+        // SHOP title below it, close button in the HUD settings button's slot.
         public const float SHOP_HEADER_H = 150f;
-        public static readonly Vector2 SHOP_TITLE_POS = new(0f, -42f);
+        public static readonly Vector2 SHOP_TITLE_POS = new(0f, -105f);         // below the top bar
         public static readonly Vector2 SHOP_TITLE_RECT = new(300f, 60f);
         public const float SHOP_TITLE_SIZE = 40f;
-        public static readonly Vector2 SHOP_STAR_PILL_POS = new(-95f, -105f);   // anchored top-center
-        public static readonly Vector2 SHOP_GEM_PILL_POS = new(95f, -105f);
-        public const float SHOP_PILL_ICON_H = 56f;                              // header pill icon height
-        public static readonly Vector2 SHOP_CLOSE_POS = new(-40f, -40f);        // anchored top-right
+        public static readonly Vector2 SHOP_CLOSE_POS = new(-29f, -38f);        // anchored top-right (center x = 511, the TopBar settings slot)
         public static readonly Vector2 SHOP_CLOSE_SIZE = new(52f, 52f);
         public const float SHOP_CLOSE_TEXT_SIZE = 24f;
 

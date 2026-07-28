@@ -57,7 +57,7 @@ namespace DogtorBurguer
                 UIStyles.PANEL_LEVEL_SIZE, FontStyles.Bold, UIStyles.GOLD);
 
             // Continue with gems button
-            var gemsBtn = UIFactory.CreateButton(_panel.transform, $"Continue ({MonetizationConfig.CONTINUE_GEM_COST} gems)",
+            var gemsBtn = UIFactory.CreateButton(_panel.transform, $"Continue: {MonetizationConfig.CONTINUE_GEM_COST} gems",
                 new Vector2(0, UIStyles.GAMEOVER_BTN_START_Y), UIStyles.PANEL_BUTTON_SIZE, UIStyles.BTN_CONTINUE_GEMS,
                 UIStyles.PANEL_BUTTON_TEXT_SIZE, OnContinueGemsClicked);
             _continueGemsObj = gemsBtn.obj;
@@ -101,7 +101,7 @@ namespace DogtorBurguer
             // High score is persisted by GameManager's game-over flow (F-67), not here.
             // Stars (orders + score payout) are already granted by that flow too — display only.
             int stars = GameManager.Instance != null ? GameManager.Instance.StarsEarnedThisRun : 0;
-            _starsText.text = stars > 0 ? $"+{stars} Stars earned!" : "";
+            _starsText.text = stars > 0 ? $"{stars} Stars earned!" : "";
 
             _continueGemsObj.SetActive(!_hasContinued);
             _continueAdObj.SetActive(!_hasContinued);
@@ -110,7 +110,7 @@ namespace DogtorBurguer
             {
                 int gems = SaveDataManager.Instance.Gems;
                 _continueGemsButton.interactable = gems >= MonetizationConfig.CONTINUE_GEM_COST;
-                _continueGemsText.text = $"Continue ({MonetizationConfig.CONTINUE_GEM_COST} gems)";
+                _continueGemsText.text = $"Continue: {MonetizationConfig.CONTINUE_GEM_COST} gems";
             }
             RefreshAdButton();
 
