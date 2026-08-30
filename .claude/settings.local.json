@@ -79,7 +79,9 @@
       "PowerShell(Add-Type -AssemblyName System.Drawing; $dir = \"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\\\\Assets\\\\RawArt\\\\Dogtor Burger-20260720T104655Z-1-001\\\\Dogtor Burger\\\\Assets\"; @\\(\"Main Menu\\\\Logo.png\",\"Main Menu\\\\High_Score_Button_No_Text.png\",\"Main Menu\\\\Play_Button.png\",\"Main Menu\\\\Main_Menu_Bottom.png\",\"Game over screen\\\\Retry_Button.png\",\"Game over screen\\\\Gems_Button.png\"\\) | ForEach-Object { $img = [System.Drawing.Image]::FromFile\\(\"$dir\\\\$_\"\\); \"{0} -> {1}x{2}\" -f $_, $img.Width, $img.Height; $img.Dispose\\(\\) })",
       "PowerShell(powershell -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\\\\scratchpad\\\\gen_menu_art.ps1\")",
       "PowerShell($b = [IO.File]::ReadAllBytes\\(\"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\\\\Assets\\\\_Project\\\\Resources\\\\UI\\\\ui_logo.png.meta\"\\); $tail = [Text.Encoding]::UTF8.GetString\\($b[\\($b.Length-30\\)..\\($b.Length-1\\)]\\); $tail -replace \"`r\",\"\\\\r\" -replace \"`n\",\"\\\\n\"; \\(Get-Content \"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\\\\Assets\\\\_Project\\\\Resources\\\\UI\\\\ui_logo.png.meta\" -TotalCount 8\\) -join ' | ')",
-      "PowerShell(git check-ignore *)"
+      "PowerShell(git check-ignore *)",
+      "WebFetch(domain:docs.unity3d.com)",
+      "PowerShell(Get-Content *)"
     ]
   }
 }

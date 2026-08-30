@@ -18,6 +18,27 @@ namespace DogtorBurguer
         public const int INTERSTITIAL_EVERY_N_GAMES = 3;
         #endregion
 
+        #region Ads — LevelPlay credentials (from the Unity Dashboard: LevelPlay → app → ad units)
+        // Empty = not configured: AdManager falls back to MockAdProvider (with a loud warning on
+        // device builds). Paste the App Key + one Interstitial and one Rewarded ad-unit ID per
+        // platform once the dashboard app exists. Keys are per-PLATFORM, not per-build-type.
+#if UNITY_IOS
+        public const string LEVELPLAY_APP_KEY = "";
+        public const string LEVELPLAY_INTERSTITIAL_ID = "";
+        public const string LEVELPLAY_REWARDED_ID = "";
+#else
+        public const string LEVELPLAY_APP_KEY = "";
+        public const string LEVELPLAY_INTERSTITIAL_ID = "";
+        public const string LEVELPLAY_REWARDED_ID = "";
+#endif
+        /// <summary>True when every LevelPlay credential for this platform is filled in.</summary>
+        public static bool LevelPlayConfigured =>
+            LEVELPLAY_APP_KEY.Length > 0 && LEVELPLAY_INTERSTITIAL_ID.Length > 0 && LEVELPLAY_REWARDED_ID.Length > 0;
+        // Launches LevelPlay's on-device test suite after init — flip on for the first
+        // device-integration pass, ship OFF.
+        public const bool LEVELPLAY_TEST_SUITE = false;
+        #endregion
+
         #region Fairy Drops
         // Burger Fairies carry a consumable (GameplayConfig.FAIRY_CONSUMABLE_CHANCE, 60%) or
         // currency (the rest), which splits gems vs stars by FAIRY_STAR_SHARE. This is the

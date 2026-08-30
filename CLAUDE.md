@@ -250,6 +250,15 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   (~60%) or currency (~40%, split gems/stars by `FAIRY_STAR_SHARE` → ~20% each) — see Core
   Systems → Consumables. Gem fairies award `GEM_PACK_VALUE` (5), star fairies `STAR_PACK_VALUE`
   (25, routed via `GameManager.AwardStars` so it counts toward the run total).
+- **Real ad SDK (LevelPlay) — code landed 2026-08-30, launch-gated on credentials**:
+  `com.unity.services.levelplay` 9.5.1 is in the package manifest and `LevelPlayAdProvider`
+  implements `IAdProvider` over the 9.x ad-unit API. `AdManager.Awake` auto-selects it on
+  device builds when `MonetizationConfig.LEVELPLAY_APP_KEY` + ad-unit IDs are filled in
+  (editor and unconfigured builds keep `MockAdProvider`). To go live: create the app + ad
+  units in the Unity Dashboard (LevelPlay), paste the three IDs per platform into
+  `MonetizationConfig`, test on device with `LEVELPLAY_TEST_SUITE = true`. Consent flow
+  (GDPR UMP / iOS ATT) still pending — see `Docs/pre-launch-checklist.md`; privacy policy
+  draft at `Docs/privacy-policy-draft.md`.
 - **Ad architecture** (production-shaped, 2026-07-05): `AdManager` is a facade owning one
   `IAdProvider` (contract in `Monetization/Abstractions/`) plus the ad policy (cadence,
   remove-ads suppression). The provider models the real SDK lifecycle: async init, **preload**
@@ -582,7 +591,7 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - Consumable polish: real SFX (override slots ready) + final slot layout/sizes (placeholders in `UIStyles`)
 - Leaderboard integration (button exists, logs "Coming Soon")
 - IAP integration (ShopService stubs grant instantly; see Shop section)
-- Ad SDK integration (AdManager is placeholder)
+- Ad SDK integration: code done (see Monetization → Real ad SDK); needs dashboard credentials + device test
 
 ## Pre-Launch Checklist
 Platform-readiness / launch-logistics items tracked separately from

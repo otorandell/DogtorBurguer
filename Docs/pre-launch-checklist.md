@@ -51,7 +51,7 @@ Each item: concern → impact → mitigation → status.
 **Dependencies:** real fill typically requires a registered, near-launch app (often in store review). Also gated on the consent/privacy item below.
 **Effort:** ~1–2 days of code once accounts + ad-unit IDs exist. The long pole is platform registration and on-device testing, not the code itself (ads can't be meaningfully tested in the editor).
 **Recommended split:** harden the mock into a production-shaped interface *now* (load/ready state, reward-only-on-callback, `timeScale` save/restore) so the rest of the game already codes against the real contract; then the launch task is a body-swap of the mock methods for SDK calls rather than re-architecting callers. Interface hardening is deliberately **out of scope for the current code review** — tracked here, not as a review finding.
-**Status:** interface hardening **DONE 2026-07-05** (`IAdProvider` + `MockAdProvider`: async init, preload/ready state with simulated no-fill, auto-reload + retry, reward-only-on-callback, timeScale save/restore; ad buttons track live availability). Remaining = SDK body-swap (launch-gated): network account + app registration + per-platform ad-unit IDs, a `LevelPlayAdProvider` (or AdMob equivalent), test-mode toggle, on-device testing. Gated on the consent item below.
+**Status:** interface hardening **DONE 2026-07-05** (`IAdProvider` + `MockAdProvider`: async init, preload/ready state with simulated no-fill, auto-reload + retry, reward-only-on-callback, timeScale save/restore; ad buttons track live availability). **Body-swap code DONE 2026-08-30**: `com.unity.services.levelplay` 9.5.1 in the manifest, `LevelPlayAdProvider` written against the 9.x ad-unit API (init retry, load retry, display-fail path, reward-only-on-`OnAdRewarded`, timeScale save/restore), `AdManager` auto-selects it on device builds when `MonetizationConfig.LEVELPLAY_*` credentials are set (editor/unconfigured → mock, loud warning). ⚠️ Not yet compiled against the real package — verify on next editor open. Remaining (needs the human): Unity Dashboard → LevelPlay → add app + create 1 Interstitial + 1 Rewarded ad unit per platform → paste App Key + ad-unit IDs into `MonetizationConfig`; flip `LEVELPLAY_TEST_SUITE` on for the first device pass; on-device testing. Real fill additionally gated on the consent item below + a published app.
 
 ### Ad network setup — process & costs (reference, discussed 2026-07-05)
 **The ads side is free** — networks pay us, taking their cut before payout. The only real costs
@@ -74,7 +74,7 @@ Dashboard flows/prices drift — treat as the shape, re-verify screens when exec
 ### Ad consent & privacy prerequisites (GDPR / ATT)
 **Impact:** EU GDPR consent and iOS App Tracking Transparency are required before ads will serve and for store compliance. Missing them → ads don't fill and/or the app violates platform policy.
 **Mitigation:** integrate the SDK's consent management (e.g. Google/Unity UMP) for GDPR and trigger the ATT prompt on iOS. Depends on a published privacy policy (see below).
-**Status:** pending (blocker for ad launch)
+**Status:** pending (blocker for ad launch). Privacy policy **draft written 2026-08-30** (`Docs/privacy-policy-draft.md`) — fill placeholders, decide the children/Families question, host at a public URL.
 
 ---
 

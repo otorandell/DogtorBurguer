@@ -22,8 +22,21 @@ namespace DogtorBurguer
             if (Instance != this) return;
             DontDestroyOnLoad(gameObject);
 
-            // Provider swap point: replace with the real SDK implementation at launch.
+            // Provider selection: LevelPlay on device builds once its credentials are filled in
+            // (MonetizationConfig.LEVELPLAY_*); the editor and unconfigured builds get the mock.
+#if UNITY_EDITOR
             _provider = gameObject.AddComponent<MockAdProvider>();
+#else
+            if (MonetizationConfig.LevelPlayConfigured)
+            {
+                _provider = gameObject.AddComponent<LevelPlayAdProvider>();
+            }
+            else
+            {
+                Debug.LogWarning("[AdManager] LevelPlay credentials not set — using MockAdProvider (no revenue).");
+                _provider = gameObject.AddComponent<MockAdProvider>();
+            }
+#endif
             _provider.Initialize();
         }
 
