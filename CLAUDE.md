@@ -558,6 +558,16 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   Level/Score cards, the 3-slot consumable row, the Special Order panel. The HUD scales with the
   camera (both frame by width — see Camera & UI scaling). **Boxes are baked art at native aspect**
   (the 9-slice route was dropped — fixed-size HUD boxes don't need it).
+- **Main Menu (authored, 2026-08-30)**: rebuilt to the artist's mock — logo (top-anchored),
+  high-score plaque behind the authored PLAY button, checkered bottom strip with CREDITS + SHOP,
+  TopBar with the settings gear (shop stays a bottom button). Knobs: `UIStyles.MENU_*`; art in
+  `Resources/UI` (`ui_logo`, `ui_hs_plaque`, `ui_play_button`, `ui_menu_bottom`, `ui_btn_cream`,
+  `ui_btn_yellow` — the last reserved for the Game Over screen). Two gaps vs the mock:
+  (1) the **colored main-menu illustration isn't delivered** (only the B/W sketch) — the old
+  wallpaper `bg_menu` stays as background; swap the PNG when it arrives. (2) **No red/orange
+  blank buttons in the kit** — CREDITS/SHOP are the cream blank runtime-tinted
+  (`MENU_CREDITS_TINT`/`MENU_SHOP_TINT`); replace with authored blanks if the artist ships them.
+  The mock's top-right red bow button has no delivered asset/known function — skipped.
 - **★ glyph**: Panton (ASCII) lacks U+2605; add a fallback font or the `Star` sprite where needed.
 - **UI integration ≠ pure art-swap** — remaining wiring that implies real code:
   - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next

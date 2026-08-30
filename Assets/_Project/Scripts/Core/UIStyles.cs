@@ -48,10 +48,6 @@ namespace DogtorBurguer
         #endregion
 
         #region Button Colors
-        public static readonly Color BTN_PLAY = new(0.2f, 0.8f, 0.3f);
-        public static readonly Color BTN_SHOP = new(0.9f, 0.7f, 0.1f);
-        public static readonly Color BTN_SETTINGS = new(0.4f, 0.6f, 0.9f);
-        public static readonly Color BTN_LEADERBOARD = new(0.6f, 0.4f, 0.8f);
         public static readonly Color BTN_CLOSE = new(0.5f, 0.5f, 0.5f);
         public static readonly Color BTN_CONTINUE_GEMS = new(0.9f, 0.7f, 0.1f);
         public static readonly Color BTN_CONTINUE_AD = new(0.3f, 0.5f, 0.9f);
@@ -186,11 +182,6 @@ namespace DogtorBurguer
         public static readonly Vector2 TOPBAR_CONFIG_POS = new(511f, TOPBAR_Y); // settings/gear button (rightmost)
         #endregion
 
-        #region Font Sizes - Menu
-        public const float MENU_TITLE_SIZE = 48f;
-        public const float MENU_BUTTON_TEXT_SIZE = 28f;
-        #endregion
-
         #region Font Sizes - Panels
         public const float PANEL_TITLE_SIZE = 36f;
         public const float PANEL_BUTTON_TEXT_SIZE = 20f;
@@ -216,8 +207,6 @@ namespace DogtorBurguer
         #endregion
 
         #region Button Sizes
-        public static readonly Vector2 MENU_BUTTON_SIZE = new(300, 65);
-        public const float MENU_BUTTON_SPACING = -85f;
         public static readonly Vector2 PANEL_BUTTON_SIZE = new(320, 55);
         public static readonly Vector2 SETTINGS_BUTTON_SIZE = new(280, 55);
         public static readonly Vector2 CLOSE_BUTTON_SIZE = new(200, 50);
@@ -259,10 +248,29 @@ namespace DogtorBurguer
         // stacks (start Y + per-index spacing). Button stacks are consumed inline as
         // `new Vector2(0, START_Y + SPACING * i)`, matching MainMenuUI's idiom.
 
-        #region Layout — Main Menu
-        public static readonly Vector2 MENU_TITLE_POS = new(0f, 300f);
-        public static readonly Vector2 MENU_TEXT_RECT = new(400f, 60f);
-        public const float MENU_BTN_START_Y = 80f;
+        #region Layout — Main Menu (authored art — reference px; sized by WIDTH, height follows native aspect)
+        // Logo is top-anchored so it clears the top bar on tall screens; plaque/play are
+        // center-anchored; the checkered strip and its buttons are bottom-anchored. Eyeball
+        // defaults from the artist's mock — tune live.
+        public static readonly Vector2 MENU_LOGO_POS = new(0f, -200f);       // logo CENTER below the top edge
+        public const float MENU_LOGO_W = 440f;
+        public static readonly Vector2 MENU_HS_PLAQUE_POS = new(0f, -80f);   // high-score plaque (behind the play button)
+        public const float MENU_HS_PLAQUE_W = 200f;
+        public static readonly Vector2 MENU_HS_NUMBER_POS = new(0f, -96f);   // the number, on the plaque's cream box
+        public static readonly Vector2 MENU_HS_NUMBER_RECT = new(150f, 40f);
+        public const float MENU_HS_NUMBER_SIZE = 30f;
+        public static readonly Vector2 MENU_PLAY_POS = new(0f, -196f);       // authored PLAY (text baked in)
+        public const float MENU_PLAY_W = 350f;
+        public const float MENU_BOTTOM_BTN_Y = 105f;                         // CREDITS/SHOP center height from the bottom edge
+        public const float MENU_BOTTOM_BTN_X = 122f;                         // ± from center
+        public static readonly Vector2 MENU_BOTTOM_BTN_SIZE = new(190f, 91f);// cream blank at ~native aspect (2.09:1)
+        public const float MENU_BOTTOM_LABEL_SIZE = 26f;                     // CREDITS/SHOP word (HUD palette)
+        // No red/orange blank exists in the kit — the cream blank is runtime-tinted (multiply).
+        public static readonly Color MENU_CREDITS_TINT = new(0.95f, 0.42f, 0.35f);
+        public static readonly Color MENU_SHOP_TINT = new(1f, 0.78f, 0.32f);
+        public const float MENU_SUPPORT_LABEL_Y = 14f;                       // "Support the devs!" above the SHOP button's top edge
+        public const float MENU_SUPPORT_LABEL_SIZE = 15f;
+        public static readonly Color MENU_SUPPORT_FILL = new(0.45f, 0.75f, 0.2f); // green, HUD border
         #endregion
 
         #region Layout — Game Over Panel
