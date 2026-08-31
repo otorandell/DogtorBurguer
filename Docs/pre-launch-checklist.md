@@ -51,16 +51,18 @@ Each item: concern → impact → mitigation → status.
 **Dependencies:** real fill typically requires a registered, near-launch app (often in store review). Also gated on the consent/privacy item below.
 **Effort:** ~1–2 days of code once accounts + ad-unit IDs exist. The long pole is platform registration and on-device testing, not the code itself (ads can't be meaningfully tested in the editor).
 **Recommended split:** harden the mock into a production-shaped interface *now* (load/ready state, reward-only-on-callback, `timeScale` save/restore) so the rest of the game already codes against the real contract; then the launch task is a body-swap of the mock methods for SDK calls rather than re-architecting callers. Interface hardening is deliberately **out of scope for the current code review** — tracked here, not as a review finding.
-**Status:** interface hardening **DONE 2026-07-05** (`IAdProvider` + `MockAdProvider`: async init, preload/ready state with simulated no-fill, auto-reload + retry, reward-only-on-callback, timeScale save/restore; ad buttons track live availability). **Body-swap code DONE 2026-08-30**: `com.unity.services.levelplay` 9.5.1 in the manifest, `LevelPlayAdProvider` written against the 9.x ad-unit API (init retry, load retry, display-fail path, reward-only-on-`OnAdRewarded`, timeScale save/restore), `AdManager` auto-selects it on device builds when `MonetizationConfig.LEVELPLAY_*` credentials are set (editor/unconfigured → mock, loud warning). ⚠️ Not yet compiled against the real package — verify on next editor open. Remaining (needs the human): Unity Dashboard → LevelPlay → add app + create 1 Interstitial + 1 Rewarded ad unit per platform → paste App Key + ad-unit IDs into `MonetizationConfig`; flip `LEVELPLAY_TEST_SUITE` on for the first device pass; on-device testing. Real fill additionally gated on the consent item below + a published app.
+**Status:** interface hardening **DONE 2026-07-05** (`IAdProvider` + `MockAdProvider`: async init, preload/ready state with simulated no-fill, auto-reload + retry, reward-only-on-callback, timeScale save/restore; ad buttons track live availability). **Body-swap code DONE 2026-08-30**: `com.unity.services.levelplay` 9.5.1 in the manifest, `LevelPlayAdProvider` written against the 9.x ad-unit API (init retry, load retry, display-fail path, reward-only-on-`OnAdRewarded`, timeScale save/restore), `AdManager` auto-selects it on device builds when `MonetizationConfig.LEVELPLAY_*` credentials are set (editor/unconfigured → mock, loud warning). **Compiled clean 2026-08-31** (editor 6000.3.23f1 — the "invalid signatures" warning on 6000.3.4f1 was a known Package Manager false positive, fixed in 6000.3.5f2). **Android credentials wired 2026-08-31**: app + Interstitial + Rewarded ad units created on the LevelPlay dashboard, App Key + both IDs in `MonetizationConfig` (iOS slots still empty). Remaining: set the Android package name, flip `LEVELPLAY_TEST_SUITE` on for the first device pass, on-device testing; iOS app + ad units when iOS is in scope. Real fill additionally gated on the consent item below + a published app.
 
 ### Ad network setup — process & costs (reference, discussed 2026-07-05)
 **The ads side is free** — networks pay us, taking their cut before payout. The only real costs
 are the store developer accounts (needed for release regardless): **Google Play $25 one-time**,
 **Apple Developer $99/year** (iOS only). Chosen direction: **Unity LevelPlay** (Unity's own
 ads/mediation; account is free via the existing Unity account). Setup order:
-1. Unity Dashboard → LevelPlay → **add the app** (works pre-release: "app not live yet").
-2. Create **ad units** per platform: 1 Rewarded + 1 Interstitial → yields the App Key +
-   ad-unit IDs (the only inputs `LevelPlayAdProvider` will need).
+1. LevelPlay dashboard = the **ironSource platform** (https://platform.ironsrc.com, Unity ID
+   login — *not* Unity Cloud) → **New App** (works pre-release: "app not live yet").
+2. Create **ad units** per platform: 1 Rewarded + 1 Interstitial → yields the App Key
+   (**Apps** page, short hex) + ad-unit IDs (**Ad Units** page, 16-char alphanumerics) — the
+   only inputs `LevelPlayAdProvider` will need. Done for Android 2026-08-31.
 3. Install the LevelPlay package (UPM), enable **test mode** → fake test ads on device
    immediately, no store listing needed.
 4. Before real revenue (not before development): payout bank details + tax form in the

@@ -27,9 +27,9 @@ namespace DogtorBurguer
         public const string LEVELPLAY_INTERSTITIAL_ID = "";
         public const string LEVELPLAY_REWARDED_ID = "";
 #else
-        public const string LEVELPLAY_APP_KEY = "";
-        public const string LEVELPLAY_INTERSTITIAL_ID = "";
-        public const string LEVELPLAY_REWARDED_ID = "";
+        public const string LEVELPLAY_APP_KEY = "27e01a54d";
+        public const string LEVELPLAY_INTERSTITIAL_ID = "g2u3waor50a9audu";
+        public const string LEVELPLAY_REWARDED_ID = "d2m12nt12g87alee";
 #endif
         /// <summary>True when every LevelPlay credential for this platform is filled in.</summary>
         public static bool LevelPlayConfigured =>
