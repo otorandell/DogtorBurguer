@@ -227,6 +227,31 @@ namespace DogtorBurguer
             return tmp;
         }
 
+        // --- sizing + fitting helpers ---
+
+        /// <summary>Size for an authored sprite shown at <paramref name="width"/>, height following its native aspect.</summary>
+        public static Vector2 SizeByWidth(Sprite sprite, float width)
+        {
+            float aspect = sprite != null ? sprite.rect.width / sprite.rect.height : 1f;
+            return new Vector2(width, width / aspect);
+        }
+
+        /// <summary>Size for an authored sprite shown at <paramref name="height"/>, width following its native aspect.</summary>
+        public static Vector2 SizeByHeight(Sprite sprite, float height)
+        {
+            float aspect = sprite != null ? sprite.rect.width / sprite.rect.height : 1f;
+            return new Vector2(height * aspect, height);
+        }
+
+        /// <summary>Shrink-to-fit: the rect stays fixed and the text scales down (to <paramref name="min"/>) to stay inside it.</summary>
+        public static void AutoFit(TextMeshProUGUI tmp, float min, float max)
+        {
+            tmp.textWrappingMode = TextWrappingModes.NoWrap;
+            tmp.enableAutoSizing = true;
+            tmp.fontSizeMin = min;
+            tmp.fontSizeMax = max;
+        }
+
         // --- fill + border styling ---
 
         // One material per (font material, border color, width) style, shared by every text using it —

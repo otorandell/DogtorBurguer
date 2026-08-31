@@ -35,12 +35,12 @@ namespace DogtorBurguer
             // Logo — top-anchored so it clears the top bar on tall screens.
             Sprite logo = UiArt.Load("ui_logo");
             UIFactory.CreateImage(_canvas.transform, "Logo", logo, new Vector2(0.5f, 1f),
-                UIStyles.MENU_LOGO_POS, SizeByWidth(logo, UIStyles.MENU_LOGO_W));
+                UIStyles.MENU_LOGO_POS, UIFactory.SizeByWidth(logo, UIStyles.MENU_LOGO_W));
 
             // High-score plaque, built before PLAY so the button overlaps its bottom edge.
             Sprite plaque = UiArt.Load("ui_hs_plaque");
             UIFactory.CreateImage(_canvas.transform, "HighScorePlaque", plaque, new Vector2(0.5f, 0.5f),
-                UIStyles.MENU_HS_PLAQUE_POS, SizeByWidth(plaque, UIStyles.MENU_HS_PLAQUE_W));
+                UIStyles.MENU_HS_PLAQUE_POS, UIFactory.SizeByWidth(plaque, UIStyles.MENU_HS_PLAQUE_W));
 
             SaveDataManager save = SaveDataManager.Instance;
             UIFactory.CreateText(_canvas.transform,
@@ -51,7 +51,7 @@ namespace DogtorBurguer
             // PLAY — authored button, text baked into the art.
             Sprite play = UiArt.Load("ui_play_button");
             UIFactory.CreateSpriteButton(_canvas.transform, "Play", play, new Vector2(0.5f, 0.5f),
-                UIStyles.MENU_PLAY_POS, SizeByWidth(play, UIStyles.MENU_PLAY_W), OnPlayClicked);
+                UIStyles.MENU_PLAY_POS, UIFactory.SizeByWidth(play, UIStyles.MENU_PLAY_W), OnPlayClicked);
 
             BuildBottomStrip();
 
@@ -63,7 +63,7 @@ namespace DogtorBurguer
         private void BuildBottomStrip()
         {
             Sprite strip = UiArt.Load("ui_menu_bottom");
-            Vector2 stripSize = SizeByWidth(strip, UIStyles.REFERENCE_RESOLUTION.x);
+            Vector2 stripSize = UIFactory.SizeByWidth(strip, UIStyles.REFERENCE_RESOLUTION.x);
             UIFactory.CreateImage(_canvas.transform, "BottomStrip", strip, new Vector2(0.5f, 0f),
                 new Vector2(0f, stripSize.y * 0.5f), stripSize);
 
@@ -89,12 +89,6 @@ namespace DogtorBurguer
                 UIStyles.MENU_BOTTOM_BTN_SIZE, UIStyles.MENU_BOTTOM_LABEL_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(word);
             return btn;
-        }
-
-        private static Vector2 SizeByWidth(Sprite sprite, float width)
-        {
-            float aspect = sprite != null ? sprite.rect.width / sprite.rect.height : 1f;
-            return new Vector2(width, width / aspect);
         }
 
         private void OnPlayClicked()

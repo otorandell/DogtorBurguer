@@ -30,7 +30,8 @@ Assets/_Project/Scripts/
   Skins/         Skin (ScriptableObject), SkinSlot, UnlockMethod, SkinMap, Theme (static accessor)
   Shop/          ShopScreen (full-screen overlay), ShopSections, ShopWidgets, ShopSkinCell,
                  ShopRowScroll (nested h-scroll), ShopService (purchase rules), ShopCatalog
-  UI/            MainMenuUI, GameHUD, TopBar (shared status bar), GameOverPanel, SettingsPanel,
+  UI/            MainMenuUI, GameHUD, TopBar (shared status bar), StatCard (shared Level/Score
+                 card), GameOverPanel, SettingsPanel,
                  BurgerChallenge, BurgerChallengeView, BurgerPopup, FloatingText, ScorePopup,
                  Background, OrderType, NumberFormat, UIFactory
     Factory/     SpriteFactory (cached procedural sprites), WorldTextFactory (world-space TMP)
@@ -580,6 +581,20 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   blank buttons in the kit** — CREDITS/SHOP are the cream blank runtime-tinted
   (`MENU_CREDITS_TINT`/`MENU_SHOP_TINT`); replace with authored blanks if the artist ships them.
   The mock's top-right red bow button has no delivered asset/known function — skipped.
+- **Game Over screen (authored, 2026-08-31)**: rebuilt to the artist's mock (`Look
+  Reference/GameOver.png`). The panel art (`ui_gameover_panel`) is a **full-phone canvas**
+  (2327x4138 ≈ the 9:16 reference aspect) shown at `REFERENCE_RESOLUTION`, so the baked red
+  title bar / cream body / "Continue" band land exactly where drawn; all text and buttons are
+  overlaid at positions measured off the mock. Level/Score are the **same authored HUD cards**
+  via the shared `UI/StatCard.cs` (extracted from `GameHUD`, takes a scale — game over uses
+  1.25x). Continue row: cream blank + gem icon + cost, blue `ui_btn_blue_watch` (TV icon baked)
+  with a "Watch"/"Loading..." auto-fit label; one continue per run — afterwards the heading
+  reads "No more continues" and the buttons hide. Nav row: `ui_btn_green` Main Menu /
+  `ui_btn_yellow` Retry (words overlaid — no per-word art delivered). "N stars earned!" sits
+  below the panel in gold. Knobs: `UIStyles.GAMEOVER_*` (eyeball defaults from the mock — tune
+  live); helpers `UIFactory.SizeByWidth/SizeByHeight/AutoFit` are now shared (MainMenuUI's
+  private copy removed). Note: the button blanks' canvases include their drop shadow, so the
+  visible face is ~10% smaller than the width knob.
 - **★ glyph**: Panton (ASCII) lacks U+2605; add a fallback font or the `Star` sprite where needed.
 - **UI integration ≠ pure art-swap** — remaining wiring that implies real code:
   - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next

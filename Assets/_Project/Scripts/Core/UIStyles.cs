@@ -49,8 +49,6 @@ namespace DogtorBurguer
 
         #region Button Colors
         public static readonly Color BTN_CLOSE = new(0.5f, 0.5f, 0.5f);
-        public static readonly Color BTN_CONTINUE_GEMS = new(0.9f, 0.7f, 0.1f);
-        public static readonly Color BTN_CONTINUE_AD = new(0.3f, 0.5f, 0.9f);
         public static readonly Color BTN_RESTART = new(0.2f, 0.7f, 0.3f);
         public static readonly Color BTN_SETTINGS_TOGGLE = new(0.3f, 0.5f, 0.7f);
         public static readonly Color BTN_SHOP_AD = new(0.3f, 0.5f, 0.9f);
@@ -185,9 +183,6 @@ namespace DogtorBurguer
         #region Font Sizes - Panels
         public const float PANEL_TITLE_SIZE = 36f;
         public const float PANEL_BUTTON_TEXT_SIZE = 20f;
-        public const float PANEL_SCORE_SIZE = 30f;
-        public const float PANEL_LEVEL_SIZE = 24f;
-        public const float GAMEOVER_TITLE_SIZE = 42f;
         public const float SETTINGS_BUTTON_TEXT_SIZE = 22f;
         public const float CREDITS_TEXT_SIZE = 24f;
         #endregion
@@ -207,13 +202,11 @@ namespace DogtorBurguer
         #endregion
 
         #region Button Sizes
-        public static readonly Vector2 PANEL_BUTTON_SIZE = new(320, 55);
         public static readonly Vector2 SETTINGS_BUTTON_SIZE = new(280, 55);
         public static readonly Vector2 CLOSE_BUTTON_SIZE = new(200, 50);
         #endregion
 
         #region Panel Sizes
-        public static readonly Vector2 GAMEOVER_PANEL_SIZE = new(400, 500);
         public static readonly Vector2 SETTINGS_PANEL_SIZE = new(350, 430);
         public static readonly Vector2 CREDITS_RECT = new(400, 300);
         #endregion
@@ -273,14 +266,46 @@ namespace DogtorBurguer
         public static readonly Color MENU_SUPPORT_FILL = new(0.45f, 0.75f, 0.2f); // green, HUD border
         #endregion
 
-        #region Layout — Game Over Panel
-        public static readonly Vector2 GAMEOVER_TITLE_POS = new(0f, 200f);
-        public static readonly Vector2 GAMEOVER_SCORE_POS = new(0f, 140f);
-        public static readonly Vector2 GAMEOVER_LEVEL_POS = new(0f, 100f);
-        public static readonly Vector2 GAMEOVER_STARS_POS = new(0f, 65f);   // "+N Stars earned!"
-        public static readonly Vector2 GAMEOVER_TEXT_RECT = new(350f, 50f);
-        public const float GAMEOVER_BTN_START_Y = 30f;
-        public const float GAMEOVER_BTN_SPACING = -75f;
+        #region Layout — Game Over Screen (authored art — reference px, canvas-centered, y up)
+        // The panel art (ui_gameover_panel) is a full-phone canvas (2327x4138 ≈ 9:16, the reference
+        // aspect): shown at REFERENCE_RESOLUTION it lands exactly where the artist drew it — the red
+        // title bar, the cream body and the darker "Continue" band are all baked in. Everything below
+        // is placed over that art (positions measured off the mock, Look Reference/GameOver.png).
+        // Authored buttons are sized by WIDTH, height following native aspect; the blanks' canvases
+        // include their drop shadow, so the visible face is ~10% smaller than the width given.
+        public static readonly Color GAMEOVER_OVERLAY = new(0f, 0f, 0f, 0.55f);       // stand-in for the mock's blur
+        public static readonly Vector2 GAMEOVER_TITLE_POS = new(0f, 214f);           // "GAME OVER..." on the red bar
+        public static readonly Vector2 GAMEOVER_TITLE_RECT = new(420f, 80f);
+        public const float GAMEOVER_TITLE_SIZE = 40f;
+        public const float GAMEOVER_CARD_SCALE = 1.25f;                               // the HUD stat cards, enlarged
+        public static readonly Vector2 GAMEOVER_LEVEL_CARD_POS = new(-94f, 70f);
+        public static readonly Vector2 GAMEOVER_SCORE_CARD_POS = new(94f, 70f);
+        public static readonly Vector2 GAMEOVER_CONTINUE_LABEL_POS = new(0f, -34f);  // "Continue" heading, top of the band
+        public static readonly Vector2 GAMEOVER_CONTINUE_LABEL_RECT = new(300f, 44f);
+        public const float GAMEOVER_CONTINUE_LABEL_SIZE = 32f;
+        public static readonly Color32 GAMEOVER_CONTINUE_BORDER = new(0xFC, 0xFA, 0xF1, 0xFF); // cream edge on the brown word
+        public const float GAMEOVER_CONTINUE_BORDER_WIDTH = 0.2f;
+        public const float GAMEOVER_CONTINUE_BTN_Y = -113f;                           // gem (left) / watch (right) pair
+        public const float GAMEOVER_CONTINUE_BTN_X = 103f;                            // ± from center
+        public const float GAMEOVER_CONTINUE_BTN_W = 200f;                            // cream / blue blanks
+        public const float GAMEOVER_GEM_ICON_H = 44f;                                 // gem on the cream button
+        public const float GAMEOVER_GEM_ICON_X = -48f;
+        public static readonly Vector2 GAMEOVER_GEM_COST_POS = new(20f, 2f);          // the cost, right of the gem
+        public static readonly Vector2 GAMEOVER_GEM_COST_RECT = new(100f, 50f);
+        public const float GAMEOVER_GEM_COST_SIZE = 32f;
+        public static readonly Vector2 GAMEOVER_WATCH_LABEL_POS = new(26f, 2f);      // "Watch", right of the baked TV icon
+        public static readonly Vector2 GAMEOVER_WATCH_LABEL_RECT = new(120f, 50f);
+        public const float GAMEOVER_WATCH_LABEL_SIZE = 28f;
+        public const float GAMEOVER_WATCH_LABEL_SIZE_MIN = 12f;                       // "Loading..." shrink floor
+        public const float GAMEOVER_NAV_BTN_Y = -244f;                                // Main Menu (left) / Retry (right)
+        public const float GAMEOVER_NAV_BTN_X = 108f;                                 // ± from center
+        public const float GAMEOVER_NAV_BTN_W = 215f;                                 // green / yellow blanks
+        public static readonly Vector2 GAMEOVER_NAV_LABEL_NUDGE = new(-3f, 5f);      // word toward the face center (shadow is bottom-right)
+        public static readonly Vector2 GAMEOVER_NAV_LABEL_RECT = new(190f, 100f);
+        public const float GAMEOVER_NAV_LABEL_SIZE = 30f;
+        public static readonly Vector2 GAMEOVER_STARS_POS = new(0f, -350f);          // "N stars earned!" below the panel
+        public static readonly Vector2 GAMEOVER_STARS_RECT = new(400f, 40f);
+        public const float GAMEOVER_STARS_SIZE = 24f;
         #endregion
 
         #region Layout — Settings Panel
