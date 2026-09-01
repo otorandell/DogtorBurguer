@@ -1,7 +1,9 @@
-// Real store body over Unity In-App Purchasing 4.x (com.unity.purchasing). The package adds the
-// UNITY_PURCHASING define when installed; without it this file compiles to nothing and
-// IapManager falls back to MockIapProvider — so a checkout without the package still builds.
-#if UNITY_PURCHASING
+// Real store body over Unity In-App Purchasing 4.x (com.unity.purchasing). Unity defines
+// ENABLE_CLOUD_SERVICES_PURCHASING for game assemblies while the package is installed (NOT
+// UNITY_PURCHASING — that one lives only inside the package's own asmdefs); without it this file
+// compiles to nothing and IapManager falls back to MockIapProvider, so a checkout without the
+// package still builds.
+#if ENABLE_CLOUD_SERVICES_PURCHASING
 using System;
 using System.Collections.Generic;
 using UnityEngine;

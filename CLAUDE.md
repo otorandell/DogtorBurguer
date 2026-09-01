@@ -285,7 +285,7 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   class + one line in `AdManager.Awake`** (SDK choice leaning Unity LevelPlay — see checklist).
 - **IAP (Unity In-App Purchasing 4.12.2, code landed 2026-09-01)**: `IapManager` is the
   store facade (twin of `AdManager`) owning one `IIapProvider` (`Monetization/Abstractions/`):
-  `UnityIapProvider` when the purchasing package is installed (it defines `UNITY_PURCHASING`;
+  `UnityIapProvider` when the purchasing package is installed (it defines `ENABLE_CLOUD_SERVICES_PURCHASING`;
   the provider file compiles to nothing without it), `MockIapProvider` otherwise (editor /
   package-less checkouts — purchases succeed a frame later, free). Catalog =
   `MonetizationConfig.GEM_PRODUCTS` (consumables, store ids `gems_100` … `gems_2600`) +

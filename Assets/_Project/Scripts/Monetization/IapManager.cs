@@ -26,7 +26,7 @@ namespace DogtorBurguer
             if (Instance != this) return;
             DontDestroyOnLoad(gameObject);
 
-#if UNITY_PURCHASING
+#if ENABLE_CLOUD_SERVICES_PURCHASING
             _provider = gameObject.AddComponent<UnityIapProvider>();
 #else
             Debug.LogWarning("[IapManager] Purchasing package not installed — using MockIapProvider (purchases are free).");
