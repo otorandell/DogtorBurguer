@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 347e017316e54eb0836d48de9f754206
+guid: bd85322e894e4d29880d7fa151308b1a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -217491189266181376
-    second: ui_btn_red_wide
+      213: -896240939646469376
+    second: ui_shop_remove_ads
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -87,13 +87,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ui_btn_red_wide
+      name: ui_shop_remove_ads
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1715
-        height: 494
+        width: 1829
+        height: 710
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -102,8 +102,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fb67f60ce2c24cf6a50961ecfad75bab
-      internalID: -217491189266181376
+      spriteID: 2f4d4f0fe5de4204b13755b09ff98fb7
+      internalID: -896240939646469376
       vertices: []
       indices:
       edges: []
@@ -122,7 +122,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ui_btn_red_wide: -217491189266181376
+      ui_shop_remove_ads: -896240939646469376
   mipmapLimitGroupName:
   pSDRemoveMatte: 0
   userData:

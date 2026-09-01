@@ -1,12 +1,9 @@
-# Builds the Shop's stand-in art from the kit (no shop-specific art was delivered — see
-# Docs/session-2026-09-01.md). Outputs go to OUT; then run gen_shop_art.ps1 to import them.
-#   ui_shop_page.png      : Settings_Background.png with 1680 px of its own body tiled in
-#                           (chunk rows 2400..3100 twice + 280), cropped to the panel + its soft
-#                           shadow (rows 1000..) and scaled 0.8 so it fits a 4096 texture.
-#   ui_btn_green_wide.png : Settings_Button.png (the wide blue blank) hue-shifted to the kit green.
-#   ui_btn_red_wide.png   : same, shifted to the kit red. The dark brown outline/shadow and the
-#                           near-white highlight are left untouched (value < 0.35 or sat < 0.08).
-# Requires Pillow. Swap these for authored pieces when the artist ships shop art.
+# Builds the one Shop piece still DERIVED from the kit: the wide green cell pill. The 2026-09-01
+# kit drop has every other shop piece (see gen_shop_art.ps1) but no wide green blank, so
+# ui_btn_green_wide.png is Settings_Button.png (the wide blue blank) hue-shifted to the kit green;
+# the dark brown outline/shadow and the near-white highlight are left untouched (value < 0.35 or
+# sat < 0.08). Output goes to OUT; import with a gen_*_art.ps1 recipe. Requires Pillow.
+# (build_page / the red pill were used by the pre-kit stand-in shop and are kept for reference.)
 import colorsys, os, sys
 from PIL import Image
 

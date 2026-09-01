@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using DG.Tweening;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace DogtorBurguer
 {
     /// <summary>
-    /// The Shop screen, to the mock: a tall dotted cream page (orange tab with SHOP, round X) over
-    /// the dimmed game/menu, the shared currency pills inside the page, and one vertically
+    /// The Shop screen, to the mock: the authored page (striped awning with SHOP baked in, dotted
+    /// cream body, our round X) over the dimmed game/menu, the shared currency pills inside the
+    /// page, and one vertically
     /// scrolling body (skins, power-ups, currency packs, remove-ads). Code-built on its own canvas,
     /// openable from the main menu and from the in-game HUD (<see cref="OpenInGame"/> pauses the
     /// run and resumes it on close). Rebuilt each open, destroyed on close — no stale state.
@@ -93,7 +93,7 @@ namespace DogtorBurguer
             CloseDialog();
             _dialog = UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY);
 
-            Sprite cardArt = UiArt.Load("ui_btn_cream");
+            Sprite cardArt = UiArt.Load("ui_shop_confirm_card");
             Image card = UIFactory.CreateImage(_dialog.transform, "Card", cardArt, Center, Vector2.zero,
                 UIFactory.SizeByWidth(cardArt, UIStyles.SHOP_CONFIRM_CARD_W));
             card.raycastTarget = true; // taps on the card don't fall through to the page
@@ -104,11 +104,11 @@ namespace DogtorBurguer
             ShopWidgets.CreateIconLine(root, "Line2", new Vector2(0f, UIStyles.SHOP_CONFIRM_LINE2_Y), UIStyles.SHOP_CONFIRM_LINE_RECT,
                 $"for {cost}", UIStyles.SHOP_CONFIRM_TEXT_SIZE, costIcon, UIStyles.SHOP_CONFIRM_ICON_H);
 
-            Button buy = ShopWidgets.CreatePill(root, "Buy", "ui_btn_green_wide", Center,
+            Button buy = ShopWidgets.CreatePill(root, "Buy", "ui_btn_confirm_buy", Center,
                 new Vector2(-UIStyles.SHOP_CONFIRM_BTN_X, UIStyles.SHOP_CONFIRM_BTN_Y), UIStyles.SHOP_CONFIRM_BTN_W,
                 () => { CloseDialog(); onConfirm(); });
             ShopWidgets.SetPillLabel(buy, "BUY", null);
-            Button cancel = ShopWidgets.CreatePill(root, "Cancel", "ui_btn_red_wide", Center,
+            Button cancel = ShopWidgets.CreatePill(root, "Cancel", "ui_btn_confirm_cancel", Center,
                 new Vector2(UIStyles.SHOP_CONFIRM_BTN_X, UIStyles.SHOP_CONFIRM_BTN_Y), UIStyles.SHOP_CONFIRM_BTN_W, CloseDialog);
             ShopWidgets.SetPillLabel(cancel, "CANCEL", null);
         }
@@ -133,21 +133,13 @@ namespace DogtorBurguer
             ShopSections.BuildAll(content, this);
         }
 
-        // The page art at the reference width, hung from the canvas top; SHOP on its tab, the round X
-        // over the tab's corner, and the shared TopBar dropped into the page below the tab.
+        // The page art is a full-phone canvas (SHOP baked on the awning): shown at the reference
+        // resolution it lands where drawn. The round X over the awning's corner, and the shared
+        // TopBar dropped into the page below it.
         private void BuildPage()
         {
-            Sprite pageArt = UiArt.Load("ui_shop_page");
-            Vector2 pageSize = UIFactory.SizeByWidth(pageArt, UIStyles.REFERENCE_RESOLUTION.x);
-            UIFactory.CreateImage(_canvas.transform, "Page", pageArt, TopCenter,
-                new Vector2(0f, -(UIStyles.SHOP_PAGE_TOP + pageSize.y * 0.5f)), pageSize);
-
-            TextMeshProUGUI title = UIFactory.CreateText(_canvas.transform, "SHOP", Vector2.zero,
-                UIStyles.SHOP_TITLE_RECT, UIStyles.SHOP_TITLE_SIZE, FontStyles.Bold);
-            RectTransform titleRect = title.rectTransform;
-            titleRect.anchorMin = titleRect.anchorMax = TopCenter;
-            titleRect.anchoredPosition = UIStyles.SHOP_TITLE_POS;
-            UIFactory.StyleHudText(title);
+            UIFactory.CreateImage(_canvas.transform, "Page", UiArt.Load("ui_shop_page"), Center, Vector2.zero,
+                UIStyles.REFERENCE_RESOLUTION);
 
             Sprite close = UiArt.Load("ui_btn_close_x");
             UIFactory.CreateSpriteButton(_canvas.transform, "Close", close, TopCenter, UIStyles.SHOP_CLOSE_POS,

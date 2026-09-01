@@ -281,42 +281,48 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   `ShopService.BuyGemPack` / `BuyRemoveAds`.
 
 ### Shop (`Scripts/Shop/` — authored page, 2026-09-01)
-Built to the artist's mock (`Look Reference/Shop_example_1..3.png` + `Shop buy confirm.png`): a
-tall dotted cream **page** with the orange tab (SHOP + round X) over the dimmed game/menu, the
-shared **TopBar pills inside the page** (dropped by `SHOP_TOPBAR_DROP`), and one vertically
-scrolling body inset to the page (`SHOP_SCROLL_*`). Own canvas (`SHOP_CANVAS_SORT` 120, above
+Built to the artist's mock (`Look Reference/Shop_example_1..3.png` + `Shop buy confirm.png`) with
+the **2026-09-01 kit's `Assets/Shop` pieces** (`scratchpad/gen_shop_art.ps1`): the full-canvas
+**page** `ui_shop_page` (striped awning with SHOP baked in + dotted cream body, shown at
+`REFERENCE_RESOLUTION` like the other screens) over the dimmed game/menu, our round X on the
+awning's corner, the shared **TopBar pills inside the page** (dropped by `SHOP_TOPBAR_DROP`), and
+one vertically scrolling body inset to the page (`SHOP_SCROLL_*`). Own canvas (`SHOP_CANVAS_SORT` 120, above
 everything). Opened via `ShopScreen.Open()` (menu Shop button) or `ShopScreen.OpenInGame()`
 (in-game top-bar shop button and the consumable slots' green plus box) — the in-game path
 **pauses** the run (`GameManager.PauseGame`) and resumes on close; all shop tweens run unscaled.
 Rebuilt each open, destroyed on close (no stale state).
-- **Sections, top → bottom**: support banner (**REMOVE ADS** offer + green price pill; once
-  bought it becomes the mock's **THANK YOU FOR SUPPORTING US!**) → DOGTOR SKINS (one h-scroll
-  row) → INGREDIENT SKINS (**one labelled sub-row per ingredient type** — Patty, Cheese, …, Buns
+- **Sections, top → bottom**: support banner (the authored **REMOVE ADS** image
+  `ui_shop_remove_ads`, one tappable sprite — ⚠️ its price "2.99", "+100" gem bonus and ONE TIME
+  BUY tag are **baked in**, keep `MonetizationConfig.REMOVE_ADS_*` in step; once bought it becomes
+  the mock's **THANK YOU FOR SUPPORTING US!** box) → DOGTOR SKINS (one h-scroll row on the
+  9-sliced cream slab `ui_shop_row_slab`) → INGREDIENT SKINS (**one labelled sub-row per ingredient type** — Patty, Cheese, …, Buns
   — via `ShopCatalog.IngredientSkinRows()` + `ShopWidgets.CreateSubTitle`; `ShopRowScroll` rows,
   vertical drags route to the page scroll) → POWER-UPS (a **3-column grid**: one row per
   `CONSUMABLE_PACKS` rung × one column per consumable; each cell = owned-count badge
-  (`ui_consumable_num`), icon, "xN", star pill) + the **PRO COOK PACK** bundle row
-  (`MonetizationConfig.PRO_COOK_PACK` — N of *each* type for one star price,
-  `ShopService.TryBuyProCookPack`) → STARS (grid; gem-priced, **confirm dialog** — the only
-  confirm; soft spends and equips are instant) → GEMS (grid; the free rewarded-ad cell first with
-  the blue **WATCH** pill tracking ad availability, then IAP packs; MOST POPULAR / BEST VALUE
-  badges sit gold on the amount line).
-- **Cells** (`ShopWidgets.CreateCell` → `ShopCell`): a 9-sliced cream box (`ui_consumable_box`,
-  border 330) with an optional **lime** label line (`SHOP_ACCENT`, `StyleAccent`) above and a
-  wide **green pill** below; the whole cell is one button. Pill faces are `CreateIconLine`s —
-  a HUD-palette number followed by the currency icon, layout-centered as one — the same line the
-  confirm dialog uses ("Buy 200 ★ / for 40 ◆", BUY green / CANCEL red). **Skin cells**: preview
-  on a pastel `SpriteFactory.Checker` inside the box; 3 states — EQUIPPED / EQUIP (tap equips
-  instantly) / price + icon (tap buys **and auto-equips**; insufficient funds shakes the cell).
-  The shop *is* the wardrobe — no separate skins screen.
-- **Derived stand-in art** (`scratchpad/build_shop_art.py` → `gen_shop_art.ps1`) — the kit has
-  **no shop-specific pieces**: `ui_shop_page` = the modal panel sheet with 1680px of its own flat
-  body tiled in (scaled 0.8); `ui_btn_green_wide` / `ui_btn_red_wide` = hue-shifts of the wide
-  blue blank (outline + highlight preserved). Still stand-ins from existing art: `ui_star` /
-  `ui_gem` for the gift-box / gem-pack icons, single consumable icons for the x3 groups and the
-  bundle tray, `ui_btn_cream` for the confirm card. **Swap list when the artist ships shop art**:
-  awning header + page, cell blank, pack icons (3 star boxes, 5-6 gem packs, x3 groups, tray),
-  green/red pills. Everything loads by `UiArt` name, so each is a file swap.
+  (`ui_consumable_num`), the icon — single `ui_consumable_*` for x1, `ui_shop_trio_*` from x3 —
+  "xN", star pill) + the **PRO COOK PACK** bundle row (`ui_shop_condiment_pack` tray, the big
+  green `ui_btn_green_big` pill; `MonetizationConfig.PRO_COOK_PACK` — N of *each* type for one
+  star price, `ShopService.TryBuyProCookPack`) → STARS (grid, `ui_pack_stars_1..3` by ladder
+  position; gem-priced, **confirm dialog** — the only confirm; soft spends and equips are
+  instant) → GEMS (grid; the free rewarded-ad cell first with the authored **WATCH** pill
+  `ui_shop_watch` tracking ad availability, then IAP packs with `ui_pack_gems_1..4` by position —
+  `Gem_Pack_5` is in the kit for a 5th tier, not imported; MOST POPULAR / BEST VALUE badges sit
+  gold on the amount line).
+- **Cells** (`ShopWidgets.CreateCell(…, boxArt, …)` → `ShopCell`): an authored box sized by width
+  at native aspect — `ui_shop_item_box` (packs/power-ups; also the 9-sliced banner/bundle box,
+  border 200) or the skin checkers `ui_shop_skin_box` / `ui_shop_skin_equipped` (swapped on the
+  equipped state) — with an optional **lime** label line (`SHOP_ACCENT`, `StyleAccent`) above and
+  a wide **green pill** below; the whole cell is one button. Pill faces are `CreateIconLine`s — a
+  HUD-palette number followed by the currency icon, layout-centered as one — the same line the
+  confirm dialog uses ("Buy 200 ★ / for 40 ◆" on the authored card `ui_shop_confirm_card`, whose
+  canvas width `SHOP_CONFIRM_CARD_W` includes its shadow; BUY/CANCEL = `ui_btn_confirm_*`).
+  **Skin cells**: 3 states — EQUIPPED (green checker) / EQUIP (tap equips instantly) / price +
+  icon (tap buys **and auto-equips**; insufficient funds shakes the cell). The shop *is* the
+  wardrobe — no separate skins screen.
+- **One derived stand-in remains**: the wide green cell pill `ui_btn_green_wide` — the kit has no
+  wide green blank (the button sheet has words baked in), so it's the wide blue blank hue-shifted
+  (`scratchpad/build_shop_art.py`, outline + highlight preserved). Ask the artist for a wide green
+  blank and it's a file swap.
 - IAP price labels display without the "$" (`ShopWidgets.MoneyLabel`) — the trial font renders it
   as the placeholder sliver; fix with the font swap before wiring real localized IAP prices.
 - **Layer split**: `ShopScreen` (frame/orchestration + confirm dialog + pills),
@@ -663,9 +669,8 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
     challenge level. **Built** (`BurgerChallengeView.BuildMultMeter`, `ChallengeFill`) — slot
     position/size are eyeball defaults in `UIStyles.MULT_METER_*`, tune live.
   Plan each of these as its own code task alongside the visual wiring.
-- **Shop art is partly derived stand-ins** (page, green/red pills) and partly borrowed icons —
-  see Core Systems → Shop for the swap list when the artist ships shop pieces. Layout knobs in
-  `UIStyles.SHOP_*`, untested on-device — eyeball defaults, tune live.
+- **Shop**: authored art throughout except the wide green cell pill (derived — see Core Systems →
+  Shop). Layout knobs in `UIStyles.SHOP_*`, untested on-device — eyeball defaults, tune live.
 - **IAP**: gem packs + Remove Ads are stubs granting instantly (`ShopService`); need the real IAP
   SDK + a **Restore Purchases** path for Remove Ads (iOS review requirement).
 - Consumable polish: real SFX (override slots ready) + final slot layout/sizes (placeholders in `UIStyles`)

@@ -7,8 +7,9 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// Low-level UGUI builders for the Shop screen, styled to the mock: the page scroll, cell
-    /// rows and 3-column grids, HUD-palette section titles, 9-sliced cream boxes (cells, banners),
-    /// wide-blank price pills with an inline currency icon, and the icon+text line those share.
+    /// rows (on the cream slab) and 3-column grids, HUD-palette section titles, authored boxes
+    /// (cells, 9-sliced banners), wide-blank price pills with an inline currency icon, and the
+    /// icon+text line those share.
     /// Pure construction — no purchase logic (ShopService) and no section composition (ShopSections).
     /// </summary>
     public static class ShopWidgets
@@ -60,20 +61,27 @@ namespace DogtorBurguer
             return content;
         }
 
-        /// <summary>A horizontal, side-scrollable cell row (skins). Returns the row content
-        /// transform cells are added to (horizontal layout, auto width).</summary>
-        public static RectTransform CreateHorizontalRow(RectTransform pageContent, float height)
+        /// <summary>A horizontal, side-scrollable cell row (skins) on the 9-sliced cream slab, cells
+        /// inset by SHOP_ROW_SLAB_PAD. Returns the row content transform cells are added to
+        /// (horizontal layout, auto width).</summary>
+        public static RectTransform CreateHorizontalRow(RectTransform pageContent, float cellHeight)
         {
+            float pad = UIStyles.SHOP_ROW_SLAB_PAD;
             GameObject rowObj = new GameObject("Row");
             rowObj.transform.SetParent(pageContent, false);
             rowObj.AddComponent<RectTransform>();
-            rowObj.AddComponent<LayoutElement>().preferredHeight = height;
+            Image slab = rowObj.AddComponent<Image>();
+            slab.sprite = UiArt.Load("ui_shop_row_slab");
+            slab.type = Image.Type.Sliced;
+            rowObj.AddComponent<LayoutElement>().preferredHeight = cellHeight + 2f * pad;
             ShopRowScroll scroll = rowObj.AddComponent<ShopRowScroll>();
             scroll.horizontal = true;
             scroll.vertical = false;
             scroll.scrollSensitivity = UIStyles.SHOP_SCROLL_SENSITIVITY;
 
             RectTransform viewport = CreateViewport(rowObj.transform);
+            viewport.offsetMin = new Vector2(pad, pad);
+            viewport.offsetMax = new Vector2(-pad, -pad);
 
             GameObject contentObj = new GameObject("RowContent");
             contentObj.transform.SetParent(viewport, false);
@@ -158,26 +166,34 @@ namespace DogtorBurguer
 
         // --- boxes + cells ---
 
-        /// <summary>A 9-sliced cream box (ui_consumable_box) at any size.</summary>
+        /// <summary>The authored box arts a cell can sit on.</summary>
+        public const string ItemBoxArt = "ui_shop_item_box";        // power-ups, currency packs (also the 9-sliced banner box)
+        public const string SkinBoxArt = "ui_shop_skin_box";        // cream checker
+        public const string SkinEquippedBoxArt = "ui_shop_skin_equipped"; // green checker
+
+        /// <summary>A 9-sliced cream box (the item box art) at any size — banners, the bundle row.</summary>
         public static Image CreateBox(Transform parent, string name, Vector2 anchor, Vector2 pos, Vector2 size)
         {
-            Image box = UIFactory.CreateImage(parent, name, UiArt.Load("ui_consumable_box"), anchor, pos, size);
+            Image box = UIFactory.CreateImage(parent, name, UiArt.Load(ItemBoxArt), anchor, pos, size);
             box.type = Image.Type.Sliced;
             return box;
         }
 
+        /// <summary>A cell's box size: the art at SHOP_CELL_W wide, native aspect.</summary>
+        public static Vector2 BoxSize(string boxArt) => UIFactory.SizeByWidth(UiArt.Load(boxArt), UIStyles.SHOP_CELL_W);
+
         /// <summary>Height of a cell with/without its label line (box + pill + gaps).</summary>
-        public static float CellHeight(bool withLabel) =>
-            (withLabel ? UIStyles.SHOP_CELL_LABEL_H : 0f) + UIStyles.SHOP_CELL_BOX_H + UIStyles.SHOP_CELL_PILL_GAP
+        public static float CellHeight(bool withLabel, string boxArt) =>
+            (withLabel ? UIStyles.SHOP_CELL_LABEL_H : 0f) + BoxSize(boxArt).y + UIStyles.SHOP_CELL_PILL_GAP
             + UIFactory.SizeByWidth(UiArt.Load("ui_btn_green_wide"), UIStyles.SHOP_CELL_PILL_W).y;
 
-        /// <summary>A cell: [lime label] over a cream box over a green pill; one button for the whole
-        /// thing. Sized for a row (LayoutElement) — a grid overrides with its cell size. Pass a null
-        /// label to skip the label line (power-ups).</summary>
-        public static ShopCell CreateCell(Transform parent, string name, string label, UnityAction onClick)
+        /// <summary>A cell: [lime label] over an authored box over a green pill; one button for the
+        /// whole thing. Sized for a row (LayoutElement) — a grid overrides with its cell size. Pass a
+        /// null label to skip the label line (power-ups).</summary>
+        public static ShopCell CreateCell(Transform parent, string name, string label, string boxArt, UnityAction onClick)
         {
             bool withLabel = label != null;
-            float height = CellHeight(withLabel);
+            float height = CellHeight(withLabel, boxArt);
 
             GameObject rootObj = new GameObject(name);
             rootObj.transform.SetParent(parent, false);
@@ -198,8 +214,9 @@ namespace DogtorBurguer
             }
 
             float labelH = withLabel ? UIStyles.SHOP_CELL_LABEL_H : 0f;
-            Image box = CreateBox(root, "Box", TopCenter, new Vector2(0f, -labelH - UIStyles.SHOP_CELL_BOX_H * 0.5f),
-                new Vector2(UIStyles.SHOP_CELL_W, UIStyles.SHOP_CELL_BOX_H));
+            Vector2 boxSize = BoxSize(boxArt);
+            Image box = UIFactory.CreateImage(root, "Box", UiArt.Load(boxArt), TopCenter,
+                new Vector2(0f, -labelH - boxSize.y * 0.5f), boxSize);
             box.raycastTarget = true;
 
             Button button = rootObj.AddComponent<Button>();

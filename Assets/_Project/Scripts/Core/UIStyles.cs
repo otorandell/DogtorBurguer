@@ -351,15 +351,11 @@ namespace DogtorBurguer
 
         #region Layout — Shop Screen (a tall page over the dimmed screen; header + vertical page scroll)
         public const int SHOP_CANVAS_SORT = 120;                                // above every in-game canvas (HUD 50, slots 90, game-over 100)
-        // Page art (ui_shop_page): the modal panel sheet with its own body tiled taller — orange tab +
-        // dotted cream body — shown at the reference width, top-anchored. A DERIVED stand-in
-        // (scratchpad/build_shop_art.py) until the artist's awning header/page lands. Positions are
-        // measured off Look Reference/Shop_example_*.png (573x966 ≈ the 540x960 reference).
-        public const float SHOP_PAGE_TOP = 13f;                                 // sprite top edge below the canvas top
-        public static readonly Vector2 SHOP_TITLE_POS = new(0f, -85f);          // "SHOP" on the tab (from the canvas top)
-        public static readonly Vector2 SHOP_TITLE_RECT = new(300f, 80f);
-        public const float SHOP_TITLE_SIZE = 52f;
-        public static readonly Vector2 SHOP_CLOSE_POS = new(192f, -47f);        // round X over the tab's corner (from top-center)
+        // Page art (ui_shop_page, Shop_Background): a full-phone canvas like the other screens — the
+        // striped awning with SHOP baked in and the dotted cream body (awning 38→142 px from the top,
+        // body to 928) — shown at REFERENCE_RESOLUTION. Positions measured off
+        // Look Reference/Shop_example_*.png (573x966 ≈ the 540x960 reference).
+        public static readonly Vector2 SHOP_CLOSE_POS = new(192f, -47f);        // round X over the awning's corner (from top-center)
         public const float SHOP_CLOSE_H = 78f;
         public const float SHOP_TOPBAR_DROP = 141f;                             // the shared TopBar pills, moved down into the page
         // Scroll viewport: the page body between the pills and the page bottom. Side inset + content
@@ -379,25 +375,24 @@ namespace DogtorBurguer
         public static readonly Color SHOP_ACCENT = new(0.62f, 0.75f, 0.20f);    // lime: cell names, pack amounts, THANK YOU
         public static readonly Color SHOP_BADGE_COLOR = new(1f, 0.85f, 0f);     // "BEST VALUE" tags
         public const float SHOP_BADGE_SIZE = 11f;
-        // Cells (skins, power-ups, currency packs): a 9-sliced cream box (ui_consumable_box) with an
-        // optional lime label line above and a wide green price pill below; the whole cell is the button.
+        // Cells (skins, power-ups, currency packs): an authored box (skin checker / item box, sized by
+        // width at native aspect) with an optional lime label line above and a wide green price pill
+        // below; the whole cell is the button. Skin rows sit on the 9-sliced cream slab.
         public const float SHOP_CELL_W = 112f;
         public const float SHOP_CELL_SPACING = 15f;
         public const float SHOP_CELL_LABEL_H = 24f;
         public const float SHOP_CELL_LABEL_SIZE = 17f;
-        public const float SHOP_CELL_BOX_H = 100f;
         public const float SHOP_CELL_PILL_GAP = 6f;
+        public const float SHOP_ROW_SLAB_PAD = 10f;                             // cells inset inside the slab
         public const float SHOP_CELL_PILL_W = 112f;                             // green wide blank sized by width (≈ 32 tall)
         public const float SHOP_PILL_TEXT_SIZE = 18f;
         public const float SHOP_PILL_ICON_H = 24f;                              // currency icon on a pill, right of the number
         public const float SHOP_PILL_ICON_GAP = 3f;
         public static readonly Vector2 SHOP_PILL_LABEL_NUDGE = new(-2f, 3f);   // toward the face center (shadow is bottom-right)
-        public const float SHOP_WATCH_LABEL_MIN = 9f;                           // "LOADING..." shrink floor on the blue watch pill
-        public static readonly Vector2 SHOP_WATCH_LABEL_POS = new(14f, 3f);    // right of the baked TV icon
-        public static readonly Vector2 SHOP_WATCH_LABEL_RECT = new(66f, 26f);
-        public static readonly Color SHOP_CELL_CHECKER = new(0.86f, 0.90f, 0.78f); // pastel checker behind skin previews
-        public const int SHOP_CELL_CHECKER_CELLS = 6;
-        public const float SHOP_CELL_CHECKER_INSET = 10f;
+        public const float SHOP_WATCH_LABEL_MIN = 9f;                           // "LOADING..." shrink floor on the watch pill
+        public const float SHOP_WATCH_PILL_H = 40f;                             // ui_shop_watch sized by height (wider than the green pills)
+        public static readonly Vector2 SHOP_WATCH_LABEL_POS = new(12f, 2f);    // right of the baked TV icon
+        public static readonly Vector2 SHOP_WATCH_LABEL_RECT = new(56f, 26f);
         public const float SHOP_SKIN_PREVIEW_H = 104f;                          // overflows the box top a touch, like the mock
         public const float SHOP_SKIN_PREVIEW_MAX_W = 100f;
         public const float SHOP_SKIN_PREVIEW_Y = 4f;                            // preview center vs box center
@@ -408,36 +403,37 @@ namespace DogtorBurguer
         public static readonly Vector2 SHOP_QTY_POS = new(34f, -34f);          // "xN" bottom-right of the box
         public static readonly Vector2 SHOP_QTY_RECT = new(50f, 26f);
         public const float SHOP_QTY_SIZE = 18f;
-        // Wide rows (remove-ads / thank-you banner, the Pro Cook Pack bundle): a 9-sliced cream box
-        // spanning the content width.
+        // Wide rows spanning the content width: the authored Remove-Ads banner (price, bonus and the
+        // ONE TIME BUY tag are baked in — keep MonetizationConfig's REMOVE_ADS_* in step with the art),
+        // the THANK YOU box and the Pro Cook Pack bundle (9-sliced item box).
+        public static float SHOP_CONTENT_W => REFERENCE_RESOLUTION.x - 2f * (SHOP_SCROLL_SIDE + SHOP_CONTENT_PADDING);
         public const float SHOP_BANNER_H = 96f;
         public const float SHOP_BANNER_TEXT_SIZE = 26f;
-        public const float SHOP_BANNER_TEXT_MIN = 14f;
         public static readonly Vector2 SHOP_BANNER_TEXT_INSET = new(24f, 12f);
-        public const float SHOP_BANNER_OFFER_TEXT_W = 190f;                     // "REMOVE ADS" text column (pill takes the rest)
-        public const float SHOP_BANNER_PILL_W = 130f;
-        public const float SHOP_BANNER_PILL_X = -78f;                           // pill center from the banner's right edge
         public const float SHOP_BUNDLE_H = 110f;
-        public const float SHOP_BUNDLE_ICON_H = 44f;
-        public const float SHOP_BUNDLE_ICON_X0 = 34f;                           // first icon center from the left edge
-        public const float SHOP_BUNDLE_ICON_SPACING = 40f;
-        public const float SHOP_BUNDLE_ICON_Y = 14f;
-        public static readonly Vector2 SHOP_BUNDLE_QTY_POS = new(160f, 4f);     // "xN" right of the icons (from the left edge)
-        public static readonly Vector2 SHOP_BUNDLE_NAME_POS = new(96f, -32f);   // "PRO COOK PACK" under the icons (center, from the left edge)
+        public const float SHOP_BUNDLE_ICON_H = 74f;                            // the condiment tray
+        public const float SHOP_BUNDLE_ICON_X = 84f;                            // tray center from the left edge
+        public const float SHOP_BUNDLE_ICON_Y = 8f;
+        public static readonly Vector2 SHOP_BUNDLE_QTY_POS = new(150f, -2f);    // "xN" right of the tray (from the left edge)
+        public static readonly Vector2 SHOP_BUNDLE_NAME_POS = new(96f, -40f);   // "PRO COOK PACK" under the tray (center, from the left edge)
         public static readonly Vector2 SHOP_BUNDLE_NAME_RECT = new(180f, 24f);
         public const float SHOP_BUNDLE_NAME_SIZE = 16f;
-        public const float SHOP_BUNDLE_PILL_W = 150f;
+        public const float SHOP_BUNDLE_PILL_W = 150f;                           // ui_btn_green_big sized by width (≈ 82 tall)
         public const float SHOP_BUNDLE_PILL_X = -88f;
-        // Confirm dialog (gem spends only): a cream card with the offer lines and BUY / CANCEL pills.
-        public const float SHOP_CONFIRM_CARD_W = 400f;                          // ui_btn_cream sized by width (≈ 190 tall)
-        public const float SHOP_CONFIRM_LINE1_Y = 48f;                          // "Buy N ★"
-        public const float SHOP_CONFIRM_LINE2_Y = 12f;                          // "for N ◆"
+        public const float SHOP_BUNDLE_PILL_TEXT_SIZE = 26f;
+        public const float SHOP_BUNDLE_PILL_ICON_H = 30f;
+        // Confirm dialog (gem spends only): the authored card (inner text box baked in its top half)
+        // with the offer lines and the BUY / CANCEL blanks. Widths are the sprites' canvases (they
+        // include the drop shadows): 530 puts the card's face at ~400 px.
+        public const float SHOP_CONFIRM_CARD_W = 530f;
+        public const float SHOP_CONFIRM_LINE1_Y = 70f;                          // "Buy N ★" (inner box center ≈ +53)
+        public const float SHOP_CONFIRM_LINE2_Y = 36f;                          // "for N ◆"
         public static readonly Vector2 SHOP_CONFIRM_LINE_RECT = new(340f, 40f);
         public const float SHOP_CONFIRM_TEXT_SIZE = 28f;
         public const float SHOP_CONFIRM_ICON_H = 34f;
-        public const float SHOP_CONFIRM_BTN_X = 92f;                            // pills flank the center
-        public const float SHOP_CONFIRM_BTN_Y = -52f;
-        public const float SHOP_CONFIRM_BTN_W = 170f;
+        public const float SHOP_CONFIRM_BTN_X = 100f;                           // pills flank the center
+        public const float SHOP_CONFIRM_BTN_Y = -58f;
+        public const float SHOP_CONFIRM_BTN_W = 195f;
         public const float SHOP_CONFIRM_BTN_TEXT = 24f;
         #endregion
     }

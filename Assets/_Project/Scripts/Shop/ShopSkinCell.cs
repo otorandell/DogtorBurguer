@@ -4,8 +4,9 @@ using UnityEngine.UI;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// One skin cell in a shop row (mock: lime name, preview on a pastel checker in the cream box,
-    /// green pill). Three states, refreshed after every transaction: equipped ("EQUIPPED"), owned
+    /// One skin cell in a shop row (mock: lime name, preview on the authored checker box — green
+    /// when equipped — and a green pill). Three states, refreshed after every transaction:
+    /// equipped ("EQUIPPED"), owned
     /// ("EQUIP" — tap equips instantly, no dialog), or priced (cost + currency icon; tap buys and
     /// auto-equips, a failed buy shakes the cell).
     /// </summary>
@@ -14,6 +15,7 @@ namespace DogtorBurguer
         private Skin _skin;
         private ShopScreen _screen;
         private ShopCell _cell;
+        private Image _box;
 
         public static void Create(RectTransform row, Skin skin, ShopScreen screen)
         {
@@ -30,25 +32,18 @@ namespace DogtorBurguer
         {
             // The cell is built as a child so ShopWidgets owns its layout; this holder only forwards
             // the LayoutElement size so the row lays the holder out like the cell.
-            _cell = ShopWidgets.CreateCell(transform, "Cell", _skin.DisplayName, OnClick);
+            _cell = ShopWidgets.CreateCell(transform, "Cell", _skin.DisplayName, ShopWidgets.SkinBoxArt, OnClick);
+            _box = _cell.Box.GetComponent<Image>();
             LayoutElement layout = gameObject.AddComponent<LayoutElement>();
             layout.preferredWidth = UIStyles.SHOP_CELL_W;
-            layout.preferredHeight = ShopWidgets.CellHeight(withLabel: true);
+            layout.preferredHeight = ShopWidgets.CellHeight(withLabel: true, ShopWidgets.SkinBoxArt);
             RectTransform cellRect = _cell.Root;
             cellRect.anchorMin = cellRect.anchorMax = new Vector2(0.5f, 1f);
             cellRect.pivot = new Vector2(0.5f, 1f);
             cellRect.anchoredPosition = Vector2.zero;
 
-            // Pastel checker inside the box, then the preview sized by height at native aspect
-            // (clamped to the box width for wide art) — it may overflow the box top like the mock.
-            float inset = UIStyles.SHOP_CELL_CHECKER_INSET;
-            Vector2 checkerSize = new(UIStyles.SHOP_CELL_W - 2f * inset, UIStyles.SHOP_CELL_BOX_H - 2f * inset);
-            int cells = UIStyles.SHOP_CELL_CHECKER_CELLS;
-            Image checker = UIFactory.CreateImage(_cell.Box, "Checker",
-                SpriteFactory.Checker(cells, Mathf.Max(1, Mathf.RoundToInt(cells * checkerSize.y / checkerSize.x))),
-                new Vector2(0.5f, 0.5f), Vector2.zero, checkerSize);
-            checker.color = UIStyles.SHOP_CELL_CHECKER;
-
+            // The preview sized by height at native aspect (clamped to the box width for wide art) —
+            // it may overflow the box top like the mock.
             Sprite preview = _skin.Preview;
             Vector2 size = UIFactory.SizeByHeight(preview, UIStyles.SHOP_SKIN_PREVIEW_H);
             if (size.x > UIStyles.SHOP_SKIN_PREVIEW_MAX_W)
@@ -61,7 +56,12 @@ namespace DogtorBurguer
 
         private void Refresh()
         {
-            if (Theme.IsEquipped(_skin))
+            bool equipped = Theme.IsEquipped(_skin);
+            // The two checker arts differ by a few px, so re-derive the size with the sprite.
+            _box.sprite = UiArt.Load(equipped ? ShopWidgets.SkinEquippedBoxArt : ShopWidgets.SkinBoxArt);
+            _box.rectTransform.sizeDelta = ShopWidgets.BoxSize(equipped ? ShopWidgets.SkinEquippedBoxArt : ShopWidgets.SkinBoxArt);
+
+            if (equipped)
                 _cell.SetPill("EQUIPPED");
             else if (ShopService.OwnsSkin(_skin))
                 _cell.SetPill("EQUIP");

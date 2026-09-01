@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 667788990011aabbccddeeff00112233
+guid: 2a2d270c18434cf788b647b4ea0d4b10
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1112223334445556001
-    second: ui_consumable_box
+      213: -414058511038396672
+    second: ui_shop_skin_box
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -87,13 +87,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ui_consumable_box
+      name: ui_shop_skin_box
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1092
-        height: 1101
+        width: 631
+        height: 613
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -102,8 +102,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 66778899001122330800000000000000
-      internalID: -1112223334445556001
+      spriteID: f30a2f04073e4cfb8ec0570e84872bf3
+      internalID: -414058511038396672
       vertices: []
       indices:
       edges: []
@@ -122,7 +122,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ui_consumable_box: -1112223334445556001
+      ui_shop_skin_box: -414058511038396672
   mipmapLimitGroupName:
   pSDRemoveMatte: 0
   userData:
