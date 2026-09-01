@@ -310,7 +310,11 @@ Rebuilt each open, destroyed on close (no stale state).
   gold on the amount line).
 - **Cells** (`ShopWidgets.CreateCell(…, boxArt, …)` → `ShopCell`): an authored box sized by width
   at native aspect — `ui_shop_item_box` (packs/power-ups; also the 9-sliced banner/bundle box,
-  border 200) or the skin checkers `ui_shop_skin_box` / `ui_shop_skin_equipped` (swapped on the
+  border 200 — ⚠️ **9-slice gotcha**: UGUI draws sprite borders at their *native* pixel size, so
+  a 2000px art's borders dwarf a 400px rect and the center collapses to nothing; `ShopWidgets.
+  SetupSliced` sets `Image.pixelsPerUnitMultiplier = sprite height / rect height` so the edges
+  render true and only the flat middle stretches — do the same for any future 9-slice) or the
+  skin checkers `ui_shop_skin_box` / `ui_shop_skin_equipped` (swapped on the
   equipped state) — with an optional **lime** label line (`SHOP_ACCENT`, `StyleAccent`) above and
   a wide **green pill** below; the whole cell is one button. Pill faces are `CreateIconLine`s — a
   HUD-palette number followed by the currency icon, layout-centered as one — the same line the

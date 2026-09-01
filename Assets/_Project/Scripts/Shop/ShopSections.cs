@@ -40,8 +40,7 @@ namespace DogtorBurguer
             offer.gameObject.AddComponent<LayoutElement>().preferredHeight =
                 UIFactory.SizeByWidth(offerArt, UIStyles.SHOP_CONTENT_W).y;
 
-            Image thanksBox = ShopWidgets.CreateBox(content, "ThankYou", Center, Vector2.zero, Vector2.zero);
-            thanksBox.gameObject.AddComponent<LayoutElement>().preferredHeight = UIStyles.SHOP_BANNER_H;
+            Image thanksBox = ShopWidgets.CreateBox(content, "ThankYou", UIStyles.SHOP_BANNER_H);
             TextMeshProUGUI thanksText = UIFactory.CreateText(thanksBox.transform, "THANK YOU FOR\nSUPPORTING US!", Vector2.zero,
                 new Vector2(UIStyles.SHOP_CONTENT_W, UIStyles.SHOP_BANNER_H) - UIStyles.SHOP_BANNER_TEXT_INSET,
                 UIStyles.SHOP_BANNER_TEXT_SIZE, FontStyles.Bold);
@@ -134,8 +133,7 @@ namespace DogtorBurguer
         private static void BuildProCookPack(RectTransform content, ShopScreen screen)
         {
             ConsumablePack pack = MonetizationConfig.PRO_COOK_PACK;
-            Image box = ShopWidgets.CreateBox(content, "ProCookPack", Center, Vector2.zero, Vector2.zero);
-            box.gameObject.AddComponent<LayoutElement>().preferredHeight = UIStyles.SHOP_BUNDLE_H;
+            Image box = ShopWidgets.CreateBox(content, "ProCookPack", UIStyles.SHOP_BUNDLE_H);
             RectTransform row = box.rectTransform;
 
             Sprite tray = UiArt.Load("ui_shop_condiment_pack");

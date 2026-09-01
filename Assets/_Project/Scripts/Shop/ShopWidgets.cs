@@ -70,10 +70,10 @@ namespace DogtorBurguer
             GameObject rowObj = new GameObject("Row");
             rowObj.transform.SetParent(pageContent, false);
             rowObj.AddComponent<RectTransform>();
+            float rowHeight = cellHeight + 2f * pad;
             Image slab = rowObj.AddComponent<Image>();
-            slab.sprite = UiArt.Load("ui_shop_row_slab");
-            slab.type = Image.Type.Sliced;
-            rowObj.AddComponent<LayoutElement>().preferredHeight = cellHeight + 2f * pad;
+            SetupSliced(slab, UiArt.Load("ui_shop_row_slab"), rowHeight);
+            rowObj.AddComponent<LayoutElement>().preferredHeight = rowHeight;
             ShopRowScroll scroll = rowObj.AddComponent<ShopRowScroll>();
             scroll.horizontal = true;
             scroll.vertical = false;
@@ -171,12 +171,26 @@ namespace DogtorBurguer
         public const string SkinBoxArt = "ui_shop_skin_box";        // cream checker
         public const string SkinEquippedBoxArt = "ui_shop_skin_equipped"; // green checker
 
-        /// <summary>A 9-sliced cream box (the item box art) at any size — banners, the bundle row.</summary>
-        public static Image CreateBox(Transform parent, string name, Vector2 anchor, Vector2 pos, Vector2 size)
+        /// <summary>A 9-sliced cream box (the item box art) — banners, the bundle row. The layout
+        /// sets its width; <paramref name="height"/> is what it will be laid out at (the slice scale
+        /// keys off it).</summary>
+        public static Image CreateBox(Transform parent, string name, float height)
         {
-            Image box = UIFactory.CreateImage(parent, name, UiArt.Load(ItemBoxArt), anchor, pos, size);
-            box.type = Image.Type.Sliced;
+            Image box = UIFactory.CreateImage(parent, name, null, Center, Vector2.zero, Vector2.one);
+            SetupSliced(box, UiArt.Load(ItemBoxArt), height);
+            box.gameObject.AddComponent<LayoutElement>().preferredHeight = height;
             return box;
+        }
+
+        // 9-slice at a sensible scale: UGUI draws sprite borders at their NATIVE pixel size (sprite
+        // PPU 100 = canvas reference PPU), so a 2000px-wide art's borders would dwarf a 400px rect
+        // and the center collapses. Scaling the slice by sprite-height / rect-height renders the
+        // vertical edges exactly and stretches only the flat middle horizontally.
+        private static void SetupSliced(Image image, Sprite sprite, float rectHeight)
+        {
+            image.sprite = sprite;
+            image.type = Image.Type.Sliced;
+            image.pixelsPerUnitMultiplier = sprite.rect.height / rectHeight;
         }
 
         /// <summary>A cell's box size: the art at SHOP_CELL_W wide, native aspect.</summary>
