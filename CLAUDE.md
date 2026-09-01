@@ -31,7 +31,8 @@ Assets/_Project/Scripts/
   Shop/          ShopScreen (full-screen overlay), ShopSections, ShopWidgets, ShopSkinCell,
                  ShopRowScroll (nested h-scroll), ShopService (purchase rules), ShopCatalog
   UI/            MainMenuUI, GameHUD, TopBar (shared status bar), StatCard (shared Level/Score
-                 card), GameOverPanel, SettingsPanel,
+                 card), GameOverPanel, SettingsPanel, CreditsPanel (+ CreditsEntry),
+                 ModalPanel (shared Settings/Credits chrome: panel art + title + X + pop-in),
                  BurgerChallenge, BurgerChallengeView, BurgerPopup, FloatingText, ScorePopup,
                  Background, OrderType, NumberFormat, UIFactory
     Factory/     SpriteFactory (cached procedural sprites), WorldTextFactory (world-space TMP)
@@ -450,7 +451,7 @@ Runtime-created TMP text defaults to wrapping ON (TMP Settings), which renders o
 per line on label-sized rects ("vertical text"). `UIFactory.AddStyledText` therefore forces
 **NoWrap on every text it builds**; pass `wrap: true` to `CreateText` only for genuinely
 auto-wrapping paragraphs (currently just the shop confirm dialog). Explicit `\n` still breaks
-lines under NoWrap (the credits). Overlong single-line text now overflows its rect instead of
+lines under NoWrap (e.g. the game-over "Main\nMenu" word). Overlong single-line text now overflows its rect instead of
 wrapping — fix by shortening the string or widening the rect, never by re-enabling wrap on labels.
 
 ### UI Text Color Convention
@@ -598,19 +599,34 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   live); helpers `UIFactory.SizeByWidth/SizeByHeight/AutoFit` are now shared (MainMenuUI's
   private copy removed). Note: the button blanks' canvases include their drop shadow, so the
   visible face is ~10% smaller than the width knob.
+- **Modal chrome (`UI/ModalPanel.cs`, 2026-09-01)**: the Settings and Credits screens share one
+  plain-class builder — dim overlay (`UIStyles.MODAL_OVERLAY`), the full-canvas panel art
+  `ui_modal_panel` (orange title tab + dotted cream body, same 2327x4138 sheet as the game-over
+  panel) at `REFERENCE_RESOLUTION` (+ a per-screen offset), the title word on the tab, the round
+  red X (`ui_btn_close_x`) over the tab's corner, and the game-over pop-in (`AnimConfig.PANEL_*`).
+  Screens parent their content under `ModalPanel.Panel` and call `Show`/`Hide`/`Kill`. Knobs:
+  `UIStyles.MODAL_*`. A new modal screen = `ModalPanel.Build(canvas, "TITLE", offset, Hide)` +
+  content.
 - **Settings panel (authored, 2026-09-01)**: rebuilt to the mock (`Look Reference/settings.png`)
-  on the same full-canvas recipe — `ui_settings_panel` (orange title tab + dotted cream body,
-  same 2327x4138 sheet) at `REFERENCE_RESOLUTION`, "SETTINGS" on the tab, the round red X
-  (`ui_btn_close_x`) over the tab's top-right corner, and wide blue rows (`ui_btn_blue_wide`,
-  sized by width, HUD-palette auto-fit labels) stacked down the body: **Sound: ON/OFF**,
-  **Controls: Drag/Tap**, and in-game the **Restart | Quit to Menu** half-width pair in the third
-  row. Both openers (menu gear, in-game gear) share the one class; the panel pops in with the
-  game-over tween (`AnimConfig.PANEL_*`, shared) over the shared `UIStyles.MODAL_OVERLAY` dim.
-  Knobs: `UIStyles.SETTINGS_*` (eyeball defaults from the mock — tune live). Deliberate gaps:
+  on the modal chrome: wide blue rows (`ui_btn_blue_wide`, sized by width, HUD-palette auto-fit
+  labels) stacked down the body: **Sound: ON/OFF**, **Controls: Drag/Tap**, and in-game the
+  **Restart | Quit to Menu** half-width pair in the third row. Both openers (menu gear, in-game
+  gear) share the one class. Knobs: `UIStyles.SETTINGS_*` (eyeball defaults — tune live). Deliberate gaps:
   the mock's third **"Language: ENG"** row is **not built** — there is no localization system,
   and a button that does nothing is worse than none; add it as one `CreateRowButton` call when
   localization exists (in-game it would then need a 4th row or a tighter pitch). The **level
   stepper** is an inspector opt-in on `MainMenuUI` (see Controls).
+- **Credits panel (authored, 2026-09-01, `UI/CreditsPanel.cs`)**: menu-only, to the mock (`Look
+  Reference/Credits.png`) on the modal chrome (panel nudged up `CREDITS_PANEL_OFFSET`). Three
+  `CreditsEntry` lines — **A GAME BY** Oscar Torandell / **ART BY** Lucia Varona / **MUSIC BY**
+  Martin Nilsson — each a colored role heading (`StyleFillAndBorder`, accent + HUD border) over a
+  pastel **checkered band** with the name in the HUD palette. The band is procedural
+  (`SpriteFactory.Checker(cols, rows)` — a point-filtered white/transparent checker stretched over
+  the band rect and tinted per entry; the cream body shows through the clear cells) since the kit
+  has no band art. Entries live at the top of `CreditsPanel`; colors/layout in `UIStyles.CREDITS_*`.
+  ⚠️ **Music credit is provisional**: only `Track_2.ogg` carries a tag ("Moose theme for
+  Stranded", Martin Nilsson, 2013); the other 9 tracks are untagged FL Studio exports. Confirm
+  the composer(s) + license/attribution terms for every track before release, then fix the entry.
 - **★ glyph**: Panton (ASCII) lacks U+2605; add a fallback font or the `Star` sprite where needed.
 - **UI integration ≠ pure art-swap** — remaining wiring that implies real code:
   - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next

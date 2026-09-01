@@ -182,7 +182,6 @@ namespace DogtorBurguer
 
         #region Font Sizes - Panels
         public const float PANEL_BUTTON_TEXT_SIZE = 20f;
-        public const float CREDITS_TEXT_SIZE = 24f;
         #endregion
 
         #region World-Space Popup Sizes
@@ -197,10 +196,6 @@ namespace DogtorBurguer
         public const float WORLD_BURGER_SCORE_SIZE = 3.5f;
         public const float WORLD_FLOATING_TEXT_SIZE = 4f;
         public const float WORLD_STAR_POPUP_SIZE = 3f;   // "+N!" star award on an order match (below the xN)
-        #endregion
-
-        #region Panel Sizes
-        public static readonly Vector2 CREDITS_RECT = new(400, 300);
         #endregion
 
         #region Background Gradients
@@ -299,17 +294,21 @@ namespace DogtorBurguer
         public const float GAMEOVER_STARS_SIZE = 24f;
         #endregion
 
+        #region Layout — Modal Panels (the shared Settings / Credits chrome, ModalPanel)
+        // The panel art (ui_modal_panel) is a full-phone canvas like the game-over one: shown at
+        // REFERENCE_RESOLUTION the orange title tab and the dotted cream body land where drawn.
+        // Positions measured off Look Reference/settings.png (536x948 ≈ the reference), relative to
+        // the panel (which each screen may offset — CREDITS_PANEL_OFFSET).
+        public static readonly Vector2 MODAL_TITLE_POS = new(0f, 176f);              // the title word on the orange tab
+        public static readonly Vector2 MODAL_TITLE_RECT = new(400f, 70f);
+        public const float MODAL_TITLE_SIZE = 40f;
+        public static readonly Vector2 MODAL_CLOSE_POS = new(216f, 215f);            // round X, over the tab's top-right corner
+        public const float MODAL_CLOSE_H = 84f;
+        #endregion
+
         #region Layout — Settings Panel
         // In-game it gets its own canvas: above the game-over panel (100), below the shop (120).
         public const int SETTINGS_CANVAS_SORT = 110;
-        // The panel art (ui_settings_panel) is a full-phone canvas like the game-over one: shown at
-        // REFERENCE_RESOLUTION the orange title tab and the dotted cream body land where drawn.
-        // Positions measured off Look Reference/settings.png (536x948 ≈ the reference), canvas-centered.
-        public static readonly Vector2 SETTINGS_TITLE_POS = new(0f, 176f);           // "SETTINGS" on the orange tab
-        public static readonly Vector2 SETTINGS_TITLE_RECT = new(400f, 70f);
-        public const float SETTINGS_TITLE_SIZE = 40f;
-        public static readonly Vector2 SETTINGS_CLOSE_POS = new(216f, 215f);         // round X, over the tab's top-right corner
-        public const float SETTINGS_CLOSE_H = 84f;
         // Rows: full-width blue blanks stacked down the body (Sound, Controls, then the in-game
         // Restart | Quit pair). The blank's canvas includes its drop shadow (face ~10% smaller).
         public const float SETTINGS_ROW_W = 380f;
@@ -326,6 +325,31 @@ namespace DogtorBurguer
         public static readonly Vector2 SETTINGS_STEPPER_LABEL_SIZE = new(210f, 55f);
         public static readonly Vector2 SETTINGS_STEPPER_BTN_SIZE = new(55f, 55f);
         public const float SETTINGS_DEV_TEXT_SIZE = 22f;
+        #endregion
+
+        #region Layout — Credits Panel
+        // Same chrome as Settings (ModalPanel), sitting a touch higher in the mock
+        // (Look Reference/Credits.png). Three entries: a colored role heading over a pastel
+        // checkered band carrying the name in the HUD palette. Entry positions are relative to
+        // the panel; each entry hangs off its heading center.
+        public static readonly Vector2 CREDITS_PANEL_OFFSET = new(0f, 28f);
+        public const float CREDITS_FIRST_Y = 85f;                                    // first heading center
+        public const float CREDITS_PITCH = 118f;                                     // entry-to-entry spacing
+        public const float CREDITS_ROLE_SIZE = 30f;
+        public static readonly Vector2 CREDITS_ROLE_RECT = new(400f, 44f);
+        public const float CREDITS_BAND_DY = -47f;                                   // band center below the heading
+        public static readonly Vector2 CREDITS_BAND_SIZE = new(360f, 62f);
+        public const int CREDITS_BAND_COLUMNS = 18;                                  // checker cells across (3 rows → ~20px squares)
+        public const int CREDITS_BAND_ROWS = 3;
+        public const float CREDITS_NAME_DY = -49f;                                   // name center, on the band
+        public const float CREDITS_NAME_SIZE = 34f;
+        public static readonly Vector2 CREDITS_NAME_RECT = new(360f, 50f);
+        public static readonly Color CREDITS_GAME_ROLE = new(0.55f, 0.78f, 0.25f);   // lime heading
+        public static readonly Color CREDITS_GAME_BAND = new(0.80f, 0.90f, 0.66f);   // pastel green checker
+        public static readonly Color CREDITS_ART_ROLE = new(0.25f, 0.66f, 0.96f);    // sky heading
+        public static readonly Color CREDITS_ART_BAND = new(0.70f, 0.86f, 0.93f);    // pastel blue checker
+        public static readonly Color CREDITS_MUSIC_ROLE = new(0.93f, 0.62f, 0.13f);  // orange heading
+        public static readonly Color CREDITS_MUSIC_BAND = new(0.98f, 0.88f, 0.68f);  // pastel orange checker
         #endregion
 
         #region Layout — Shop Screen (full-screen overlay; header + vertical page scroll)

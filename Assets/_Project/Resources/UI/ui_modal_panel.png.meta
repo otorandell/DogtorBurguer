@@ -4,7 +4,7 @@ TextureImporter:
   internalIDToNameTable:
   - first:
       213: -197340129442726016
-    second: ui_settings_panel
+    second: ui_modal_panel
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -87,7 +87,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ui_settings_panel
+      name: ui_modal_panel
       rect:
         serializedVersion: 2
         x: 0
@@ -122,7 +122,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ui_settings_panel: -197340129442726016
+      ui_modal_panel: -197340129442726016
   mipmapLimitGroupName:
   pSDRemoveMatte: 0
   userData:

@@ -55,6 +55,29 @@ namespace DogtorBurguer
             });
         }
 
+        /// <summary>
+        /// A checkerboard of <paramref name="columns"/>x<paramref name="rows"/> cells — one pixel per
+        /// cell, point-filtered, alternating white / transparent — so a UGUI Image stretched over any
+        /// rect shows crisp squares; tint via Image.color (the transparent cells show what's behind).
+        /// Cached per grid size.
+        /// </summary>
+        public static Sprite Checker(int columns, int rows)
+        {
+            return GetOrCreate($"checker:{columns}x{rows}", () =>
+            {
+                Texture2D tex = new Texture2D(columns, rows, TextureFormat.RGBA32, false)
+                {
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Clamp
+                };
+                for (int y = 0; y < rows; y++)
+                    for (int x = 0; x < columns; x++)
+                        tex.SetPixel(x, y, (x + y) % 2 == 0 ? Color.white : Color.clear);
+                tex.Apply();
+                return Sprite.Create(tex, new Rect(0, 0, columns, rows), new Vector2(0.5f, 0.5f), 1f);
+            });
+        }
+
         private static Sprite GetOrCreate(string key, Func<Sprite> create)
         {
             // Unity's overloaded == treats a destroyed sprite as null — regenerate if so.

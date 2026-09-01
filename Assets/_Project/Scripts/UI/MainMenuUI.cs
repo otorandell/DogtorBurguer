@@ -17,7 +17,7 @@ namespace DogtorBurguer
 
         private Canvas _canvas;
         private SettingsPanel _settingsPanel;
-        private GameObject _creditsOverlay;
+        private CreditsPanel _creditsPanel;
 
         private void Start()
         {
@@ -61,6 +61,9 @@ namespace DogtorBurguer
 
             _settingsPanel = gameObject.AddComponent<SettingsPanel>();
             _settingsPanel.Initialize(_canvas, showLevelStepper: _showLevelStepper);
+
+            _creditsPanel = gameObject.AddComponent<CreditsPanel>();
+            _creditsPanel.Initialize(_canvas);
         }
 
         // The checkered diner strip pinned to the bottom edge, with CREDITS and SHOP on it.
@@ -112,21 +115,7 @@ namespace DogtorBurguer
 
         private void OnCreditsClicked()
         {
-            if (_creditsOverlay != null)
-            {
-                Destroy(_creditsOverlay);
-                return;
-            }
-
-            _creditsOverlay = UIFactory.CreateOverlay(_canvas.transform, UIStyles.OVERLAY_DARK);
-
-            Button closeBtn = _creditsOverlay.AddComponent<Button>();
-            closeBtn.onClick.AddListener(() => { Destroy(_creditsOverlay); _creditsOverlay = null; });
-
-            UIFactory.CreateText(_creditsOverlay.transform,
-                "Dogtor Burguer!\n\nA game by Oscar\n\nPowered by Unity\n\nTap to close",
-                Vector2.zero, UIStyles.CREDITS_RECT,
-                UIStyles.CREDITS_TEXT_SIZE);
+            _creditsPanel?.Show();
         }
     }
 }

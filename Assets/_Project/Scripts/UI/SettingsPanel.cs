@@ -2,15 +2,13 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using TMPro;
-using DG.Tweening;
 
 namespace DogtorBurguer
 {
     /// <summary>
-    /// The Settings panel, built from the authored art (drop №3): the full-canvas panel (orange
-    /// title tab and dotted cream body baked in), the round X over the tab's corner, and wide blue
-    /// rows — the Sound and Controls toggles, plus a Restart | Quit-to-menu pair in-game. Opened by
-    /// the menu gear and the in-game top-bar gear (that one pauses the run and resumes on close).
+    /// The Settings panel, on the shared ModalPanel chrome (full-canvas panel art, title, round X):
+    /// wide blue rows — the Sound and Controls toggles, plus a Restart | Quit-to-menu pair in-game.
+    /// Opened by the menu gear and the in-game top-bar gear (that one pauses the run and resumes on close).
     /// Layout knobs: UIStyles.SETTINGS_*. The start-level stepper is a testing row under the panel,
     /// opt-in from the MainMenuUI inspector (never in-game — the value only applies to the next run).
     /// </summary>
@@ -19,9 +17,7 @@ namespace DogtorBurguer
         private static readonly Vector2 Center = new(0.5f, 0.5f);
 
         private Canvas _canvas;
-        private GameObject _root;        // overlay + everything under it; toggled on show/hide
-        private CanvasGroup _canvasGroup;
-        private Transform _panel;        // the panel art; the pop-in scales it (and its children)
+        private ModalPanel _modal;
         private TextMeshProUGUI _soundLabel;
         private TextMeshProUGUI _controlLabel;
         private bool _showRunButtons;
@@ -43,42 +39,26 @@ namespace DogtorBurguer
 
         public void Show()
         {
-            if (_root == null)
+            if (_modal == null)
                 CreatePanel();
 
-            _root.SetActive(true);
             UpdateSoundLabel();
             UpdateControlLabel();
             UpdateLevelLabel();
-            PlayPopIn();
+            _modal.Show();
         }
 
         public void Hide()
         {
-            if (_root == null) return;
+            if (_modal == null) return;
 
-            _root.SetActive(false);
+            _modal.Hide();
             OnClosed?.Invoke();
         }
 
         private void CreatePanel()
         {
-            _root = UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY);
-            _canvasGroup = _root.AddComponent<CanvasGroup>();
-
-            // The panel art is a full-phone canvas: shown at the reference resolution it lands exactly
-            // where the artist drew it. Everything else is a child so the pop-in scales the whole panel.
-            Image panel = UIFactory.CreateImage(_root.transform, "Panel", UiArt.Load("ui_settings_panel"),
-                Center, Vector2.zero, UIStyles.REFERENCE_RESOLUTION);
-            _panel = panel.transform;
-
-            TextMeshProUGUI title = UIFactory.CreateText(_panel, "SETTINGS", UIStyles.SETTINGS_TITLE_POS,
-                UIStyles.SETTINGS_TITLE_RECT, UIStyles.SETTINGS_TITLE_SIZE, FontStyles.Bold);
-            UIFactory.StyleHudText(title);
-
-            Sprite close = UiArt.Load("ui_btn_close_x");
-            UIFactory.CreateSpriteButton(_panel, "Close", close, Center, UIStyles.SETTINGS_CLOSE_POS,
-                UIFactory.SizeByHeight(close, UIStyles.SETTINGS_CLOSE_H), Hide);
+            _modal = ModalPanel.Build(_canvas, "SETTINGS", Vector2.zero, Hide);
 
             // Rows down the body. The label strings are set by the Update*Label refreshers.
             _soundLabel = CreateRowButton("Sound", new Vector2(0f, RowY(0)), UIStyles.SETTINGS_ROW_W, OnSoundToggleClicked);
@@ -103,7 +83,7 @@ namespace DogtorBurguer
         {
             Sprite blank = UiArt.Load("ui_btn_blue_wide");
             Vector2 size = UIFactory.SizeByWidth(blank, width);
-            Button btn = UIFactory.CreateSpriteButton(_panel, label, blank, Center, pos, size, onClick);
+            Button btn = UIFactory.CreateSpriteButton(_modal.Panel, label, blank, Center, pos, size, onClick);
 
             TextMeshProUGUI word = UIFactory.CreateText(btn.transform, label, UIStyles.SETTINGS_ROW_LABEL_NUDGE,
                 size, UIStyles.SETTINGS_ROW_LABEL_SIZE, FontStyles.Bold);
@@ -111,19 +91,6 @@ namespace DogtorBurguer
             UIFactory.StyleHudText(word);
             UIFactory.AutoFit(word, UIStyles.SETTINGS_ROW_LABEL_SIZE_MIN, UIStyles.SETTINGS_ROW_LABEL_SIZE);
             return word;
-        }
-
-        private void PlayPopIn()
-        {
-            _canvasGroup.DOKill();
-            _panel.DOKill();
-            _canvasGroup.alpha = 0f;
-            _panel.localScale = Vector3.one * AnimConfig.PANEL_START_SCALE;
-
-            DOTween.Sequence()
-                .Append(_canvasGroup.DOFade(1f, AnimConfig.PANEL_FADE_DURATION))
-                .Join(_panel.DOScale(1f, AnimConfig.PANEL_SCALE_DURATION).SetEase(Ease.OutBack))
-                .SetUpdate(true); // the in-game opener pauses the run (timeScale 0)
         }
 
         private void OnRestartClicked()
@@ -180,8 +147,7 @@ namespace DogtorBurguer
 
         private void OnDestroy()
         {
-            if (_canvasGroup != null) _canvasGroup.DOKill();
-            if (_panel != null) _panel.DOKill();
+            _modal?.Kill();
         }
 
         // Start-level stepper — a testing tool, not part of the shipped panel: [−] Lv N [+] in flat
@@ -191,17 +157,18 @@ namespace DogtorBurguer
 
         private void BuildLevelStepper()
         {
+            Transform root = _modal.Panel;
             float y = UIStyles.SETTINGS_DEV_STEPPER_Y;
-            UIFactory.CreateButton(_panel, "-", new Vector2(-UIStyles.SETTINGS_DEV_STEPPER_X, y),
+            UIFactory.CreateButton(root, "-", new Vector2(-UIStyles.SETTINGS_DEV_STEPPER_X, y),
                 UIStyles.SETTINGS_STEPPER_BTN_SIZE, UIStyles.BTN_DEV_STEPPER,
                 UIStyles.SETTINGS_DEV_TEXT_SIZE, () => OnLevelStep(-1));
 
-            _levelLabel = UIFactory.CreateText(_panel, "Lv 1", new Vector2(0f, y),
+            _levelLabel = UIFactory.CreateText(root, "Lv 1", new Vector2(0f, y),
                 UIStyles.SETTINGS_STEPPER_LABEL_SIZE, UIStyles.SETTINGS_DEV_TEXT_SIZE, FontStyles.Bold);
 
             // The trial font renders "+" as a placeholder sliver glyph, so the increment
             // button uses the authored plus art instead of a text label.
-            UIFactory.CreateSpriteButton(_panel, "Plus", UiArt.Load("ui_consumable_plus"),
+            UIFactory.CreateSpriteButton(root, "Plus", UiArt.Load("ui_consumable_plus"),
                 Center, new Vector2(UIStyles.SETTINGS_DEV_STEPPER_X, y),
                 UIStyles.SETTINGS_STEPPER_BTN_SIZE, () => OnLevelStep(1));
         }
