@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 667788990011aabbccddeeff00112233
+guid: 1ad32fd7ab7f469ebda4e80023c14c38
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1112223334445556001
-    second: ui_consumable_box
+      213: -239999073001830080
+    second: ui_btn_green_wide
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,7 +52,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 330, y: 330, z: 330, w: 330}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -87,23 +87,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ui_consumable_box
+      name: ui_btn_green_wide
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1092
-        height: 1101
+        width: 1715
+        height: 494
       alignment: 0
       pivot: {x: 0, y: 0}
-      border: {x: 330, y: 330, z: 330, w: 330}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData:
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 66778899001122330800000000000000
-      internalID: -1112223334445556001
+      spriteID: 18c4a9986a51463db5ba118bf2613a8a
+      internalID: -239999073001830080
       vertices: []
       indices:
       edges: []
@@ -122,7 +122,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ui_consumable_box: -1112223334445556001
+      ui_btn_green_wide: -239999073001830080
   mipmapLimitGroupName:
   pSDRemoveMatte: 0
   userData:

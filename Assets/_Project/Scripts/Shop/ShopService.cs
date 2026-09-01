@@ -47,6 +47,19 @@ namespace DogtorBurguer
             return true;
         }
 
+        /// <summary>The Pro Cook Pack: one star spend, then the pack's quantity of every type.</summary>
+        public static bool TryBuyProCookPack()
+        {
+            SaveDataManager save = SaveDataManager.Instance;
+            ConsumablePack pack = MonetizationConfig.PRO_COOK_PACK;
+            if (save == null || !save.SpendStars(pack.StarCost)) return false;
+
+            save.AddConsumables(ConsumableType.Ketchup, pack.Quantity);
+            save.AddConsumables(ConsumableType.Mustard, pack.Quantity);
+            save.AddConsumables(ConsumableType.Skewer, pack.Quantity);
+            return true;
+        }
+
         public static bool TryBuyStarPack(StarProduct product)
         {
             SaveDataManager save = SaveDataManager.Instance;

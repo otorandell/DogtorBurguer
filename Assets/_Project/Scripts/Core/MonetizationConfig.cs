@@ -79,6 +79,9 @@ namespace DogtorBurguer
             new ConsumablePack(1, 150),
             new ConsumablePack(3, 400),
         };
+        // The "Pro Cook Pack" bundle: Quantity of EACH consumable type for one star price
+        // (9 items for 1000 vs 3 × 400 = 1200 buying the triples separately — ~17% off).
+        public static readonly ConsumablePack PRO_COOK_PACK = new ConsumablePack(3, 1000);
         #endregion
 
         #region Stars — earning (the soft-currency faucet; sinks live in the Shop sections above)

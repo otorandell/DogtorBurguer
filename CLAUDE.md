@@ -29,7 +29,8 @@ Assets/_Project/Scripts/
   Scoring/       Scoring (points/tiers), BurgerTier, BurgerNamer
   Skins/         Skin (ScriptableObject), SkinSlot, UnlockMethod, SkinMap, Theme (static accessor)
   Shop/          ShopScreen (full-screen overlay), ShopSections, ShopWidgets, ShopSkinCell,
-                 ShopRowScroll (nested h-scroll), ShopService (purchase rules), ShopCatalog
+                 ShopRowScroll (nested h-scroll), ShopCell (cell parts), ShopService (purchase
+                 rules), ShopCatalog
   UI/            MainMenuUI, GameHUD, TopBar (shared status bar), StatCard (shared Level/Score
                  card), GameOverPanel, SettingsPanel, CreditsPanel (+ CreditsEntry),
                  ModalPanel (shared Settings/Credits chrome: panel art + title + X + pop-in),
@@ -279,28 +280,51 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
 - IAP flows (gem packs, remove-ads) are stubs that grant immediately — see
   `ShopService.BuyGemPack` / `BuyRemoveAds`.
 
-### Shop (full-screen overlay — `Scripts/Shop/`)
-One vertically scrolling page under a fixed header (the shared TopBar + SHOP title + close), on its
-own canvas (`SHOP_CANVAS_SORT` 120, above everything). Opened via `ShopScreen.Open()` (menu Shop
-button) or `ShopScreen.OpenInGame()` (in-game top-bar shop button and the consumable slots' green
-plus box) — the in-game path **pauses** the run (`GameManager.PauseGame`) and resumes on close;
-all shop tweens run unscaled. Rebuilt each open, destroyed on close (no stale state).
-- **Sections, top → bottom** (order follows freemium-shop research: offer banner up top, currency
-  near the bottom): Remove-Ads banner (hidden once bought) → DOGTOR SKINS (one row) → INGREDIENT
-  SKINS (**one labelled sub-row per ingredient type** — Patty, Cheese, …, Buns — via
-  `ShopCatalog.IngredientSkinRows()` grouped by slot + `ShopWidgets.CreateSubTitle`; horizontal
-  `ShopRowScroll` rows, vertical drags route to the page scroll) → POWER-UPS (3
-  consumable cards, star-priced pack ladder) → GET STARS (gem-priced, **confirm dialog** — the
-  only confirm; soft spends and equips are instant) → GET GEMS (free rewarded-ad rung first, then
-  IAP packs with MOST POPULAR / BEST VALUE badges).
-- **Skin cells**: 3 states — EQUIPPED (green highlight), owned (tap = equip instantly), priced
-  (currency icon + cost; tap = buy **and auto-equip**; insufficient funds shakes the cell).
+### Shop (`Scripts/Shop/` — authored page, 2026-09-01)
+Built to the artist's mock (`Look Reference/Shop_example_1..3.png` + `Shop buy confirm.png`): a
+tall dotted cream **page** with the orange tab (SHOP + round X) over the dimmed game/menu, the
+shared **TopBar pills inside the page** (dropped by `SHOP_TOPBAR_DROP`), and one vertically
+scrolling body inset to the page (`SHOP_SCROLL_*`). Own canvas (`SHOP_CANVAS_SORT` 120, above
+everything). Opened via `ShopScreen.Open()` (menu Shop button) or `ShopScreen.OpenInGame()`
+(in-game top-bar shop button and the consumable slots' green plus box) — the in-game path
+**pauses** the run (`GameManager.PauseGame`) and resumes on close; all shop tweens run unscaled.
+Rebuilt each open, destroyed on close (no stale state).
+- **Sections, top → bottom**: support banner (**REMOVE ADS** offer + green price pill; once
+  bought it becomes the mock's **THANK YOU FOR SUPPORTING US!**) → DOGTOR SKINS (one h-scroll
+  row) → INGREDIENT SKINS (**one labelled sub-row per ingredient type** — Patty, Cheese, …, Buns
+  — via `ShopCatalog.IngredientSkinRows()` + `ShopWidgets.CreateSubTitle`; `ShopRowScroll` rows,
+  vertical drags route to the page scroll) → POWER-UPS (a **3-column grid**: one row per
+  `CONSUMABLE_PACKS` rung × one column per consumable; each cell = owned-count badge
+  (`ui_consumable_num`), icon, "xN", star pill) + the **PRO COOK PACK** bundle row
+  (`MonetizationConfig.PRO_COOK_PACK` — N of *each* type for one star price,
+  `ShopService.TryBuyProCookPack`) → STARS (grid; gem-priced, **confirm dialog** — the only
+  confirm; soft spends and equips are instant) → GEMS (grid; the free rewarded-ad cell first with
+  the blue **WATCH** pill tracking ad availability, then IAP packs; MOST POPULAR / BEST VALUE
+  badges sit gold on the amount line).
+- **Cells** (`ShopWidgets.CreateCell` → `ShopCell`): a 9-sliced cream box (`ui_consumable_box`,
+  border 330) with an optional **lime** label line (`SHOP_ACCENT`, `StyleAccent`) above and a
+  wide **green pill** below; the whole cell is one button. Pill faces are `CreateIconLine`s —
+  a HUD-palette number followed by the currency icon, layout-centered as one — the same line the
+  confirm dialog uses ("Buy 200 ★ / for 40 ◆", BUY green / CANCEL red). **Skin cells**: preview
+  on a pastel `SpriteFactory.Checker` inside the box; 3 states — EQUIPPED / EQUIP (tap equips
+  instantly) / price + icon (tap buys **and auto-equips**; insufficient funds shakes the cell).
   The shop *is* the wardrobe — no separate skins screen.
-- **Layer split**: `ShopScreen` (frame/orchestration + confirm dialog + balance pills),
-  `ShopSections` (page composition), `ShopWidgets` (low-level UGUI builders), `ShopSkinCell`
-  (cell widget), `ShopService` (atomic purchase rules, UI-free), `ShopCatalog` (groups skins;
-  a slot appears only once it has a non-default skin). Layout knobs: `UIStyles.SHOP_*`;
-  prices: `MonetizationConfig` (packs/ladders) + per-skin `_starCost` on the Skin asset.
+- **Derived stand-in art** (`scratchpad/build_shop_art.py` → `gen_shop_art.ps1`) — the kit has
+  **no shop-specific pieces**: `ui_shop_page` = the modal panel sheet with 1680px of its own flat
+  body tiled in (scaled 0.8); `ui_btn_green_wide` / `ui_btn_red_wide` = hue-shifts of the wide
+  blue blank (outline + highlight preserved). Still stand-ins from existing art: `ui_star` /
+  `ui_gem` for the gift-box / gem-pack icons, single consumable icons for the x3 groups and the
+  bundle tray, `ui_btn_cream` for the confirm card. **Swap list when the artist ships shop art**:
+  awning header + page, cell blank, pack icons (3 star boxes, 5-6 gem packs, x3 groups, tray),
+  green/red pills. Everything loads by `UiArt` name, so each is a file swap.
+- IAP price labels display without the "$" (`ShopWidgets.MoneyLabel`) — the trial font renders it
+  as the placeholder sliver; fix with the font swap before wiring real localized IAP prices.
+- **Layer split**: `ShopScreen` (frame/orchestration + confirm dialog + pills),
+  `ShopSections` (page composition), `ShopWidgets` (low-level UGUI builders), `ShopCell` (the
+  parts of one cell), `ShopSkinCell` (skin cell states), `ShopService` (atomic purchase rules,
+  UI-free), `ShopCatalog` (groups skins; a slot appears only once it has a non-default skin).
+  Layout knobs: `UIStyles.SHOP_*` (eyeballed off the mocks — tune live); prices:
+  `MonetizationConfig` (packs/ladders/bundle) + per-skin `_starCost` on the Skin asset.
 
 ### Consumables ("Burger Fairy" deliveries)
 Per-run consumable items delivered by fairies; drag onto a column to use. Design doc:
@@ -639,9 +663,9 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
     challenge level. **Built** (`BurgerChallengeView.BuildMultMeter`, `ChallengeFill`) — slot
     position/size are eyeball defaults in `UIStyles.MULT_METER_*`, tune live.
   Plan each of these as its own code task alongside the visual wiring.
-- **Shop UI is placeholder-styled** (flat color cards/buttons + authored pills/icons) — restyle
-  with authored art when the kit grows shop pieces. Layout knobs in `UIStyles.SHOP_*`, untested
-  on-device — eyeball defaults, tune live.
+- **Shop art is partly derived stand-ins** (page, green/red pills) and partly borrowed icons —
+  see Core Systems → Shop for the swap list when the artist ships shop pieces. Layout knobs in
+  `UIStyles.SHOP_*`, untested on-device — eyeball defaults, tune live.
 - **IAP**: gem packs + Remove Ads are stubs granting instantly (`ShopService`); need the real IAP
   SDK + a **Restore Purchases** path for Remove Ads (iOS review requirement).
 - Consumable polish: real SFX (override slots ready) + final slot layout/sizes (placeholders in `UIStyles`)

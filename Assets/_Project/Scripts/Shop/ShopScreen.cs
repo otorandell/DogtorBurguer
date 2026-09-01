@@ -8,18 +8,23 @@ using UnityEngine.UI;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// The full-screen Shop overlay — one vertically scrolling page (skins, power-ups, currency
-    /// packs, remove-ads) under a fixed header with both currency balances. Code-built on its own
-    /// canvas, openable from the main menu and from the in-game HUD (<see cref="OpenInGame"/>
-    /// pauses the run and resumes it on close). Rebuilt each open, destroyed on close — no stale
-    /// state. Frame + orchestration only: sections live in ShopSections, purchase rules in
-    /// ShopService, low-level construction in ShopWidgets.
+    /// The Shop screen, to the mock: a tall dotted cream page (orange tab with SHOP, round X) over
+    /// the dimmed game/menu, the shared currency pills inside the page, and one vertically
+    /// scrolling body (skins, power-ups, currency packs, remove-ads). Code-built on its own canvas,
+    /// openable from the main menu and from the in-game HUD (<see cref="OpenInGame"/> pauses the
+    /// run and resumes it on close). Rebuilt each open, destroyed on close — no stale state.
+    /// Frame + orchestration only: sections live in ShopSections, purchase rules in ShopService,
+    /// low-level construction in ShopWidgets.
     /// </summary>
     public class ShopScreen : MonoBehaviour
     {
+        private static readonly Vector2 Center = new(0.5f, 0.5f);
+        private static readonly Vector2 TopCenter = new(0.5f, 1f);
+
         private static ShopScreen _openInstance;
 
         private readonly List<Action> _refreshers = new();
+        private readonly List<Action> _perFrameTicks = new();
         private Action _onClosed;
         private Canvas _canvas;
         private TopBar _topBar;
@@ -58,8 +63,6 @@ namespace DogtorBurguer
             _perFrameTicks.Add(tick);
         }
 
-        private readonly List<Action> _perFrameTicks = new();
-
         private void Update()
         {
             foreach (Action tick in _perFrameTicks)
@@ -83,20 +86,31 @@ namespace DogtorBurguer
                 .SetUpdate(true).SetLink(target.gameObject);
         }
 
-        /// <summary>Confirm gate for hard-currency (gem) spends. Soft spends never see this.</summary>
-        public void ShowConfirm(string message, Action onConfirm)
+        /// <summary>Confirm gate for hard-currency (gem) spends — "Buy N ★ / for N ◆", BUY / CANCEL
+        /// on a cream card. Soft spends never see this.</summary>
+        public void ShowConfirm(int amount, string amountIcon, int cost, string costIcon, Action onConfirm)
         {
             CloseDialog();
-            _dialog = UIFactory.CreateOverlay(_canvas.transform, UIStyles.OVERLAY_DARK);
+            _dialog = UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY);
 
-            GameObject panel = UIFactory.CreatePanel(_dialog.transform, UIStyles.SHOP_CONFIRM_PANEL_SIZE, UIStyles.PANEL_BG);
-            UIFactory.CreateText(panel.transform, message, UIStyles.SHOP_CONFIRM_TEXT_POS,
-                UIStyles.SHOP_CONFIRM_TEXT_RECT, UIStyles.SHOP_CONFIRM_TEXT_SIZE, wrap: true);
-            UIFactory.CreateButton(panel.transform, "Buy", new Vector2(-UIStyles.SHOP_CONFIRM_BTN_X, UIStyles.SHOP_CONFIRM_BTN_Y),
-                UIStyles.SHOP_CONFIRM_BTN_SIZE, UIStyles.BTN_SHOP_BUY, UIStyles.PANEL_BUTTON_TEXT_SIZE,
+            Sprite cardArt = UiArt.Load("ui_btn_cream");
+            Image card = UIFactory.CreateImage(_dialog.transform, "Card", cardArt, Center, Vector2.zero,
+                UIFactory.SizeByWidth(cardArt, UIStyles.SHOP_CONFIRM_CARD_W));
+            card.raycastTarget = true; // taps on the card don't fall through to the page
+            Transform root = card.transform;
+
+            ShopWidgets.CreateIconLine(root, "Line1", new Vector2(0f, UIStyles.SHOP_CONFIRM_LINE1_Y), UIStyles.SHOP_CONFIRM_LINE_RECT,
+                $"Buy {amount}", UIStyles.SHOP_CONFIRM_TEXT_SIZE, amountIcon, UIStyles.SHOP_CONFIRM_ICON_H);
+            ShopWidgets.CreateIconLine(root, "Line2", new Vector2(0f, UIStyles.SHOP_CONFIRM_LINE2_Y), UIStyles.SHOP_CONFIRM_LINE_RECT,
+                $"for {cost}", UIStyles.SHOP_CONFIRM_TEXT_SIZE, costIcon, UIStyles.SHOP_CONFIRM_ICON_H);
+
+            Button buy = ShopWidgets.CreatePill(root, "Buy", "ui_btn_green_wide", Center,
+                new Vector2(-UIStyles.SHOP_CONFIRM_BTN_X, UIStyles.SHOP_CONFIRM_BTN_Y), UIStyles.SHOP_CONFIRM_BTN_W,
                 () => { CloseDialog(); onConfirm(); });
-            UIFactory.CreateButton(panel.transform, "Cancel", new Vector2(UIStyles.SHOP_CONFIRM_BTN_X, UIStyles.SHOP_CONFIRM_BTN_Y),
-                UIStyles.SHOP_CONFIRM_BTN_SIZE, UIStyles.BTN_CLOSE, UIStyles.PANEL_BUTTON_TEXT_SIZE, CloseDialog);
+            ShopWidgets.SetPillLabel(buy, "BUY", null);
+            Button cancel = ShopWidgets.CreatePill(root, "Cancel", "ui_btn_red_wide", Center,
+                new Vector2(UIStyles.SHOP_CONFIRM_BTN_X, UIStyles.SHOP_CONFIRM_BTN_Y), UIStyles.SHOP_CONFIRM_BTN_W, CloseDialog);
+            ShopWidgets.SetPillLabel(cancel, "CANCEL", null);
         }
 
         private void CloseDialog()
@@ -111,33 +125,36 @@ namespace DogtorBurguer
             _canvas = UIFactory.CreateCanvas(transform, "Shop_Canvas", UIStyles.SHOP_CANVAS_SORT);
             UIFactory.EnsureEventSystem();
 
-            UIFactory.CreateOverlay(_canvas.transform, UIStyles.SHOP_BG);
-            BuildHeader();
+            UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY);
+            BuildPage();
 
-            RectTransform content = ShopWidgets.CreateVerticalScroll(_canvas.transform, UIStyles.SHOP_HEADER_H);
+            RectTransform content = ShopWidgets.CreateVerticalScroll(_canvas.transform,
+                UIStyles.SHOP_SCROLL_TOP, UIStyles.SHOP_SCROLL_BOTTOM, UIStyles.SHOP_SCROLL_SIDE);
             ShopSections.BuildAll(content, this);
         }
 
-        // The shared TopBar sits at its standard positions (the bar visually "stays put" when the
-        // shop opens over the game/menu), with the SHOP title below it and a close button in the
-        // slot the HUD's settings button occupies.
-        private void BuildHeader()
+        // The page art at the reference width, hung from the canvas top; SHOP on its tab, the round X
+        // over the tab's corner, and the shared TopBar dropped into the page below the tab.
+        private void BuildPage()
         {
-            _topBar = TopBar.Build(_canvas.transform);
+            Sprite pageArt = UiArt.Load("ui_shop_page");
+            Vector2 pageSize = UIFactory.SizeByWidth(pageArt, UIStyles.REFERENCE_RESOLUTION.x);
+            UIFactory.CreateImage(_canvas.transform, "Page", pageArt, TopCenter,
+                new Vector2(0f, -(UIStyles.SHOP_PAGE_TOP + pageSize.y * 0.5f)), pageSize);
 
             TextMeshProUGUI title = UIFactory.CreateText(_canvas.transform, "SHOP", Vector2.zero,
                 UIStyles.SHOP_TITLE_RECT, UIStyles.SHOP_TITLE_SIZE, FontStyles.Bold);
             RectTransform titleRect = title.rectTransform;
-            titleRect.anchorMin = titleRect.anchorMax = new Vector2(0.5f, 1f);
+            titleRect.anchorMin = titleRect.anchorMax = TopCenter;
             titleRect.anchoredPosition = UIStyles.SHOP_TITLE_POS;
             UIFactory.StyleHudText(title);
 
-            (GameObject closeObj, Button _, TextMeshProUGUI _) = UIFactory.CreateButton(
-                _canvas.transform, "X", Vector2.zero, UIStyles.SHOP_CLOSE_SIZE, UIStyles.BTN_CLOSE,
-                UIStyles.SHOP_CLOSE_TEXT_SIZE, Close);
-            RectTransform closeRect = closeObj.GetComponent<RectTransform>();
-            closeRect.anchorMin = closeRect.anchorMax = Vector2.one;
-            closeRect.anchoredPosition = UIStyles.SHOP_CLOSE_POS;
+            Sprite close = UiArt.Load("ui_btn_close_x");
+            UIFactory.CreateSpriteButton(_canvas.transform, "Close", close, TopCenter, UIStyles.SHOP_CLOSE_POS,
+                UIFactory.SizeByHeight(close, UIStyles.SHOP_CLOSE_H), Close);
+
+            _topBar = TopBar.Build(_canvas.transform);
+            _topBar.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -UIStyles.SHOP_TOPBAR_DROP);
         }
 
         private void Close() => Destroy(gameObject);

@@ -41,18 +41,12 @@ namespace DogtorBurguer
 
         #region Panel / Overlay Colors
         public static readonly Color OVERLAY_DIM = new(0, 0, 0, 0.7f);
-        public static readonly Color OVERLAY_DARK = new(0, 0, 0, 0.85f);
         public static readonly Color MODAL_OVERLAY = new(0f, 0f, 0f, 0.55f);   // stand-in for the mocks' blurred game behind a full-canvas panel (game over, settings)
-        public static readonly Color PANEL_BG = new(0.15f, 0.15f, 0.2f, 0.95f);
         public static readonly Color SCREEN_FLASH = new(1f, 1f, 1f, 0.6f);
         #endregion
 
         #region Button Colors
-        public static readonly Color BTN_CLOSE = new(0.5f, 0.5f, 0.5f);
-        public static readonly Color BTN_RESTART = new(0.2f, 0.7f, 0.3f);
         public static readonly Color BTN_DEV_STEPPER = new(0.3f, 0.5f, 0.7f);    // dev-only start-level stepper (Settings)
-        public static readonly Color BTN_SHOP_AD = new(0.3f, 0.5f, 0.9f);
-        public static readonly Color BTN_SHOP_BUY = new(0.2f, 0.7f, 0.3f);
         #endregion
 
         #region Consumable / Fairy Sizes (world-space heights)
@@ -181,7 +175,6 @@ namespace DogtorBurguer
         #endregion
 
         #region Font Sizes - Panels
-        public const float PANEL_BUTTON_TEXT_SIZE = 20f;
         #endregion
 
         #region World-Space Popup Sizes
@@ -356,90 +349,96 @@ namespace DogtorBurguer
         public static readonly Color CREDITS_MUSIC_BAND = new(0.98f, 0.88f, 0.68f);  // pastel orange checker
         #endregion
 
-        #region Layout — Shop Screen (full-screen overlay; header + vertical page scroll)
+        #region Layout — Shop Screen (a tall page over the dimmed screen; header + vertical page scroll)
         public const int SHOP_CANVAS_SORT = 120;                                // above every in-game canvas (HUD 50, slots 90, game-over 100)
-        public static readonly Color SHOP_BG = new(0.11f, 0.08f, 0.06f, 0.99f); // warm dark brown page
-        public static readonly Color SHOP_CARD_BG = new(0.22f, 0.16f, 0.12f);   // item cells / offer bars
-        public static readonly Color SHOP_CARD_BG_EQUIPPED = new(0.16f, 0.28f, 0.16f);  // equipped skin cell
-        public static readonly Color SHOP_CARD_BG_HIGHLIGHT = new(0.32f, 0.20f, 0.10f); // remove-ads banner
-        public static readonly Color SHOP_SECTION_TITLE_COLOR = new(0.95f, 0.85f, 0.65f);
-        public static readonly Color SHOP_SUBTEXT_COLOR = new(0.75f, 0.70f, 0.62f);
-        public static readonly Color SHOP_BADGE_COLOR = new(1f, 0.85f, 0f);     // "BEST VALUE" tags
-        public static readonly Color SHOP_EQUIPPED_COLOR = new(0.35f, 0.9f, 0.4f);
-
-        // Header (fixed above the scroll): the shared TopBar at its standard positions, the
-        // SHOP title below it, close button in the HUD settings button's slot.
-        public const float SHOP_HEADER_H = 150f;
-        public static readonly Vector2 SHOP_TITLE_POS = new(0f, -105f);         // below the top bar
-        public static readonly Vector2 SHOP_TITLE_RECT = new(300f, 60f);
-        public const float SHOP_TITLE_SIZE = 40f;
-        public static readonly Vector2 SHOP_CLOSE_POS = new(-29f, -38f);        // anchored top-right (center x = 511, the TopBar settings slot)
-        public static readonly Vector2 SHOP_CLOSE_SIZE = new(52f, 52f);
-        public const float SHOP_CLOSE_TEXT_SIZE = 24f;
-
-        // Page scroll + sections.
+        // Page art (ui_shop_page): the modal panel sheet with its own body tiled taller — orange tab +
+        // dotted cream body — shown at the reference width, top-anchored. A DERIVED stand-in
+        // (scratchpad/build_shop_art.py) until the artist's awning header/page lands. Positions are
+        // measured off Look Reference/Shop_example_*.png (573x966 ≈ the 540x960 reference).
+        public const float SHOP_PAGE_TOP = 13f;                                 // sprite top edge below the canvas top
+        public static readonly Vector2 SHOP_TITLE_POS = new(0f, -85f);          // "SHOP" on the tab (from the canvas top)
+        public static readonly Vector2 SHOP_TITLE_RECT = new(300f, 80f);
+        public const float SHOP_TITLE_SIZE = 52f;
+        public static readonly Vector2 SHOP_CLOSE_POS = new(192f, -47f);        // round X over the tab's corner (from top-center)
+        public const float SHOP_CLOSE_H = 78f;
+        public const float SHOP_TOPBAR_DROP = 141f;                             // the shared TopBar pills, moved down into the page
+        // Scroll viewport: the page body between the pills and the page bottom. Side inset + content
+        // padding center the 3-column grids (3 × SHOP_CELL_W + 2 × SHOP_CELL_SPACING) in the body.
+        public const float SHOP_SCROLL_TOP = 215f;
+        public const float SHOP_SCROLL_BOTTOM = 60f;
+        public const float SHOP_SCROLL_SIDE = 62f;
         public const float SHOP_SCROLL_SENSITIVITY = 30f;
-        public const int SHOP_CONTENT_PADDING = 16;                             // page edges (RectOffset — int)
-        public const int SHOP_CONTENT_BOTTOM_PADDING = 32;
-        public const float SHOP_SECTION_SPACING = 10f;
-        public const float SHOP_SECTION_TITLE_H = 44f;
-        public const float SHOP_SECTION_TITLE_SIZE = 22f;
-        public const float SHOP_SUBTITLE_H = 26f;                               // per-ingredient row label
-        public const float SHOP_SUBTITLE_SIZE = 16f;
-        public const float SHOP_CELL_SPACING = 10f;                             // between row cells
-
-        // Skin cells (horizontal rows).
-        public const float SHOP_SKIN_ROW_H = 190f;
-        public static readonly Vector2 SHOP_SKIN_CELL_SIZE = new(124f, 182f);
-        public const float SHOP_SKIN_PREVIEW_H = 82f;
-        public const float SHOP_SKIN_PREVIEW_MARGIN = 12f;
-        public const float SHOP_SKIN_NAME_SIZE = 15f;
-        public const float SHOP_SKIN_NAME_Y = -104f;                            // below the preview
-        public const float SHOP_SKIN_STATE_SIZE = 16f;                          // EQUIPPED / EQUIP / price
-        public const float SHOP_SKIN_STATE_Y = 22f;                             // state row, from cell bottom
-        public const float SHOP_SKIN_STATE_X = 10f;                             // label shift right of the icon
-        public const float SHOP_SKIN_PRICE_ICON_X = -34f;
-        public const float SHOP_SKIN_PRICE_ICON_H = 26f;
-
-        // Consumable cards (horizontal row).
-        public const float SHOP_CONSUMABLE_ROW_H = 240f;
-        public static readonly Vector2 SHOP_CONSUMABLE_CARD_SIZE = new(154f, 232f);
-        public const float SHOP_CONSUMABLE_ICON_H = 64f;
-        public const float SHOP_CONSUMABLE_ICON_Y = -44f;                       // icon center, from card top
-        public const float SHOP_CONSUMABLE_NAME_Y = -92f;
-        public const float SHOP_CONSUMABLE_OWNED_Y = -114f;
-        public const float SHOP_CONSUMABLE_BTN_Y = -150f;                       // first buy button center
-        public const float SHOP_CONSUMABLE_BTN_SPACING = 48f;
-        public static readonly Vector2 SHOP_CONSUMABLE_BTN_SIZE = new(134f, 40f);
-
-        // Offer bars (star packs, gem packs, remove-ads) + their price buttons.
-        public const float SHOP_OFFER_BAR_H = 84f;
-        public const float SHOP_REMOVE_ADS_BAR_H = 110f;
-        public const float SHOP_OFFER_ICON_X = 46f;                             // icon center, from bar left
-        public const float SHOP_OFFER_ICON_H = 54f;
-        public const float SHOP_OFFER_TEXT_X = 88f;                             // title/subtitle left edge
-        public const float SHOP_OFFER_TITLE_SIZE = 20f;
-        public static readonly Vector2 SHOP_OFFER_TITLE_RECT = new(240f, 30f);
-        public const float SHOP_OFFER_SUB_SIZE = 13f;
-        public static readonly Vector2 SHOP_OFFER_SUB_RECT = new(260f, 40f);
-        public const float SHOP_BADGE_SIZE = 12f;
-        public static readonly Vector2 SHOP_BADGE_RECT = new(140f, 20f);
-        public static readonly Vector2 SHOP_BADGE_POS = new(-12f, 34f);         // above the price button
-        public static readonly Vector2 SHOP_PRICE_BTN_POS = new(-80f, 0f);      // anchored right-center
-        public static readonly Vector2 SHOP_PRICE_BTN_SIZE = new(132f, 46f);
-        public const float SHOP_PRICE_TEXT_SIZE = 18f;
-        public const float SHOP_PRICE_ICON_X = 18f;                             // currency icon inside the button
-        public const float SHOP_PRICE_ICON_H = 26f;
-        public const float SHOP_PRICE_TEXT_MARGIN = 26f;                        // label shift right of the icon
-
-        // Gem-spend confirm dialog.
-        public static readonly Vector2 SHOP_CONFIRM_PANEL_SIZE = new(400f, 240f);
-        public static readonly Vector2 SHOP_CONFIRM_TEXT_POS = new(0f, 40f);
-        public static readonly Vector2 SHOP_CONFIRM_TEXT_RECT = new(360f, 110f);
-        public const float SHOP_CONFIRM_TEXT_SIZE = 22f;
-        public const float SHOP_CONFIRM_BTN_X = 92f;                            // buttons flank the center
-        public const float SHOP_CONFIRM_BTN_Y = -75f;
-        public static readonly Vector2 SHOP_CONFIRM_BTN_SIZE = new(160f, 52f);
+        public const int SHOP_CONTENT_PADDING = 8;                              // page edges (RectOffset — int)
+        public const int SHOP_CONTENT_BOTTOM_PADDING = 24;
+        public const float SHOP_SECTION_SPACING = 8f;
+        // Text: section titles in the HUD palette; names/amounts in the mock's lime accent.
+        public const float SHOP_SECTION_TITLE_H = 54f;
+        public const float SHOP_SECTION_TITLE_SIZE = 34f;
+        public const float SHOP_SUBTITLE_H = 26f;                               // per-ingredient row label (Patty, Cheese, …)
+        public const float SHOP_SUBTITLE_SIZE = 18f;
+        public static readonly Color SHOP_ACCENT = new(0.62f, 0.75f, 0.20f);    // lime: cell names, pack amounts, THANK YOU
+        public static readonly Color SHOP_BADGE_COLOR = new(1f, 0.85f, 0f);     // "BEST VALUE" tags
+        public const float SHOP_BADGE_SIZE = 11f;
+        // Cells (skins, power-ups, currency packs): a 9-sliced cream box (ui_consumable_box) with an
+        // optional lime label line above and a wide green price pill below; the whole cell is the button.
+        public const float SHOP_CELL_W = 112f;
+        public const float SHOP_CELL_SPACING = 15f;
+        public const float SHOP_CELL_LABEL_H = 24f;
+        public const float SHOP_CELL_LABEL_SIZE = 17f;
+        public const float SHOP_CELL_BOX_H = 100f;
+        public const float SHOP_CELL_PILL_GAP = 6f;
+        public const float SHOP_CELL_PILL_W = 112f;                             // green wide blank sized by width (≈ 32 tall)
+        public const float SHOP_PILL_TEXT_SIZE = 18f;
+        public const float SHOP_PILL_ICON_H = 24f;                              // currency icon on a pill, right of the number
+        public const float SHOP_PILL_ICON_GAP = 3f;
+        public static readonly Vector2 SHOP_PILL_LABEL_NUDGE = new(-2f, 3f);   // toward the face center (shadow is bottom-right)
+        public const float SHOP_WATCH_LABEL_MIN = 9f;                           // "LOADING..." shrink floor on the blue watch pill
+        public static readonly Vector2 SHOP_WATCH_LABEL_POS = new(14f, 3f);    // right of the baked TV icon
+        public static readonly Vector2 SHOP_WATCH_LABEL_RECT = new(66f, 26f);
+        public static readonly Color SHOP_CELL_CHECKER = new(0.86f, 0.90f, 0.78f); // pastel checker behind skin previews
+        public const int SHOP_CELL_CHECKER_CELLS = 6;
+        public const float SHOP_CELL_CHECKER_INSET = 10f;
+        public const float SHOP_SKIN_PREVIEW_H = 104f;                          // overflows the box top a touch, like the mock
+        public const float SHOP_SKIN_PREVIEW_MAX_W = 100f;
+        public const float SHOP_SKIN_PREVIEW_Y = 4f;                            // preview center vs box center
+        public const float SHOP_ITEM_ICON_H = 66f;                              // power-up / currency icons inside the box
+        public static readonly Vector2 SHOP_COUNT_BADGE_POS = new(-46f, 42f);  // owned-count badge on the box's top-left corner
+        public const float SHOP_COUNT_BADGE_H = 30f;
+        public const float SHOP_COUNT_BADGE_TEXT = 15f;
+        public static readonly Vector2 SHOP_QTY_POS = new(34f, -34f);          // "xN" bottom-right of the box
+        public static readonly Vector2 SHOP_QTY_RECT = new(50f, 26f);
+        public const float SHOP_QTY_SIZE = 18f;
+        // Wide rows (remove-ads / thank-you banner, the Pro Cook Pack bundle): a 9-sliced cream box
+        // spanning the content width.
+        public const float SHOP_BANNER_H = 96f;
+        public const float SHOP_BANNER_TEXT_SIZE = 26f;
+        public const float SHOP_BANNER_TEXT_MIN = 14f;
+        public static readonly Vector2 SHOP_BANNER_TEXT_INSET = new(24f, 12f);
+        public const float SHOP_BANNER_OFFER_TEXT_W = 190f;                     // "REMOVE ADS" text column (pill takes the rest)
+        public const float SHOP_BANNER_PILL_W = 130f;
+        public const float SHOP_BANNER_PILL_X = -78f;                           // pill center from the banner's right edge
+        public const float SHOP_BUNDLE_H = 110f;
+        public const float SHOP_BUNDLE_ICON_H = 44f;
+        public const float SHOP_BUNDLE_ICON_X0 = 34f;                           // first icon center from the left edge
+        public const float SHOP_BUNDLE_ICON_SPACING = 40f;
+        public const float SHOP_BUNDLE_ICON_Y = 14f;
+        public static readonly Vector2 SHOP_BUNDLE_QTY_POS = new(160f, 4f);     // "xN" right of the icons (from the left edge)
+        public static readonly Vector2 SHOP_BUNDLE_NAME_POS = new(96f, -32f);   // "PRO COOK PACK" under the icons (center, from the left edge)
+        public static readonly Vector2 SHOP_BUNDLE_NAME_RECT = new(180f, 24f);
+        public const float SHOP_BUNDLE_NAME_SIZE = 16f;
+        public const float SHOP_BUNDLE_PILL_W = 150f;
+        public const float SHOP_BUNDLE_PILL_X = -88f;
+        // Confirm dialog (gem spends only): a cream card with the offer lines and BUY / CANCEL pills.
+        public const float SHOP_CONFIRM_CARD_W = 400f;                          // ui_btn_cream sized by width (≈ 190 tall)
+        public const float SHOP_CONFIRM_LINE1_Y = 48f;                          // "Buy N ★"
+        public const float SHOP_CONFIRM_LINE2_Y = 12f;                          // "for N ◆"
+        public static readonly Vector2 SHOP_CONFIRM_LINE_RECT = new(340f, 40f);
+        public const float SHOP_CONFIRM_TEXT_SIZE = 28f;
+        public const float SHOP_CONFIRM_ICON_H = 34f;
+        public const float SHOP_CONFIRM_BTN_X = 92f;                            // pills flank the center
+        public const float SHOP_CONFIRM_BTN_Y = -52f;
+        public const float SHOP_CONFIRM_BTN_W = 170f;
+        public const float SHOP_CONFIRM_BTN_TEXT = 24f;
         #endregion
     }
 }
