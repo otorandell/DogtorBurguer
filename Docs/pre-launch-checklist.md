@@ -80,7 +80,10 @@ Dashboard flows/prices drift — treat as the shape, re-verify screens when exec
 ### Ad consent & privacy prerequisites (GDPR / ATT)
 **Impact:** EU GDPR consent and iOS App Tracking Transparency are required before ads will serve and for store compliance. Missing them → ads don't fill and/or the app violates platform policy.
 **Mitigation:** integrate the SDK's consent management (e.g. Google/Unity UMP) for GDPR and trigger the ATT prompt on iOS. Depends on a published privacy policy (see below).
-**Status:** pending (blocker for ad launch). Privacy policy **final text written 2026-09-01**
+**Status:** RESOLVED for v1 on 2026-09-01 by policy, not UI: `MonetizationConfig.ADS_PERSONALIZED = false` →
+non-personalized ads for everyone (GDPR consent false, CCPA opt-out, COPPA false passed to LevelPlay
+before init), no ATT call on iOS. Revisit (in-house EEA prompt, or a certified CMP/UMP if AdMob is ever
+mediated) only if EU revenue justifies it. Privacy policy **final text written 2026-09-01**
 (`Docs/privacy-policy.md` + `privacy-policy.html`; declares not-child-directed, 13+ target audience,
 ProximaCentaury / oscar.plk@gmail.com as contact) — **host it** (GitHub Pages) and put the URL in the
 Play listing + LevelPlay dashboard; then the consent flow (GDPR UMP / iOS ATT).

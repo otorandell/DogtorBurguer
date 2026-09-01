@@ -268,8 +268,12 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   (https://platform.ironsrc.com — *not* Unity Cloud): Apps page = App Key, Ad Units page =
   ad-unit IDs. Package ID is `com.proximacentaury.dogtorburguer` (all platforms; company
   `ProximaCentaury`; permanent once uploaded to Play). Next: **device test** with
-  `LEVELPLAY_TEST_SUITE = true` on an Android build. Consent flow (GDPR UMP / iOS ATT) still pending — see
-  `Docs/pre-launch-checklist.md`; privacy policy draft at `Docs/privacy-policy-draft.md`.
+  `LEVELPLAY_TEST_SUITE = true` on an Android build. **Consent: no prompt for v1** (decision 2026-09-01) —
+  `MonetizationConfig.ADS_PERSONALIZED = false` makes `LevelPlayAdProvider` call
+  `LevelPlayPrivacySettings.SetGDPRConsent(false)` / `SetCCPA(true)` / `SetCOPPA(false)` before
+  `Init`, so every user gets non-personalized ads and iOS never shows ATT (no IDFA). Turning
+  personalization on later requires an EEA/UK consent prompt + the ATT prompt first (see
+  `Docs/pre-launch-checklist.md`). Privacy policy: `Docs/privacy-policy.md`.
 - **Ad architecture** (production-shaped, 2026-07-05): `AdManager` is a facade owning one
   `IAdProvider` (contract in `Monetization/Abstractions/`) plus the ad policy (cadence,
   remove-ads suppression). The provider models the real SDK lifecycle: async init, **preload**
@@ -697,7 +701,6 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   (the Unity IAP fake store dialogs), then on the Play internal track with license testers;
   generate the receipt-validation tangle before launch.
 - Consumable polish: real SFX (override slots ready) + final slot layout/sizes (placeholders in `UIStyles`)
-- Leaderboard integration (button exists, logs "Coming Soon")
 - Ad SDK integration: code + Android credentials + package ID done (see Monetization → Real ad SDK); needs device test, iOS credentials
 
 ## Pre-Launch Checklist

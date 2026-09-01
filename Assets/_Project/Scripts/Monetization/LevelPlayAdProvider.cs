@@ -50,6 +50,12 @@ namespace DogtorBurguer
             if (MonetizationConfig.LEVELPLAY_TEST_SUITE)
                 LevelPlay.SetMetaData("is_test_suite", "enable");
 
+            // Privacy flags must precede Init. With ADS_PERSONALIZED off every user counts as
+            // declined (GDPR) / opted out of sale (CCPA) → non-personalized ads only.
+            LevelPlayPrivacySettings.SetGDPRConsent(MonetizationConfig.ADS_PERSONALIZED);
+            LevelPlayPrivacySettings.SetCCPA(!MonetizationConfig.ADS_PERSONALIZED);
+            LevelPlayPrivacySettings.SetCOPPA(MonetizationConfig.ADS_CHILD_DIRECTED);
+
             LevelPlay.Init(MonetizationConfig.LEVELPLAY_APP_KEY);
         }
 

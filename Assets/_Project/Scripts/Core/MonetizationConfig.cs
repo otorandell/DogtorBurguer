@@ -37,6 +37,14 @@ namespace DogtorBurguer
         // Launches LevelPlay's on-device test suite after init — flip on for the first
         // device-integration pass, ship OFF.
         public const bool LEVELPLAY_TEST_SUITE = false;
+        // Ad personalization policy (decision 2026-09-01): NO consent prompt for v1 — every user is
+        // treated as having declined, so LevelPlay serves non-personalized ads everywhere (lower
+        // EU eCPMs, but nothing to show and nothing to get wrong) and iOS never asks for
+        // tracking (no ATT call → no IDFA). Flipping this to true is NOT enough on its own: a
+        // consent prompt (EEA/UK) + the ATT prompt must gate it — see Docs/pre-launch-checklist.md.
+        public const bool ADS_PERSONALIZED = false;
+        // Not directed at children (matches the privacy policy / Play target audience).
+        public const bool ADS_CHILD_DIRECTED = false;
         #endregion
 
         #region Fairy Drops
