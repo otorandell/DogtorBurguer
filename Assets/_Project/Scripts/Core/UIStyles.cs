@@ -304,6 +304,7 @@ namespace DogtorBurguer
         public const float MODAL_TITLE_SIZE = 40f;
         public static readonly Vector2 MODAL_CLOSE_POS = new(216f, 215f);            // round X, over the tab's top-right corner
         public const float MODAL_CLOSE_H = 84f;
+        public const float MODAL_TAB_TOP = 230f;                                     // the tab's top edge in the art (panel px) — pinned when a screen stretches the body
         #endregion
 
         #region Layout — Settings Panel
@@ -333,6 +334,7 @@ namespace DogtorBurguer
         // checkered band carrying the name in the HUD palette. Entry positions are relative to
         // the panel; each entry hangs off its heading center.
         public static readonly Vector2 CREDITS_PANEL_OFFSET = new(0f, 28f);
+        public const float CREDITS_BODY_STRETCH = 1.06f;                             // art stretched 6% taller (tab pinned) so the music band fits
         public const float CREDITS_FIRST_Y = 85f;                                    // first heading center
         public const float CREDITS_PITCH = 118f;                                     // entry-to-entry spacing
         public const float CREDITS_ROLE_SIZE = 30f;

@@ -50,7 +50,8 @@ namespace DogtorBurguer
 
         private void CreatePanel()
         {
-            _modal = ModalPanel.Build(_canvas, "CREDITS", UIStyles.CREDITS_PANEL_OFFSET, Hide);
+            _modal = ModalPanel.Build(_canvas, "CREDITS", UIStyles.CREDITS_PANEL_OFFSET, Hide,
+                UIStyles.CREDITS_BODY_STRETCH);
 
             for (int i = 0; i < Entries.Length; i++)
                 BuildEntry(Entries[i], UIStyles.CREDITS_FIRST_Y - i * UIStyles.CREDITS_PITCH);

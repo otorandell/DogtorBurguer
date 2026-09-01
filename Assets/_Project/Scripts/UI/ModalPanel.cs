@@ -18,7 +18,8 @@ namespace DogtorBurguer
 
         /// <summary>The overlay root — everything lives under it; toggled by Show / Hide.</summary>
         public GameObject Root { get; }
-        /// <summary>The panel art. Parent screen content here so the pop-in scales it too.</summary>
+        /// <summary>The panel's content root (the art sits under it). Parent screen content here so
+        /// the pop-in scales it too; positions are in unstretched panel px.</summary>
         public Transform Panel { get; }
 
         private readonly CanvasGroup _group;
@@ -34,17 +35,31 @@ namespace DogtorBurguer
         /// build lazily from their Show, add content, then call <see cref="Show"/>. (TMP assigns its
         /// default font in Awake, which never runs on an inactive hierarchy, so texts added to a
         /// deactivated panel would have a null font — StyleFillAndBorder reads it.)
-        /// <paramref name="panelOffset"/> nudges the whole panel art (canvas-centered px).</summary>
-        public static ModalPanel Build(Canvas canvas, string title, Vector2 panelOffset, UnityAction onClose)
+        /// <paramref name="panelOffset"/> nudges the whole panel (canvas-centered px);
+        /// <paramref name="bodyStretch"/> scales the art vertically (1 = as drawn) with the tab's top
+        /// edge pinned, so only the body grows downward — content positions are unaffected.</summary>
+        public static ModalPanel Build(Canvas canvas, string title, Vector2 panelOffset, UnityAction onClose,
+            float bodyStretch = 1f)
         {
             GameObject root = UIFactory.CreateOverlay(canvas.transform, UIStyles.MODAL_OVERLAY);
             CanvasGroup group = root.AddComponent<CanvasGroup>();
 
+            // Content root: a plain rect at the reference size; everything (art included) is a child so
+            // the pop-in scales the whole panel and screen content is laid out in panel px.
+            GameObject panelObj = new GameObject("Panel");
+            panelObj.transform.SetParent(root.transform, false);
+            RectTransform panelRect = panelObj.AddComponent<RectTransform>();
+            panelRect.anchorMin = Center;
+            panelRect.anchorMax = Center;
+            panelRect.anchoredPosition = panelOffset;
+            panelRect.sizeDelta = UIStyles.REFERENCE_RESOLUTION;
+            Transform panel = panelObj.transform;
+
             // The panel art is a full-phone canvas: shown at the reference resolution it lands exactly
-            // where the artist drew it. Everything else is a child so the pop-in scales the whole panel.
-            Image art = UIFactory.CreateImage(root.transform, "Panel", UiArt.Load("ui_modal_panel"),
-                Center, panelOffset, UIStyles.REFERENCE_RESOLUTION);
-            Transform panel = art.transform;
+            // where the artist drew it. A vertical stretch is applied about the tab's top edge.
+            Vector2 artSize = new(UIStyles.REFERENCE_RESOLUTION.x, UIStyles.REFERENCE_RESOLUTION.y * bodyStretch);
+            Vector2 artPos = new(0f, UIStyles.MODAL_TAB_TOP * (1f - bodyStretch));
+            UIFactory.CreateImage(panel, "Art", UiArt.Load("ui_modal_panel"), Center, artPos, artSize);
 
             TextMeshProUGUI titleText = UIFactory.CreateText(panel, title, UIStyles.MODAL_TITLE_POS,
                 UIStyles.MODAL_TITLE_RECT, UIStyles.MODAL_TITLE_SIZE, FontStyles.Bold);

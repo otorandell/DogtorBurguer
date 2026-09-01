@@ -606,7 +606,10 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   red X (`ui_btn_close_x`) over the tab's corner, and the game-over pop-in (`AnimConfig.PANEL_*`).
   Screens parent their content under `ModalPanel.Panel` and call `Show`/`Hide`/`Kill`. Knobs:
   `UIStyles.MODAL_*`. A new modal screen = `ModalPanel.Build(canvas, "TITLE", offset, Hide)` +
-  content.
+  content. `Panel` is a plain content root at the reference size with the art image under it, so
+  a screen can pass a `bodyStretch` (Credits: `CREDITS_BODY_STRETCH` 1.06) that scales the art
+  vertically about the tab's top edge (`MODAL_TAB_TOP`) — the body grows downward and content
+  positions don't move.
 - **Settings panel (authored, 2026-09-01)**: rebuilt to the mock (`Look Reference/settings.png`)
   on the modal chrome: wide blue rows (`ui_btn_blue_wide`, sized by width, HUD-palette auto-fit
   labels) stacked down the body: **Sound: ON/OFF**, **Controls: Drag/Tap**, and in-game the
