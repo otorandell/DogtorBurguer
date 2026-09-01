@@ -287,16 +287,16 @@ namespace DogtorBurguer
         #endregion
 
         #region Layout — Modal Panels (the shared Settings / Credits chrome, ModalPanel)
-        // The panel art (ui_modal_panel) is a full-phone canvas like the game-over one: shown at
-        // REFERENCE_RESOLUTION the orange title tab and the dotted cream body land where drawn.
-        // Positions measured off Look Reference/settings.png (536x948 ≈ the reference), relative to
-        // the panel (which each screen may offset — CREDITS_PANEL_OFFSET).
+        // Each screen's panel sheet (ui_modal_panel for Settings, ui_credits_panel for Credits) is a
+        // full-phone canvas like the game-over one: shown at REFERENCE_RESOLUTION the orange title
+        // tab and the dotted cream body land where drawn. Title/X positions below are for the
+        // Settings sheet (measured off Look Reference/settings.png, 536x948 ≈ the reference); a
+        // screen whose sheet draws the tab elsewhere passes a chrome offset (CREDITS_CHROME_OFFSET).
         public static readonly Vector2 MODAL_TITLE_POS = new(0f, 176f);              // the title word on the orange tab
         public static readonly Vector2 MODAL_TITLE_RECT = new(400f, 70f);
         public const float MODAL_TITLE_SIZE = 40f;
         public static readonly Vector2 MODAL_CLOSE_POS = new(216f, 215f);            // round X, over the tab's top-right corner
         public const float MODAL_CLOSE_H = 84f;
-        public const float MODAL_TAB_TOP = 230f;                                     // the tab's top edge in the art (panel px) — pinned when a screen stretches the body
         #endregion
 
         #region Layout — Settings Panel
@@ -321,31 +321,25 @@ namespace DogtorBurguer
         #endregion
 
         #region Layout — Credits Panel
-        // Same chrome as Settings (ModalPanel), sitting a touch higher in the mock
-        // (Look Reference/Credits.png). Three entries: a colored role heading over a pastel
-        // checkered band carrying the name in the HUD palette. Entry positions are relative to
-        // the panel; each entry hangs off its heading center.
-        public static readonly Vector2 CREDITS_PANEL_OFFSET = new(0f, 28f);
-        public const float CREDITS_BODY_STRETCH = 1.06f;                             // art stretched 6% taller (tab pinned) so the music band fits
-        public const float CREDITS_FIRST_Y = 85f;                                    // first heading center
-        public const float CREDITS_PITCH = 118f;                                     // entry-to-entry spacing
+        // Its own sheet (ui_credits_panel — a taller, wider panel than Settings', tab ~38 px higher;
+        // body from +268 down to −276) on the modal chrome, to Look Reference/Credits.png. Three
+        // entries: a colored role heading over the kit's checkered band (text-free, translucent)
+        // carrying the name in the HUD palette. Positions are canvas-centered; each entry hangs off
+        // its heading center.
+        public static readonly Vector2 CREDITS_CHROME_OFFSET = new(0f, 38f);         // title + X up to the credits sheet's tab
+        public const float CREDITS_FIRST_Y = 113f;                                   // first heading center
+        public const float CREDITS_PITCH = 124f;                                     // entry-to-entry spacing
         public const float CREDITS_ROLE_SIZE = 30f;
         public static readonly Vector2 CREDITS_ROLE_RECT = new(400f, 44f);
-        public const float CREDITS_BAND_DY = -47f;                                   // band center below the heading
-        public static readonly Vector2 CREDITS_BAND_SIZE = new(360f, 62f);
-        public const int CREDITS_BAND_COLUMNS = 18;                                  // checker cells across (3 rows → ~20px squares)
-        public const int CREDITS_BAND_ROWS = 3;
-        public const float CREDITS_BAND_LINE_EXTRA = 22f;                            // band growth per extra name line (top edge stays)
+        public const float CREDITS_BAND_W = 392f;                                    // band canvas width (face ≈ 360 — the art has a ~4% margin); ≈ 120 tall
+        public const float CREDITS_BAND_DY = -70f;                                   // band center below the heading
         public static readonly Vector2 CREDITS_NAME_NUDGE = new(0f, -2f);            // name center vs band center
-        public static readonly Vector2 CREDITS_NAME_INSET = new(16f, 8f);            // name rect = band minus this (auto-fit bounds)
+        public static readonly Vector2 CREDITS_NAME_INSET = new(56f, 36f);           // name rect = band canvas minus this (inside the face; auto-fit bounds)
         public const float CREDITS_NAME_SIZE = 34f;                                  // single names; multi-line lists auto-fit down
         public const float CREDITS_NAME_SIZE_MIN = 14f;
-        public static readonly Color CREDITS_GAME_ROLE = new(0.55f, 0.78f, 0.25f);   // lime heading
-        public static readonly Color CREDITS_GAME_BAND = new(0.80f, 0.90f, 0.66f);   // pastel green checker
-        public static readonly Color CREDITS_ART_ROLE = new(0.25f, 0.66f, 0.96f);    // sky heading
-        public static readonly Color CREDITS_ART_BAND = new(0.70f, 0.86f, 0.93f);    // pastel blue checker
-        public static readonly Color CREDITS_MUSIC_ROLE = new(0.93f, 0.62f, 0.13f);  // orange heading
-        public static readonly Color CREDITS_MUSIC_BAND = new(0.98f, 0.88f, 0.68f);  // pastel orange checker
+        public static readonly Color CREDITS_GAME_ROLE = new(0.55f, 0.78f, 0.25f);   // lime heading (green band)
+        public static readonly Color CREDITS_ART_ROLE = new(0.25f, 0.66f, 0.96f);    // sky heading (blue band)
+        public static readonly Color CREDITS_MUSIC_ROLE = new(0.93f, 0.62f, 0.13f);  // orange heading (orange band)
         #endregion
 
         #region Layout — Shop Screen (a tall page over the dimmed screen; header + vertical page scroll)

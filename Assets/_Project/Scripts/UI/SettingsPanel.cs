@@ -58,7 +58,7 @@ namespace DogtorBurguer
 
         private void CreatePanel()
         {
-            _modal = ModalPanel.Build(_canvas, "SETTINGS", Vector2.zero, Hide);
+            _modal = ModalPanel.Build(_canvas, "SETTINGS", "ui_modal_panel", Vector2.zero, Vector2.zero, Hide);
 
             // Rows down the body. The label strings are set by the Update*Label refreshers.
             _soundLabel = CreateRowButton("Sound", new Vector2(0f, RowY(0)), UIStyles.SETTINGS_ROW_W, OnSoundToggleClicked);

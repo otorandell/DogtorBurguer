@@ -1,13 +1,12 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 namespace DogtorBurguer
 {
     /// <summary>
-    /// The Credits panel (menu only), built to the mock on the shared ModalPanel chrome: three
-    /// entries, each a colored role heading over a pastel checkered band with the name on it.
-    /// The band is a procedural checker (SpriteFactory) tinted per entry — no band art in the kit.
+    /// The Credits panel (menu only), built to the mock on the shared ModalPanel chrome with its own
+    /// (taller) sheet: three entries, each a colored role heading over the kit's checkered band
+    /// (green / blue / orange, text-free and translucent) with the name on it.
     /// Layout knobs: UIStyles.CREDITS_*.
     /// </summary>
     public class CreditsPanel : MonoBehaviour
@@ -16,15 +15,15 @@ namespace DogtorBurguer
 
         // The credits themselves. Player-facing strings: letters, digits, space and ! , - . : ; ?
         // only (trial-font glyph limits — see CLAUDE.md). A name may span lines with explicit
-        // newlines — the band grows per extra line and the name auto-fits (CREDITS_NAME_SIZE_MIN).
+        // newlines — it auto-fits inside the band (down to CREDITS_NAME_SIZE_MIN).
         // The music names are a CC-BY attribution requirement — see Docs/music-attribution.md
         // before editing them.
         private static readonly CreditsEntry[] Entries =
         {
-            new("A GAME BY", "Oscar Torandell", UIStyles.CREDITS_GAME_ROLE, UIStyles.CREDITS_GAME_BAND),
-            new("ART BY", "Lucia Varona", UIStyles.CREDITS_ART_ROLE, UIStyles.CREDITS_ART_BAND),
+            new("A GAME BY", "Oscar Torandell", UIStyles.CREDITS_GAME_ROLE, "ui_credits_band_game"),
+            new("ART BY", "Lucia Varona", UIStyles.CREDITS_ART_ROLE, "ui_credits_band_art"),
             new("MUSIC BY", "SketchyLogic, BossLevelVGM,\nMartin Nilsson, Alex McCulloch,\nSpring Spring. Thanks!",
-                UIStyles.CREDITS_MUSIC_ROLE, UIStyles.CREDITS_MUSIC_BAND),
+                UIStyles.CREDITS_MUSIC_ROLE, "ui_credits_band_music"),
         };
 
         private Canvas _canvas;
@@ -50,15 +49,15 @@ namespace DogtorBurguer
 
         private void CreatePanel()
         {
-            _modal = ModalPanel.Build(_canvas, "CREDITS", UIStyles.CREDITS_PANEL_OFFSET, Hide,
-                UIStyles.CREDITS_BODY_STRETCH);
+            _modal = ModalPanel.Build(_canvas, "CREDITS", "ui_credits_panel", Vector2.zero,
+                UIStyles.CREDITS_CHROME_OFFSET, Hide);
 
             for (int i = 0; i < Entries.Length; i++)
                 BuildEntry(Entries[i], UIStyles.CREDITS_FIRST_Y - i * UIStyles.CREDITS_PITCH);
         }
 
-        // Heading, then the band, then the name (so the name renders over the band). A multi-line
-        // name extends the band downward (its top edge stays put) and shrinks to fit.
+        // Heading, then the band art (sized by width, native aspect — its canvas includes a
+        // transparent margin), then the name auto-fitting inside the band's face.
         private void BuildEntry(CreditsEntry entry, float headingY)
         {
             Transform root = _modal.Panel;
@@ -67,15 +66,10 @@ namespace DogtorBurguer
                 UIStyles.CREDITS_ROLE_RECT, UIStyles.CREDITS_ROLE_SIZE, FontStyles.Bold);
             UIFactory.StyleFillAndBorder(role, entry.RoleColor, UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH);
 
-            int extraLines = entry.Name.Split('\n').Length - 1;
-            float extraHeight = extraLines * UIStyles.CREDITS_BAND_LINE_EXTRA;
-            Vector2 bandSize = UIStyles.CREDITS_BAND_SIZE + new Vector2(0f, extraHeight);
-            Vector2 bandPos = new(0f, headingY + UIStyles.CREDITS_BAND_DY - extraHeight * 0.5f);
-
-            Image band = UIFactory.CreateImage(root, "Band",
-                SpriteFactory.Checker(UIStyles.CREDITS_BAND_COLUMNS, UIStyles.CREDITS_BAND_ROWS + extraLines),
-                Center, bandPos, bandSize);
-            band.color = entry.BandColor;
+            Sprite bandArt = UiArt.Load(entry.BandArt);
+            Vector2 bandSize = UIFactory.SizeByWidth(bandArt, UIStyles.CREDITS_BAND_W);
+            Vector2 bandPos = new(0f, headingY + UIStyles.CREDITS_BAND_DY);
+            UIFactory.CreateImage(root, "Band", bandArt, Center, bandPos, bandSize);
 
             TextMeshProUGUI name = UIFactory.CreateText(root, entry.Name,
                 bandPos + UIStyles.CREDITS_NAME_NUDGE, bandSize - UIStyles.CREDITS_NAME_INSET,

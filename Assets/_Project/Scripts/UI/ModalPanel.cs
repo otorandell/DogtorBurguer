@@ -7,10 +7,12 @@ using DG.Tweening;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// The shared chrome of the small modal screens (Settings, Credits): a dim overlay, the
-    /// authored full-canvas panel art (orange title tab + dotted cream body), the title word on
-    /// the tab, the round red X over its corner, and the pop-in tween. Screens build their content
-    /// under <see cref="Panel"/> and drive visibility through Show / Hide. Knobs: UIStyles.MODAL_*.
+    /// The shared chrome of the small modal screens (Settings, Credits): a dim overlay, an authored
+    /// full-canvas panel sheet (orange title tab + dotted cream body — each screen passes its own),
+    /// the title word on the tab, the round red X over its corner, and the pop-in tween. Screens
+    /// build their content under <see cref="Panel"/> and drive visibility through Show / Hide.
+    /// Knobs: UIStyles.MODAL_* (title/X positions are for the Settings sheet; a screen whose sheet
+    /// draws the tab elsewhere passes a chrome offset).
     /// </summary>
     public sealed class ModalPanel
     {
@@ -19,7 +21,7 @@ namespace DogtorBurguer
         /// <summary>The overlay root — everything lives under it; toggled by Show / Hide.</summary>
         public GameObject Root { get; }
         /// <summary>The panel's content root (the art sits under it). Parent screen content here so
-        /// the pop-in scales it too; positions are in unstretched panel px.</summary>
+        /// the pop-in scales it too; positions are in panel px (canvas-centered + panelOffset).</summary>
         public Transform Panel { get; }
 
         private readonly CanvasGroup _group;
@@ -35,11 +37,11 @@ namespace DogtorBurguer
         /// build lazily from their Show, add content, then call <see cref="Show"/>. (TMP assigns its
         /// default font in Awake, which never runs on an inactive hierarchy, so texts added to a
         /// deactivated panel would have a null font — StyleFillAndBorder reads it.)
-        /// <paramref name="panelOffset"/> nudges the whole panel (canvas-centered px);
-        /// <paramref name="bodyStretch"/> scales the art vertically (1 = as drawn) with the tab's top
-        /// edge pinned, so only the body grows downward — content positions are unaffected.</summary>
-        public static ModalPanel Build(Canvas canvas, string title, Vector2 panelOffset, UnityAction onClose,
-            float bodyStretch = 1f)
+        /// <paramref name="panelArt"/> is the screen's full-canvas sheet; <paramref name="panelOffset"/>
+        /// nudges the whole panel (canvas-centered px); <paramref name="chromeOffset"/> moves just the
+        /// title + X for a sheet whose tab sits elsewhere than the Settings sheet's.</summary>
+        public static ModalPanel Build(Canvas canvas, string title, string panelArt, Vector2 panelOffset,
+            Vector2 chromeOffset, UnityAction onClose)
         {
             GameObject root = UIFactory.CreateOverlay(canvas.transform, UIStyles.MODAL_OVERLAY);
             CanvasGroup group = root.AddComponent<CanvasGroup>();
@@ -56,17 +58,15 @@ namespace DogtorBurguer
             Transform panel = panelObj.transform;
 
             // The panel art is a full-phone canvas: shown at the reference resolution it lands exactly
-            // where the artist drew it. A vertical stretch is applied about the tab's top edge.
-            Vector2 artSize = new(UIStyles.REFERENCE_RESOLUTION.x, UIStyles.REFERENCE_RESOLUTION.y * bodyStretch);
-            Vector2 artPos = new(0f, UIStyles.MODAL_TAB_TOP * (1f - bodyStretch));
-            UIFactory.CreateImage(panel, "Art", UiArt.Load("ui_modal_panel"), Center, artPos, artSize);
+            // where the artist drew it.
+            UIFactory.CreateImage(panel, "Art", UiArt.Load(panelArt), Center, Vector2.zero, UIStyles.REFERENCE_RESOLUTION);
 
-            TextMeshProUGUI titleText = UIFactory.CreateText(panel, title, UIStyles.MODAL_TITLE_POS,
+            TextMeshProUGUI titleText = UIFactory.CreateText(panel, title, UIStyles.MODAL_TITLE_POS + chromeOffset,
                 UIStyles.MODAL_TITLE_RECT, UIStyles.MODAL_TITLE_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(titleText);
 
             Sprite close = UiArt.Load("ui_btn_close_x");
-            UIFactory.CreateSpriteButton(panel, "Close", close, Center, UIStyles.MODAL_CLOSE_POS,
+            UIFactory.CreateSpriteButton(panel, "Close", close, Center, UIStyles.MODAL_CLOSE_POS + chromeOffset,
                 UIFactory.SizeByHeight(close, UIStyles.MODAL_CLOSE_H), onClose);
 
             return new ModalPanel(root, group, panel);
