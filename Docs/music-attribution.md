@@ -2,7 +2,8 @@
 
 All background music comes from OpenGameArt (sources found by Oscar, 2026-09-01). Three of the
 five works are **CC-BY 3.0 — crediting the author is a license requirement**, so the MUSIC BY
-line of the Credits panel (`UI/CreditsPanel.cs`, `Entries`) must keep every name below. The two
+line of the Credits panel (`UI/CreditsPanel.cs`, `Entries`) must keep every name below (it ends
+with a "Thanks!" sign-off on the last line). The two
 CC0 works don't require it, but the authors asked for / appreciate it.
 
 Track ↔ source mapping is by file size + embedded tags (the files were renamed `Track_N` /

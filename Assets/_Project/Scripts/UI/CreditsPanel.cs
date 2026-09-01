@@ -23,7 +23,7 @@ namespace DogtorBurguer
         {
             new("A GAME BY", "Oscar Torandell", UIStyles.CREDITS_GAME_ROLE, UIStyles.CREDITS_GAME_BAND),
             new("ART BY", "Lucia Varona", UIStyles.CREDITS_ART_ROLE, UIStyles.CREDITS_ART_BAND),
-            new("MUSIC BY", "SketchyLogic, BossLevelVGM,\nMartin Nilsson, Alex McCulloch,\nSpring Spring",
+            new("MUSIC BY", "SketchyLogic, BossLevelVGM,\nMartin Nilsson, Alex McCulloch,\nSpring Spring. Thanks!",
                 UIStyles.CREDITS_MUSIC_ROLE, UIStyles.CREDITS_MUSIC_BAND),
         };
 
