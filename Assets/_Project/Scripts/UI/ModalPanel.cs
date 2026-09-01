@@ -30,7 +30,10 @@ namespace DogtorBurguer
             Panel = panel;
         }
 
-        /// <summary>Builds the chrome into <paramref name="canvas"/>, inactive until Show.
+        /// <summary>Builds the chrome into <paramref name="canvas"/>. It comes back ACTIVE — screens
+        /// build lazily from their Show, add content, then call <see cref="Show"/>. (TMP assigns its
+        /// default font in Awake, which never runs on an inactive hierarchy, so texts added to a
+        /// deactivated panel would have a null font — StyleFillAndBorder reads it.)
         /// <paramref name="panelOffset"/> nudges the whole panel art (canvas-centered px).</summary>
         public static ModalPanel Build(Canvas canvas, string title, Vector2 panelOffset, UnityAction onClose)
         {
@@ -51,7 +54,6 @@ namespace DogtorBurguer
             UIFactory.CreateSpriteButton(panel, "Close", close, Center, UIStyles.MODAL_CLOSE_POS,
                 UIFactory.SizeByHeight(close, UIStyles.MODAL_CLOSE_H), onClose);
 
-            root.SetActive(false);
             return new ModalPanel(root, group, panel);
         }
 
