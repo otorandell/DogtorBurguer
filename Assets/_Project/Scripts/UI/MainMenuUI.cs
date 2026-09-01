@@ -11,6 +11,10 @@ namespace DogtorBurguer
     /// </summary>
     public class MainMenuUI : MonoBehaviour
     {
+        [Header("Testing")]
+        [Tooltip("Adds the start-level stepper under the Settings panel (a testing tool, not part of the shipped panel).")]
+        [SerializeField] private bool _showLevelStepper = false;
+
         private Canvas _canvas;
         private SettingsPanel _settingsPanel;
         private GameObject _creditsOverlay;
@@ -56,7 +60,7 @@ namespace DogtorBurguer
             BuildBottomStrip();
 
             _settingsPanel = gameObject.AddComponent<SettingsPanel>();
-            _settingsPanel.Initialize(_canvas);
+            _settingsPanel.Initialize(_canvas, showLevelStepper: _showLevelStepper);
         }
 
         // The checkered diner strip pinned to the bottom edge, with CREDITS and SHOP on it.

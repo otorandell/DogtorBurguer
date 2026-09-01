@@ -11,7 +11,8 @@ namespace DogtorBurguer
     /// title tab and dotted cream body baked in), the round X over the tab's corner, and wide blue
     /// rows — the Sound and Controls toggles, plus a Restart | Quit-to-menu pair in-game. Opened by
     /// the menu gear and the in-game top-bar gear (that one pauses the run and resumes on close).
-    /// Layout knobs: UIStyles.SETTINGS_*. The start-level stepper is a dev-only row under the panel.
+    /// Layout knobs: UIStyles.SETTINGS_*. The start-level stepper is a testing row under the panel,
+    /// opt-in from the MainMenuUI inspector (never in-game — the value only applies to the next run).
     /// </summary>
     public class SettingsPanel : MonoBehaviour
     {
@@ -24,17 +25,20 @@ namespace DogtorBurguer
         private TextMeshProUGUI _soundLabel;
         private TextMeshProUGUI _controlLabel;
         private bool _showRunButtons;
+        private bool _showLevelStepper;
 
         /// <summary>Fired when the panel closes — the in-game opener resumes the run on this.</summary>
         public event System.Action OnClosed;
 
         /// <summary>Injects the canvas to build into (F-77), instead of scanning the scene.
         /// Pass <paramref name="showRunButtons"/> from the in-game opener to add the
-        /// Restart / Quit-to-menu row (meaningless in the menu, so off by default).</summary>
-        public void Initialize(Canvas canvas, bool showRunButtons = false)
+        /// Restart / Quit-to-menu row (meaningless in the menu, so off by default); pass
+        /// <paramref name="showLevelStepper"/> from the menu to add the start-level testing row.</summary>
+        public void Initialize(Canvas canvas, bool showRunButtons = false, bool showLevelStepper = false)
         {
             _canvas = canvas;
             _showRunButtons = showRunButtons;
+            _showLevelStepper = showLevelStepper;
         }
 
         public void Show()
@@ -45,9 +49,7 @@ namespace DogtorBurguer
             _root.SetActive(true);
             UpdateSoundLabel();
             UpdateControlLabel();
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
             UpdateLevelLabel();
-#endif
             PlayPopIn();
         }
 
@@ -90,9 +92,8 @@ namespace DogtorBurguer
                 CreateRowButton("Quit to Menu", new Vector2(UIStyles.SETTINGS_PAIR_X, RowY(2)), UIStyles.SETTINGS_PAIR_W, OnQuitClicked);
             }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            BuildDevStepper();
-#endif
+            if (_showLevelStepper)
+                BuildLevelStepper();
         }
 
         private static float RowY(int row) => UIStyles.SETTINGS_ROW_TOP_Y - row * UIStyles.SETTINGS_ROW_PITCH;
@@ -183,13 +184,12 @@ namespace DogtorBurguer
             if (_panel != null) _panel.DOKill();
         }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
         // Start-level stepper — a testing tool, not part of the shipped panel: [−] Lv N [+] in flat
         // placeholder widgets below the art. Steps the persisted StartingLevel by one, clamped
         // 1..SETTINGS_LEVEL_CAP (see GameplayConfig — lower the cap to MAX_LEVEL before release).
         private TextMeshProUGUI _levelLabel;
 
-        private void BuildDevStepper()
+        private void BuildLevelStepper()
         {
             float y = UIStyles.SETTINGS_DEV_STEPPER_Y;
             UIFactory.CreateButton(_panel, "-", new Vector2(-UIStyles.SETTINGS_DEV_STEPPER_X, y),
@@ -222,6 +222,5 @@ namespace DogtorBurguer
                 : SaveDataManager.DEFAULT_STARTING_LEVEL;
             _levelLabel.text = $"Lv {level}";
         }
-#endif
     }
 }

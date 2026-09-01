@@ -127,9 +127,10 @@ sides (cyan, `TouchInputHandler` — mode-aware, Tap mode only), fairy tap (oran
 play-mode only, runtime-spawned). Toggle per-script via Unity's Gizmos menu.
 
 The Settings panel also has a **Start Level** stepper (`[−] Lv N [+]`) → persists
-`SaveDataManager.StartingLevel`; clamped 1..`SETTINGS_LEVEL_CAP`. See Difficulty. **Dev-only**
-(`#if UNITY_EDITOR || DEVELOPMENT_BUILD`, drawn below the panel art in flat placeholder widgets)
-— the artist's Settings has no level selector, so release builds never show it.
+`SaveDataManager.StartingLevel`; clamped 1..`SETTINGS_LEVEL_CAP`. See Difficulty. **Testing-only,
+off by default**: the `MainMenuUI` inspector bool **Show Level Stepper** (menu scene) adds it
+below the panel art in flat placeholder widgets — the artist's Settings has no level selector.
+Menu panel only (the in-game panel never shows it; the value applies to the next run anyway).
 **Settings opens in-game too** (top-bar gear, `GameHUD.OnConfigClicked`): same pause pattern as
 the shop — pauses a running game, panel on its own canvas (`SETTINGS_CANVAS_SORT` 110, above
 game-over, below shop), resumes via `SettingsPanel.OnClosed`. Sound/control-mode apply live
@@ -609,7 +610,7 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   the mock's third **"Language: ENG"** row is **not built** — there is no localization system,
   and a button that does nothing is worse than none; add it as one `CreateRowButton` call when
   localization exists (in-game it would then need a 4th row or a tighter pitch). The **level
-  stepper** is dev-only (see Controls).
+  stepper** is an inspector opt-in on `MainMenuUI` (see Controls).
 - **★ glyph**: Panton (ASCII) lacks U+2605; add a fallback font or the `Star` sprite where needed.
 - **UI integration ≠ pure art-swap** — remaining wiring that implies real code:
   - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next
