@@ -641,11 +641,11 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   panel) at `REFERENCE_RESOLUTION` (+ a per-screen offset), the title word on the tab, the round
   red X (`ui_btn_close_x`) over the tab's corner, and the game-over pop-in (`AnimConfig.PANEL_*`).
   Screens parent their content under `ModalPanel.Panel` and call `Show`/`Hide`/`Kill`. Knobs:
-  `UIStyles.MODAL_*`. A new modal screen = `ModalPanel.Build(canvas, "TITLE", offset, Hide)` +
-  content. `Panel` is a plain content root at the reference size with the art image under it, so
-  a screen can pass a `bodyStretch` (Credits: `CREDITS_BODY_STRETCH` 1.06) that scales the art
-  vertically about the tab's top edge (`MODAL_TAB_TOP`) — the body grows downward and content
-  positions don't move.
+  `UIStyles.MODAL_*`. A new modal screen = `ModalPanel.Build(canvas, "TITLE", sheetArt,
+  panelOffset, chromeOffset, Hide)` + content under `Panel` (a plain content root at the
+  reference size with the sheet image under it). Each screen passes its own full-canvas sheet
+  (`ui_modal_panel` for Settings, `ui_credits_panel` for Credits); `chromeOffset` moves the
+  title + X when a sheet draws its tab elsewhere than the Settings one.
 - **Settings panel (authored, 2026-09-01)**: rebuilt to the mock (`Look Reference/settings.png`)
   on the modal chrome: wide blue rows (`ui_btn_blue_wide`, sized by width, HUD-palette auto-fit
   labels) stacked down the body: **Sound: ON/OFF**, **Controls: Drag/Tap**, and in-game the
@@ -656,15 +656,16 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   localization exists (in-game it would then need a 4th row or a tighter pitch). The **level
   stepper** is an inspector opt-in on `MainMenuUI` (see Controls).
 - **Credits panel (authored, 2026-09-01, `UI/CreditsPanel.cs`)**: menu-only, to the mock (`Look
-  Reference/Credits.png`) on the modal chrome (panel nudged up `CREDITS_PANEL_OFFSET`). Three
-  `CreditsEntry` lines — **A GAME BY** Oscar Torandell / **ART BY** Lucia Varona / **MUSIC BY**
-  the five OpenGameArt artists — each a colored role heading (`StyleFillAndBorder`, accent + HUD border) over a
-  pastel **checkered band** with the name in the HUD palette. The band is procedural
-  (`SpriteFactory.Checker(cols, rows)` — a point-filtered white/transparent checker stretched over
-  the band rect and tinted per entry; the cream body shows through the clear cells) since the kit
-  has no band art. Entries live at the top of `CreditsPanel`; colors/layout in `UIStyles.CREDITS_*`.
-  A name may span explicit `\n` lines: the band grows `CREDITS_BAND_LINE_EXTRA` per extra line
-  (top edge fixed) and the name auto-fits down to `CREDITS_NAME_SIZE_MIN`. **MUSIC BY lists five
+  Reference/Credits.png`) on the modal chrome with **its own sheet** from the 2026-09-01 kit
+  (`ui_credits_panel` — taller and wider than the Settings sheet, tab ~38 px higher →
+  `CREDITS_CHROME_OFFSET`). Three `CreditsEntry` lines — **A GAME BY** Oscar Torandell / **ART
+  BY** Lucia Varona / **MUSIC BY** the five OpenGameArt artists — each a colored role heading
+  (`StyleFillAndBorder`, accent + HUD border) over the kit's **checkered band**
+  (`ui_credits_band_game/art/music`: text-free, translucent, sized by `CREDITS_BAND_W` — the
+  canvas has a ~4% margin around the face) with the name in the HUD palette. Entries live at the
+  top of `CreditsPanel`; colors/layout in `UIStyles.CREDITS_*`. A name may span explicit `
+`
+  lines and auto-fits inside the band (down to `CREDITS_NAME_SIZE_MIN`). **MUSIC BY lists five
   names** (SketchyLogic, BossLevelVGM, Martin Nilsson, Alex McCulloch, Spring Spring) — three are
   **CC-BY 3.0, so the credit is a license requirement**; the track ↔ source ↔ license table is
   `Docs/music-attribution.md` (keep it and the entry in sync; BossLevelVGM also wants the credit
