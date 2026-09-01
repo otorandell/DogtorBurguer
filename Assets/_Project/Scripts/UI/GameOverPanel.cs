@@ -44,7 +44,7 @@ namespace DogtorBurguer
             _canvasGroup = _canvas.gameObject.AddComponent<CanvasGroup>();
             UIFactory.EnsureEventSystem();
 
-            UIFactory.CreateOverlay(_canvas.transform, UIStyles.GAMEOVER_OVERLAY);
+            UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY);
 
             // The panel art is a full-phone canvas: shown at the reference resolution it lands exactly
             // where the artist drew it. Everything else is a child so the pop-in scales the whole screen.
@@ -148,11 +148,11 @@ namespace DogtorBurguer
 
             _canvas.gameObject.SetActive(true);
             _canvasGroup.alpha = 0;
-            _panel.transform.localScale = Vector3.one * AnimConfig.GAMEOVER_START_SCALE;
+            _panel.transform.localScale = Vector3.one * AnimConfig.PANEL_START_SCALE;
 
             DOTween.Sequence()
-                .Append(_canvasGroup.DOFade(1f, AnimConfig.GAMEOVER_FADE_DURATION))
-                .Join(_panel.transform.DOScale(1f, AnimConfig.GAMEOVER_SCALE_DURATION).SetEase(Ease.OutBack))
+                .Append(_canvasGroup.DOFade(1f, AnimConfig.PANEL_FADE_DURATION))
+                .Join(_panel.transform.DOScale(1f, AnimConfig.PANEL_SCALE_DURATION).SetEase(Ease.OutBack))
                 .SetUpdate(true);
         }
 

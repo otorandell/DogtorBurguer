@@ -78,10 +78,10 @@ namespace DogtorBurguer
         public const float SCREEN_FLASH_DURATION = 0.3f;
         #endregion
 
-        #region Game Over Panel
-        public const float GAMEOVER_FADE_DURATION = 0.3f;
-        public const float GAMEOVER_SCALE_DURATION = 0.4f;
-        public const float GAMEOVER_START_SCALE = 0.5f;
+        #region Modal Panels (game over, settings — the full-canvas pop-in)
+        public const float PANEL_FADE_DURATION = 0.3f;
+        public const float PANEL_SCALE_DURATION = 0.4f;
+        public const float PANEL_START_SCALE = 0.5f;
         #endregion
 
         #region Consumable use effects (ConsumableVfx — scaled time, gameplay keeps running)

@@ -127,14 +127,16 @@ sides (cyan, `TouchInputHandler` — mode-aware, Tap mode only), fairy tap (oran
 play-mode only, runtime-spawned). Toggle per-script via Unity's Gizmos menu.
 
 The Settings panel also has a **Start Level** stepper (`[−] Lv N [+]`) → persists
-`SaveDataManager.StartingLevel`; clamped 1..`SETTINGS_LEVEL_CAP`. See Difficulty.
+`SaveDataManager.StartingLevel`; clamped 1..`SETTINGS_LEVEL_CAP`. See Difficulty. **Dev-only**
+(`#if UNITY_EDITOR || DEVELOPMENT_BUILD`, drawn below the panel art in flat placeholder widgets)
+— the artist's Settings has no level selector, so release builds never show it.
 **Settings opens in-game too** (top-bar gear, `GameHUD.OnConfigClicked`): same pause pattern as
 the shop — pauses a running game, panel on its own canvas (`SETTINGS_CANVAS_SORT` 110, above
 game-over, below shop), resumes via `SettingsPanel.OnClosed`. Sound/control-mode apply live
 mid-run; Start Level applies next run. The in-game variant (`Initialize(canvas, showRunButtons:
-true)`) is taller and adds a **Restart | Quit to Menu** row — restart runs the same interstitial
-cadence as the game-over restart (`AdManager.MaybeShowInterstitial`, the shared gate); quitting
-keeps live-earned order stars but forfeits the end-of-run score payout.
+true)`) fills the third row with a half-width **Restart | Quit to Menu** pair — restart runs the
+same interstitial cadence as the game-over restart (`AdManager.MaybeShowInterstitial`, the shared
+gate); quitting keeps live-earned order stars but forfeits the end-of-run score payout.
 
 ### Difficulty (DifficultyManager)
 - 20 levels scaling fall speed, active ingredient (type) count, and triple-wave chance.
@@ -595,6 +597,19 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   live); helpers `UIFactory.SizeByWidth/SizeByHeight/AutoFit` are now shared (MainMenuUI's
   private copy removed). Note: the button blanks' canvases include their drop shadow, so the
   visible face is ~10% smaller than the width knob.
+- **Settings panel (authored, 2026-09-01)**: rebuilt to the mock (`Look Reference/settings.png`)
+  on the same full-canvas recipe — `ui_settings_panel` (orange title tab + dotted cream body,
+  same 2327x4138 sheet) at `REFERENCE_RESOLUTION`, "SETTINGS" on the tab, the round red X
+  (`ui_btn_close_x`) over the tab's top-right corner, and wide blue rows (`ui_btn_blue_wide`,
+  sized by width, HUD-palette auto-fit labels) stacked down the body: **Sound: ON/OFF**,
+  **Controls: Drag/Tap**, and in-game the **Restart | Quit to Menu** half-width pair in the third
+  row. Both openers (menu gear, in-game gear) share the one class; the panel pops in with the
+  game-over tween (`AnimConfig.PANEL_*`, shared) over the shared `UIStyles.MODAL_OVERLAY` dim.
+  Knobs: `UIStyles.SETTINGS_*` (eyeball defaults from the mock — tune live). Deliberate gaps:
+  the mock's third **"Language: ENG"** row is **not built** — there is no localization system,
+  and a button that does nothing is worse than none; add it as one `CreateRowButton` call when
+  localization exists (in-game it would then need a 4th row or a tighter pitch). The **level
+  stepper** is dev-only (see Controls).
 - **★ glyph**: Panton (ASCII) lacks U+2605; add a fallback font or the `Star` sprite where needed.
 - **UI integration ≠ pure art-swap** — remaining wiring that implies real code:
   - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next

@@ -42,15 +42,15 @@ namespace DogtorBurguer
         #region Panel / Overlay Colors
         public static readonly Color OVERLAY_DIM = new(0, 0, 0, 0.7f);
         public static readonly Color OVERLAY_DARK = new(0, 0, 0, 0.85f);
+        public static readonly Color MODAL_OVERLAY = new(0f, 0f, 0f, 0.55f);   // stand-in for the mocks' blurred game behind a full-canvas panel (game over, settings)
         public static readonly Color PANEL_BG = new(0.15f, 0.15f, 0.2f, 0.95f);
-        public static readonly Color INNER_PANEL_BG = new(0.18f, 0.18f, 0.25f);
         public static readonly Color SCREEN_FLASH = new(1f, 1f, 1f, 0.6f);
         #endregion
 
         #region Button Colors
         public static readonly Color BTN_CLOSE = new(0.5f, 0.5f, 0.5f);
         public static readonly Color BTN_RESTART = new(0.2f, 0.7f, 0.3f);
-        public static readonly Color BTN_SETTINGS_TOGGLE = new(0.3f, 0.5f, 0.7f);
+        public static readonly Color BTN_DEV_STEPPER = new(0.3f, 0.5f, 0.7f);    // dev-only start-level stepper (Settings)
         public static readonly Color BTN_SHOP_AD = new(0.3f, 0.5f, 0.9f);
         public static readonly Color BTN_SHOP_BUY = new(0.2f, 0.7f, 0.3f);
         #endregion
@@ -181,9 +181,7 @@ namespace DogtorBurguer
         #endregion
 
         #region Font Sizes - Panels
-        public const float PANEL_TITLE_SIZE = 36f;
         public const float PANEL_BUTTON_TEXT_SIZE = 20f;
-        public const float SETTINGS_BUTTON_TEXT_SIZE = 22f;
         public const float CREDITS_TEXT_SIZE = 24f;
         #endregion
 
@@ -201,13 +199,7 @@ namespace DogtorBurguer
         public const float WORLD_STAR_POPUP_SIZE = 3f;   // "+N!" star award on an order match (below the xN)
         #endregion
 
-        #region Button Sizes
-        public static readonly Vector2 SETTINGS_BUTTON_SIZE = new(280, 55);
-        public static readonly Vector2 CLOSE_BUTTON_SIZE = new(200, 50);
-        #endregion
-
         #region Panel Sizes
-        public static readonly Vector2 SETTINGS_PANEL_SIZE = new(350, 430);
         public static readonly Vector2 CREDITS_RECT = new(400, 300);
         #endregion
 
@@ -273,7 +265,6 @@ namespace DogtorBurguer
         // is placed over that art (positions measured off the mock, Look Reference/GameOver.png).
         // Authored buttons are sized by WIDTH, height following native aspect; the blanks' canvases
         // include their drop shadow, so the visible face is ~10% smaller than the width given.
-        public static readonly Color GAMEOVER_OVERLAY = new(0f, 0f, 0f, 0.55f);       // stand-in for the mock's blur
         public static readonly Vector2 GAMEOVER_TITLE_POS = new(0f, 214f);           // "GAME OVER..." on the red bar
         public static readonly Vector2 GAMEOVER_TITLE_RECT = new(420f, 80f);
         public const float GAMEOVER_TITLE_SIZE = 40f;
@@ -311,23 +302,30 @@ namespace DogtorBurguer
         #region Layout — Settings Panel
         // In-game it gets its own canvas: above the game-over panel (100), below the shop (120).
         public const int SETTINGS_CANVAS_SORT = 110;
-        public static readonly Vector2 SETTINGS_TITLE_POS = new(0f, 165f);
-        public static readonly Vector2 SETTINGS_TITLE_RECT = new(300f, 50f);
-        public static readonly Vector2 SETTINGS_SOUND_POS = new(0f, 90f);
-        public static readonly Vector2 SETTINGS_CONTROL_POS = new(0f, 20f);
-        public static readonly Vector2 SETTINGS_LEVEL_POS = new(0f, -55f);
-        public static readonly Vector2 SETTINGS_LEVEL_MINUS_POS = new(-135f, -55f);
-        public static readonly Vector2 SETTINGS_LEVEL_PLUS_POS = new(135f, -55f);
-        public static readonly Vector2 SETTINGS_CLOSE_POS = new(0f, -135f);
-        // Stepper row: centered value label flanked by square −/+ buttons.
+        // The panel art (ui_settings_panel) is a full-phone canvas like the game-over one: shown at
+        // REFERENCE_RESOLUTION the orange title tab and the dotted cream body land where drawn.
+        // Positions measured off Look Reference/settings.png (536x948 ≈ the reference), canvas-centered.
+        public static readonly Vector2 SETTINGS_TITLE_POS = new(0f, 176f);           // "SETTINGS" on the orange tab
+        public static readonly Vector2 SETTINGS_TITLE_RECT = new(400f, 70f);
+        public const float SETTINGS_TITLE_SIZE = 40f;
+        public static readonly Vector2 SETTINGS_CLOSE_POS = new(216f, 215f);         // round X, over the tab's top-right corner
+        public const float SETTINGS_CLOSE_H = 84f;
+        // Rows: full-width blue blanks stacked down the body (Sound, Controls, then the in-game
+        // Restart | Quit pair). The blank's canvas includes its drop shadow (face ~10% smaller).
+        public const float SETTINGS_ROW_W = 380f;
+        public const float SETTINGS_ROW_TOP_Y = 47f;                                 // first row center
+        public const float SETTINGS_ROW_PITCH = 112f;                                // row-to-row spacing
+        public const float SETTINGS_ROW_LABEL_SIZE = 34f;
+        public const float SETTINGS_ROW_LABEL_SIZE_MIN = 14f;                        // AutoFit floor ("Quit to Menu" on a half blank)
+        public static readonly Vector2 SETTINGS_ROW_LABEL_NUDGE = new(-3f, 4f);     // word toward the face center (shadow is bottom-right)
+        public const float SETTINGS_PAIR_W = 183f;                                   // half-width blanks (Restart | Quit)
+        public const float SETTINGS_PAIR_X = 98f;                                    // ± from center
+        // Dev-only start-level stepper ([−] Lv N [+]) below the panel: flat placeholder widgets.
+        public const float SETTINGS_DEV_STEPPER_Y = -330f;
+        public const float SETTINGS_DEV_STEPPER_X = 135f;                            // ± for the −/+ buttons
         public static readonly Vector2 SETTINGS_STEPPER_LABEL_SIZE = new(210f, 55f);
         public static readonly Vector2 SETTINGS_STEPPER_BTN_SIZE = new(55f, 55f);
-        // In-game variant: a taller panel with a Restart | Quit-to-menu row above Close.
-        public static readonly Vector2 SETTINGS_PANEL_SIZE_INGAME = new(350f, 470f);
-        public static readonly Vector2 SETTINGS_RUN_BTN_SIZE = new(135f, 55f);
-        public static readonly Vector2 SETTINGS_RESTART_POS = new(-73f, -125f);
-        public static readonly Vector2 SETTINGS_QUIT_POS = new(73f, -125f);
-        public static readonly Vector2 SETTINGS_CLOSE_POS_INGAME = new(0f, -195f);
+        public const float SETTINGS_DEV_TEXT_SIZE = 22f;
         #endregion
 
         #region Layout — Shop Screen (full-screen overlay; header + vertical page scroll)
