@@ -341,9 +341,11 @@ namespace DogtorBurguer
         public static readonly Vector2 CREDITS_BAND_SIZE = new(360f, 62f);
         public const int CREDITS_BAND_COLUMNS = 18;                                  // checker cells across (3 rows → ~20px squares)
         public const int CREDITS_BAND_ROWS = 3;
-        public const float CREDITS_NAME_DY = -49f;                                   // name center, on the band
-        public const float CREDITS_NAME_SIZE = 34f;
-        public static readonly Vector2 CREDITS_NAME_RECT = new(360f, 50f);
+        public const float CREDITS_BAND_LINE_EXTRA = 22f;                            // band growth per extra name line (top edge stays)
+        public static readonly Vector2 CREDITS_NAME_NUDGE = new(0f, -2f);            // name center vs band center
+        public static readonly Vector2 CREDITS_NAME_INSET = new(16f, 8f);            // name rect = band minus this (auto-fit bounds)
+        public const float CREDITS_NAME_SIZE = 34f;                                  // single names; multi-line lists auto-fit down
+        public const float CREDITS_NAME_SIZE_MIN = 14f;
         public static readonly Color CREDITS_GAME_ROLE = new(0.55f, 0.78f, 0.25f);   // lime heading
         public static readonly Color CREDITS_GAME_BAND = new(0.80f, 0.90f, 0.66f);   // pastel green checker
         public static readonly Color CREDITS_ART_ROLE = new(0.25f, 0.66f, 0.96f);    // sky heading

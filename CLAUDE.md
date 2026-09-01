@@ -619,14 +619,17 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - **Credits panel (authored, 2026-09-01, `UI/CreditsPanel.cs`)**: menu-only, to the mock (`Look
   Reference/Credits.png`) on the modal chrome (panel nudged up `CREDITS_PANEL_OFFSET`). Three
   `CreditsEntry` lines — **A GAME BY** Oscar Torandell / **ART BY** Lucia Varona / **MUSIC BY**
-  Martin Nilsson — each a colored role heading (`StyleFillAndBorder`, accent + HUD border) over a
+  the five OpenGameArt artists — each a colored role heading (`StyleFillAndBorder`, accent + HUD border) over a
   pastel **checkered band** with the name in the HUD palette. The band is procedural
   (`SpriteFactory.Checker(cols, rows)` — a point-filtered white/transparent checker stretched over
   the band rect and tinted per entry; the cream body shows through the clear cells) since the kit
   has no band art. Entries live at the top of `CreditsPanel`; colors/layout in `UIStyles.CREDITS_*`.
-  ⚠️ **Music credit is provisional**: only `Track_2.ogg` carries a tag ("Moose theme for
-  Stranded", Martin Nilsson, 2013); the other 9 tracks are untagged FL Studio exports. Confirm
-  the composer(s) + license/attribution terms for every track before release, then fix the entry.
+  A name may span explicit `\n` lines: the band grows `CREDITS_BAND_LINE_EXTRA` per extra line
+  (top edge fixed) and the name auto-fits down to `CREDITS_NAME_SIZE_MIN`. **MUSIC BY lists five
+  names** (SketchyLogic, BossLevelVGM, Martin Nilsson, Alex McCulloch, Spring Spring) — three are
+  **CC-BY 3.0, so the credit is a license requirement**; the track ↔ source ↔ license table is
+  `Docs/music-attribution.md` (keep it and the entry in sync; BossLevelVGM also wants the credit
+  in the store listing).
 - **★ glyph**: Panton (ASCII) lacks U+2605; add a fallback font or the `Star` sprite where needed.
 - **UI integration ≠ pure art-swap** — remaining wiring that implies real code:
   - **Mult meter**: a filling capsule gauge (right of Special Order) showing progress to the next

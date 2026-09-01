@@ -15,12 +15,16 @@ namespace DogtorBurguer
         private static readonly Vector2 Center = new(0.5f, 0.5f);
 
         // The credits themselves. Player-facing strings: letters, digits, space and ! , - . : ; ?
-        // only (trial-font glyph limits — see CLAUDE.md).
+        // only (trial-font glyph limits — see CLAUDE.md). A name may span lines with explicit
+        // newlines — the band grows per extra line and the name auto-fits (CREDITS_NAME_SIZE_MIN).
+        // The music names are a CC-BY attribution requirement — see Docs/music-attribution.md
+        // before editing them.
         private static readonly CreditsEntry[] Entries =
         {
             new("A GAME BY", "Oscar Torandell", UIStyles.CREDITS_GAME_ROLE, UIStyles.CREDITS_GAME_BAND),
             new("ART BY", "Lucia Varona", UIStyles.CREDITS_ART_ROLE, UIStyles.CREDITS_ART_BAND),
-            new("MUSIC BY", "Martin Nilsson", UIStyles.CREDITS_MUSIC_ROLE, UIStyles.CREDITS_MUSIC_BAND),
+            new("MUSIC BY", "SketchyLogic, BossLevelVGM,\nMartin Nilsson, Alex McCulloch,\nSpring Spring",
+                UIStyles.CREDITS_MUSIC_ROLE, UIStyles.CREDITS_MUSIC_BAND),
         };
 
         private Canvas _canvas;
@@ -52,7 +56,8 @@ namespace DogtorBurguer
                 BuildEntry(Entries[i], UIStyles.CREDITS_FIRST_Y - i * UIStyles.CREDITS_PITCH);
         }
 
-        // Heading, then the band, then the name (so the name renders over the band).
+        // Heading, then the band, then the name (so the name renders over the band). A multi-line
+        // name extends the band downward (its top edge stays put) and shrinks to fit.
         private void BuildEntry(CreditsEntry entry, float headingY)
         {
             Transform root = _modal.Panel;
@@ -61,15 +66,21 @@ namespace DogtorBurguer
                 UIStyles.CREDITS_ROLE_RECT, UIStyles.CREDITS_ROLE_SIZE, FontStyles.Bold);
             UIFactory.StyleFillAndBorder(role, entry.RoleColor, UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH);
 
+            int extraLines = entry.Name.Split('\n').Length - 1;
+            float extraHeight = extraLines * UIStyles.CREDITS_BAND_LINE_EXTRA;
+            Vector2 bandSize = UIStyles.CREDITS_BAND_SIZE + new Vector2(0f, extraHeight);
+            Vector2 bandPos = new(0f, headingY + UIStyles.CREDITS_BAND_DY - extraHeight * 0.5f);
+
             Image band = UIFactory.CreateImage(root, "Band",
-                SpriteFactory.Checker(UIStyles.CREDITS_BAND_COLUMNS, UIStyles.CREDITS_BAND_ROWS),
-                Center, new Vector2(0f, headingY + UIStyles.CREDITS_BAND_DY), UIStyles.CREDITS_BAND_SIZE);
+                SpriteFactory.Checker(UIStyles.CREDITS_BAND_COLUMNS, UIStyles.CREDITS_BAND_ROWS + extraLines),
+                Center, bandPos, bandSize);
             band.color = entry.BandColor;
 
             TextMeshProUGUI name = UIFactory.CreateText(root, entry.Name,
-                new Vector2(0f, headingY + UIStyles.CREDITS_NAME_DY),
-                UIStyles.CREDITS_NAME_RECT, UIStyles.CREDITS_NAME_SIZE, FontStyles.Bold);
+                bandPos + UIStyles.CREDITS_NAME_NUDGE, bandSize - UIStyles.CREDITS_NAME_INSET,
+                UIStyles.CREDITS_NAME_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(name);
+            UIFactory.AutoFit(name, UIStyles.CREDITS_NAME_SIZE_MIN, UIStyles.CREDITS_NAME_SIZE);
         }
 
         private void OnDestroy()
