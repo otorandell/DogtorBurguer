@@ -50,16 +50,27 @@ namespace DogtorBurguer
         public const float FAIRY_STAR_SHARE = 0.5f;
         #endregion
 
-        #region IAP Products — gem packs (real money; mock until the IAP SDK lands)
+        #region IAP Products — gem packs (real money via Unity IAP; the mock store in the editor)
         // Store price-point ladder ($0.99/$4.99/$9.99/$19.99) with monotonically improving
         // gems-per-dollar (+~10/20/30% over the baseline) so every step up is a better deal.
+        // Store ids are the Play Console / App Store Connect product ids (see
+        // Docs/play-store-listing.md); the price labels are placeholders until the store prices them.
         public static readonly GemProduct[] GEM_PRODUCTS =
         {
-            new GemProduct(100, "$0.99"),
-            new GemProduct(550, "$4.99", "MOST POPULAR"),
-            new GemProduct(1200, "$9.99"),
-            new GemProduct(2600, "$19.99", "BEST VALUE"),
+            new GemProduct("gems_100", 100, "$0.99"),
+            new GemProduct("gems_550", 550, "$4.99", "MOST POPULAR"),
+            new GemProduct("gems_1200", 1200, "$9.99"),
+            new GemProduct("gems_2600", 2600, "$19.99", "BEST VALUE"),
         };
+
+        /// <summary>The gem pack behind a store id, or null for an unknown id.</summary>
+        public static GemProduct? FindGemProduct(string storeId)
+        {
+            foreach (GemProduct product in GEM_PRODUCTS)
+                if (product.StoreId == storeId)
+                    return product;
+            return null;
+        }
         #endregion
 
         #region Shop — star packs (bought with gems; hard→soft, one-directional)
@@ -95,7 +106,8 @@ namespace DogtorBurguer
         #endregion
 
         #region Shop — remove ads (one-time IAP; kills interstitials, keeps rewarded ads)
-        public const string REMOVE_ADS_PRICE_LABEL = "$2.99";
+        public const string REMOVE_ADS_STORE_ID = "remove_ads";                // non-consumable store product id
+        public const string REMOVE_ADS_PRICE_LABEL = "$2.99";                   // placeholder until the store prices it; also baked into ui_shop_remove_ads
         // Bundled gem sweetener — "Remove Ads + gems" converts far better than the bare toggle.
         public const int REMOVE_ADS_BONUS_GEMS = 100;
         #endregion

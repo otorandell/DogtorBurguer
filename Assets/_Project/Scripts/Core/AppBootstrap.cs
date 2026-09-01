@@ -11,6 +11,7 @@ namespace DogtorBurguer
         {
             MonoBehaviourUtil.EnsureComponent<SaveDataManager>();
             MonoBehaviourUtil.EnsureComponent<AdManager>();
+            MonoBehaviourUtil.EnsureComponent<IapManager>();
             MonoBehaviourUtil.EnsureComponent<MusicManager>();
         }
     }

@@ -29,13 +29,14 @@ namespace DogtorBurguer
 
         // Top of the page: the authored Remove-Ads banner (one tappable image — price, gem bonus and
         // the ONE TIME BUY tag are baked in) while unbought; afterwards the mock's THANK YOU FOR
-        // SUPPORTING US! box takes its slot.
+        // SUPPORTING US! box takes its slot. The grant arrives through IapManager (store callback).
         private static void BuildSupportBanner(RectTransform content, ShopScreen screen)
         {
             Sprite offerArt = UiArt.Load("ui_shop_remove_ads");
-            Button offer = UIFactory.CreateSpriteButton(content, "RemoveAds", offerArt, Center, Vector2.zero,
+            Button offer = null;
+            offer = UIFactory.CreateSpriteButton(content, "RemoveAds", offerArt, Center, Vector2.zero,
                 UIFactory.SizeByWidth(offerArt, UIStyles.SHOP_CONTENT_W),
-                () => { ShopService.BuyRemoveAds(); screen.NotifyChanged(); });
+                () => StorePurchase(MonetizationConfig.REMOVE_ADS_STORE_ID, offer.transform));
             offer.image.preserveAspect = true; // the page layout stretches widths; keep the art's shape
             offer.gameObject.AddComponent<LayoutElement>().preferredHeight =
                 UIFactory.SizeByWidth(offerArt, UIStyles.SHOP_CONTENT_W).y;
@@ -186,8 +187,9 @@ namespace DogtorBurguer
             }
         }
 
-        // Gem packs are real-money products (mock IAP for now) — the OS confirms those, we don't.
-        // The free rewarded-ad rung leads the grid so the "get gems" path always has a $0 cell.
+        // Gem packs are real-money products — the store's own dialog confirms those, we don't. The
+        // free rewarded-ad rung leads the grid so the "get gems" path always has a $0 cell; the
+        // App Store's mandatory Restore Purchases sits under the grid.
         private static void BuildGemPacks(RectTransform content, ShopScreen screen)
         {
             ShopWidgets.CreateSectionTitle(content, "GEMS");
@@ -227,11 +229,40 @@ namespace DogtorBurguer
             for (int i = 0; i < products.Length; i++)
             {
                 GemProduct captured = products[i];
-                ShopCell cell = ShopWidgets.CreateCell(grid, "Gems_" + captured.Amount, captured.Amount.ToString(),
-                    ShopWidgets.ItemBoxArt, () => { ShopService.BuyGemPack(captured); screen.NotifyChanged(); });
+                ShopCell cell = null;
+                cell = ShopWidgets.CreateCell(grid, "Gems_" + captured.Amount, captured.Amount.ToString(),
+                    ShopWidgets.ItemBoxArt, () => StorePurchase(captured.StoreId, cell.Root));
                 AddPackContents(cell, "ui_pack_gems_" + (i + 1), captured.Badge);
-                cell.SetPill(ShopWidgets.MoneyLabel(captured.PriceLabel));
+                cell.SetPill(StorePrice(captured.StoreId, captured.PriceLabel));
             }
+
+            TextMeshProUGUI restore = UIFactory.CreateText(content, "Restore Purchases", Vector2.zero, Vector2.zero,
+                UIStyles.SHOP_SUBTITLE_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR);
+            restore.gameObject.AddComponent<LayoutElement>().preferredHeight = UIStyles.SHOP_RESTORE_H;
+            restore.raycastTarget = true;
+            restore.gameObject.AddComponent<Button>().onClick.AddListener(() =>
+                IapManager.Instance?.RestorePurchases(ok => { if (!ok) ShopScreen.Deny(restore.transform); }));
+        }
+
+        // A real-money purchase: the store dialog handles confirmation; the grant lands via
+        // IapManager.OnGranted (the screen re-renders on it). Only a failure shakes the cell —
+        // a cancel is the player's choice.
+        private static void StorePurchase(string storeId, Transform denyTarget)
+        {
+            if (IapManager.Instance == null) return;
+            IapManager.Instance.Purchase(storeId, result =>
+            {
+                if (result != IapResult.Success && result != IapResult.Cancelled && denyTarget != null)
+                    ShopScreen.Deny(denyTarget);
+            });
+        }
+
+        // The store's localized price when it has one (shown verbatim — it's what the store dialog
+        // will say), else the config placeholder with the "$" dropped for the trial font.
+        private static string StorePrice(string storeId, string fallbackLabel)
+        {
+            string fallback = ShopWidgets.MoneyLabel(fallbackLabel);
+            return IapManager.Instance != null ? IapManager.Instance.PriceLabel(storeId, fallback) : fallback;
         }
 
         // A currency pack cell's box: the pack icon, plus a gold merchandising badge on the label

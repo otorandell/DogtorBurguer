@@ -7,13 +7,17 @@ namespace DogtorBurguer
     /// </summary>
     public readonly struct GemProduct
     {
+        /// <summary>The store product id — must match the Play Console / App Store Connect product exactly.</summary>
+        public readonly string StoreId;
         public readonly int Amount;
+        /// <summary>Placeholder price shown until the store supplies its localized string.</summary>
         public readonly string PriceLabel;
         /// <summary>Merchandising tag shown on the card ("MOST POPULAR", "BEST VALUE"); "" for none.</summary>
         public readonly string Badge;
 
-        public GemProduct(int amount, string priceLabel, string badge = "")
+        public GemProduct(string storeId, int amount, string priceLabel, string badge = "")
         {
+            StoreId = storeId;
             Amount = amount;
             PriceLabel = priceLabel;
             Badge = badge;

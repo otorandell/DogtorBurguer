@@ -69,20 +69,20 @@ namespace DogtorBurguer
             return true;
         }
 
-        /// <summary>IAP stub — grants immediately; the real store flow lands with the IAP SDK.</summary>
-        public static void BuyGemPack(GemProduct product)
+        /// <summary>Grant half of a gem-pack purchase — called by IapManager once the store has
+        /// completed (or replayed) the transaction. Never call from UI; go through IapManager.Purchase.</summary>
+        public static void GrantGemPack(GemProduct product)
         {
-            Debug.Log($"[Shop] IAP stub - 'bought' {product.Amount} gems for {product.PriceLabel}");
             SaveDataManager.Instance?.AddGems(product.Amount);
         }
 
-        /// <summary>IAP stub — remove ads plus the bundled gem sweetener. One-time.</summary>
-        public static void BuyRemoveAds()
+        /// <summary>Grant half of Remove Ads plus its bundled gem sweetener. Idempotent — the store
+        /// replays owned non-consumables on every init / restore.</summary>
+        public static void GrantRemoveAds()
         {
             SaveDataManager save = SaveDataManager.Instance;
             if (save == null || save.AdsRemoved) return;
 
-            Debug.Log($"[Shop] IAP stub - 'bought' Remove Ads for {MonetizationConfig.REMOVE_ADS_PRICE_LABEL}");
             save.SetAdsRemoved();
             save.AddGems(MonetizationConfig.REMOVE_ADS_BONUS_GEMS);
         }

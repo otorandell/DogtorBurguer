@@ -131,7 +131,13 @@ namespace DogtorBurguer
             RectTransform content = ShopWidgets.CreateVerticalScroll(_canvas.transform,
                 UIStyles.SHOP_SCROLL_TOP, UIStyles.SHOP_SCROLL_BOTTOM, UIStyles.SHOP_SCROLL_SIDE);
             ShopSections.BuildAll(content, this);
+
+            // Store grants can land outside a tap (a restore, a replayed purchase) — re-render then too.
+            if (IapManager.Instance != null)
+                IapManager.Instance.OnGranted += HandleGranted;
         }
+
+        private void HandleGranted(string storeId) => NotifyChanged();
 
         // The page art is a full-phone canvas (SHOP baked on the awning): shown at the reference
         // resolution it lands where drawn. The round X over the awning's corner, and the shared
@@ -153,6 +159,8 @@ namespace DogtorBurguer
 
         private void OnDestroy()
         {
+            if (IapManager.Instance != null)
+                IapManager.Instance.OnGranted -= HandleGranted;
             if (_openInstance == this) _openInstance = null;
             _onClosed?.Invoke();
         }

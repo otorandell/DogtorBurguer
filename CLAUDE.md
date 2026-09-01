@@ -38,9 +38,10 @@ Assets/_Project/Scripts/
                  Background, OrderType, NumberFormat, UIFactory
     Factory/     SpriteFactory (cached procedural sprites), WorldTextFactory (world-space TMP)
   Audio/         AudioManager, MusicManager, MusicCategory
-  Monetization/  AdManager (facade), MockAdProvider, GemProduct, StarProduct, ConsumablePack,
-                 BurgerFairy, BurgerFairySpawner
-    Abstractions/ IAdProvider (the ad-network contract)
+  Monetization/  AdManager (facade), MockAdProvider, LevelPlayAdProvider, IapManager (facade),
+                 MockIapProvider, UnityIapProvider, IapResult, GemProduct, StarProduct,
+                 ConsumablePack, BurgerFairy, BurgerFairySpawner
+    Abstractions/ IAdProvider (the ad-network contract), IIapProvider (the store contract)
   Consumables/   ConsumableType, ConsumableEffect (+ Ketchup/Mustard/Skewer), ConsumableEffects,
                  ConsumableFaller, ConsumableVfx (use effects), ConsumableInventory,
                  ConsumableInventoryView, ConsumableSlotWidget, ConsumableDragController,
@@ -51,15 +52,16 @@ Assets/_Project/Scripts/
 These classes use the singleton pattern. Initialization order matters:
 1. **SaveDataManager** -- player data persistence (PlayerPrefs)
 2. **MusicManager** -- background music, DontDestroyOnLoad
-3. **AdManager** -- ad integration (currently mock)
-4. **GameManager** -- central game state, creates missing managers via EnsureComponent
-5. **GridManager** -- column/grid state
-6. **AudioManager** -- procedural SFX generation
-7. **BurgerChallenge** -- challenge UI and tracking
-8. **ConsumableInventory** -- gameplay facade over the persistent consumable stock (SaveDataManager); created by GameManager
-9. **ConsumableInventoryView** -- world-space inventory slot icons
-10. **ConsumableDragController** -- the drag-to-column carry interaction
-11. **PlateManager** -- the four decorative under-column plates; slides two to swap on the chef flip
+3. **AdManager** -- ad integration (LevelPlay on device, mock in the editor)
+4. **IapManager** -- in-app purchases (Unity IAP when the package is installed, mock otherwise), DontDestroyOnLoad
+5. **GameManager** -- central game state, creates missing managers via EnsureComponent
+6. **GridManager** -- column/grid state
+7. **AudioManager** -- procedural SFX generation
+8. **BurgerChallenge** -- challenge UI and tracking
+9. **ConsumableInventory** -- gameplay facade over the persistent consumable stock (SaveDataManager); created by GameManager
+10. **ConsumableInventoryView** -- world-space inventory slot icons
+11. **ConsumableDragController** -- the drag-to-column carry interaction
+12. **PlateManager** -- the four decorative under-column plates; slides two to swap on the chef flip
 
 ## Event System
 Key events for cross-system communication:
@@ -277,8 +279,21 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   `NO_FILL_CHANCE` so not-ready UI paths get exercised — ad buttons (game-over continue, shop
   FREE) disable + relabel while no ad is loaded. **Swapping in the real SDK = one new provider
   class + one line in `AdManager.Awake`** (SDK choice leaning Unity LevelPlay — see checklist).
-- IAP flows (gem packs, remove-ads) are stubs that grant immediately — see
-  `ShopService.BuyGemPack` / `BuyRemoveAds`.
+- **IAP (Unity In-App Purchasing 4.12.2, code landed 2026-09-01)**: `IapManager` is the
+  store facade (twin of `AdManager`) owning one `IIapProvider` (`Monetization/Abstractions/`):
+  `UnityIapProvider` when the purchasing package is installed (it defines `UNITY_PURCHASING`;
+  the provider file compiles to nothing without it), `MockIapProvider` otherwise (editor /
+  package-less checkouts — purchases succeed a frame later, free). Catalog =
+  `MonetizationConfig.GEM_PRODUCTS` (consumables, store ids `gems_100` … `gems_2600`) +
+  `REMOVE_ADS_STORE_ID` (`remove_ads`, non-consumable) — **create the same ids in the Play
+  Console** (`Docs/play-store-listing.md`). **Grant only from the store callback**:
+  `IapManager.Grant` → `ShopService.GrantGemPack` / `GrantRemoveAds` (idempotent — the store
+  replays owned non-consumables at init and on Restore); `IapManager.OnGranted` re-renders an
+  open shop. The shop shows `IapManager.PriceLabel` (the store's localized string once known,
+  else the config placeholder minus "$"), the App Store-mandatory **Restore Purchases** text
+  button sits under the gem grid. Still pending: local receipt validation (Unity's obfuscated
+  tangle classes are editor-generated — `UnityIapProvider.IsReceiptValid` passes everything
+  until then) and the on-device purchase test on the internal track.
 
 ### Shop (`Scripts/Shop/` — authored page, 2026-09-01)
 Built to the artist's mock (`Look Reference/Shop_example_1..3.png` + `Shop buy confirm.png`) with
@@ -678,15 +693,23 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   Plan each of these as its own code task alongside the visual wiring.
 - **Shop**: authored art throughout except the wide green cell pill (derived — see Core Systems →
   Shop). Layout knobs in `UIStyles.SHOP_*`, untested on-device — eyeball defaults, tune live.
-- **IAP**: gem packs + Remove Ads are stubs granting instantly (`ShopService`); need the real IAP
-  SDK + a **Restore Purchases** path for Remove Ads (iOS review requirement).
+- **IAP**: Unity IAP wired (see Monetization) — verify in the editor once the package imports
+  (the Unity IAP fake store dialogs), then on the Play internal track with license testers;
+  generate the receipt-validation tangle before launch.
 - Consumable polish: real SFX (override slots ready) + final slot layout/sizes (placeholders in `UIStyles`)
 - Leaderboard integration (button exists, logs "Coming Soon")
-- IAP integration (ShopService stubs grant instantly; see Shop section)
 - Ad SDK integration: code + Android credentials + package ID done (see Monetization → Real ad SDK); needs device test, iOS credentials
 
 ## Pre-Launch Checklist
 Platform-readiness / launch-logistics items tracked separately from
 code-review findings. See `Docs/pre-launch-checklist.md` for the full
 list (save layer security, cloud save, schema versioning, IAP receipt
-validation, analytics, privacy policy, etc.).
+validation, analytics, privacy policy, etc.). Ready-to-use copy:
+`Docs/privacy-policy.md` (+ `.html` to host, e.g. GitHub Pages — the URL goes in the Play
+listing and the LevelPlay dashboard) and `Docs/play-store-listing.md` (descriptions,
+questionnaire answers, product ids, asset specs). ⚠️ **Font**: the "licensed" Panton zip
+(`Fuentes/panton.zip`, 2026-09-01 kit) contains the same **trial** TTFs plus Fontfabric's
+**free** weights (`Commercial/PantonDemo-Black.otf` = "Panton Black Caps", caps-only, and
+Light; FF Free Font EULA allows apps). The ExtraBold in use is still trial — decide: buy
+Panton ExtraBold, or switch to the free Black Caps (all-caps UI). Either way the SDF is
+regenerated in the editor (1024 atlas / ~12 padding / SDFAA) and the symbol workarounds go.

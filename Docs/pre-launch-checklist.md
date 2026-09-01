@@ -34,7 +34,11 @@ Each item: concern → impact → mitigation → status.
 ### No IAP receipt validation
 **Impact:** If gems become purchasable via IAP, the client receives a receipt that can be forged or replayed. Granting gems on client-side receipt acceptance is the standard fraud pattern.
 **Mitigation:** validate receipts server-side OR use a service like Unity Gaming Services / RevenueCat that bundles validation. Don't grant gems on client receipt alone.
-**Status:** pending (blocker for IAP launch)
+**Status:** IAP wired 2026-09-01 (Unity IAP 4.12.2, `IapManager` / `UnityIapProvider`; grants only from
+the store callback). Local receipt validation still pending: generate the tangle classes (Window >
+Unity IAP > Receipt Validation Obfuscator, Google Play public key) and plug `CrossPlatformValidator`
+into `UnityIapProvider.IsReceiptValid` — until then every store receipt passes. Server-side
+validation is out of scope for v1.
 
 ---
 
@@ -76,7 +80,10 @@ Dashboard flows/prices drift — treat as the shape, re-verify screens when exec
 ### Ad consent & privacy prerequisites (GDPR / ATT)
 **Impact:** EU GDPR consent and iOS App Tracking Transparency are required before ads will serve and for store compliance. Missing them → ads don't fill and/or the app violates platform policy.
 **Mitigation:** integrate the SDK's consent management (e.g. Google/Unity UMP) for GDPR and trigger the ATT prompt on iOS. Depends on a published privacy policy (see below).
-**Status:** pending (blocker for ad launch). Privacy policy **draft written 2026-08-30** (`Docs/privacy-policy-draft.md`) — fill placeholders, decide the children/Families question, host at a public URL.
+**Status:** pending (blocker for ad launch). Privacy policy **final text written 2026-09-01**
+(`Docs/privacy-policy.md` + `privacy-policy.html`; declares not-child-directed, 13+ target audience,
+ProximaCentaury / oscar.plk@gmail.com as contact) — **host it** (GitHub Pages) and put the URL in the
+Play listing + LevelPlay dashboard; then the consent flow (GDPR UMP / iOS ATT).
 
 ---
 
