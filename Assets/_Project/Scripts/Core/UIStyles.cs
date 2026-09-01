@@ -236,11 +236,10 @@ namespace DogtorBurguer
         public const float MENU_PLAY_W = 350f;
         public const float MENU_BOTTOM_BTN_Y = 105f;                         // CREDITS/SHOP center height from the bottom edge
         public const float MENU_BOTTOM_BTN_X = 122f;                         // ± from center
-        public static readonly Vector2 MENU_BOTTOM_BTN_SIZE = new(190f, 91f);// cream blank at ~native aspect (2.09:1)
-        public const float MENU_BOTTOM_LABEL_SIZE = 26f;                     // CREDITS/SHOP word (HUD palette)
+        public const float MENU_BOTTOM_BTN_W = 210f;                         // authored red/yellow blanks sized by width (canvas incl. shadow; ≈ 141 tall)
+        public const float MENU_BOTTOM_LABEL_SIZE = 28f;                     // CREDITS/SHOP word (HUD palette)
+        public static readonly Vector2 MENU_BOTTOM_LABEL_NUDGE = new(-3f, 5f); // word toward the face center (shadow is bottom-right)
         // No red/orange blank exists in the kit — the cream blank is runtime-tinted (multiply).
-        public static readonly Color MENU_CREDITS_TINT = new(0.95f, 0.42f, 0.35f);
-        public static readonly Color MENU_SHOP_TINT = new(1f, 0.78f, 0.32f);
         public const float MENU_SUPPORT_LABEL_Y = 14f;                       // "Support the devs!" above the SHOP button's top edge
         public const float MENU_SUPPORT_LABEL_SIZE = 15f;
         public static readonly Color MENU_SUPPORT_FILL = new(0.45f, 0.75f, 0.2f); // green, HUD border

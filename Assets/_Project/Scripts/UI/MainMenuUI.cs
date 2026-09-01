@@ -7,7 +7,8 @@ namespace DogtorBurguer
     /// <summary>
     /// Builds the main menu from the authored art (drop №3): top bar with the settings gear,
     /// the logo, the high-score plaque tucked behind the big PLAY button, and the checkered
-    /// bottom strip carrying the CREDITS and SHOP buttons. Layout knobs: UIStyles.MENU_*.
+    /// bottom strip carrying the authored CREDITS and SHOP buttons, all over the colored menu
+    /// illustration (the MenuBackgroundSkin). Layout knobs: UIStyles.MENU_*.
     /// </summary>
     public class MainMenuUI : MonoBehaviour
     {
@@ -74,26 +75,27 @@ namespace DogtorBurguer
             UIFactory.CreateImage(_canvas.transform, "BottomStrip", strip, new Vector2(0.5f, 0f),
                 new Vector2(0f, stripSize.y * 0.5f), stripSize);
 
-            CreateBottomButton("CREDITS", -UIStyles.MENU_BOTTOM_BTN_X, UIStyles.MENU_CREDITS_TINT, OnCreditsClicked);
-            Button shop = CreateBottomButton("SHOP", UIStyles.MENU_BOTTOM_BTN_X, UIStyles.MENU_SHOP_TINT, OnShopClicked);
+            CreateBottomButton("CREDITS", -UIStyles.MENU_BOTTOM_BTN_X, "ui_menu_btn_credits", OnCreditsClicked);
+            Button shop = CreateBottomButton("SHOP", UIStyles.MENU_BOTTOM_BTN_X, "ui_menu_btn_shop", OnShopClicked);
 
+            float shopHeight = shop.GetComponent<RectTransform>().sizeDelta.y;
             TextMeshProUGUI support = UIFactory.CreateText(shop.transform, "Support the devs!",
-                new Vector2(0f, UIStyles.MENU_BOTTOM_BTN_SIZE.y * 0.5f + UIStyles.MENU_SUPPORT_LABEL_Y),
-                new Vector2(UIStyles.MENU_BOTTOM_BTN_SIZE.x, 30f), UIStyles.MENU_SUPPORT_LABEL_SIZE, FontStyles.Bold);
+                new Vector2(0f, shopHeight * 0.5f + UIStyles.MENU_SUPPORT_LABEL_Y),
+                new Vector2(UIStyles.MENU_BOTTOM_BTN_W, 30f), UIStyles.MENU_SUPPORT_LABEL_SIZE, FontStyles.Bold);
             UIFactory.StyleFillAndBorder(support, UIStyles.MENU_SUPPORT_FILL,
                 UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH);
         }
 
-        // A tinted cream blank (no red/orange blank in the kit) with a HUD-palette word on it.
-        private Button CreateBottomButton(string label, float x, Color tint, UnityEngine.Events.UnityAction onClick)
+        // An authored blank (the kit's red CREDITS / yellow SHOP buttons) with a HUD-palette word on it.
+        private Button CreateBottomButton(string label, float x, string art, UnityEngine.Events.UnityAction onClick)
         {
-            Button btn = UIFactory.CreateSpriteButton(_canvas.transform, label, UiArt.Load("ui_btn_cream"),
-                new Vector2(0.5f, 0f), new Vector2(x, UIStyles.MENU_BOTTOM_BTN_Y),
-                UIStyles.MENU_BOTTOM_BTN_SIZE, onClick);
-            btn.image.color = tint;
+            Sprite blank = UiArt.Load(art);
+            Vector2 size = UIFactory.SizeByWidth(blank, UIStyles.MENU_BOTTOM_BTN_W);
+            Button btn = UIFactory.CreateSpriteButton(_canvas.transform, label, blank,
+                new Vector2(0.5f, 0f), new Vector2(x, UIStyles.MENU_BOTTOM_BTN_Y), size, onClick);
 
-            TextMeshProUGUI word = UIFactory.CreateText(btn.transform, label, Vector2.zero,
-                UIStyles.MENU_BOTTOM_BTN_SIZE, UIStyles.MENU_BOTTOM_LABEL_SIZE, FontStyles.Bold);
+            TextMeshProUGUI word = UIFactory.CreateText(btn.transform, label, UIStyles.MENU_BOTTOM_LABEL_NUDGE,
+                size, UIStyles.MENU_BOTTOM_LABEL_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(word);
             return btn;
         }
