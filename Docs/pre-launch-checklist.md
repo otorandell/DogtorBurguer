@@ -34,10 +34,10 @@ Each item: concern → impact → mitigation → status.
 ### No IAP receipt validation
 **Impact:** If gems become purchasable via IAP, the client receives a receipt that can be forged or replayed. Granting gems on client-side receipt acceptance is the standard fraud pattern.
 **Mitigation:** validate receipts server-side OR use a service like Unity Gaming Services / RevenueCat that bundles validation. Don't grant gems on client receipt alone.
-**Status:** IAP wired 2026-09-01 (Unity IAP 4.12.2, `IapManager` / `UnityIapProvider`; grants only from
-the store callback). Local receipt validation still pending: generate the tangle classes (Window >
-Unity IAP > Receipt Validation Obfuscator, Google Play public key) and plug `CrossPlatformValidator`
-into `UnityIapProvider.IsReceiptValid` — until then every store receipt passes. Server-side
+**Status:** IAP wired 2026-09-01, migrated to Unity IAP **5.4.2** 2026-09-02 (IAP 4 unsupported since June 2026; `IapManager` / `UnityIapProvider` on the StoreController API; grants only from
+the store callback). Local receipt validation still pending: generate the tangle classes (the IAP
+Receipt Validation Obfuscator with the Google Play public key) and plug validation into
+`UnityIapProvider.IsOrderValid` — until then every pending order passes. Server-side
 validation is out of scope for v1.
 
 ---

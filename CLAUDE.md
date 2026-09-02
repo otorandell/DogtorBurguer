@@ -283,17 +283,19 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   `NO_FILL_CHANCE` so not-ready UI paths get exercised — ad buttons (game-over continue, shop
   FREE) disable + relabel while no ad is loaded. **Swapping in the real SDK = one new provider
   class + one line in `AdManager.Awake`** (SDK choice leaning Unity LevelPlay — see checklist).
-- **IAP (Unity In-App Purchasing 4.12.2, code landed 2026-09-01)**: `IapManager` is the
+- **IAP (Unity In-App Purchasing 5.4.2, code landed 2026-09-01, migrated to IAP 5 on 2026-09-02 — IAP 4 left support June 2026)**: `IapManager` is the
   store facade (twin of `AdManager`) owning one `IIapProvider` (`Monetization/Abstractions/`):
-  `UnityIapProvider` when the purchasing package is installed (it defines `ENABLE_CLOUD_SERVICES_PURCHASING`;
-  the provider file compiles to nothing without it), `MockIapProvider` otherwise (editor /
+  `UnityIapProvider` when the purchasing package is installed (Unity defines
+  `ENABLE_CLOUD_SERVICES_PURCHASING` then; the provider file compiles to nothing without it),
+  `MockIapProvider` otherwise (editor /
   package-less checkouts — purchases succeed a frame later, free). Catalog =
   `MonetizationConfig.GEM_PRODUCTS` (consumables, store ids `gems_100` … `gems_2600`) +
   `REMOVE_ADS_STORE_ID` (`remove_ads`, non-consumable) — **create the same ids in the Play
-  Console** (`Docs/play-store-listing.md`). **Grant only from the store callback**:
-  `IapManager.Grant` → `ShopService.GrantGemPack` / `GrantRemoveAds` (idempotent — the store
-  replays owned non-consumables at init and on Restore); `IapManager.OnGranted` re-renders an
-  open shop. The shop shows `IapManager.PriceLabel` (the store's localized string once known,
+  Console** (`Docs/play-store-listing.md`). **Grant only from the store callback**
+  (IAP 5 flow: `OnPurchasePending` → grant every cart item → `ConfirmPurchase`; the store replays
+  unconfirmed orders and owned non-consumables at init/`FetchPurchases`/Restore through the same
+  event): `IapManager.Grant` → `ShopService.GrantGemPack` / `GrantRemoveAds` (idempotent);
+  `IapManager.OnGranted` re-renders an open shop. The shop shows `IapManager.PriceLabel` (the store's localized string once known,
   else the config placeholder minus "$"), the App Store-mandatory **Restore Purchases** text
   button sits under the gem grid. Still pending: local receipt validation (Unity's obfuscated
   tangle classes are editor-generated — `UnityIapProvider.IsReceiptValid` passes everything
