@@ -81,7 +81,14 @@
       "PowerShell($b = [IO.File]::ReadAllBytes\\(\"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\\\\Assets\\\\_Project\\\\Resources\\\\UI\\\\ui_logo.png.meta\"\\); $tail = [Text.Encoding]::UTF8.GetString\\($b[\\($b.Length-30\\)..\\($b.Length-1\\)]\\); $tail -replace \"`r\",\"\\\\r\" -replace \"`n\",\"\\\\n\"; \\(Get-Content \"C:\\\\Users\\\\oscar\\\\Documents\\\\Repos\\\\DogtorBurguer\\\\Assets\\\\_Project\\\\Resources\\\\UI\\\\ui_logo.png.meta\" -TotalCount 8\\) -join ' | ')",
       "PowerShell(git check-ignore *)",
       "WebFetch(domain:docs.unity3d.com)",
-      "PowerShell(Get-Content *)"
+      "PowerShell(Get-Content *)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Select-String *)",
+      "PowerShell(git diff Packages/packages-lock.json | Select-String '^[+-]\\\\s+\"\\(version|com\\\\.\\)' | ForEach-Object { $_.Line })",
+      "PowerShell(\"LevelPlay: {0:N1} MB, {1} files\" -f \\(\\(Get-ChildItem Assets\\\\LevelPlay -Recurse -File | Measure-Object Length -Sum\\).Sum/1MB\\), \\(Get-ChildItem Assets\\\\LevelPlay -Recurse -File\\).Count; \"MDR: {0:N1} MB, {1} files\" -f \\(\\(Get-ChildItem Assets\\\\MobileDependencyResolver -Recurse -File | Measure-Object Length -Sum\\).Sum/1MB\\), \\(Get-ChildItem Assets\\\\MobileDependencyResolver -Recurse -File\\).Count; Get-ChildItem Assets\\\\LevelPlay -Depth 1 -Directory | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\\(Get-Location\\).Path + '\\\\',''\\) })",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Set-Content *)",
+      "PowerShell($enc = New-Object System.Text.UTF8Encoding\\($false\\); foreach \\($f in 'Assets\\\\_Project\\\\Scripts\\\\UI\\\\StatCard.cs.meta', 'Assets\\\\_Project\\\\Scripts\\\\UI\\\\StatCard.cs'\\) { $t = [IO.File]::ReadAllText\\($f\\) -replace \"`r`n\", \"`n\" -replace \"`n\", \"`r`n\"; if \\(-not $t.EndsWith\\(\"`r`n\"\\)\\) { $t += \"`r`n\" }; [IO.File]::WriteAllText\\($f, $t, $enc\\) }; git status --short; git diff --stat)"
     ]
   }
 }
