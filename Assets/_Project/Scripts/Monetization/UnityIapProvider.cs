@@ -29,6 +29,11 @@ namespace DogtorBurguer
         private Action<IapResult> _pending;
         private List<ProductDefinition> _catalog;
         private bool _productsFetched;
+        // Transaction ids already granted this session — the store can raise OnPurchasePending
+        // more than once for one order (the editor fake store does on the dialog click; real
+        // stores on replays that race the confirm). Session-scoped on purpose: a crash before
+        // ConfirmPurchase still re-grants on the next launch, which is the safety net.
+        private readonly HashSet<string> _grantedTransactions = new();
 
         public bool IsInitialized => _controller != null && _productsFetched;
 
@@ -49,6 +54,8 @@ namespace DogtorBurguer
             _controller.OnStoreDisconnected += HandleStoreDisconnected;
             _controller.OnPurchasesFetched += HandlePurchasesFetched;
             _controller.OnPurchasesFetchFailed += HandlePurchasesFetchFailed;
+            _controller.OnPurchaseConfirmed += HandlePurchaseConfirmed;
+            _controller.OnPurchaseDeferred += HandlePurchaseDeferred;
             _controller.ProcessPendingOrdersOnPurchasesFetched(true);
 
             Connect();
@@ -153,12 +160,23 @@ namespace DogtorBurguer
                 return;
             }
 
-            foreach (CartItem item in order.CartOrdered.Items())
-                _onGranted?.Invoke(item.Product.definition.id);
+            // Grant once per transaction; a repeated pending for the same order is only re-confirmed.
+            string transaction = order.Info.TransactionID;
+            if (string.IsNullOrEmpty(transaction) || _grantedTransactions.Add(transaction))
+            {
+                foreach (CartItem item in order.CartOrdered.Items())
+                    _onGranted?.Invoke(item.Product.definition.id);
+            }
 
             _controller.ConfirmPurchase(order);
             Resolve(IapResult.Success);
         }
+
+        private static void HandlePurchaseConfirmed(Order order) =>
+            Debug.Log("[UnityIapProvider] Purchase confirmed by the store.");
+
+        private static void HandlePurchaseDeferred(DeferredOrder order) =>
+            Debug.Log("[UnityIapProvider] Purchase deferred (awaiting external approval).");
 
         private void HandlePurchaseFailed(FailedOrder order)
         {
@@ -190,6 +208,8 @@ namespace DogtorBurguer
             _controller.OnStoreDisconnected -= HandleStoreDisconnected;
             _controller.OnPurchasesFetched -= HandlePurchasesFetched;
             _controller.OnPurchasesFetchFailed -= HandlePurchasesFetchFailed;
+            _controller.OnPurchaseConfirmed -= HandlePurchaseConfirmed;
+            _controller.OnPurchaseDeferred -= HandlePurchaseDeferred;
         }
     }
 }
