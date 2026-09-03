@@ -69,6 +69,7 @@ it in every store listing.
 ## Before submitting
 - Hosted privacy policy URL entered (listing + LevelPlay dashboard).
 - Play App Signing enrolled; upload an **.aab** (Unity: Build App Bundle), IL2CPP, ARM64.
-- Internal testing track first: verify IAP (license testers get free test purchases), ads with
-  `LEVELPLAY_TEST_SUITE`, and the consent prompt on an EU-locale device.
+- Internal testing track first: verify IAP (license testers get free test purchases) and ads
+  with `LEVELPLAY_TEST_SUITE` (no consent prompt exists — v1 serves non-personalized ads to
+  everyone by policy).
 - `GameplayConfig.SETTINGS_LEVEL_CAP` flipped to `MAX_LEVEL`.
