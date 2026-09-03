@@ -169,12 +169,12 @@ namespace DogtorBurguer
         public const float TOPBAR_SCORE_ICON_H = 69f; // high-score trophy (wide art)
         public const float TOPBAR_STAR_ICON_H = 62f;  // star — a touch smaller
         public const float TOPBAR_GEM_ICON_H = 78f;   // gem/diamond — a touch bigger
-        public const float TOPBAR_ICON_X = -55f;                           // icon offset within the widget (centered on the pill's left edge)
-        public const float TOPBAR_NUMBER_X = 20f;                          // number offset — left-clamped, just right of the icon
+        public const float TOPBAR_ICON_X = -46f;                           // icon offset within the widget — steps onto the pill, hiding its left edge
+        public const float TOPBAR_NUMBER_X = 12f;                          // number RECT center — the free zone right of the icon
         public const float TOPBAR_NUMBER_SIZE = 20f;                       // auto-size max
         public const float TOPBAR_NUMBER_SIZE_MIN = 10f;                   // auto-size floor
         public static readonly Color TOPBAR_NUMBER_COLOR = new(0.28f, 0.17f, 0.1f); // dark brown — plain small labels (shop subtitles etc.; the pill numbers use the HUD palette since 2026-09-03)
-        public static readonly Vector2 TOPBAR_NUMBER_RECT = new(70f, 40f);
+        public static readonly Vector2 TOPBAR_NUMBER_RECT = new(78f, 40f); // digits center in this rect regardless of count (auto-size shrinks long ones)
         // Order left→right: high-score, star, gem (wider spacing to clear the bigger icons).
         public static readonly Vector2 TOPBAR_SCORE_POS = new(101f, TOPBAR_Y); // high-score trophy widget (leftmost; box left edge 46)
         public static readonly Vector2 TOPBAR_STAR_POS = new(236f, TOPBAR_Y);  // star widget (box left edge 181)

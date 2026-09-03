@@ -80,7 +80,7 @@ namespace DogtorBurguer
             TextMeshProUGUI number = UIFactory.CreateText(box.transform, "0",
                 new Vector2(UIStyles.TOPBAR_NUMBER_X, 0f), UIStyles.TOPBAR_NUMBER_RECT,
                 UIStyles.TOPBAR_NUMBER_SIZE, FontStyles.Bold, UIStyles.HUD_TEXT_FILL,
-                TextAlignmentOptions.Left);
+                TextAlignmentOptions.Center); // centered in the free zone regardless of digit count
             // HUD palette (cream + border + sticker shadow): the plain brown read poorly on the
             // busy pill art once everything else got the sticker lettering.
             UIFactory.StyleHudText(number);
