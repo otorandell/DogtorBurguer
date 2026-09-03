@@ -518,7 +518,9 @@ wrapping — fix by shortening the string or widening the rect, never by re-enab
 - **HUD numbers + all red-box labels** (Level/Score numbers, tab words, SPECIAL ORDER banner,
   mult badge, consumable counts): the reference palette — cream fill `#FCFAF1` + dark-brown border
   `#492611` via `UIFactory.StyleHudText` (`UIStyles.HUD_TEXT_*`).
-- Top-bar currency pill numbers: plain dark brown (`TOPBAR_NUMBER_COLOR`), no border.
+- Top-bar currency pill numbers: HUD palette too (since 2026-09-03 — plain brown read poorly on
+  the pill art once everything gained the sticker shadow). `TOPBAR_NUMBER_COLOR` (plain dark
+  brown) remains for small plain labels (shop subtitles, Restore Purchases).
 - Buttons/popups/panels (menu): white text.
 - World-space popups: white (world outline still pending — see above).
 
@@ -640,7 +642,9 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   camera (both frame by width — see Camera & UI scaling). **Boxes are baked art at native aspect**
   (the 9-slice route was dropped — fixed-size HUD boxes don't need it).
 - **Main Menu (authored, 2026-08-30)**: rebuilt to the artist's mock — logo (top-anchored),
-  high-score plaque behind the authored PLAY button, checkered bottom strip with CREDITS + SHOP,
+  the authored PLAY button (the high-score plaque was dropped 2026-09-03 as redundant — the
+  TopBar trophy pill shows the high score; `ui_hs_plaque` stays imported but unused),
+  checkered bottom strip with CREDITS + SHOP,
   TopBar with the settings gear (shop stays a bottom button). Knobs: `UIStyles.MENU_*`; art in
   `Resources/UI` (`ui_logo`, `ui_hs_plaque`, `ui_play_button`, `ui_menu_bottom`, `ui_btn_cream`,
   `ui_btn_yellow` — the last reserved for the Game Over screen). **Completed with the

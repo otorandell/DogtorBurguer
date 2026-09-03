@@ -6,7 +6,7 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// Builds the main menu from the authored art (drop №3): top bar with the settings gear,
-    /// the logo, the high-score plaque tucked behind the big PLAY button, and the checkered
+    /// the logo, the big PLAY button, and the checkered
     /// bottom strip carrying the authored CREDITS and SHOP buttons, all over the colored menu
     /// illustration (the MenuBackgroundSkin). Layout knobs: UIStyles.MENU_*.
     /// </summary>
@@ -42,16 +42,8 @@ namespace DogtorBurguer
             UIFactory.CreateImage(_canvas.transform, "Logo", logo, new Vector2(0.5f, 1f),
                 UIStyles.MENU_LOGO_POS, UIFactory.SizeByWidth(logo, UIStyles.MENU_LOGO_W));
 
-            // High-score plaque, built before PLAY so the button overlaps its bottom edge.
-            Sprite plaque = UiArt.Load("ui_hs_plaque");
-            UIFactory.CreateImage(_canvas.transform, "HighScorePlaque", plaque, new Vector2(0.5f, 0.5f),
-                UIStyles.MENU_HS_PLAQUE_POS, UIFactory.SizeByWidth(plaque, UIStyles.MENU_HS_PLAQUE_W));
-
-            SaveDataManager save = SaveDataManager.Instance;
-            UIFactory.CreateText(_canvas.transform,
-                NumberFormat.Abbreviate(save != null ? save.HighScore : 0),
-                UIStyles.MENU_HS_NUMBER_POS, UIStyles.MENU_HS_NUMBER_RECT,
-                UIStyles.MENU_HS_NUMBER_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR);
+            // (The old high-score plaque was dropped 2026-09-03 — the TopBar trophy pill already
+            // shows the high score; the plaque was redundant. ui_hs_plaque stays in Resources.)
 
             // PLAY — authored button, text baked into the art.
             Sprite play = UiArt.Load("ui_play_button");

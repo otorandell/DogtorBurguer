@@ -173,7 +173,7 @@ namespace DogtorBurguer
         public const float TOPBAR_NUMBER_X = 20f;                          // number offset — left-clamped, just right of the icon
         public const float TOPBAR_NUMBER_SIZE = 20f;                       // auto-size max
         public const float TOPBAR_NUMBER_SIZE_MIN = 10f;                   // auto-size floor
-        public static readonly Color TOPBAR_NUMBER_COLOR = new(0.28f, 0.17f, 0.1f); // dark brown, no border (pill numbers)
+        public static readonly Color TOPBAR_NUMBER_COLOR = new(0.28f, 0.17f, 0.1f); // dark brown — plain small labels (shop subtitles etc.; the pill numbers use the HUD palette since 2026-09-03)
         public static readonly Vector2 TOPBAR_NUMBER_RECT = new(70f, 40f);
         // Order left→right: high-score, star, gem (wider spacing to clear the bigger icons).
         public static readonly Vector2 TOPBAR_SCORE_POS = new(101f, TOPBAR_Y); // high-score trophy widget (leftmost; box left edge 46)
@@ -237,11 +237,6 @@ namespace DogtorBurguer
         // defaults from the artist's mock — tune live.
         public static readonly Vector2 MENU_LOGO_POS = new(0f, -200f);       // logo CENTER below the top edge
         public const float MENU_LOGO_W = 440f;
-        public static readonly Vector2 MENU_HS_PLAQUE_POS = new(0f, -80f);   // high-score plaque (behind the play button)
-        public const float MENU_HS_PLAQUE_W = 200f;
-        public static readonly Vector2 MENU_HS_NUMBER_POS = new(0f, -96f);   // the number, on the plaque's cream box
-        public static readonly Vector2 MENU_HS_NUMBER_RECT = new(150f, 40f);
-        public const float MENU_HS_NUMBER_SIZE = 30f;
         public static readonly Vector2 MENU_PLAY_POS = new(0f, -196f);       // authored PLAY (text baked in)
         public const float MENU_PLAY_W = 350f;
         public const float MENU_BOTTOM_BTN_Y = 105f;                         // CREDITS/SHOP center height from the bottom edge
