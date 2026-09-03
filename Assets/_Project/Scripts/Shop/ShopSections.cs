@@ -236,12 +236,17 @@ namespace DogtorBurguer
                 cell.SetPill(StorePrice(captured.StoreId, captured.PriceLabel));
             }
 
+#if UNITY_IOS
+            // The App Store requires a user-facing restore button; everywhere else (Google Play,
+            // the editor) the store restores automatically at init and IAP 5 rejects the call
+            // ("not a supported platform for the restore button"), so the row is iOS-only.
             TextMeshProUGUI restore = UIFactory.CreateText(content, "Restore Purchases", Vector2.zero, Vector2.zero,
                 UIStyles.SHOP_SUBTITLE_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR);
             restore.gameObject.AddComponent<LayoutElement>().preferredHeight = UIStyles.SHOP_RESTORE_H;
             restore.raycastTarget = true;
             restore.gameObject.AddComponent<Button>().onClick.AddListener(() =>
                 IapManager.Instance?.RestorePurchases(ok => { if (!ok) ShopScreen.Deny(restore.transform); }));
+#endif
         }
 
         // A real-money purchase: the store dialog handles confirmation; the grant lands via
