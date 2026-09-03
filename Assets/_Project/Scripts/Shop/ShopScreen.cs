@@ -29,6 +29,7 @@ namespace DogtorBurguer
         private Canvas _canvas;
         private TopBar _topBar;
         private GameObject _dialog;
+        private GameObject _purchaseBlocker;
 
         /// <summary>The gem pill transform — deny-shake target for failed gem spends.</summary>
         public Transform GemPill => _topBar.GemPill;
@@ -76,6 +77,21 @@ namespace DogtorBurguer
             foreach (Action refresh in _refreshers)
                 refresh();
             AudioManager.Instance?.PlayConsumableCollect(); // placeholder purchase sound
+        }
+
+        /// <summary>Blocks all shop input while a store purchase is in flight. Real store sheets
+        /// block input themselves, but the editor's fake-store dialog is IMGUI — clicks pass
+        /// through it onto the UGUI shop (e.g. its Buy button sits over the STARS grid) — and on
+        /// device this also kills double-tap races while the sheet animates in.</summary>
+        public void SetPurchaseBlocker(bool on)
+        {
+            if (on && _purchaseBlocker == null)
+                _purchaseBlocker = UIFactory.CreateOverlay(_canvas.transform, UIStyles.SHOP_PURCHASE_BLOCKER);
+            else if (!on && _purchaseBlocker != null)
+            {
+                Destroy(_purchaseBlocker);
+                _purchaseBlocker = null;
+            }
         }
 
         /// <summary>Denied-transaction feedback (insufficient funds): shake the offender.</summary>

@@ -36,7 +36,7 @@ namespace DogtorBurguer
             Button offer = null;
             offer = UIFactory.CreateSpriteButton(content, "RemoveAds", offerArt, Center, Vector2.zero,
                 UIFactory.SizeByWidth(offerArt, UIStyles.SHOP_CONTENT_W),
-                () => StorePurchase(MonetizationConfig.REMOVE_ADS_STORE_ID, offer.transform));
+                () => StorePurchase(screen, MonetizationConfig.REMOVE_ADS_STORE_ID, offer.transform));
             offer.image.preserveAspect = true; // the page layout stretches widths; keep the art's shape
             offer.gameObject.AddComponent<LayoutElement>().preferredHeight =
                 UIFactory.SizeByWidth(offerArt, UIStyles.SHOP_CONTENT_W).y;
@@ -231,7 +231,7 @@ namespace DogtorBurguer
                 GemProduct captured = products[i];
                 ShopCell cell = null;
                 cell = ShopWidgets.CreateCell(grid, "Gems_" + captured.Amount, captured.Amount.ToString(),
-                    ShopWidgets.ItemBoxArt, () => StorePurchase(captured.StoreId, cell.Root));
+                    ShopWidgets.ItemBoxArt, () => StorePurchase(screen, captured.StoreId, cell.Root));
                 AddPackContents(cell, "ui_pack_gems_" + (i + 1), captured.Badge);
                 cell.SetPill(StorePrice(captured.StoreId, captured.PriceLabel));
             }
@@ -250,13 +250,15 @@ namespace DogtorBurguer
         }
 
         // A real-money purchase: the store dialog handles confirmation; the grant lands via
-        // IapManager.OnGranted (the screen re-renders on it). Only a failure shakes the cell —
-        // a cancel is the player's choice.
-        private static void StorePurchase(string storeId, Transform denyTarget)
+        // IapManager.OnGranted (the screen re-renders on it). Shop input is blocked until the
+        // store answers. Only a failure shakes the cell — a cancel is the player's choice.
+        private static void StorePurchase(ShopScreen screen, string storeId, Transform denyTarget)
         {
             if (IapManager.Instance == null) return;
+            screen.SetPurchaseBlocker(true);
             IapManager.Instance.Purchase(storeId, result =>
             {
+                if (screen != null) screen.SetPurchaseBlocker(false);
                 if (result != IapResult.Success && result != IapResult.Cancelled && denyTarget != null)
                     ShopScreen.Deny(denyTarget);
             });

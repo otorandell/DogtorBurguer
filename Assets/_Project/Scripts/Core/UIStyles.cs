@@ -366,6 +366,7 @@ namespace DogtorBurguer
         public const float SHOP_SUBTITLE_H = 26f;                               // per-ingredient row label (Patty, Cheese, …)
         public const float SHOP_SUBTITLE_SIZE = 18f;
         public const float SHOP_RESTORE_H = 34f;                                // "Restore Purchases" text button under the gem grid
+        public static readonly Color SHOP_PURCHASE_BLOCKER = new(0f, 0f, 0f, 0.25f); // input shield while a store purchase is in flight
         public static readonly Color SHOP_ACCENT = new(0.62f, 0.75f, 0.20f);    // lime: cell names, pack amounts, THANK YOU
         public static readonly Color SHOP_BADGE_COLOR = new(1f, 0.85f, 0f);     // "BEST VALUE" tags
         public const float SHOP_BADGE_SIZE = 11f;
