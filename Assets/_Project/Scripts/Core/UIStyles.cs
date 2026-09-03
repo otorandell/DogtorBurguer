@@ -171,6 +171,7 @@ namespace DogtorBurguer
         public const float TOPBAR_GEM_ICON_H = 78f;   // gem/diamond — a touch bigger
         public const float TOPBAR_ICON_X = -46f;                           // icon offset within the widget — steps onto the pill, hiding its left edge
         public const float TOPBAR_NUMBER_X = 12f;                          // number RECT center — the free zone right of the icon
+        public const float TOPBAR_NUMBER_Y = 3f;                           // lifted a touch above the pill's vertical center
         public const float TOPBAR_NUMBER_SIZE = 20f;                       // auto-size max
         public const float TOPBAR_NUMBER_SIZE_MIN = 10f;                   // auto-size floor
         public static readonly Color TOPBAR_NUMBER_COLOR = new(0.28f, 0.17f, 0.1f); // dark brown — plain small labels (shop subtitles etc.; the pill numbers use the HUD palette since 2026-09-03)
