@@ -85,7 +85,7 @@ non-personalized ads for everyone (GDPR consent false, CCPA opt-out, COPPA false
 before init), no ATT call on iOS. Revisit (in-house EEA prompt, or a certified CMP/UMP if AdMob is ever
 mediated) only if EU revenue justifies it. Privacy policy **final text written 2026-09-01**
 (`Docs/privacy-policy.md` + `privacy-policy.html`; declares not-child-directed, 13+ target audience,
-ProximaCentaury / oscar.plk@gmail.com as contact) — **host it** (GitHub Pages) and put the URL in the
+ProximaCentaury / oscar.plk@gmail.com as contact) — **HOSTED 2026-09-03** at https://otorandell.github.io/proximacentaury-legal/ (repo `otorandell/proximacentaury-legal`) — put the URL in the
 Play listing + LevelPlay dashboard; then the consent flow (GDPR UMP / iOS ATT).
 
 ---

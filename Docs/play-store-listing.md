@@ -10,8 +10,10 @@ assets and questionnaire answers. Character limits are Google's; the counts are 
 - **Developer name**: ProximaCentaury
 - **Category**: Game → Arcade. Tags: Arcade, Casual, Puzzle, Single player, Offline
 - **Contact email**: oscar.plk@gmail.com
-- **Privacy policy URL**: the hosted copy of `Docs/privacy-policy.md` (also goes in the LevelPlay
-  dashboard). GitHub Pages works: publish `privacy-policy.html` from a public repo.
+- **Privacy policy URL**: HOSTED — https://otorandell.github.io/proximacentaury-legal/
+  (GitHub Pages, repo `otorandell/proximacentaury-legal`, source `Docs/privacy-policy.html`;
+  the same URL goes in the LevelPlay dashboard). To update it: edit `Docs/privacy-policy.md`,
+  regenerate the html, push to that repo.
 
 ## Short description (80)
 `Catch falling ingredients, stack burgers, chase Special Orders. Quick arcade fun!` [79]
