@@ -599,6 +599,10 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - **Sizing gameplay sprites (ingredients/chef/plate)**: they render at `localScale=1`, so on-screen size =
   `pixelWidth / spritePixelsToUnits`. Normalise by setting per-file `spritePixelsToUnits = pixelWidth /
   targetWorldWidth` in the `.png.meta` (no pixel editing, no distortion — PPU scales both axes equally).
+  ⚠️ Normalise by the **visible art**, not the canvas: a sprite whose art floats in a padded canvas
+  (chef_alt sat in a corner of 3240x4000 → rendered at 43% size when equipped, found 2026-09-03) needs
+  its sprite **rect cropped to the opaque bbox** in the meta AND the PPU computed from that rect
+  against the default skin's visible size (chef_alt + meat_alt fixed this way).
   Current targets: ingredients ~1.2 wide (some hand-tuned ±%), buns ~1.38, chef PPU 663, plate PPU 756.
 - **Large sources (>2048 px)**: bump `maxTextureSize` to **4096** in the `.png.meta` (top-level + the
   non-512 platform entries). Otherwise Unity downscales the texture below the hand-authored sprite rect →
@@ -613,7 +617,7 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   `internalIDToNameTable`, `spriteSheet.sprites[].internalID`, and `nameFileIdTable`.
 
 ## Pending Manual Steps
-- **Chef size/position tuning**: knobs are the chef sprite **PPU** (currently 2009 = ~33% of the original
+- **Chef size/position tuning**: knobs are the chef sprite **PPU** (990 as of the last tuning pass; an older note said 2009 — trust the meta, not this file, and update here when retuned) for the original
   import) for size, and `Constants.CHEF_BOTTOM_OFFSET` (1.76) for the feet line — `GetWorldPosition` anchors
   the feet and derives the centre from the live sprite height, so resizing keeps the chef on the bottom border.
 - **Verify skin import (Phase 1)**: open Unity, confirm a clean compile and that `Resources/Skins/*.asset`
