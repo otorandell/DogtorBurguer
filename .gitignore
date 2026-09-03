@@ -104,3 +104,6 @@ DOTween_1_2_790.zip
 # Raw artist drops (local source-of-truth; only finals are committed under _Project)
 /Assets/RawArt/
 /Assets/RawArt.meta
+
+# Android signing (never commit keys or their passwords)
+Keys/
