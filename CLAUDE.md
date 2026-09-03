@@ -498,6 +498,11 @@ render outlines (keyword `OUTLINE_ON` never enabled; material init timing). **Th
 `UIFactory.StyleFillAndBorder`**: clone the font's material once per style (cached per
 font+color+width, shared — batched), `EnableKeyword(ShaderUtilities.Keyword_Outline)`, set
 `ID_OutlineColor`/`ID_OutlineWidth`, assign via `fontSharedMaterial`, then `UpdateMeshPadding()`.
+Since 2026-09-03 the same material also carries the **sticker drop shadow** (TMP Underlay pass,
+border-colored, hard-edged, offset down — `UIStyles.TEXT_SHADOW_*`), replicating the artist's
+Photoshop stroke+shadow lettering (`Look Reference/Font info.png`) on every bordered text. The
+SDF atlas padding (12 @ 144pt) caps outline+shadow reach — regenerate with more padding if
+glyph edges clip.
 The broken per-component setters were removed from `UIFactory.AddStyledText`. World-space
 (`WorldTextFactory`) still uses the old setters — migrate the same way if world outlines are wanted.
 

@@ -24,6 +24,15 @@ namespace DogtorBurguer
         public static readonly Color HUD_TEXT_FILL = new(0.988f, 0.980f, 0.945f);      // #FCFAF1 cream white
         public static readonly Color32 HUD_TEXT_BORDER = new(0x49, 0x26, 0x11, 0xFF);  // #492611 dark brown
         public const float HUD_TEXT_BORDER_WIDTH = 0.35f;                              // TMP outline width (0..1) — tune live
+        // The sticker drop shadow (TMP Underlay) applied by StyleFillAndBorder to EVERY bordered
+        // text, matching the artist's Photoshop stroke+shadow recipe (Look Reference/Font info.png).
+        // Offsets/dilate are in SDF spread units (-1..1); the atlas padding (12 @ 144pt) caps how far
+        // outline + shadow can reach before glyph edges clip — if corners square off, lower these
+        // or regenerate the SDF with more padding.
+        public const float TEXT_SHADOW_OFFSET_X = 0f;
+        public const float TEXT_SHADOW_OFFSET_Y = -0.45f;                               // straight down, like the mock
+        public const float TEXT_SHADOW_DILATE = 0.25f;                                  // thickens the shadow silhouette
+        public const float TEXT_SHADOW_SOFTNESS = 0f;                                   // hard edge — a sticker, not a blur
         #endregion
 
         #region Text Colors
