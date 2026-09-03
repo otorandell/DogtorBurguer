@@ -45,6 +45,10 @@ namespace DogtorBurguer
             _controller.OnProductsFetchFailed += HandleProductsFetchFailed;
             _controller.OnPurchasePending += HandlePurchasePending;
             _controller.OnPurchaseFailed += HandlePurchaseFailed;
+            // Advisory subscriptions — the package warns when these have no listener.
+            _controller.OnStoreDisconnected += HandleStoreDisconnected;
+            _controller.OnPurchasesFetched += HandlePurchasesFetched;
+            _controller.OnPurchasesFetchFailed += HandlePurchasesFetchFailed;
             _controller.ProcessPendingOrdersOnPurchasesFetched(true);
 
             Connect();
@@ -87,6 +91,19 @@ namespace DogtorBurguer
         {
             Debug.LogWarning($"[UnityIapProvider] Product fetch failed: {failure.FailureReason}");
         }
+
+        private static void HandleStoreDisconnected(StoreConnectionFailureDescription description)
+        {
+            // The controller retries on its own (SetStoreReconnectionRetryPolicyOnDisconnection default).
+            Debug.LogWarning($"[UnityIapProvider] Store disconnected: {description.message}");
+        }
+
+        // Replayed orders arrive individually through OnPurchasePending; this is just the summary.
+        private static void HandlePurchasesFetched(Orders orders) =>
+            Debug.Log("[UnityIapProvider] Existing purchases fetched.");
+
+        private static void HandlePurchasesFetchFailed(PurchasesFetchFailureDescription description) =>
+            Debug.LogWarning($"[UnityIapProvider] Purchases fetch failed: {description.failureReason}");
 
         public string LocalizedPrice(string storeId)
         {
@@ -170,6 +187,9 @@ namespace DogtorBurguer
             _controller.OnProductsFetchFailed -= HandleProductsFetchFailed;
             _controller.OnPurchasePending -= HandlePurchasePending;
             _controller.OnPurchaseFailed -= HandlePurchaseFailed;
+            _controller.OnStoreDisconnected -= HandleStoreDisconnected;
+            _controller.OnPurchasesFetched -= HandlePurchasesFetched;
+            _controller.OnPurchasesFetchFailed -= HandlePurchasesFetchFailed;
         }
     }
 }
