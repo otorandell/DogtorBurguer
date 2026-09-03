@@ -26,12 +26,13 @@ namespace DogtorBurguer
         public const float HUD_TEXT_BORDER_WIDTH = 0.35f;                              // TMP outline width (0..1) — tune live
         // The sticker drop shadow (TMP Underlay) applied by StyleFillAndBorder to EVERY bordered
         // text, matching the artist's Photoshop stroke+shadow recipe (Look Reference/Font info.png).
-        // Offsets/dilate are in SDF spread units (-1..1); the atlas padding (12 @ 144pt) caps how far
-        // outline + shadow can reach before glyph edges clip — if corners square off, lower these
-        // or regenerate the SDF with more padding.
+        // Offsets/dilate are in SDF *spread* units (-1..1): the on-screen reach = value × atlas
+        // padding / sampling point size. ⚠️ The shadow only gets properly chunky once the SDF atlas
+        // is regenerated with a bigger spread — 2048 atlas / padding 24 / sampling 144 / SDFAA
+        // (the original 12-padding atlas caps the whole effect at ~1px per 30px of text).
         public const float TEXT_SHADOW_OFFSET_X = 0f;
-        public const float TEXT_SHADOW_OFFSET_Y = -0.45f;                               // straight down, like the mock
-        public const float TEXT_SHADOW_DILATE = 0.25f;                                  // thickens the shadow silhouette
+        public const float TEXT_SHADOW_OFFSET_Y = -0.8f;                                // straight down, like the mock
+        public const float TEXT_SHADOW_DILATE = 0.35f;                                  // thickens the shadow silhouette
         public const float TEXT_SHADOW_SOFTNESS = 0f;                                   // hard edge — a sticker, not a blur
         #endregion
 
