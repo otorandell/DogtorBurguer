@@ -34,7 +34,8 @@ namespace DogtorBurguer
             UIFactory.AutoFit(titleLabel, UIStyles.HUD_TITLE_LABEL_SIZE_MIN * scale, UIStyles.HUD_TITLE_LABEL_SIZE * scale);
 
             TextMeshProUGUI number = UIFactory.CreateText(card.transform, "0",
-                new Vector2(0f, UIStyles.HUD_PANEL_NUMBER_Y * scale), UIStyles.HUD_PANEL_SIZE * scale,
+                new Vector2(0f, UIStyles.HUD_PANEL_NUMBER_Y * scale),
+                new Vector2(UIStyles.HUD_PANEL_NUMBER_W * scale, UIStyles.HUD_PANEL_SIZE.y * scale),
                 UIStyles.HUD_PANEL_NUMBER_SIZE * scale, FontStyles.Bold);
             number.gameObject.name = "Number";
             UIFactory.StyleHudText(number);

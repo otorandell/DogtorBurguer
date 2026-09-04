@@ -45,7 +45,8 @@ namespace DogtorBurguer
         public const int SORT_PLATE = -2;
         public const int SORT_CHEF = 50;
         public const int SORT_CHALLENGE_BASE = 60;
-        public const int SORT_WAVE_PREVIEW = 90;
+        public const int SORT_WAVE_PREVIEW = 90;                 // the arrow back-picture renders at −1 under it
+        public const float PREVIEW_Y_OFFSET = 0.4f;              // ghosts sit this much below the grid top (room for the arrows)
         public const int SORT_GEM_PACK = 100;        // fairy (full-body per-payload illustration)
         public const int SORT_CONSUMABLE_SLOT = 90;  // inventory icons in the score panel
         public const int SORT_CONSUMABLE_GHOST = 92; // translucent column preview while dragging

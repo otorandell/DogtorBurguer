@@ -21,8 +21,11 @@ namespace DogtorBurguer
         /// <summary>The gem pill transform — deny-shake target for failed gem spends.</summary>
         public Transform GemPill => _gemNumber.transform.parent;
 
-        /// <summary>Builds the bar under a canvas. Null callbacks omit their icon button.</summary>
-        public static TopBar Build(Transform canvas, Action onShop = null, Action onSettings = null)
+        /// <summary>Builds the bar under a canvas. Null callbacks omit their icon button;
+        /// <paramref name="settingsPos"/>/<paramref name="settingsSize"/> override the gear's slot
+        /// (the menu's lone gear sits bigger and nearer center than the in-game shop+gear pair).</summary>
+        public static TopBar Build(Transform canvas, Action onShop = null, Action onSettings = null,
+            Vector2? settingsPos = null, Vector2? settingsSize = null)
         {
             GameObject obj = new GameObject("TopBar");
             obj.transform.SetParent(canvas, false);
@@ -32,11 +35,12 @@ namespace DogtorBurguer
             rect.sizeDelta = Vector2.zero;
 
             TopBar bar = obj.AddComponent<TopBar>();
-            bar.BuildContents(onShop, onSettings);
+            bar.BuildContents(onShop, onSettings, settingsPos ?? UIStyles.TOPBAR_CONFIG_POS,
+                settingsSize ?? UIStyles.TOPBAR_BUTTON_SIZE);
             return bar;
         }
 
-        private void BuildContents(Action onShop, Action onSettings)
+        private void BuildContents(Action onShop, Action onSettings, Vector2 settingsPos, Vector2 settingsSize)
         {
             TextMeshProUGUI highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy",
                 UIStyles.TOPBAR_SCORE_POS, UIStyles.TOPBAR_SCORE_ICON_H);
@@ -50,7 +54,7 @@ namespace DogtorBurguer
                     new Vector2(0f, 1f), UIStyles.TOPBAR_SHOP_POS, UIStyles.TOPBAR_BUTTON_SIZE, () => onShop());
             if (onSettings != null)
                 UIFactory.CreateSpriteButton(transform, "ConfigButton", UiArt.Load("ui_config_button"),
-                    new Vector2(0f, 1f), UIStyles.TOPBAR_CONFIG_POS, UIStyles.TOPBAR_BUTTON_SIZE, () => onSettings());
+                    new Vector2(0f, 1f), settingsPos, settingsSize, () => onSettings());
 
             SaveDataManager save = SaveDataManager.Instance;
             // High score only changes at game over, so a one-time seed is enough (no live event).

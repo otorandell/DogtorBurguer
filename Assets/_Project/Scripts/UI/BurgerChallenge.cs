@@ -113,9 +113,9 @@ namespace DogtorBurguer
         private string BuildContainsName()
         {
             if (_targetIngredients.Count == 1)
-                return $"Has: {_targetIngredients[0]}";
+                return $"Exactly: {_targetIngredients[0]}";
 
-            StringBuilder sb = new StringBuilder("Has: ");
+            StringBuilder sb = new StringBuilder("Exactly: ");
             for (int i = 0; i < _targetIngredients.Count; i++)
             {
                 if (i > 0) sb.Append(", ");
@@ -135,7 +135,12 @@ namespace DogtorBurguer
             if (_orderType == OrderType.Size)
                 return ingredientCount >= _requiredSize;
 
-            // Contains: every required ingredient must be present (extras OK).
+            // Contains orders are EXACT since 2026-09-04: the burger's fillings must be precisely
+            // the required set — no extras, no substitutes; only the stacking ORDER is free.
+            // (Orders multiply the score, so they should be hard.) Targets are unique, so
+            // count-equality + all-present is exact set equality. Buns aren't in either list.
+            if (ingredientCount != _targetIngredients.Count)
+                return false;
             foreach (var required in _targetIngredients)
             {
                 if (!ingredients.Contains(required))

@@ -67,6 +67,7 @@ namespace DogtorBurguer
         // Full-body per-payload illustration (the cargo is drawn in) — a touch bigger than the
         // old body-only sprite so the payload stays readable without the badge overlay.
         public const float FAIRY_BODY_HEIGHT = 1.5f;
+        public const float PREVIEW_ARROW_HEIGHT = 1.05f;                   // arrow back-picture behind a preview ghost
         public const float CONSUMABLE_FALLER_HEIGHT = 2.0f;  // default falling item (badge art)
         public const float CONSUMABLE_GHOST_HEIGHT = 1.4f;   // column preview (nozzle art; 30% down from 2.0)
         public const float CONSUMABLE_GHOST_Y_OFFSET = -0.35f;// ghost sits a touch below the column-top anchor
@@ -114,6 +115,7 @@ namespace DogtorBurguer
         public const float HUD_TITLE_LABEL_SIZE = 22f;                     // tab word TMP font (auto-size max)
         public const float HUD_TITLE_LABEL_SIZE_MIN = 8f;                  // auto-size floor for the tab word
         public const float HUD_PANEL_NUMBER_SIZE = 54f;                    // the big number font (auto-size max)
+        public const float HUD_PANEL_NUMBER_W = 100f;                      // number auto-fit rect — inside the card art's margins, so long scores shrink to fit
         public const float HUD_PANEL_NUMBER_SIZE_MIN = 14f;                // auto-size floor for the number
         public const float HUD_PANEL_NUMBER_Y = -11f;                      // number offset down within the card
         // Shared left-column zone: 18px left margin → right edge at half the screen (270). Two 122-wide
@@ -141,8 +143,8 @@ namespace DogtorBurguer
         // proportions match the game (pieces ~1.2 world units wide → ~60px, buns 1.38 → ~69px).
         // Sizing by raw pixel aspect ignored the per-file PPU tuning and transparent padding, which
         // made the plate tiny and the ingredient ratios inconsistent.
-        public const float SPECIAL_STACK_PX_PER_UNIT = 50f;                   // screen px per world unit
-        public const float SPECIAL_INGREDIENT_SPACING = 26f;                  // vertical stack spacing (overlap)
+        public const float SPECIAL_STACK_PX_PER_UNIT = 62f;                   // screen px per world unit (bigger burger, 2026-09-04 pass)
+        public const float SPECIAL_INGREDIENT_SPACING = 22f;                  // vertical stack spacing (tighter overlap)
         public const float SPECIAL_STACK_X = -10f;                            // stack center X within the card (nudged left)
         public const float SPECIAL_STACK_Y = -12f;                            // stack center Y within the card
         public const float SPECIAL_PLACEHOLDER_LABEL_SIZE = 18f;              // "+N" on the mystery silhouette
@@ -182,9 +184,11 @@ namespace DogtorBurguer
         public static readonly Vector2 TOPBAR_SCORE_POS = new(101f, TOPBAR_Y); // high-score trophy widget (leftmost; box left edge 46)
         public static readonly Vector2 TOPBAR_STAR_POS = new(236f, TOPBAR_Y);  // star widget (box left edge 181)
         public static readonly Vector2 TOPBAR_GEM_POS = new(371f, TOPBAR_Y);   // gem widget (box left edge 316)
-        public static readonly Vector2 TOPBAR_BUTTON_SIZE = new(62f, 62f);
-        public static readonly Vector2 TOPBAR_SHOP_POS = new(432f, TOPBAR_Y);   // shop button (left of settings)
-        public static readonly Vector2 TOPBAR_CONFIG_POS = new(498f, TOPBAR_Y); // settings/gear button (rightmost; nudged toward center — the mock's bow slot is unused)
+        public static readonly Vector2 TOPBAR_BUTTON_SIZE = new(54f, 54f); // in-game pair (shop + gear); the menu's lone gear overrides (MENU_GEAR_*)
+        public static readonly Vector2 TOPBAR_SHOP_POS = new(455f, TOPBAR_Y);   // shop button (left of settings)
+        public static readonly Vector2 TOPBAR_CONFIG_POS = new(511f, TOPBAR_Y); // settings/gear button (rightmost; in-game the shop button sits left of it)
+        public static readonly Vector2 MENU_GEAR_POS = new(498f, TOPBAR_Y);      // the MENU's gear: alone on the right, so bigger and nudged toward center
+        public static readonly Vector2 MENU_GEAR_SIZE = new(62f, 62f);
         #endregion
 
         #region Font Sizes - Panels

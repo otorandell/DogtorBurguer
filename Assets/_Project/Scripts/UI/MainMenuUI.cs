@@ -36,7 +36,8 @@ namespace DogtorBurguer
 
             // Shared top bar: trophy + star + gem pills, plus the gear (shop stays a big
             // bottom button, so no top-bar shop icon here).
-            TopBar.Build(_canvas.transform, onSettings: OnSettingsClicked);
+            TopBar.Build(_canvas.transform, onSettings: OnSettingsClicked,
+                settingsPos: UIStyles.MENU_GEAR_POS, settingsSize: UIStyles.MENU_GEAR_SIZE);
 
             // Logo — top-anchored so it clears the top bar on tall screens.
             Sprite logo = UiArt.Load("ui_logo");

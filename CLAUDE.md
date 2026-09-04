@@ -81,7 +81,9 @@ Key events for cross-system communication:
 
 ### Wave-Based Spawning (IngredientSpawner)
 - A wave = 2 ingredients (3 on a triple roll; triple chance per `TRIPLE_CHANCE_BY_LEVEL` — see Difficulty), each in a distinct column.
-- **Standing preview queue**: a target number of upcoming pieces (= the next wave's size) is always reserved and shown as blinking ghosts, one per column. Topped up every frame (`TopUpPreviews`) and seeded at `StartSpawning` (hidden through the initial delay). The reserved previews **are** the next wave — when the current wave lands, they become the real pieces, dropping in their columns.
+- **Standing preview queue**: a target number of upcoming pieces (= the next wave's size) is always reserved and shown as blinking ghosts, one per column, each on an
+  **arrow back-picture** (yellow = regular, orange = bottom bun, red = top bun;
+  `PREVIEW_ARROW_HEIGHT`; the ghost row sits `Constants.PREVIEW_Y_OFFSET` lower to fit). Topped up every frame (`TopUpPreviews`) and seeded at `StartSpawning` (hidden through the initial delay). The reserved previews **are** the next wave — when the current wave lands, they become the real pieces, dropping in their columns.
 - **Next-wave trigger**: fires only when the ORIGINAL auto-spawned wave lands. Tapped previews are "fire and forget" (not counted toward wave completion), so a desired preview can't be frozen by tapping the others — a held preview force-drops within ~one fall.
 - **Tap a preview** to spawn that ingredient immediately; only revealed (visible) previews are tappable.
 - **Column choice is unbiased** (random, one preview per column, height/stack ignored). A per-preview clearance (`AnimConfig.PREVIEW_SPAWN_CLEARANCE`) delays only the ghost's visual reveal so it never overlaps a falling sprite — it does NOT influence which column is chosen (`ColumnsWithPieceInPreviewZone` + `WavePreviewManager.RevealCleared`).
@@ -166,7 +168,10 @@ gate); quitting keeps live-earned order stars but forfeits the end-of-run score 
 ### Burger Challenge (BurgerChallenge) — "Special Orders"
 - Two order types, randomly chosen:
   - **Size**: "N+ Ingredients" — any burger with at least N ingredients matches
-  - **Contains**: "Has: Meat, Cheese" — burger must include required ingredients (extras OK)
+  - **Contains** (EXACT since 2026-09-04): the burger's fillings must be precisely the required
+    set — no extras, no substitutes; only the stacking order is free. Orders multiply the score,
+    so they should be hard (Oscar's call; the panel needs no "Contains" wording because the shown
+    burger IS the exact requirement)
 - **Screen-space UGUI panel** (top-right, `BurgerChallengeView`): authored card + the SPECIAL ORDER
   banner (blank art + TMP word) + the **required-burger stack** (bun → "+N" mystery silhouette /
   required ingredients → bun, on a `Theme.Plate`) + a **multiplier badge** (`GetGlobalMultiplier`).

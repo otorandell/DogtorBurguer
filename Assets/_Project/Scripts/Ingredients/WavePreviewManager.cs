@@ -49,8 +49,7 @@ namespace DogtorBurguer
                 if (entry.revealed || entry.preview == null) continue;
                 if (blockedColumns.Contains(entry.slot.ColumnIndex)) continue;
 
-                SpriteRenderer sr = entry.preview.GetComponent<SpriteRenderer>();
-                if (sr != null)
+                foreach (SpriteRenderer sr in entry.preview.GetComponentsInChildren<SpriteRenderer>())
                 {
                     sr.color = new Color(1f, 1f, 1f, AnimConfig.PREVIEW_INITIAL_ALPHA);
                     sr.DOFade(AnimConfig.PREVIEW_FADE_MIN, AnimConfig.PREVIEW_FADE_DURATION)
@@ -117,9 +116,9 @@ namespace DogtorBurguer
 
         private void DestroyPreview(GameObject preview)
         {
-            // Only the SpriteRenderer is tweened (DOFade); the transform never is.
-            SpriteRenderer sr = preview.GetComponent<SpriteRenderer>();
-            if (sr != null) sr.DOKill();
+            // Only the SpriteRenderers are tweened (DOFade); the transform never is.
+            foreach (SpriteRenderer sr in preview.GetComponentsInChildren<SpriteRenderer>())
+                sr.DOKill();
             Destroy(preview);
         }
 
@@ -130,17 +129,38 @@ namespace DogtorBurguer
 
             GameObject preview = new GameObject("WavePreview");
             float x = Constants.GRID_ORIGIN_X + (columnIndex * Constants.CELL_WIDTH);
-            float y = Constants.GRID_ORIGIN_Y + (Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT);
+            // Lowered a touch (PREVIEW_Y_OFFSET) so the ghost + its arrow back-picture fit the top band.
+            float y = Constants.GRID_ORIGIN_Y + (Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT)
+                      - Constants.PREVIEW_Y_OFFSET;
             preview.transform.position = new Vector3(x, y, 0);
 
             SpriteRenderer sr = preview.AddComponent<SpriteRenderer>();
             sr.sprite = sprite;
             sr.sortingOrder = Constants.SORT_WAVE_PREVIEW;
-            // Start fully hidden; RevealCleared fades it in once the column's spawn zone is clear.
-            sr.color = new Color(1f, 1f, 1f, 0f);
+
+            // Arrow back-picture (behind the ghost): yellow = regular, orange = bottom bun,
+            // red = top bun — reads the piece kind at a glance before it drops.
+            GameObject arrowObj = new GameObject("Arrow");
+            arrowObj.transform.SetParent(preview.transform, false);
+            SpriteRenderer arrow = arrowObj.AddComponent<SpriteRenderer>();
+            arrow.sprite = UiArt.Load(ArrowArtFor(type));
+            arrow.sortingOrder = Constants.SORT_WAVE_PREVIEW - 1;
+            SpriteFit.Height(arrow, UIStyles.PREVIEW_ARROW_HEIGHT);
+
+            // Start fully hidden (ghost + arrow); RevealCleared fades them in once the column's
+            // spawn zone is clear of falling pieces.
+            foreach (SpriteRenderer r in preview.GetComponentsInChildren<SpriteRenderer>())
+                r.color = new Color(1f, 1f, 1f, 0f);
 
             return preview;
         }
+
+        private static string ArrowArtFor(IngredientType type) => type switch
+        {
+            IngredientType.BunBottom => "ui_arrow_orange",
+            IngredientType.BunTop => "ui_arrow_red",
+            _ => "ui_arrow_yellow",
+        };
 
         private void OnDestroy()
         {
