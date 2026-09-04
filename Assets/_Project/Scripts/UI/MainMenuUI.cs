@@ -75,7 +75,7 @@ namespace DogtorBurguer
                 new Vector2(0f, shopHeight * 0.5f + UIStyles.MENU_SUPPORT_LABEL_Y),
                 new Vector2(UIStyles.MENU_BOTTOM_BTN_W, 30f), UIStyles.MENU_SUPPORT_LABEL_SIZE, FontStyles.Bold);
             UIFactory.StyleFillAndBorder(support, UIStyles.MENU_SUPPORT_FILL,
-                UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH);
+                UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH, shadow: false);
         }
 
         // An authored blank (the kit's red CREDITS / yellow SHOP buttons) with a HUD-palette word on it.

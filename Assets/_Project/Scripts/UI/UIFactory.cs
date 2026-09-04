@@ -257,14 +257,15 @@ namespace DogtorBurguer
         // One material per (font material, border color, width) style, shared by every text using it —
         // keeps draws batched and avoids per-component material instances (mutating tmp.outlineWidth /
         // fontMaterial right after AddComponent is the path that never rendered reliably).
-        private static readonly Dictionary<(Material font, Color32 border, float width), Material> _outlineMaterials = new();
+        private static readonly Dictionary<(Material font, Color32 border, float width, Color32 shadow, bool hasShadow), Material> _outlineMaterials = new();
 
         /// <summary>
         /// Styles a text with the standard HUD palette: cream fill + dark-brown border
         /// (see UIStyles.HUD_TEXT_*). Used on the big card numbers and all red-box labels.
         /// </summary>
         public static void StyleHudText(TextMeshProUGUI tmp) =>
-            StyleFillAndBorder(tmp, UIStyles.HUD_TEXT_FILL, UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH);
+            StyleFillAndBorder(tmp, UIStyles.HUD_TEXT_FILL, UIStyles.HUD_TEXT_STROKE, UIStyles.HUD_TEXT_BORDER_WIDTH,
+                UIStyles.HUD_TEXT_BORDER);
 
         /// <summary>
         /// Gives a text the game's "sticker" lettering (the artist's Photoshop layer-style recipe —
@@ -273,26 +274,32 @@ namespace DogtorBurguer
         /// a cached shared material (keywords enabled, mesh padding updated) instead of the
         /// per-component setters, which don't reliably render on runtime-created TMP components.
         /// </summary>
-        public static void StyleFillAndBorder(TextMeshProUGUI tmp, Color fill, Color32 border, float width)
+        public static void StyleFillAndBorder(TextMeshProUGUI tmp, Color fill, Color32 border, float width,
+            Color32? shadowColor = null, bool shadow = true)
         {
             tmp.color = fill;
 
+            Color32 underlay = shadowColor ?? border;
             Material fontMat = tmp.font.material;
-            var key = (fontMat, border, width);
+            var key = (fontMat, border, width, underlay, shadow);
             if (!_outlineMaterials.TryGetValue(key, out Material mat))
             {
                 mat = new Material(fontMat);
                 mat.EnableKeyword(ShaderUtilities.Keyword_Outline);
                 mat.SetColor(ShaderUtilities.ID_OutlineColor, (Color)border);
                 mat.SetFloat(ShaderUtilities.ID_OutlineWidth, width);
-                // The drop shadow: border-colored, pushed down, hard-edged — the chunky sticker
-                // lettering of the baked art instead of flat UI text.
-                mat.EnableKeyword(ShaderUtilities.Keyword_Underlay);
-                mat.SetColor(ShaderUtilities.ID_UnderlayColor, (Color)border);
-                mat.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, UIStyles.TEXT_SHADOW_OFFSET_X);
-                mat.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, UIStyles.TEXT_SHADOW_OFFSET_Y);
-                mat.SetFloat(ShaderUtilities.ID_UnderlayDilate, UIStyles.TEXT_SHADOW_DILATE);
-                mat.SetFloat(ShaderUtilities.ID_UnderlaySoftness, UIStyles.TEXT_SHADOW_SOFTNESS);
+                if (shadow)
+                {
+                    // The drop shadow: darker than the stroke, dilated and pushed down, hard-edged —
+                    // reads as the second (outer) outline of the baked lettering. Small labels pass
+                    // shadow: false and keep the plain single outline (DesiredFontSingleOutline.png).
+                    mat.EnableKeyword(ShaderUtilities.Keyword_Underlay);
+                    mat.SetColor(ShaderUtilities.ID_UnderlayColor, (Color)underlay);
+                    mat.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, UIStyles.TEXT_SHADOW_OFFSET_X);
+                    mat.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, UIStyles.TEXT_SHADOW_OFFSET_Y);
+                    mat.SetFloat(ShaderUtilities.ID_UnderlayDilate, UIStyles.TEXT_SHADOW_DILATE);
+                    mat.SetFloat(ShaderUtilities.ID_UnderlaySoftness, UIStyles.TEXT_SHADOW_SOFTNESS);
+                }
                 _outlineMaterials[key] = mat;
             }
 

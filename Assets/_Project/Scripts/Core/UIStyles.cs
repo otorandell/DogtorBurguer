@@ -22,8 +22,9 @@ namespace DogtorBurguer
         // border, applied via UIFactory.StyleHudText (a real TMP outline material, not the broken
         // per-component outlineWidth path). Used on the big numbers and all red-box labels.
         public static readonly Color HUD_TEXT_FILL = new(0.988f, 0.980f, 0.945f);      // #FCFAF1 cream white
-        public static readonly Color32 HUD_TEXT_BORDER = new(0x49, 0x26, 0x11, 0xFF);  // #492611 dark brown
-        public const float HUD_TEXT_BORDER_WIDTH = 0.35f;                              // TMP outline width (0..1) — tune live
+        public static readonly Color32 HUD_TEXT_BORDER = new(0x49, 0x26, 0x11, 0xFF);  // #492611 dark brown — the SHADOW ring (and legacy border for colored headings)
+        public static readonly Color32 HUD_TEXT_STROKE = new(0x88, 0x46, 0x2A, 0xFF);  // #88462A mid brown — the inner stroke (sampled off the mock's PLAY)
+        public const float HUD_TEXT_BORDER_WIDTH = 0.45f;                              // TMP outline width (0..1) — tune live
         // The sticker drop shadow (TMP Underlay) applied by StyleFillAndBorder to EVERY bordered
         // text, matching the artist's Photoshop stroke+shadow recipe (Look Reference/Font info.png).
         // Offsets/dilate are in SDF *spread* units (-1..1): the on-screen reach = value × atlas
@@ -32,7 +33,7 @@ namespace DogtorBurguer
         // (the original 12-padding atlas caps the whole effect at ~1px per 30px of text).
         public const float TEXT_SHADOW_OFFSET_X = 0f;
         public const float TEXT_SHADOW_OFFSET_Y = -0.8f;                                // straight down, like the mock
-        public const float TEXT_SHADOW_DILATE = 0.35f;                                  // thickens the shadow silhouette
+        public const float TEXT_SHADOW_DILATE = 0.5f;                                   // thickens the shadow into the outer ring
         public const float TEXT_SHADOW_SOFTNESS = 0f;                                   // hard edge — a sticker, not a blur
         #endregion
 
