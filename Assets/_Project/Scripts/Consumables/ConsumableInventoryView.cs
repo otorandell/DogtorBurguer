@@ -36,14 +36,15 @@ namespace DogtorBurguer
 
         private void BuildSlots()
         {
-            _canvas = UIFactory.CreateCanvas(transform, "ConsumableCanvas", Constants.SORT_CONSUMABLE_SLOT);
+            // Screen Space - Camera (like the HUD) so fairies (sort 100) fly over the slots.
+            _canvas = UIFactory.CreateCanvas(transform, "ConsumableCanvas", Constants.SORT_CONSUMABLE_SLOT, Camera.main);
             _slots = new ConsumableSlotWidget[ConsumableInventory.TypeCount];
             for (int i = 0; i < _slots.Length; i++)
             {
                 Vector2 pos = new(
                     UIStyles.CONSUMABLE_SLOT_X_START + i * UIStyles.CONSUMABLE_SLOT_SPACING,
                     UIStyles.CONSUMABLE_ROW_Y);
-                _slots[i] = new ConsumableSlotWidget(_canvas.transform, (ConsumableType)i, pos);
+                _slots[i] = new ConsumableSlotWidget(_canvas.transform, _canvas.worldCamera, (ConsumableType)i, pos);
             }
         }
 

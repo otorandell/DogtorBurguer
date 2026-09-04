@@ -13,15 +13,17 @@ namespace DogtorBurguer
     {
         public ConsumableType Type { get; }
 
+        private readonly Camera _uiCamera;
         private readonly RectTransform _plateRect;
         private readonly Image _icon;
         private readonly Image _numBox;
         private readonly Image _plusBox;
         private readonly TextMeshProUGUI _count;
 
-        public ConsumableSlotWidget(Transform parent, ConsumableType type, Vector2 pos)
+        public ConsumableSlotWidget(Transform parent, Camera uiCamera, ConsumableType type, Vector2 pos)
         {
             Type = type;
+            _uiCamera = uiCamera; // the canvas is Screen Space - Camera; a null camera here would hit-test wrong
 
             Image plate = UIFactory.CreateImage(parent, $"Slot_{type}", UiArt.Load("ui_consumable_box"),
                 new Vector2(0f, 1f), pos, UIStyles.CONSUMABLE_SLOT_SIZE);
@@ -74,6 +76,6 @@ namespace DogtorBurguer
         public void SetIconHidden(bool hidden) => _icon.enabled = !hidden;
 
         public bool Contains(Vector2 screenPos) =>
-            RectTransformUtility.RectangleContainsScreenPoint(_plateRect, screenPos, null);
+            RectTransformUtility.RectangleContainsScreenPoint(_plateRect, screenPos, _uiCamera);
     }
 }

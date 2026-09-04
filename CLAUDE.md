@@ -222,12 +222,12 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   `UIFactory.CreateCanvas(..., Camera.main)`) so world sprites with a higher sorting order render
   in front of it — fairies (100), floating text/popups (100–110), and the screen flash (200)
   intentionally fly over the HUD. Don't switch it back to Overlay.
-- All other canvases (Menu 10, ChallengeCanvas 60, ConsumableCanvas 90, Settings, Shop,
-  GameOver 100) are Screen Space **Overlay** and always cover world sprites (GameOver correctly
-  hides fairies). Known cosmetic quirk: a fairy crossing the Special Order panel or consumable
-  slots passes *behind* them. Converting those two canvases to Camera mode would fix it, but
-  `ConsumableSlotWidget.Contains` must then pass the canvas camera (not `null`) to
-  `RectangleContainsScreenPoint`.
+- ChallengeCanvas (60) and ConsumableCanvas (90) are also **Camera** mode (since 2026-09-04),
+  so fairies (100) and popups fly OVER the Special Order panel and the consumable slots too;
+  `ConsumableSlotWidget.Contains` passes the canvas camera to `RectangleContainsScreenPoint`
+  accordingly (null would hit-test wrong in camera mode). The remaining canvases (Menu 10,
+  Settings, Shop, GameOver 100) are Screen Space **Overlay** and always cover world sprites —
+  intentional (GameOver correctly hides fairies).
 - World sprite sorting orders are centralized in `Constants.SORT_*` (background −100 …
   screen flash 200).
 
