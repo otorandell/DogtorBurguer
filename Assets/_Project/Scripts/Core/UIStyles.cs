@@ -238,7 +238,7 @@ namespace DogtorBurguer
         // Logo is top-anchored so it clears the top bar on tall screens; plaque/play are
         // center-anchored; the checkered strip and its buttons are bottom-anchored. Eyeball
         // defaults from the artist's mock — tune live.
-        public static readonly Vector2 MENU_LOGO_POS = new(0f, -185f);       // logo CENTER below the top edge
+        public static readonly Vector2 MENU_LOGO_POS = new(23f, -185f);      // logo CENTER below the top edge (x: the art's opaque pixels sit left of its canvas center — +23 recenters the visible lettering)
         public const float MENU_LOGO_W = 604f;                               // sized to the 2026-09-04 pass (DesiredMenu.png)
         public static readonly Vector2 MENU_PLAY_POS = new(0f, -196f);       // authored PLAY (text baked in)
         public const float MENU_PLAY_W = 400f;
