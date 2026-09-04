@@ -33,9 +33,11 @@ namespace DogtorBurguer
 
         public Vector3 GetSpawnPosition()
         {
-            // Spawn at the top of the grid (same as preview indicator)
+            // Spawn exactly where the preview ghost sits (grid top minus PREVIEW_Y_OFFSET) — the
+            // piece must pop in at the spot the ghost promised.
             float x = Constants.GRID_ORIGIN_X + (_columnIndex * Constants.CELL_WIDTH);
-            float y = Constants.GRID_ORIGIN_Y + (Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT);
+            float y = Constants.GRID_ORIGIN_Y + (Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT)
+                      - Constants.PREVIEW_Y_OFFSET;
             return new Vector3(x, y, 0);
         }
 

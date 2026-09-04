@@ -198,7 +198,8 @@ namespace DogtorBurguer
             _previewZoneBlocked.Clear();
             if (GridManager.Instance == null) return _previewZoneBlocked;
 
-            float spawnY = Constants.GRID_ORIGIN_Y + (Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT);
+            float spawnY = Constants.GRID_ORIGIN_Y + (Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT)
+                           - Constants.PREVIEW_Y_OFFSET; // the ghost row — keep in step with Column.GetSpawnPosition
             float clearedBelowY = spawnY - AnimConfig.PREVIEW_SPAWN_CLEARANCE;
             foreach (Ingredient falling in GridManager.Instance.GetFallingIngredients())
             {
