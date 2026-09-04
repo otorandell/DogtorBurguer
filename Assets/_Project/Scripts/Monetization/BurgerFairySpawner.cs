@@ -37,6 +37,11 @@ namespace DogtorBurguer
             SpawnFairy();
         }
 
+#if UNITY_EDITOR
+        /// <summary>Debug (editor-only): immediate spawn, bound to F in TouchInputHandler.</summary>
+        public void DebugSpawn() => SpawnFairy();
+#endif
+
         private void SpawnFairy()
         {
             bool fromLeft = Rng.Value > 0.5f;

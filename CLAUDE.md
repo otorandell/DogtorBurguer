@@ -122,7 +122,8 @@ falling piece) never move or swap the cook (`ProcessInput`):
 **Consumable carry**: a press that *starts on an inventory slot* becomes a drag-to-column carry
 (see Core Systems → Consumables) — `TouchInputHandler` hands the gesture to
 `ConsumableDragController` and suppresses chef logic for its duration. **Editor-only debug**: keys
-**1/2/3** grant Ketchup/Mustard/Skewer to the inventory, **4** grants 500 stars (`#if UNITY_EDITOR`).
+**1/2/3** grant Ketchup/Mustard/Skewer to the inventory, **4** grants 500 stars, **F** spawns a
+fairy (`#if UNITY_EDITOR`).
 
 **Input-area debug gizmos** (editor-only, `#if UNITY_EDITOR`): each clickable zone is drawn by the
 component owning its hit-test, one color per interaction (`GizmoStyles`): falling fast-drop (green,
