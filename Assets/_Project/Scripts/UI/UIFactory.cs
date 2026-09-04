@@ -285,6 +285,7 @@ namespace DogtorBurguer
             if (!_outlineMaterials.TryGetValue(key, out Material mat))
             {
                 mat = new Material(fontMat);
+                mat.SetFloat(ShaderUtilities.ID_FaceDilate, UIStyles.TEXT_FACE_DILATE);
                 mat.EnableKeyword(ShaderUtilities.Keyword_Outline);
                 mat.SetColor(ShaderUtilities.ID_OutlineColor, (Color)border);
                 mat.SetFloat(ShaderUtilities.ID_OutlineWidth, width);
