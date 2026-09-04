@@ -44,7 +44,9 @@ namespace DogtorBurguer
 
         private void BuildPanel()
         {
-            _canvas = UIFactory.CreateCanvas(transform, "ChallengeCanvas", Constants.SORT_CHALLENGE_BASE);
+            // Screen Space - Camera (like the HUD) so world sprites above SORT_CHALLENGE_BASE —
+            // fairies (100), popups — fly OVER the panel instead of vanishing behind it.
+            _canvas = UIFactory.CreateCanvas(transform, "ChallengeCanvas", Constants.SORT_CHALLENGE_BASE, Camera.main);
 
             Image card = UIFactory.CreateImage(_canvas.transform, "SpecialCard", UiArt.Load("ui_special_card"),
                 new Vector2(1f, 1f), UIStyles.SPECIAL_CARD_POS, UIStyles.SPECIAL_CARD_SIZE);
