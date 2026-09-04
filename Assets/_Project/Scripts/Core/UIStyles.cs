@@ -153,14 +153,14 @@ namespace DogtorBurguer
         public const float SPECIAL_STACK_X = -10f;                            // stack center X within the card (nudged left)
         public const float SPECIAL_STACK_Y = -12f;                            // stack center Y within the card
         public const float SPECIAL_PLACEHOLDER_LABEL_SIZE = 18f;              // "+N" on the mystery silhouette
-        public const float SPECIAL_MYSTERY_H = 38f;                           // mystery silhouette (UI art, no tuned PPU — sized by height)
+        public const float SPECIAL_MYSTERY_H = 48f;                           // mystery silhouette (UI art, no tuned PPU — sized by height; matches the 62px/unit stack)
         public const float SPECIAL_PLATE_Y_OFFSET = 13f;                      // plate drop below the bottom bun
         public const float SPECIAL_MULT_BADGE_H = 42f;                        // multiplier badge (reuses the red num box)
         // Badge sits on the meter's bottom cap (meter bottom ≈ offset.y − H/2 = -123): reference shows
         // the xN badge overlapping the capsule's bottom end, not floating mid-meter.
         public static readonly Vector2 SPECIAL_MULT_BADGE_OFFSET = new(86f, -110f); // badge offset within the card (on the meter bottom)
         public const float SPECIAL_MULT_TEXT_SIZE = 24f;
-        public const float SPECIAL_GHOST_ALPHA = 0.4f;                        // the ghosted "?" mystery layer on Contains orders ("plus whatever else")
+        public const float SPECIAL_GHOST_ALPHA = 1f;                          // the "?" mystery layer on Contains orders — opaque by decision (2026-09-04); lower for a faded ghost
         // Mult meter — a vertical capsule (back well + green fill + frame), 3 stacked layers at one rect.
         // A child of the card, built before the mult badge so the badge renders on top (meter sits under
         // it, sharing its x). Taller than the card so it overflows top/bottom a touch. Eyeball defaults.
