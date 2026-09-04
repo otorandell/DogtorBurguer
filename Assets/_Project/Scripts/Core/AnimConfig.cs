@@ -132,8 +132,10 @@ namespace DogtorBurguer
         public const float GEM_COLLECT_SCALE_UP_DURATION = 0.15f;
         public const float GEM_COLLECT_SCALE_DOWN_DURATION = 0.2f;
         public const float FAIRY_PULSE_SCALE = 1.08f;  // gentle breathing pulse (absolute root scale)
-        public const float GEM_PULSE_DURATION = 0.4f;
-        public const float GEM_WOBBLE = 1f;            // ± vertical wander of the fly-across path
+        public const float FAIRY_PULSE_DURATION = 0.4f;
+        public const float FAIRY_WOBBLE = 1.6f;        // vertical scatter of each path waypoint (world units)
+        public const float FAIRY_WOBBLE_X = 0.7f;      // horizontal jitter of each waypoint — breaks the even pacing
+        public const int FAIRY_PATH_WAYPOINTS = 4;     // intermediate points; more = twitchier flight
         public const float GEM_FLY_DURATION_MIN = 3f;
         public const float GEM_FLY_DURATION_MAX = 5f;
         #endregion

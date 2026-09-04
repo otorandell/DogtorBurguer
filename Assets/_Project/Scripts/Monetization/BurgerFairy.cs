@@ -45,10 +45,21 @@ namespace DogtorBurguer
 
         private void PlayFlyIn(Vector3 startPos, Vector3 endPos, float duration)
         {
-            // Fly across with a sine wobble (Catmull-Rom through a wandering midpoint).
-            float midY = (startPos.y + endPos.y) * 0.5f + Rng.Range(-AnimConfig.GEM_WOBBLE, AnimConfig.GEM_WOBBLE);
-            Vector3 midPos = new Vector3((startPos.x + endPos.x) * 0.5f, midY, 0f);
-            Vector3[] path = { startPos, midPos, endPos };
+            // An erratic flit: Catmull-Rom through several scattered waypoints — each one jittered
+            // vertically (FAIRY_WOBBLE) and horizontally (FAIRY_WOBBLE_X, so the pacing surges and
+            // stalls) instead of the old single wandering midpoint.
+            int waypoints = AnimConfig.FAIRY_PATH_WAYPOINTS;
+            Vector3[] path = new Vector3[waypoints + 2];
+            path[0] = startPos;
+            for (int i = 1; i <= waypoints; i++)
+            {
+                float t = (float)i / (waypoints + 1);
+                path[i] = new Vector3(
+                    Mathf.Lerp(startPos.x, endPos.x, t) + Rng.Range(-AnimConfig.FAIRY_WOBBLE_X, AnimConfig.FAIRY_WOBBLE_X),
+                    Mathf.Lerp(startPos.y, endPos.y, t) + Rng.Range(-AnimConfig.FAIRY_WOBBLE, AnimConfig.FAIRY_WOBBLE),
+                    0f);
+            }
+            path[waypoints + 1] = endPos;
 
             _moveTween = transform.DOPath(path, duration, PathType.CatmullRom)
                 .SetEase(Ease.Linear)
@@ -59,7 +70,7 @@ namespace DogtorBurguer
                 });
 
             // Gentle breathing pulse so the fairy reads as alive (no spin — it's not a coin).
-            transform.DOScale(Vector3.one * AnimConfig.FAIRY_PULSE_SCALE, AnimConfig.GEM_PULSE_DURATION)
+            transform.DOScale(Vector3.one * AnimConfig.FAIRY_PULSE_SCALE, AnimConfig.FAIRY_PULSE_DURATION)
                 .SetLoops(-1, LoopType.Yoyo)
                 .SetEase(Ease.InOutSine);
         }
