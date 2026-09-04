@@ -1,3 +1,4 @@
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -82,6 +83,10 @@ namespace DogtorBurguer
             support.enableVertexGradient = true;
             support.colorGradient = new VertexGradient(UIStyles.MENU_SUPPORT_TOP, UIStyles.MENU_SUPPORT_TOP,
                 UIStyles.MENU_SUPPORT_BOTTOM, UIStyles.MENU_SUPPORT_BOTTOM);
+            // Fills the button's width (auto-size grows to the rect) and pulses for attention.
+            UIFactory.AutoFit(support, UIStyles.MENU_SUPPORT_LABEL_MIN, UIStyles.MENU_SUPPORT_LABEL_SIZE);
+            support.transform.DOScale(AnimConfig.MENU_SUPPORT_PULSE_SCALE, AnimConfig.MENU_SUPPORT_PULSE_DURATION)
+                .SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine).SetLink(support.gameObject);
         }
 
         // An authored blank (the kit's red CREDITS / yellow SHOP buttons) with a HUD-palette word on it.

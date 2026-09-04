@@ -78,6 +78,12 @@ namespace DogtorBurguer
         public const float SCREEN_FLASH_DURATION = 0.3f;
         #endregion
 
+        #region Main Menu
+        // "Support the devs!" zoom pulse (infinite yoyo).
+        public const float MENU_SUPPORT_PULSE_SCALE = 1.1f;
+        public const float MENU_SUPPORT_PULSE_DURATION = 0.55f;
+        #endregion
+
         #region Modal Panels (game over, settings — the full-canvas pop-in)
         public const float PANEL_FADE_DURATION = 0.3f;
         public const float PANEL_SCALE_DURATION = 0.4f;
