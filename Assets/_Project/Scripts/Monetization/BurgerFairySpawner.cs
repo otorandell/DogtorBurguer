@@ -51,7 +51,7 @@ namespace DogtorBurguer
 
             Vector3 startPos = new Vector3(fromLeft ? -screenEdge : screenEdge, yPos, 0f);
             Vector3 endPos = new Vector3(fromLeft ? screenEdge : -screenEdge,
-                yPos + Rng.Range(-AnimConfig.GEM_WOBBLE, AnimConfig.GEM_WOBBLE), 0f);
+                yPos + Rng.Range(-AnimConfig.FAIRY_WOBBLE, AnimConfig.FAIRY_WOBBLE), 0f);
 
             float duration = Rng.Range(AnimConfig.GEM_FLY_DURATION_MIN, AnimConfig.GEM_FLY_DURATION_MAX);
 
