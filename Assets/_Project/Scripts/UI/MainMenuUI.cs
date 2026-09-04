@@ -70,13 +70,15 @@ namespace DogtorBurguer
             UIFactory.CreateImage(_canvas.transform, "BottomStrip", strip, new Vector2(0.5f, 0f),
                 new Vector2(0f, stripSize.y * 0.5f), stripSize);
 
-            CreateBottomButton("CREDITS", -UIStyles.MENU_BOTTOM_BTN_X, "ui_menu_btn_credits", OnCreditsClicked);
-            Button shop = CreateBottomButton("SHOP", UIStyles.MENU_BOTTOM_BTN_X, "ui_menu_btn_shop", OnShopClicked);
+            CreateBottomButton("CREDITS", -UIStyles.MENU_BOTTOM_BTN_X, "ui_menu_btn_credits",
+                UIStyles.MENU_CREDITS_LABEL_SIZE, OnCreditsClicked);
+            Button shop = CreateBottomButton("SHOP", UIStyles.MENU_BOTTOM_BTN_X, "ui_menu_btn_shop",
+                UIStyles.MENU_SHOP_LABEL_SIZE, OnShopClicked);
 
             float shopHeight = shop.GetComponent<RectTransform>().sizeDelta.y;
             TextMeshProUGUI support = UIFactory.CreateText(shop.transform, "Support the devs!",
                 new Vector2(0f, shopHeight * 0.5f + UIStyles.MENU_SUPPORT_LABEL_Y),
-                new Vector2(UIStyles.MENU_BOTTOM_BTN_W, 36f), UIStyles.MENU_SUPPORT_LABEL_SIZE, FontStyles.Bold);
+                new Vector2(UIStyles.MENU_SUPPORT_LABEL_W, 36f), UIStyles.MENU_SUPPORT_LABEL_SIZE, FontStyles.Bold);
             // Flashy per the mock: green vertical gradient + dark outline + the downward shadow ring.
             UIFactory.StyleFillAndBorder(support, Color.white,
                 UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH, UIStyles.HUD_TEXT_BORDER);
@@ -90,7 +92,8 @@ namespace DogtorBurguer
         }
 
         // An authored blank (the kit's red CREDITS / yellow SHOP buttons) with a HUD-palette word on it.
-        private Button CreateBottomButton(string label, float x, string art, UnityEngine.Events.UnityAction onClick)
+        private Button CreateBottomButton(string label, float x, string art, float labelSize,
+            UnityEngine.Events.UnityAction onClick)
         {
             Sprite blank = UiArt.Load(art);
             Vector2 size = UIFactory.SizeByWidth(blank, UIStyles.MENU_BOTTOM_BTN_W);
@@ -98,7 +101,7 @@ namespace DogtorBurguer
                 new Vector2(0.5f, 0f), new Vector2(x, UIStyles.MENU_BOTTOM_BTN_Y), size, onClick);
 
             TextMeshProUGUI word = UIFactory.CreateText(btn.transform, label, UIStyles.MENU_BOTTOM_LABEL_NUDGE,
-                size, UIStyles.MENU_BOTTOM_LABEL_SIZE, FontStyles.Bold);
+                size, labelSize, FontStyles.Bold);
             UIFactory.StyleHudText(word);
             return btn;
         }

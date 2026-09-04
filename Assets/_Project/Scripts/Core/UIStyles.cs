@@ -247,11 +247,13 @@ namespace DogtorBurguer
         public const float MENU_BOTTOM_BTN_Y = 108f;                         // CREDITS/SHOP center height from the bottom edge
         public const float MENU_BOTTOM_BTN_X = 129f;                         // ± from center
         public const float MENU_BOTTOM_BTN_W = 245f;                         // authored red/yellow blanks sized by width (canvas incl. shadow)
-        public const float MENU_BOTTOM_LABEL_SIZE = 34f;                     // CREDITS/SHOP word (HUD palette)
+        public const float MENU_CREDITS_LABEL_SIZE = 38f;                    // CREDITS word (HUD palette)
+        public const float MENU_SHOP_LABEL_SIZE = 50f;                       // SHOP word — way bigger (short word, mock draws it huge)
         public static readonly Vector2 MENU_BOTTOM_LABEL_NUDGE = new(-3f, 5f); // word toward the face center (shadow is bottom-right)
         // No red/orange blank exists in the kit — the cream blank is runtime-tinted (multiply).
         public const float MENU_SUPPORT_LABEL_Y = -16f;                      // "Support the devs!" sits ON the SHOP button's face top (canvas has shadow margins)
-        public const float MENU_SUPPORT_LABEL_SIZE = 40f;                    // auto-size max — grows to fill the button width
+        public const float MENU_SUPPORT_LABEL_W = 205f;                      // auto-fit rect — narrower than the button = slightly smaller text
+        public const float MENU_SUPPORT_LABEL_SIZE = 40f;                    // auto-size max
         public const float MENU_SUPPORT_LABEL_MIN = 12f;
         // The flashy green: a vertical gradient (sampled off DesiredMenu.png) under the dark
         // outline + downward shadow ring.
