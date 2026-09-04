@@ -62,8 +62,10 @@ namespace DogtorBurguer
         // The checkered diner strip pinned to the bottom edge, with CREDITS and SHOP on it.
         private void BuildBottomStrip()
         {
+            // The strip art carries transparent side margins, so it's sized wider than the canvas
+            // (MENU_BOTTOM_STRIP_W) for the checker to actually reach the screen edges.
             Sprite strip = UiArt.Load("ui_menu_bottom");
-            Vector2 stripSize = UIFactory.SizeByWidth(strip, UIStyles.REFERENCE_RESOLUTION.x);
+            Vector2 stripSize = UIFactory.SizeByWidth(strip, UIStyles.MENU_BOTTOM_STRIP_W);
             UIFactory.CreateImage(_canvas.transform, "BottomStrip", strip, new Vector2(0.5f, 0f),
                 new Vector2(0f, stripSize.y * 0.5f), stripSize);
 
@@ -73,9 +75,13 @@ namespace DogtorBurguer
             float shopHeight = shop.GetComponent<RectTransform>().sizeDelta.y;
             TextMeshProUGUI support = UIFactory.CreateText(shop.transform, "Support the devs!",
                 new Vector2(0f, shopHeight * 0.5f + UIStyles.MENU_SUPPORT_LABEL_Y),
-                new Vector2(UIStyles.MENU_BOTTOM_BTN_W, 30f), UIStyles.MENU_SUPPORT_LABEL_SIZE, FontStyles.Bold);
-            UIFactory.StyleFillAndBorder(support, UIStyles.MENU_SUPPORT_FILL,
-                UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH, shadow: false);
+                new Vector2(UIStyles.MENU_BOTTOM_BTN_W, 36f), UIStyles.MENU_SUPPORT_LABEL_SIZE, FontStyles.Bold);
+            // Flashy per the mock: green vertical gradient + dark outline + the downward shadow ring.
+            UIFactory.StyleFillAndBorder(support, Color.white,
+                UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH, UIStyles.HUD_TEXT_BORDER);
+            support.enableVertexGradient = true;
+            support.colorGradient = new VertexGradient(UIStyles.MENU_SUPPORT_TOP, UIStyles.MENU_SUPPORT_TOP,
+                UIStyles.MENU_SUPPORT_BOTTOM, UIStyles.MENU_SUPPORT_BOTTOM);
         }
 
         // An authored blank (the kit's red CREDITS / yellow SHOP buttons) with a HUD-palette word on it.

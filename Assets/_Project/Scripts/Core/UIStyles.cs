@@ -182,9 +182,9 @@ namespace DogtorBurguer
         public static readonly Vector2 TOPBAR_SCORE_POS = new(101f, TOPBAR_Y); // high-score trophy widget (leftmost; box left edge 46)
         public static readonly Vector2 TOPBAR_STAR_POS = new(236f, TOPBAR_Y);  // star widget (box left edge 181)
         public static readonly Vector2 TOPBAR_GEM_POS = new(371f, TOPBAR_Y);   // gem widget (box left edge 316)
-        public static readonly Vector2 TOPBAR_BUTTON_SIZE = new(54f, 54f);
-        public static readonly Vector2 TOPBAR_SHOP_POS = new(455f, TOPBAR_Y);   // shop button (left of settings)
-        public static readonly Vector2 TOPBAR_CONFIG_POS = new(511f, TOPBAR_Y); // settings/gear button (rightmost)
+        public static readonly Vector2 TOPBAR_BUTTON_SIZE = new(62f, 62f);
+        public static readonly Vector2 TOPBAR_SHOP_POS = new(432f, TOPBAR_Y);   // shop button (left of settings)
+        public static readonly Vector2 TOPBAR_CONFIG_POS = new(498f, TOPBAR_Y); // settings/gear button (rightmost; nudged toward center — the mock's bow slot is unused)
         #endregion
 
         #region Font Sizes - Panels
@@ -238,19 +238,24 @@ namespace DogtorBurguer
         // Logo is top-anchored so it clears the top bar on tall screens; plaque/play are
         // center-anchored; the checkered strip and its buttons are bottom-anchored. Eyeball
         // defaults from the artist's mock — tune live.
-        public static readonly Vector2 MENU_LOGO_POS = new(0f, -200f);       // logo CENTER below the top edge
-        public const float MENU_LOGO_W = 440f;
+        public static readonly Vector2 MENU_LOGO_POS = new(0f, -185f);       // logo CENTER below the top edge
+        public const float MENU_LOGO_W = 495f;                               // sized to the 2026-09-04 pass (DesiredMenu.png)
         public static readonly Vector2 MENU_PLAY_POS = new(0f, -196f);       // authored PLAY (text baked in)
-        public const float MENU_PLAY_W = 350f;
-        public const float MENU_BOTTOM_BTN_Y = 105f;                         // CREDITS/SHOP center height from the bottom edge
-        public const float MENU_BOTTOM_BTN_X = 122f;                         // ± from center
-        public const float MENU_BOTTOM_BTN_W = 210f;                         // authored red/yellow blanks sized by width (canvas incl. shadow; ≈ 141 tall)
-        public const float MENU_BOTTOM_LABEL_SIZE = 28f;                     // CREDITS/SHOP word (HUD palette)
+        public const float MENU_PLAY_W = 400f;
+        public const float MENU_BOTTOM_STRIP_W = 680f;                       // the checker strip: the ART has ~150px clear margins per side, so it must
+                                                                             // outsize the canvas for the squares to reach the screen edges
+        public const float MENU_BOTTOM_BTN_Y = 108f;                         // CREDITS/SHOP center height from the bottom edge
+        public const float MENU_BOTTOM_BTN_X = 129f;                         // ± from center
+        public const float MENU_BOTTOM_BTN_W = 245f;                         // authored red/yellow blanks sized by width (canvas incl. shadow)
+        public const float MENU_BOTTOM_LABEL_SIZE = 34f;                     // CREDITS/SHOP word (HUD palette)
         public static readonly Vector2 MENU_BOTTOM_LABEL_NUDGE = new(-3f, 5f); // word toward the face center (shadow is bottom-right)
         // No red/orange blank exists in the kit — the cream blank is runtime-tinted (multiply).
         public const float MENU_SUPPORT_LABEL_Y = 14f;                       // "Support the devs!" above the SHOP button's top edge
-        public const float MENU_SUPPORT_LABEL_SIZE = 15f;
-        public static readonly Color MENU_SUPPORT_FILL = new(0.45f, 0.75f, 0.2f); // green, HUD border
+        public const float MENU_SUPPORT_LABEL_SIZE = 18f;
+        // The flashy green: a vertical gradient (sampled off DesiredMenu.png) under the dark
+        // outline + downward shadow ring.
+        public static readonly Color MENU_SUPPORT_TOP = new(0.66f, 0.85f, 0.36f);
+        public static readonly Color MENU_SUPPORT_BOTTOM = new(0.42f, 0.62f, 0.0f);
         #endregion
 
         #region Layout — Game Over Screen (authored art — reference px, canvas-centered, y up)
