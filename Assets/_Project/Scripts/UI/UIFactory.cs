@@ -263,7 +263,7 @@ namespace DogtorBurguer
         /// Styles a text with the standard HUD palette: cream fill + dark-brown border
         /// (see UIStyles.HUD_TEXT_*). Used on the big card numbers and all red-box labels.
         /// </summary>
-        public static void StyleHudText(TextMeshProUGUI tmp) =>
+        public static void StyleHudText(TMP_Text tmp) =>
             StyleFillAndBorder(tmp, UIStyles.HUD_TEXT_FILL, UIStyles.HUD_TEXT_STROKE, UIStyles.HUD_TEXT_BORDER_WIDTH,
                 UIStyles.HUD_TEXT_BORDER);
 
@@ -274,7 +274,7 @@ namespace DogtorBurguer
         /// a cached shared material (keywords enabled, mesh padding updated) instead of the
         /// per-component setters, which don't reliably render on runtime-created TMP components.
         /// </summary>
-        public static void StyleFillAndBorder(TextMeshProUGUI tmp, Color fill, Color32 border, float width,
+        public static void StyleFillAndBorder(TMP_Text tmp, Color fill, Color32 border, float width,
             Color32? shadowColor = null, bool shadow = true)
         {
             tmp.color = fill;

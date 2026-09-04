@@ -16,7 +16,8 @@ namespace DogtorBurguer
         /// <summary>
         /// Adds a configured TextMeshPro to <paramref name="target"/> and returns it. The
         /// caller owns the GameObject (its own or a child), world positioning, and animation.
-        /// Pass <paramref name="outlineWidth"/> &gt; 0 to enable a black outline.
+        /// Pass <paramref name="outlineWidth"/> &gt; 0 for the sticker lettering (shared
+        /// fill + stroke + shadow material, same treatment as the UI text).
         /// </summary>
         public static TextMeshPro Create(
             GameObject target,
@@ -39,11 +40,11 @@ namespace DogtorBurguer
             tmp.overflowMode = TextOverflowModes.Overflow;
             tmp.sortingOrder = sortingOrder;
 
+            // The shared sticker material — the old per-component outline setters never rendered
+            // reliably on runtime-created TMPs (the long-standing world-outline known issue).
             if (outlineWidth > 0f)
-            {
-                tmp.outlineWidth = outlineWidth;
-                tmp.outlineColor = UIStyles.OUTLINE_COLOR;
-            }
+                UIFactory.StyleFillAndBorder(tmp, color, UIStyles.HUD_TEXT_STROKE,
+                    UIStyles.HUD_TEXT_BORDER_WIDTH, UIStyles.HUD_TEXT_BORDER);
 
             tmp.rectTransform.sizeDelta = size;
             return tmp;

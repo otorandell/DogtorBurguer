@@ -516,7 +516,8 @@ Photoshop stroke+shadow lettering (`Look Reference/Font info.png`) on every bord
 SDF atlas padding (12 @ 144pt) caps outline+shadow reach — regenerate with more padding if
 glyph edges clip.
 The broken per-component setters were removed from `UIFactory.AddStyledText`. World-space
-(`WorldTextFactory`) still uses the old setters — migrate the same way if world outlines are wanted.
+(`WorldTextFactory`) was migrated to the same shared-material path on 2026-09-04 — world popups
+now carry the full sticker lettering (fill + stroke + shadow), same as the UI.
 
 ### UI Text Wrapping Convention
 Runtime-created TMP text defaults to wrapping ON (TMP Settings), which renders one character
@@ -534,7 +535,9 @@ wrapping — fix by shortening the string or widening the rect, never by re-enab
   the pill art once everything gained the sticker shadow). `TOPBAR_NUMBER_COLOR` (plain dark
   brown) remains for small plain labels (shop subtitles, Restore Purchases).
 - Buttons/popups/panels (menu): white text.
-- World-space popups: white (world outline still pending — see above).
+- World-space popups: **cream sticker lettering** (`HUD_TEXT_FILL` + stroke + shadow, shared
+  material — 2026-09-04). The glow plates carry the popup's meaning (green = score, yellow =
+  multiplier/stars); the one non-cream popup is "Too bad!" (red = failure).
 
 ## Roadmap
 

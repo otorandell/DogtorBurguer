@@ -16,8 +16,7 @@ namespace DogtorBurguer
         #endregion
 
         #region Text Outlines
-        public const float OUTLINE_WIDTH_WORLD = 0.25f;
-        public static readonly Color32 OUTLINE_COLOR = new(0, 0, 0, 255);
+        public const float OUTLINE_WIDTH_WORLD = 0.25f; // > 0 = world text gets the sticker lettering (value itself unused since 2026-09-04)
         // HUD text palette (sampled from the look reference IMG_1645): cream fill + thick dark-brown
         // border, applied via UIFactory.StyleHudText (a real TMP outline material, not the broken
         // per-component outlineWidth path). Used on the big numbers and all red-box labels.
@@ -41,14 +40,14 @@ namespace DogtorBurguer
         #region Text Colors
         public static readonly Color TEXT_HUD = Color.black;
         public static readonly Color TEXT_UI = Color.white;
-        public static readonly Color TEXT_FAST_DROP = Color.cyan;
-        public static readonly Color TEXT_TOO_BAD = Color.red;
+        public static readonly Color TEXT_TOO_BAD = Color.red;      // the one non-cream popup: failure must read differently
         #endregion
 
         #region Popup Colors
-        public static readonly Color SCORE_POPUP = Color.yellow;
-        public static readonly Color BURGER_POPUP = new(1f, 0.5f, 0f);
-        public static readonly Color GOLD = new(1f, 0.85f, 0f);
+        // World popups are uniformly cream (HUD_TEXT_FILL) since 2026-09-04 — the glow PLATES
+        // carry the meaning (green = score, yellow = multiplier/stars), not the text color.
+        // The relic per-mechanic colors (yellow/cyan/orange) are gone.
+        public static readonly Color GOLD = new(1f, 0.85f, 0f);     // game-over "stars earned", shop badges
         #endregion
 
         #region Panel / Overlay Colors

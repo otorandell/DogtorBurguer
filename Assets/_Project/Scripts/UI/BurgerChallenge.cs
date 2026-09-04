@@ -168,9 +168,8 @@ namespace DogtorBurguer
             if (globalMult > 1 || isMatch)
             {
                 string multText = $"x{globalMult * challengeMult}";
-                Color textColor = isMatch ? UIStyles.GOLD : UIStyles.TEXT_UI;
-                FloatingText.Spawn(pos + Vector3.up * 0.5f, multText, textColor, UIStyles.WORLD_FLOATING_TEXT_SIZE,
-                    "ui_popup_plate_mult");
+                FloatingText.Spawn(pos + Vector3.up * 0.5f, multText, UIStyles.HUD_TEXT_FILL,
+                    UIStyles.WORLD_FLOATING_TEXT_SIZE, "ui_popup_plate_mult");
             }
 
             if (!isMatch) return;
@@ -181,7 +180,7 @@ namespace DogtorBurguer
             int stars = MonetizationConfig.STARS_PER_ORDER_BASE
                 + MonetizationConfig.STARS_PER_ORDER_PER_LEVEL * (_challengeLevel - 1);
             GameManager.Instance?.AwardStars(stars);
-            FloatingText.Spawn(pos + Vector3.up * 1.1f, $"{stars}!", UIStyles.GOLD,
+            FloatingText.Spawn(pos + Vector3.up * 1.1f, $"{stars}!", UIStyles.HUD_TEXT_FILL,
                 UIStyles.WORLD_STAR_POPUP_SIZE, "ui_popup_plate_mult");
 
             AudioManager.Instance?.PlayChallengeMatch();

@@ -50,13 +50,13 @@ namespace DogtorBurguer
 
         private void HandleMatchEffect(Vector3 position, int points)
         {
-            ScorePopup.Spawn(position, points, UIStyles.SCORE_POPUP);
+            ScorePopup.Spawn(position, points, UIStyles.HUD_TEXT_FILL);
             ShakeCamera(AnimConfig.MATCH_SHAKE_STRENGTH);
         }
 
         private void HandleBurgerEffect(Vector3 position, int points, string burgerName, int ingredientCount)
         {
-            BurgerPopup.Spawn(position + Vector3.up * 0.5f, points, burgerName, UIStyles.BURGER_POPUP);
+            BurgerPopup.Spawn(position + Vector3.up * 0.5f, points, burgerName, UIStyles.HUD_TEXT_FILL);
             ShakeCamera(AnimConfig.BURGER_SHAKE_STRENGTH);
             _flash.Trigger();
         }
