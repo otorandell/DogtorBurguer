@@ -160,8 +160,7 @@ namespace DogtorBurguer
         // the xN badge overlapping the capsule's bottom end, not floating mid-meter.
         public static readonly Vector2 SPECIAL_MULT_BADGE_OFFSET = new(86f, -110f); // badge offset within the card (on the meter bottom)
         public const float SPECIAL_MULT_TEXT_SIZE = 24f;
-        public static readonly Vector2 SPECIAL_CONTAINS_POS = new(-10f, -84f); // small "Contains" word under the stack (Contains orders only)
-        public const float SPECIAL_CONTAINS_SIZE = 13f;
+        public const float SPECIAL_GHOST_ALPHA = 0.4f;                        // the ghosted "?" mystery layer on Contains orders ("plus whatever else")
         // Mult meter — a vertical capsule (back well + green fill + frame), 3 stacked layers at one rect.
         // A child of the card, built before the mult badge so the badge renders on top (meter sits under
         // it, sharing its x). Taller than the card so it overflows top/bottom a touch. Eyeball defaults.

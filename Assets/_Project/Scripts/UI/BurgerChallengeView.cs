@@ -20,7 +20,7 @@ namespace DogtorBurguer
         private RectTransform _card;
         private RectTransform _stackRoot;
         private readonly List<Image> _stackImages = new List<Image>();
-        private TextMeshProUGUI _containsLabel; // the small word shown on Contains orders
+        private readonly List<Color> _stackBaseColors = new List<Color>(); // per-image rest color (the ghost isn't white)
         private TextMeshProUGUI _multText;
         private Image _meterFill;
 
@@ -155,18 +155,18 @@ namespace DogtorBurguer
             {
                 foreach (IngredientType t in _model.TargetIngredients)
                     rows.Add(t);
+                // The ghosted "?" mystery layer: the same silhouette Size orders use for "any
+                // ingredients", faded — reads as "these, plus whatever else" (extras are OK)
+                // without a word on the card.
+                rows.Add(null);
+                placeholder = "?";
             }
             rows.Add(IngredientType.BunTop);
 
-            // Contains orders carry a small "Contains" word so the shown burger reads as
-            // "must include these" (extras allowed), not an exact recipe.
-            if (_model.CurrentOrderType == OrderType.Contains)
-                _containsLabel = UIFactory.CreateText(_stackRoot, "Contains",
-                    UIStyles.SPECIAL_CONTAINS_POS, new Vector2(120f, 20f),
-                    UIStyles.SPECIAL_CONTAINS_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR);
-
             float spacing = UIStyles.SPECIAL_INGREDIENT_SPACING;
             float startY = -(rows.Count - 1) * spacing * 0.5f;
+
+            bool ghostMystery = _model.CurrentOrderType == OrderType.Contains;
 
             // Plate under the bottom bun (added first → renders behind the stack).
             Sprite plate = Theme.Plate;
@@ -175,6 +175,7 @@ namespace DogtorBurguer
                 Image plateImg = UIFactory.CreateImage(_stackRoot, "Plate", plate, new Vector2(0.5f, 0.5f),
                     new Vector2(0f, startY - UIStyles.SPECIAL_PLATE_Y_OFFSET), WorldScaled(plate));
                 _stackImages.Add(plateImg);
+                _stackBaseColors.Add(Color.white);
             }
 
             for (int i = 0; i < rows.Count; i++)
@@ -183,7 +184,7 @@ namespace DogtorBurguer
                 if (rows[i].HasValue)
                     AddSprite(_model.GetIngredientSprite(rows[i].Value), $"Ing_{rows[i].Value}", y, null);
                 else
-                    AddSprite(UiArt.Load("ui_mystery"), "Placeholder", y, placeholder);
+                    AddSprite(UiArt.Load("ui_mystery"), "Placeholder", y, placeholder, ghostMystery);
             }
 
             _multText.text = $"x{_model.GetGlobalMultiplier()}";
@@ -200,7 +201,7 @@ namespace DogtorBurguer
         // Adds one stacked image (ingredient or placeholder) with an optional centred label (the
         // "+N" on the mystery silhouette). Gameplay sprites are sized from their world dimensions
         // (see WorldScaled); the mystery placeholder is UI art with no tuned PPU, sized by height.
-        private void AddSprite(Sprite sprite, string name, float y, string label)
+        private void AddSprite(Sprite sprite, string name, float y, string label, bool ghosted = false)
         {
             if (sprite == null) return;
             bool isMystery = !string.IsNullOrEmpty(label);
@@ -209,12 +210,17 @@ namespace DogtorBurguer
                 : WorldScaled(sprite);
             Image img = UIFactory.CreateImage(_stackRoot, name, sprite, new Vector2(0.5f, 0.5f),
                 new Vector2(0f, y), size);
+            Color baseColor = ghosted ? new Color(1f, 1f, 1f, UIStyles.SPECIAL_GHOST_ALPHA) : Color.white;
+            img.color = baseColor;
             _stackImages.Add(img);
+            _stackBaseColors.Add(baseColor);
 
             if (!string.IsNullOrEmpty(label))
             {
+                Color labelColor = UIStyles.TEXT_UI;
+                if (ghosted) labelColor.a = UIStyles.SPECIAL_GHOST_ALPHA;
                 TextMeshProUGUI t = UIFactory.CreateText(img.transform, label, Vector2.zero,
-                    img.rectTransform.sizeDelta, UIStyles.SPECIAL_PLACEHOLDER_LABEL_SIZE, FontStyles.Bold, UIStyles.TEXT_UI);
+                    img.rectTransform.sizeDelta, UIStyles.SPECIAL_PLACEHOLDER_LABEL_SIZE, FontStyles.Bold, labelColor);
                 t.textWrappingMode = TextWrappingModes.NoWrap;
             }
         }
@@ -233,22 +239,19 @@ namespace DogtorBurguer
                 Destroy(img.gameObject);
             }
             _stackImages.Clear();
-
-            if (_containsLabel != null)
-            {
-                Destroy(_containsLabel.gameObject);
-                _containsLabel = null;
-            }
+            _stackBaseColors.Clear();
         }
 
         private void FlashOrder()
         {
-            foreach (Image img in _stackImages)
+            for (int i = 0; i < _stackImages.Count; i++)
             {
+                Image img = _stackImages[i];
                 if (img == null) continue;
                 img.DOKill();
                 img.color = UIStyles.GOLD;
-                img.DOColor(Color.white, AnimConfig.LEVELUP_COLOR_RESTORE_DURATION);
+                // Restore each image's REST color — the ghost mystery layer isn't opaque white.
+                img.DOColor(_stackBaseColors[i], AnimConfig.LEVELUP_COLOR_RESTORE_DURATION);
             }
         }
 

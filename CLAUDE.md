@@ -169,8 +169,11 @@ gate); quitting keeps live-earned order stars but forfeits the end-of-run score 
 - Two order types, randomly chosen:
   - **Size**: "N+ Ingredients" — any burger with at least N ingredients matches
   - **Contains**: the burger must include the required ingredients — extras OK. (Exact-match was
-    tried and reverted the same day, 2026-09-04; the card now shows a small "Contains" word,
-    `SPECIAL_CONTAINS_*`, so the burger reads as "must include", not a recipe.)
+    tried and reverted the same day, 2026-09-04.) The card communicates "must include" without
+    words: a **ghosted "?" mystery layer** (`SPECIAL_GHOST_ALPHA`) sits between the required
+    ingredients and the top bun — the same silhouette Size orders use for "any ingredients", so
+    it reads as "these, plus whatever else". FlashOrder restores per-image REST colors so the
+    ghost stays translucent after the gold flash.
 - **Screen-space UGUI panel** (top-right, `BurgerChallengeView`): authored card + the SPECIAL ORDER
   banner (blank art + TMP word) + the **required-burger stack** (bun → "+N" mystery silhouette /
   required ingredients → bun, on a `Theme.Plate`) + a **multiplier badge** (`GetGlobalMultiplier`).
