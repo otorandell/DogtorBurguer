@@ -68,6 +68,11 @@ namespace DogtorBurguer
         // old body-only sprite so the payload stays readable without the badge overlay.
         public const float FAIRY_BODY_HEIGHT = 1.5f;
         public const float PREVIEW_ARROW_HEIGHT = 1.05f;                   // arrow back-picture behind a preview ghost
+        // World popup plates (the 2026-09-04 halftone blobs, set 1) — heights in world units.
+        public const float PLATE_BURGER_H = 2.0f;                          // wide green ellipse behind the burger name + points
+        public static readonly Vector2 PLATE_BURGER_OFFSET = new(0f, -0.35f); // centered between the name and the score line
+        public const float PLATE_SCORE_H = 1.1f;                           // green round behind "N!" score popups
+        public const float PLATE_FLOAT_H = 1.0f;                           // round blob behind floating texts that ask for one
         public const float CONSUMABLE_FALLER_HEIGHT = 2.0f;  // default falling item (badge art)
         public const float CONSUMABLE_GHOST_HEIGHT = 1.4f;   // column preview (nozzle art; 30% down from 2.0)
         public const float CONSUMABLE_GHOST_Y_OFFSET = -0.35f;// ghost sits a touch below the column-top anchor
@@ -155,6 +160,8 @@ namespace DogtorBurguer
         // the xN badge overlapping the capsule's bottom end, not floating mid-meter.
         public static readonly Vector2 SPECIAL_MULT_BADGE_OFFSET = new(86f, -110f); // badge offset within the card (on the meter bottom)
         public const float SPECIAL_MULT_TEXT_SIZE = 24f;
+        public static readonly Vector2 SPECIAL_CONTAINS_POS = new(-10f, -84f); // small "Contains" word under the stack (Contains orders only)
+        public const float SPECIAL_CONTAINS_SIZE = 13f;
         // Mult meter — a vertical capsule (back well + green fill + frame), 3 stacked layers at one rect.
         // A child of the card, built before the mult badge so the badge renders on top (meter sits under
         // it, sharing its x). Taller than the card so it overflows top/bottom a touch. Eyeball defaults.

@@ -168,10 +168,9 @@ gate); quitting keeps live-earned order stars but forfeits the end-of-run score 
 ### Burger Challenge (BurgerChallenge) — "Special Orders"
 - Two order types, randomly chosen:
   - **Size**: "N+ Ingredients" — any burger with at least N ingredients matches
-  - **Contains** (EXACT since 2026-09-04): the burger's fillings must be precisely the required
-    set — no extras, no substitutes; only the stacking order is free. Orders multiply the score,
-    so they should be hard (Oscar's call; the panel needs no "Contains" wording because the shown
-    burger IS the exact requirement)
+  - **Contains**: the burger must include the required ingredients — extras OK. (Exact-match was
+    tried and reverted the same day, 2026-09-04; the card now shows a small "Contains" word,
+    `SPECIAL_CONTAINS_*`, so the burger reads as "must include", not a recipe.)
 - **Screen-space UGUI panel** (top-right, `BurgerChallengeView`): authored card + the SPECIAL ORDER
   banner (blank art + TMP word) + the **required-burger stack** (bun → "+N" mystery silhouette /
   required ingredients → bun, on a `Theme.Plate`) + a **multiplier badge** (`GetGlobalMultiplier`).
@@ -188,6 +187,10 @@ gate); quitting keeps live-earned order stars but forfeits the end-of-run score 
 - On match: the burger flashes gold; popup shows "Order Complete!" instead of the generated name (via
   GridManager `IsOrderMatch`). Level-up flashes + punches the card, then rolls the next order.
 - 3x challenge multiplier on match; global multiplier: `1 + (level - 1) * 5`
+- **World popups ride glow plates** (2026-09-04 kit, set 1; `WorldTextFactory.AttachPlate`,
+  heights `UIStyles.PLATE_*`): burger name + points on the wide green ellipse
+  (`ui_popup_plate_wide`), score "N!" and fast-drops on the green round (`ui_popup_plate`),
+  multiplier "xN" and star awards on the yellow (`ui_popup_plate_mult`); "Too bad!" stays bare.
 - Level up requires `level + 1` matches (`Level` still exposed; the in-panel ★ readout was dropped)
 - Each match also **awards stars** (the currency faucet — see Monetization & Currencies)
 

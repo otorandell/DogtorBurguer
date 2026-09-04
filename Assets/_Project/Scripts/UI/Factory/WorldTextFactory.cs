@@ -48,5 +48,23 @@ namespace DogtorBurguer
             tmp.rectTransform.sizeDelta = size;
             return tmp;
         }
+
+        /// <summary>
+        /// Attaches a halftone glow plate (the 2026-09-04 popup blobs, Resources/UI) behind a
+        /// world popup: a child SpriteRenderer one sorting step under the text, height-normalized.
+        /// Returns it so the popup can join its fade into the exit tween.
+        /// </summary>
+        public static SpriteRenderer AttachPlate(GameObject owner, string art, float worldHeight,
+            int textSortingOrder, Vector2 localOffset)
+        {
+            GameObject plateObj = new GameObject("Plate");
+            plateObj.transform.SetParent(owner.transform, false);
+            plateObj.transform.localPosition = localOffset;
+            SpriteRenderer plate = plateObj.AddComponent<SpriteRenderer>();
+            plate.sprite = UiArt.Load(art);
+            plate.sortingOrder = textSortingOrder - 1;
+            SpriteFit.Height(plate, worldHeight);
+            return plate;
+        }
     }
 }

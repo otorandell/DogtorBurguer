@@ -8,6 +8,7 @@ namespace DogtorBurguer
     {
         private TextMeshPro _nameText;
         private TextMeshPro _scoreText;
+        private SpriteRenderer _plate;
 
         /// <summary>Creates a burger-name + score popup at the world position and animates it.</summary>
         public static BurgerPopup Spawn(Vector3 position, int points, string burgerName, Color nameColor)
@@ -23,6 +24,10 @@ namespace DogtorBurguer
 
         private void CreateTexts(string burgerName, int points, Color nameColor)
         {
+            // The wide green glow plate sits behind both lines (name + score).
+            _plate = WorldTextFactory.AttachPlate(gameObject, "ui_popup_plate_wide",
+                UIStyles.PLATE_BURGER_H, Constants.SORT_BURGER_POPUP, UIStyles.PLATE_BURGER_OFFSET);
+
             // Burger name (main text) — on this popup's own GameObject
             _nameText = WorldTextFactory.Create(gameObject, burgerName,
                 UIStyles.WORLD_BURGER_NAME_SIZE, nameColor, Constants.SORT_BURGER_POPUP,
@@ -56,6 +61,7 @@ namespace DogtorBurguer
             seq.Append(transform.DOMove(transform.position + Vector3.up * AnimConfig.BURGER_POPUP_RISE, AnimConfig.BURGER_POPUP_FADE_DURATION).SetEase(Ease.InCubic));
             seq.Join(_nameText.DOFade(0f, AnimConfig.BURGER_POPUP_FADE_DURATION));
             seq.Join(_scoreText.DOFade(0f, AnimConfig.BURGER_POPUP_FADE_DURATION));
+            seq.Join(_plate.DOFade(0f, AnimConfig.BURGER_POPUP_FADE_DURATION));
             seq.Join(transform.DOScale(AnimConfig.BURGER_POPUP_FADE_SCALE, AnimConfig.BURGER_POPUP_FADE_DURATION).SetEase(Ease.InCubic));
 
             seq.OnComplete(() => Destroy(gameObject));
@@ -66,6 +72,7 @@ namespace DogtorBurguer
             transform.DOKill();
             if (_nameText != null) _nameText.DOKill();
             if (_scoreText != null) _scoreText.DOKill();
+            if (_plate != null) _plate.DOKill();
         }
     }
 }

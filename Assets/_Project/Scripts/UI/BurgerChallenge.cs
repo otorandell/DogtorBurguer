@@ -113,9 +113,9 @@ namespace DogtorBurguer
         private string BuildContainsName()
         {
             if (_targetIngredients.Count == 1)
-                return $"Exactly: {_targetIngredients[0]}";
+                return $"Has: {_targetIngredients[0]}";
 
-            StringBuilder sb = new StringBuilder("Exactly: ");
+            StringBuilder sb = new StringBuilder("Has: ");
             for (int i = 0; i < _targetIngredients.Count; i++)
             {
                 if (i > 0) sb.Append(", ");
@@ -135,12 +135,8 @@ namespace DogtorBurguer
             if (_orderType == OrderType.Size)
                 return ingredientCount >= _requiredSize;
 
-            // Contains orders are EXACT since 2026-09-04: the burger's fillings must be precisely
-            // the required set — no extras, no substitutes; only the stacking ORDER is free.
-            // (Orders multiply the score, so they should be hard.) Targets are unique, so
-            // count-equality + all-present is exact set equality. Buns aren't in either list.
-            if (ingredientCount != _targetIngredients.Count)
-                return false;
+            // Contains: every required ingredient must be present — extras OK. (Tried exact-match
+            // on 2026-09-04, reverted the same day: the panel now carries a "Contains" word instead.)
             foreach (var required in _targetIngredients)
             {
                 if (!ingredients.Contains(required))
@@ -173,7 +169,8 @@ namespace DogtorBurguer
             {
                 string multText = $"x{globalMult * challengeMult}";
                 Color textColor = isMatch ? UIStyles.GOLD : UIStyles.TEXT_UI;
-                FloatingText.Spawn(pos + Vector3.up * 0.5f, multText, textColor, UIStyles.WORLD_FLOATING_TEXT_SIZE);
+                FloatingText.Spawn(pos + Vector3.up * 0.5f, multText, textColor, UIStyles.WORLD_FLOATING_TEXT_SIZE,
+                    "ui_popup_plate_mult");
             }
 
             if (!isMatch) return;
@@ -185,7 +182,7 @@ namespace DogtorBurguer
                 + MonetizationConfig.STARS_PER_ORDER_PER_LEVEL * (_challengeLevel - 1);
             GameManager.Instance?.AwardStars(stars);
             FloatingText.Spawn(pos + Vector3.up * 1.1f, $"{stars}!", UIStyles.GOLD,
-                UIStyles.WORLD_STAR_POPUP_SIZE);
+                UIStyles.WORLD_STAR_POPUP_SIZE, "ui_popup_plate_mult");
 
             AudioManager.Instance?.PlayChallengeMatch();
             OnMatched?.Invoke();

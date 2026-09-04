@@ -20,6 +20,7 @@ namespace DogtorBurguer
         private RectTransform _card;
         private RectTransform _stackRoot;
         private readonly List<Image> _stackImages = new List<Image>();
+        private TextMeshProUGUI _containsLabel; // the small word shown on Contains orders
         private TextMeshProUGUI _multText;
         private Image _meterFill;
 
@@ -157,6 +158,13 @@ namespace DogtorBurguer
             }
             rows.Add(IngredientType.BunTop);
 
+            // Contains orders carry a small "Contains" word so the shown burger reads as
+            // "must include these" (extras allowed), not an exact recipe.
+            if (_model.CurrentOrderType == OrderType.Contains)
+                _containsLabel = UIFactory.CreateText(_stackRoot, "Contains",
+                    UIStyles.SPECIAL_CONTAINS_POS, new Vector2(120f, 20f),
+                    UIStyles.SPECIAL_CONTAINS_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR);
+
             float spacing = UIStyles.SPECIAL_INGREDIENT_SPACING;
             float startY = -(rows.Count - 1) * spacing * 0.5f;
 
@@ -225,6 +233,12 @@ namespace DogtorBurguer
                 Destroy(img.gameObject);
             }
             _stackImages.Clear();
+
+            if (_containsLabel != null)
+            {
+                Destroy(_containsLabel.gameObject);
+                _containsLabel = null;
+            }
         }
 
         private void FlashOrder()
