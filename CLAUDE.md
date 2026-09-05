@@ -125,7 +125,7 @@ falling piece) never move or swap the cook (`ProcessInput`):
 (see Core Systems → Consumables) — `TouchInputHandler` hands the gesture to
 `ConsumableDragController` and suppresses chef logic for its duration. **Editor-only debug**: keys
 **1/2/3** grant Ketchup/Mustard/Skewer to the inventory, **4** grants 500 stars, **F** spawns a
-fairy (`#if UNITY_EDITOR`).
+fairy, **R** (while the shop is open) wipes shop purchases/equips/remove-ads (`#if UNITY_EDITOR`).
 
 **Input-area debug gizmos** (editor-only, `#if UNITY_EDITOR`): each clickable zone is drawn by the
 component owning its hit-test, one color per interaction (`GizmoStyles`): falling fast-drop (green,
@@ -477,18 +477,18 @@ sprite — acceptable; menu equips always show in-game).
   `bun_default` also **Secondary Sprite** = bottom bun, for `chef_default` = flipped facing), or
   just replace a PNG's contents keeping its filename. Works from the Project window with any scene
   open — no more opening `Game.unity`.
-- **Purchasable skins (live)**: original three — `meat_alt` ("Deluxe Patty", 500★), `chef_happy`
-  ("Happy Dogtor", 800★), `chef_alt` ("Dogtor Deluxe", 1000★). **Two full ingredient sets added
-  2026-07-21** (art drop №3, `RawArt/…20260720…`): **Gourmet** (400★ each — Chicken Burger, Cheddar,
-  Cherry Tomato, Caramelized Onion, Relish Pickles, Shredded Lettuce, Quail Egg, Bacon Bits, Brioche
-  Buns) and **Gold** (800★ each — the "everything gold" set across all 8 ingredients + buns), plus
-  **5 Dogtor theme chefs** (1200★ — Burger Chain, European, Japanese, Mexican, Royale; Happy pose,
-  front+flip, Burgerchain reuses front as flip). All are non-default Skin assets with `_unlock:
-  Stars` + `_starCost`, sold and equipped in the Shop. **Adding a shop skin = authoring one Skin
-  asset** (id, slot, sprite, star cost) — no code; `Theme.AllSkins()` auto-discovers it and
-  `ShopCatalog` groups it into the right row (slot with ≥2 skins appears). Ingredient alts were
-  exported on the **same canvas dims as the defaults**, so each reuses its slot's default PPU (only
-  Cheddar differed → computed PPU); dogtors are height-normalised to the default chef (worldH 1.929).
+- **Purchasable skins (curated catalog, 2026-09-05)**: every slot = default + 2 star skins
+  (cheap 400★ / "golden" end-game 5000★) + 2 gem skins (cheap 30◆ / expensive 100◆). Dogtors:
+  Burgerchain 500★ (cheap), Royale 10000★ (end-game), European 50◆, Japanese/Mexican 150◆ each.
+  Star-cheap = the old gourmet set (Chicken, Cheddar, Cherry Tomato, Caramelized Onion, Relish,
+  Shredded Lettuce, **Boiled Egg** — new; the gourmet Quail Egg moved to gems-expensive) and
+  Brioche Buns; star-expensive = the gold set. Gem skins (2026-09-04 kit art): Vegan/Wagyu patty,
+  Shredded cheese, Pico de Gallo/Kumato, Pickled/Crispy onion, Bell Pepper, Avocado/Purple
+  Cabbage, Omelet/Quail, Pulled Pork/Iberic Ham (⚠️ Iberic uses `Pulled_Pork.png` — reads as ham
+  slices, confirm with the artist), Rustic (Bocata) / Black Bread buns. **Deleted placeholders**:
+  meat_alt, chef_alt, chef_happy (assets + sprites). ⚠️ **Missing art** (skins wished but not
+  authored yet): Blue Cheese, Jalapeño, Integral bun. Shop cells: ingredient previews sit on a
+  plate (`SHOP_SKIN_PLATE_*`), buns preview as the top+bottom pair (`SHOP_SKIN_BUN_*`).
 - **Status**: selection + star-unlock shipped with the Shop (2026-07-05); ingredient + dogtor skin
   content shipped 2026-07-21. Gem/IAP-priced skins and Pack bundles remain unbuilt
   (`UnlockMethod.Gems/Iap` exist; `ShopService.TryBuySkin` already handles Gems). Prices are eyeball

@@ -66,6 +66,17 @@ namespace DogtorBurguer
 
         private void Update()
         {
+#if UNITY_EDITOR
+            // Debug: R wipes all shop purchases (owned skins, equips, remove-ads) for testing.
+            if (UnityEngine.InputSystem.Keyboard.current != null &&
+                UnityEngine.InputSystem.Keyboard.current.rKey.wasPressedThisFrame)
+            {
+                SaveDataManager.Instance?.DebugResetShop();
+                Theme.DebugResetToDefaults();
+                NotifyChanged();
+                Debug.Log("[ShopScreen] Debug reset: skins, equips and remove-ads wiped.");
+            }
+#endif
             foreach (Action tick in _perFrameTicks)
                 tick();
         }

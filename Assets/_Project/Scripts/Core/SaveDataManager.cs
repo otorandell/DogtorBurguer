@@ -158,6 +158,21 @@ namespace DogtorBurguer
 
         public bool OwnsSkin(string skinId) => _ownedSkins.Contains(skinId);
 
+#if UNITY_EDITOR
+        /// <summary>Debug (editor-only): wipes shop purchases — owned skins, per-slot equips and
+        /// remove-ads. Bound to R while the shop is open (ShopScreen).</summary>
+        public void DebugResetShop()
+        {
+            _ownedSkins.Clear();
+            PlayerPrefs.SetString(KEY_OWNED_SKINS, "");
+            foreach (SkinSlot slot in System.Enum.GetValues(typeof(SkinSlot)))
+                PlayerPrefs.SetString(KEY_EQUIPPED_PREFIX + (int)slot, "");
+            AdsRemoved = false;
+            PlayerPrefs.SetInt(KEY_ADS_REMOVED, 0);
+            PlayerPrefs.Save();
+        }
+#endif
+
         public void GrantSkin(string skinId)
         {
             if (!_ownedSkins.Add(skinId)) return;

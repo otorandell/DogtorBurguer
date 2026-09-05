@@ -42,16 +42,41 @@ namespace DogtorBurguer
             cellRect.pivot = new Vector2(0.5f, 1f);
             cellRect.anchoredPosition = Vector2.zero;
 
-            // The preview sized by height at native aspect (clamped to the box width for wide art) —
-            // it may overflow the box top like the mock.
-            Sprite preview = _skin.Preview;
-            Vector2 size = UIFactory.SizeByHeight(preview, UIStyles.SHOP_SKIN_PREVIEW_H);
-            if (size.x > UIStyles.SHOP_SKIN_PREVIEW_MAX_W)
-                size *= UIStyles.SHOP_SKIN_PREVIEW_MAX_W / size.x;
-            UIFactory.CreateImage(_cell.Box, "Preview", preview, new Vector2(0.5f, 0.5f),
-                new Vector2(0f, UIStyles.SHOP_SKIN_PREVIEW_Y), size);
+            // Ingredient slots preview on a plate (like the Special Order stack); the chef doesn't.
+            if (_skin.Slot != SkinSlot.ChefSkin)
+            {
+                Sprite plate = Theme.Plate;
+                if (plate != null)
+                    UIFactory.CreateImage(_cell.Box, "Plate", plate, new Vector2(0.5f, 0.5f),
+                        new Vector2(0f, UIStyles.SHOP_SKIN_PLATE_Y),
+                        UIFactory.SizeByWidth(plate, UIStyles.SHOP_SKIN_PLATE_W));
+            }
+
+            if (_skin.Slot == SkinSlot.BunSkin && _skin.SecondarySprite != null)
+            {
+                // Buns preview as the pair — top over bottom, slightly separated (mirrors the
+                // Special Order stack so the skin reads as one set).
+                AddPreviewSprite(_skin.SecondarySprite, "PreviewBottom",
+                    UIStyles.SHOP_SKIN_PREVIEW_Y - UIStyles.SHOP_SKIN_BUN_GAP * 0.5f, UIStyles.SHOP_SKIN_BUN_H);
+                AddPreviewSprite(_skin.Sprite, "PreviewTop",
+                    UIStyles.SHOP_SKIN_PREVIEW_Y + UIStyles.SHOP_SKIN_BUN_GAP * 0.5f + UIStyles.SHOP_SKIN_BUN_H * 0.55f,
+                    UIStyles.SHOP_SKIN_BUN_H);
+            }
+            else
+            {
+                AddPreviewSprite(_skin.Preview, "Preview", UIStyles.SHOP_SKIN_PREVIEW_Y, UIStyles.SHOP_SKIN_PREVIEW_H);
+            }
 
             Refresh();
+        }
+
+        // A preview sprite sized by height at native aspect, clamped to the box width for wide art.
+        private void AddPreviewSprite(Sprite sprite, string name, float y, float height)
+        {
+            Vector2 size = UIFactory.SizeByHeight(sprite, height);
+            if (size.x > UIStyles.SHOP_SKIN_PREVIEW_MAX_W)
+                size *= UIStyles.SHOP_SKIN_PREVIEW_MAX_W / size.x;
+            UIFactory.CreateImage(_cell.Box, name, sprite, new Vector2(0.5f, 0.5f), new Vector2(0f, y), size);
         }
 
         private void Refresh()

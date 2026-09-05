@@ -55,6 +55,17 @@ namespace DogtorBurguer
             }
         }
 
+#if UNITY_EDITOR
+        /// <summary>Debug: reverts every slot to its default skin (pairs with
+        /// SaveDataManager.DebugResetShop — the persisted equips are wiped there).</summary>
+        public static void DebugResetToDefaults()
+        {
+            EnsureLoaded();
+            foreach (KeyValuePair<SkinSlot, Skin> entry in _defaults)
+                _active[entry.Key] = entry.Value;
+        }
+#endif
+
         /// <summary>All authored skins, for the shop catalog. Do not mutate.</summary>
         public static IEnumerable<Skin> AllSkins()
         {

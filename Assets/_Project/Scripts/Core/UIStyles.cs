@@ -416,6 +416,10 @@ namespace DogtorBurguer
         public const float SHOP_SKIN_PREVIEW_H = 104f;                          // overflows the box top a touch, like the mock
         public const float SHOP_SKIN_PREVIEW_MAX_W = 100f;
         public const float SHOP_SKIN_PREVIEW_Y = 4f;                            // preview center vs box center
+        public const float SHOP_SKIN_PLATE_W = 90f;                             // the plate under ingredient previews
+        public const float SHOP_SKIN_PLATE_Y = -26f;
+        public const float SHOP_SKIN_BUN_H = 42f;                               // bun-pair preview: each half's height
+        public const float SHOP_SKIN_BUN_GAP = 8f;                              // vertical gap between bottom and top
         public const float SHOP_ITEM_ICON_H = 66f;                              // power-up / currency icons inside the box
         public static readonly Vector2 SHOP_COUNT_BADGE_POS = new(-46f, 42f);  // owned-count badge on the box's top-left corner
         public const float SHOP_COUNT_BADGE_H = 30f;
