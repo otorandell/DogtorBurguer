@@ -131,13 +131,16 @@ namespace DogtorBurguer
                 UIStyles.HOWTO_HEADER_SIZE, FontStyles.Bold);
             ShopWidgets.StyleAccent(headerText);
 
+            // TopLeft-aligned: every bullet's FIRST text line starts at its rect top, so the
+            // header gap is identical on every page (midline centering made wrapping bullets
+            // float up toward the header on some pages).
             for (int i = 0; i < bullets.Length; i++)
             {
                 TextMeshProUGUI line = UIFactory.CreateText(_linesRoot, bullets[i],
                     new Vector2(0f, UIStyles.HOWTO_BULLET_TOP_Y - i * UIStyles.HOWTO_BULLET_PITCH),
                     new Vector2(UIStyles.HOWTO_LINE_W, UIStyles.HOWTO_BULLET_PITCH),
                     UIStyles.HOWTO_TEXT_SIZE, FontStyles.Normal, UIStyles.TOPBAR_NUMBER_COLOR,
-                    TextAlignmentOptions.Left, wrap: true);
+                    TextAlignmentOptions.TopLeft, wrap: true);
                 line.gameObject.name = "Bullet" + i;
             }
 

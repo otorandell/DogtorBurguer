@@ -35,11 +35,9 @@ namespace DogtorBurguer
             _canvas = UIFactory.CreateCanvas(transform, "Menu_Canvas", 10);
             UIFactory.EnsureEventSystem();
 
-            // Shared top bar: trophy + star + gem pills, the "?" help button and the gear
-            // (shop stays a big bottom button, so no top-bar shop icon here).
-            TopBar.Build(_canvas.transform, onHelp: OnHelpClicked, onSettings: OnSettingsClicked,
-                settingsPos: UIStyles.MENU_GEAR_POS, settingsSize: UIStyles.MENU_GEAR_SIZE,
-                helpPos: UIStyles.MENU_HELP_POS, helpSize: UIStyles.MENU_GEAR_SIZE);
+            // Shared top bar: trophy + star + gem pills, the "?" help button and the gear —
+            // identical placement and size to the in-game bar (shop stays a big bottom button).
+            TopBar.Build(_canvas.transform, onHelp: OnHelpClicked, onSettings: OnSettingsClicked);
 
             // Logo — top-anchored so it clears the top bar on tall screens.
             Sprite logo = UiArt.Load("ui_logo");

@@ -758,8 +758,8 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   localization exists (in-game it would then need a 4th row or a tighter pitch). The **level
   stepper** is an inspector opt-in on `MainMenuUI` (see Controls).
 - **How to Play panel (2026-09-05, `UI/HowToPlayPanel.cs`)**: the top bar's **"?" button** —
-  in-game (replaced the shop button) AND on the menu (left of the gear, `MENU_HELP_POS`, gear
-  size); the kit's blank green square `ui_btn_square_green` + a HUD question mark. Opens the
+  in-game (replaced the shop button) AND on the menu (identical
+  placement/size to the in-game bar — the menu gear override was dropped too); the kit's blank green square `ui_btn_square_green` + a HUD question mark. Opens the
   modal chrome ("HOW TO PLAY"), **paginated** (6 pages): `Pages` = (header, bullets)[] in the
   class (trial-font-safe) — a lime page header (CONTROLS, MATCHING, BURGERS, SPECIAL ORDERS,
   POWER-UPS ×2) over up to 4 dash bullets in REGULAR weight brown (⚠️ synthetic Bold on the
