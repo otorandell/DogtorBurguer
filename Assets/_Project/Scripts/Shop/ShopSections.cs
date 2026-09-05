@@ -251,16 +251,15 @@ namespace DogtorBurguer
                     });
                 });
             AddPackContents(adCell, "ui_gem");
-            // The watch pill replaces the green one: the authored blank with its baked TV icon,
-            // forced to the exact green-pill rect so every cell button shares one shape (the art
-            // squashes a touch — accepted), + a label that tracks live rewarded availability (an
-            // ad may finish loading while the shop is open) and the daily cap (TOMORROW! once spent).
-            Sprite watchArt = UiArt.Load("ui_shop_watch");
-            adCell.Pill.image.sprite = watchArt;
-            adCell.Pill.GetComponent<RectTransform>().sizeDelta =
-                new Vector2(UIStyles.SHOP_CELL_PILL_W, UIStyles.SHOP_CELL_PILL_H);
-            TextMeshProUGUI watchLabel = UIFactory.CreateText(adCell.Pill.transform, "WATCH", UIStyles.SHOP_WATCH_LABEL_POS,
-                UIStyles.SHOP_WATCH_LABEL_RECT, UIStyles.SHOP_PILL_TEXT_SIZE, FontStyles.Bold);
+            // The FREE cell keeps the STANDARD green pill (one shape for every cell button) with
+            // a centered auto-fit label — the authored ui_shop_watch art (own aspect, baked TV
+            // icon) never matched the other pills however it was sized; unused since 2026-09-05.
+            // The label tracks live rewarded availability (an ad may finish loading while the
+            // shop is open) and the daily cap (TOMORROW! once spent).
+            TextMeshProUGUI watchLabel = UIFactory.CreateText(adCell.Pill.transform, "WATCH",
+                UIStyles.SHOP_PILL_LABEL_NUDGE,
+                new Vector2(UIStyles.SHOP_CELL_PILL_W - 14f, 32f),
+                UIStyles.SHOP_PILL_TEXT_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(watchLabel);
             UIFactory.AutoFit(watchLabel, UIStyles.SHOP_WATCH_LABEL_MIN, UIStyles.SHOP_PILL_TEXT_SIZE);
             screen.RegisterPerFrame(() =>

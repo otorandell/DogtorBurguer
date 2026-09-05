@@ -344,9 +344,11 @@ Rebuilt each open, destroyed on close (no stale state).
   green `ui_btn_green_big` pill; `MonetizationConfig.PRO_COOK_PACK` — N of *each* type for one
   star price, `ShopService.TryBuyProCookPack`) → STARS (grid, `ui_pack_stars_1..3` by ladder
   position; gem-priced, **confirm dialog** — the only confirm; soft spends and equips are
-  instant) → GEMS (grid; the free rewarded-ad cell first with the authored **WATCH** pill
-  `ui_shop_watch` tracking ad availability and the **daily cap** (`GEM_AD_DAILY_CAP` 3/day — the
-  label reads TOMORROW! once spent; date + count persist in SaveDataManager), then IAP packs with `ui_pack_gems_1..4` by position —
+  instant) → GEMS (grid; the free rewarded-ad cell first — its pill is the STANDARD green
+  one with a centered WATCH label (the authored `ui_shop_watch` never matched the pill shape
+  however sized — unused since 2026-09-05); the label tracks ad availability and the **daily
+  cap** (`GEM_AD_DAILY_CAP` 3/day — reads TOMORROW! once spent; date + count persist in
+  SaveDataManager), then IAP packs with `ui_pack_gems_1..4` by position —
   `Gem_Pack_5` is in the kit for a 5th tier, not imported; the gold MOST POPULAR / BEST VALUE
   badges were dropped 2026-09-05 — clutter; the strings stay on the products).
 - **Cells** (`ShopWidgets.CreateCell(…, boxArt, …)` → `ShopCell`): an authored box sized by width
@@ -383,8 +385,8 @@ Rebuilt each open, destroyed on close (no stale state).
   the box top; pills stretched thick (`SHOP_CELL_PILL_H` 46) riding over the box bottom
   (`SHOP_CELL_PILL_OVERLAP`), faces centered; ingredient previews SIT on a bigger plate; bun
   pairs sized by width (equal heights made the squat bottom bun read smaller); chef previews
-  keep their own height (`SHOP_SKIN_CHEF_*`); bigger pack/power-up icons + qty text; watch pill forced
-  to the green-pill rect.
+  keep their own height (`SHOP_SKIN_CHEF_*`); bigger pack/power-up icons + qty text; watch pill replaced
+  by the standard green pill.
   Layout knobs: `UIStyles.SHOP_*` (eyeballed off the mocks — tune live); prices:
   `MonetizationConfig` (packs/ladders/bundle) + per-skin `_starCost` on the Skin asset.
 
