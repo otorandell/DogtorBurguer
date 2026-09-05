@@ -13,6 +13,7 @@ namespace DogtorBurguer
 
         private int _currentLevel = 1;
         private int _ingredientsPlaced;
+        private int _lengthScale = 1; // Relax stretches every threshold (same curve, longer run)
 
         public int CurrentLevel => _currentLevel;
         public event Action<int> OnLevelChanged;
@@ -48,6 +49,12 @@ namespace DogtorBurguer
             if (GameManager.Instance != null && GameManager.Instance.TestDualColumn)
                 startLevel = GameManager.Instance.TestDualColumnLevel;
 
+            // Relax runs stretch every threshold — read once per run (the Mode toggle is
+            // menu-only, so it can't change mid-run).
+            GameMode mode = SaveDataManager.Instance != null
+                ? SaveDataManager.Instance.Mode : SaveDataManager.DEFAULT_GAME_MODE;
+            _lengthScale = mode == GameMode.Relax ? GameplayConfig.RELAX_LENGTH_SCALE : 1;
+
             _currentLevel = Mathf.Clamp(startLevel, 1, GameplayConfig.KILLER_LEVEL);
             // The initial level is pull-state, not an event: subscribers read CurrentLevel
             // on their own init (GameHUD.RefreshAll, GameOverPanel). Firing OnLevelChanged
@@ -72,7 +79,7 @@ namespace DogtorBurguer
             int newLevel = 1;
             for (int i = GameplayConfig.LEVEL_THRESHOLDS.Length - 1; i >= 0; i--)
             {
-                if (_ingredientsPlaced >= GameplayConfig.LEVEL_THRESHOLDS[i])
+                if (_ingredientsPlaced >= GameplayConfig.LEVEL_THRESHOLDS[i] * _lengthScale)
                 {
                     newLevel = i + 1;
                     break;
@@ -80,7 +87,7 @@ namespace DogtorBurguer
             }
 
             // Sustained survival past the top of the curve tips into the kill screen.
-            if (_ingredientsPlaced >= GameplayConfig.KILLER_LEVEL_THRESHOLD)
+            if (_ingredientsPlaced >= GameplayConfig.KILLER_LEVEL_THRESHOLD * _lengthScale)
                 newLevel = GameplayConfig.KILLER_LEVEL;
 
             // Level only ever rises with ingredients placed; using '>' (not '!=') keeps a

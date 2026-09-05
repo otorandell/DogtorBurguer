@@ -7,7 +7,8 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// The Settings panel, on the shared ModalPanel chrome (full-canvas panel art, title, round X):
-    /// wide blue rows — the Sound and Controls toggles, plus a Restart | Quit-to-menu pair in-game.
+    /// wide blue rows — the Sound and Controls toggles, the menu-only Mode (Classic/Relax) toggle,
+    /// plus a Restart | Quit-to-menu pair in-game (which takes the third row instead of Mode).
     /// Opened by the menu gear and the in-game top-bar gear (that one pauses the run and resumes on close).
     /// Layout knobs: UIStyles.SETTINGS_*. The start-level stepper is a testing row under the panel,
     /// opt-in from the MainMenuUI inspector (never in-game — the value only applies to the next run).
@@ -20,6 +21,7 @@ namespace DogtorBurguer
         private ModalPanel _modal;
         private TextMeshProUGUI _soundLabel;
         private TextMeshProUGUI _controlLabel;
+        private TextMeshProUGUI _modeLabel;
         private bool _showRunButtons;
         private bool _showLevelStepper;
 
@@ -44,6 +46,7 @@ namespace DogtorBurguer
 
             UpdateSoundLabel();
             UpdateControlLabel();
+            UpdateModeLabel();
             UpdateLevelLabel();
             _modal.Show();
         }
@@ -63,6 +66,11 @@ namespace DogtorBurguer
             // Rows down the body. The label strings are set by the Update*Label refreshers.
             _soundLabel = CreateRowButton("Sound", new Vector2(0f, RowY(0)), UIStyles.SETTINGS_ROW_W, OnSoundToggleClicked);
             _controlLabel = CreateRowButton("Controls", new Vector2(0f, RowY(1)), UIStyles.SETTINGS_ROW_W, OnControlToggleClicked);
+
+            // Mode toggle — MENU only: the value applies to the NEXT run (managers read it once
+            // at scene load), so an in-game toggle would only mislead; the run pair takes its row.
+            if (!_showRunButtons)
+                _modeLabel = CreateRowButton("Mode", new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W, OnModeToggleClicked);
 
             // In-game run controls share the third row as a half-width pair. Scene loads reset
             // timeScale (SceneLoader), so leaving from the paused panel is safe.
@@ -143,6 +151,24 @@ namespace DogtorBurguer
                 ? SaveDataManager.Instance.ControlMode
                 : SaveDataManager.DEFAULT_CONTROL_MODE;
             _controlLabel.text = mode == ControlMode.Drag ? "Controls: Drag" : "Controls: Tap";
+        }
+
+        private void OnModeToggleClicked()
+        {
+            if (SaveDataManager.Instance == null) return;
+
+            GameMode next = SaveDataManager.Instance.Mode == GameMode.Classic
+                ? GameMode.Relax : GameMode.Classic;
+            SaveDataManager.Instance.SetGameMode(next);
+            UpdateModeLabel();
+        }
+
+        private void UpdateModeLabel()
+        {
+            if (_modeLabel == null) return;
+            GameMode mode = SaveDataManager.Instance != null
+                ? SaveDataManager.Instance.Mode : SaveDataManager.DEFAULT_GAME_MODE;
+            _modeLabel.text = mode == GameMode.Classic ? "Mode: Classic" : "Mode: Relax";
         }
 
         private void OnDestroy()

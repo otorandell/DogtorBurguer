@@ -193,6 +193,8 @@ namespace DogtorBurguer
         public static readonly Vector2 TOPBAR_SHOP_POS = new(455f, TOPBAR_Y);   // shop button (left of settings)
         public static readonly Vector2 TOPBAR_CONFIG_POS = new(511f, TOPBAR_Y); // settings/gear button (rightmost; in-game the shop button sits left of it)
         public static readonly Vector2 MENU_GEAR_POS = new(498f, TOPBAR_Y);      // the MENU's gear: alone on the right, so bigger and nudged toward center
+        public const float HUD_MODE_TAG_Y = -96f;                          // lime "RELAX MODE" tag, top-center under the bar (Relax runs only)
+        public const float HUD_MODE_TAG_SIZE = 20f;
         public static readonly Vector2 MENU_GEAR_SIZE = new(62f, 62f);
         #endregion
 

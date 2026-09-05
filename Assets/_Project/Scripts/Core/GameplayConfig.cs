@@ -99,6 +99,10 @@ namespace DogtorBurguer
             0.22f, 0.26f, 0.30f, 0.34f, 0.38f, 0.41f, 0.44f, 0.47f, 0.49f, 0.50f
         };
         public const int KILLER_LEVEL_THRESHOLD = 434; // ingredients placed to enter the kill screen
+        // Relax mode: the identical speed/type curve, but every threshold (LEVEL_THRESHOLDS and
+        // the killer one) is multiplied by this at read time (DifficultyManager) — runs last
+        // ~3x longer. The reward side lives in MonetizationConfig.RELAX_STAR_SCALE.
+        public const int RELAX_LENGTH_SCALE = 3;
         #endregion
 
         #region Scoring

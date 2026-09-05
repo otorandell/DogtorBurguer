@@ -165,6 +165,15 @@ gate); quitting keeps live-earned order stars but forfeits the end-of-run score 
   is applied before the HUD/spawner init. Initial level is pull-state (no init-time `OnLevelChanged`).
 - HUD shows "Level X" (full word, distinguishes from challenge star)
 
+### Game Modes (2026-09-05)
+`GameMode` (Classic/Relax), persisted in SaveDataManager, toggled in the **menu** Settings only
+(third row, "Mode: Classic/Relax"; applies to the NEXT run — managers read it once at scene load;
+the in-game panel's third row stays the run pair). **Relax** = the identical speed/type curve but
+every threshold × `RELAX_LENGTH_SCALE` (3 — runs ~3× longer, kill screen included, no level cap),
+ALL in-run star income halved (`RELAX_STAR_SCALE`, applied in `GameManager.AwardStars` — the one
+faucet; shop purchases unaffected), **no high-score writes** (easier long runs would inflate the
+Classic trophy), and a lime **RELAX MODE** tag top-center under the bar (`HUD_MODE_TAG_*`).
+
 ### Burger Challenge (BurgerChallenge) — "Special Orders"
 - Two order types, randomly chosen:
   - **Size**: "N+ Ingredients" — any burger with at least N ingredients matches
@@ -726,8 +735,9 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   title + X when a sheet draws its tab elsewhere than the Settings one.
 - **Settings panel (authored, 2026-09-01)**: rebuilt to the mock (`Look Reference/settings.png`)
   on the modal chrome: wide blue rows (`ui_btn_blue_wide`, sized by width, HUD-palette auto-fit
-  labels) stacked down the body: **Sound: ON/OFF**, **Controls: Drag/Tap**, and in-game the
-  **Restart | Quit to Menu** half-width pair in the third row. Both openers (menu gear, in-game
+  labels) stacked down the body: **Sound: ON/OFF**, **Controls: Drag/Tap**, then the third row is
+  **Mode: Classic/Relax** in the menu (see Core Systems → Game Modes) or the
+  **Restart | Quit to Menu** half-width pair in-game. Both openers (menu gear, in-game
   gear) share the one class. Knobs: `UIStyles.SETTINGS_*` (eyeball defaults — tune live). Deliberate gaps:
   the mock's third **"Language: ENG"** row is **not built** — there is no localization system,
   and a button that does nothing is worse than none; add it as one `CreateRowButton` call when

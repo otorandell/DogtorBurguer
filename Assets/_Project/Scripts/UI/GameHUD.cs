@@ -28,6 +28,21 @@ namespace DogtorBurguer
             Vector2 topLeft = new(0f, 1f);
             _levelNumber = StatCard.Build(_canvas.transform, "LevelPanel", "Level", topLeft, UIStyles.HUD_LEVEL_PANEL_POS);
             _scoreNumber = StatCard.Build(_canvas.transform, "ScorePanel", "Score", topLeft, UIStyles.HUD_SCORE_PANEL_POS);
+
+            // Relax runs carry a small mode tag so halved star popups don't read as a bug.
+            bool relax = (SaveDataManager.Instance != null
+                ? SaveDataManager.Instance.Mode : SaveDataManager.DEFAULT_GAME_MODE) == GameMode.Relax;
+            if (relax)
+            {
+                TextMeshProUGUI modeTag = UIFactory.CreateText(_canvas.transform, "RELAX MODE", Vector2.zero,
+                    new Vector2(240f, 32f), UIStyles.HUD_MODE_TAG_SIZE, FontStyles.Bold);
+                UIFactory.StyleFillAndBorder(modeTag, UIStyles.SHOP_ACCENT, UIStyles.HUD_TEXT_BORDER,
+                    UIStyles.HUD_TEXT_BORDER_WIDTH);
+                RectTransform tagRect = modeTag.rectTransform;
+                tagRect.anchorMin = tagRect.anchorMax = new Vector2(0.5f, 1f);
+                tagRect.pivot = new Vector2(0.5f, 1f);
+                tagRect.anchoredPosition = new Vector2(0f, UIStyles.HUD_MODE_TAG_Y);
+            }
         }
 
         // In-game settings: same pause pattern as the shop — pause a running game, show the
