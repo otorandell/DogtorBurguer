@@ -14,11 +14,14 @@ namespace DogtorBurguer
 
         // Ordered ingredient slots, each shown as its own labelled shop row. Bun top+bottom collapse
         // onto the single BunSkin slot, so buns are one row / one purchasable (both sprites per skin).
+        // Row order (Oscar, 2026-09-05): buns first, then the level-1 ingredients (the first
+        // INGREDIENT_COUNT_BY_LEVEL[0] entries of GameplayConfig.REGULAR_INGREDIENTS), then the
+        // rest in order of appearance — keep in step with that array.
         private static readonly SkinSlot[] IngredientSlots =
         {
-            SkinSlot.MeatSkin, SkinSlot.CheeseSkin, SkinSlot.TomatoSkin, SkinSlot.OnionSkin,
-            SkinSlot.PickleSkin, SkinSlot.LettuceSkin, SkinSlot.EggSkin, SkinSlot.BaconSkin,
             SkinSlot.BunSkin,
+            SkinSlot.MeatSkin, SkinSlot.CheeseSkin, SkinSlot.TomatoSkin, SkinSlot.BaconSkin,
+            SkinSlot.OnionSkin, SkinSlot.PickleSkin, SkinSlot.LettuceSkin, SkinSlot.EggSkin,
         };
 
         public static List<Skin> ChefSkins() => SkinsFor(ChefSlots);

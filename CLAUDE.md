@@ -484,11 +484,14 @@ sprite — acceptable; menu equips always show in-game).
   Shredded Lettuce, **Boiled Egg** — new; the gourmet Quail Egg moved to gems-expensive) and
   Brioche Buns; star-expensive = the gold set. Gem skins (2026-09-04 kit art): Vegan/Wagyu patty,
   Shredded cheese, Pico de Gallo/Kumato, Pickled/Crispy onion, Bell Pepper, Avocado/Purple
-  Cabbage, Omelet/Quail, Pulled Pork/Iberic Ham (⚠️ Iberic uses `Pulled_Pork.png` — reads as ham
-  slices, confirm with the artist), Rustic (Bocata) / Black Bread buns. **Deleted placeholders**:
-  meat_alt, chef_alt, chef_happy (assets + sprites). ⚠️ **Missing art** (skins wished but not
-  authored yet): Blue Cheese, Jalapeño, Integral bun. Shop cells: ingredient previews sit on a
-  plate (`SHOP_SKIN_PLATE_*`), buns preview as the top+bottom pair (`SHOP_SKIN_BUN_*`).
+  Cabbage, Omelet/Quail, Pulled Pork/Iberic Ham, Blue Cheese, Rustic (Bocata) / Black Bread buns
+  — sourced from `RawArt/iNGREDEINTS REVISED` (proper names; the earlier kit misnamed several).
+  The star-cheap bun is **Integral** (Integral top + Brioche bottom per Oscar — no Integral
+  bottom was drawn; the asset keeps the `bun_gourmet` id). **Deleted placeholders**: meat_alt,
+  chef_alt, chef_happy (assets + sprites). ⚠️ **Missing art**: only Jalapeño now. Shop rows are
+  ordered buns → level-1 ingredients → the rest by appearance (`ShopCatalog.IngredientSlots`,
+  keep in step with `REGULAR_INGREDIENTS`). Shop cells: ingredient previews sit on a plate
+  (`SHOP_SKIN_PLATE_*`), buns preview as the top+bottom pair (`SHOP_SKIN_BUN_*`).
 - **Status**: selection + star-unlock shipped with the Shop (2026-07-05); ingredient + dogtor skin
   content shipped 2026-07-21. Gem/IAP-priced skins and Pack bundles remain unbuilt
   (`UnlockMethod.Gems/Iap` exist; `ShopService.TryBuySkin` already handles Gems). Prices are eyeball
