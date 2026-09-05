@@ -52,7 +52,7 @@ namespace DogtorBurguer
             {
                 "- Ketchup clears its column.",
                 "- Mustard sweeps the top two ingredient types of its column from the whole board.",
-                "- Skewer slams its column down onto the bottom bun.",
+                "- Skewer pushes a bottom bun down to the base of its column.",
             }),
         };
 
