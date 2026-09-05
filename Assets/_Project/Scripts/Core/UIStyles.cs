@@ -193,7 +193,7 @@ namespace DogtorBurguer
         public static readonly Vector2 TOPBAR_STAR_POS = new(236f, TOPBAR_Y);  // star widget (box left edge 181)
         public static readonly Vector2 TOPBAR_GEM_POS = new(371f, TOPBAR_Y);   // gem widget (box left edge 316)
         public static readonly Vector2 TOPBAR_BUTTON_SIZE = new(54f, 54f); // in-game pair (shop + gear); the menu's lone gear overrides (MENU_GEAR_*)
-        public static readonly Vector2 TOPBAR_SHOP_POS = new(455f, TOPBAR_Y);   // shop button (left of settings)
+        public static readonly Vector2 TOPBAR_HELP_POS = new(455f, TOPBAR_Y);   // the "?" help button (left of settings; replaced the shop button 2026-09-05)
         public static readonly Vector2 TOPBAR_CONFIG_POS = new(511f, TOPBAR_Y); // settings/gear button (rightmost; in-game the shop button sits left of it)
         public static readonly Vector2 MENU_GEAR_POS = new(498f, TOPBAR_Y);      // the MENU's gear: alone on the right, so bigger and nudged toward center
         public static readonly Vector2 MENU_GEAR_SIZE = new(62f, 62f);
@@ -344,6 +344,13 @@ namespace DogtorBurguer
         public static readonly Vector2 SETTINGS_STEPPER_LABEL_SIZE = new(210f, 55f);
         public static readonly Vector2 SETTINGS_STEPPER_BTN_SIZE = new(55f, 55f);
         public const float SETTINGS_DEV_TEXT_SIZE = 22f;
+
+        // How-to-play panel (in-game "?" button; on the modal chrome)
+        public const float HOWTO_TOP_Y = 190f;                                       // first rule line center
+        public const float HOWTO_PITCH = 88f;                                        // line-to-line spacing (rect height too)
+        public const float HOWTO_LINE_W = 396f;
+        public const float HOWTO_TEXT_SIZE = 20f;
+        public const float HOWTO_BTN_TEXT_SIZE = 30f;                                // the "?" on the top-bar button
         #endregion
 
         #region Layout — Credits Panel

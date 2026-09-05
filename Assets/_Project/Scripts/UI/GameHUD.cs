@@ -11,6 +11,8 @@ namespace DogtorBurguer
         private Canvas _canvas;
         private SettingsPanel _settingsPanel;
         private bool _settingsPausedRun;
+        private HowToPlayPanel _howToPanel;
+        private bool _helpPausedRun;
 
         private void Start()
         {
@@ -24,7 +26,7 @@ namespace DogtorBurguer
 
         private void CreateHUDElements()
         {
-            TopBar.Build(_canvas.transform, OnShopClicked, OnConfigClicked);
+            TopBar.Build(_canvas.transform, OnHelpClicked, OnConfigClicked);
             Vector2 topLeft = new(0f, 1f);
             _levelNumber = StatCard.Build(_canvas.transform, "LevelPanel", "Level", topLeft, UIStyles.HUD_LEVEL_PANEL_POS);
             _scoreNumber = StatCard.Build(_canvas.transform, "ScorePanel", "Score", topLeft, UIStyles.HUD_SCORE_PANEL_POS);
@@ -56,7 +58,31 @@ namespace DogtorBurguer
             GameManager.Instance?.ResumeGame();
         }
 
-        private void OnShopClicked() { ShopScreen.OpenInGame(); }
+        // The "?" how-to-play panel — same pause pattern as settings. (The shop lost its
+        // top-bar button 2026-09-05; in-game it stays reachable via the consumable plus box.)
+        private void OnHelpClicked()
+        {
+            if (_howToPanel == null)
+            {
+                Canvas helpCanvas = UIFactory.CreateCanvas(transform, "HowTo_Canvas", UIStyles.SETTINGS_CANVAS_SORT);
+                _howToPanel = gameObject.AddComponent<HowToPlayPanel>();
+                _howToPanel.Initialize(helpCanvas);
+                _howToPanel.OnClosed += HandleHelpClosed;
+            }
+
+            GameManager manager = GameManager.Instance;
+            _helpPausedRun = manager != null && manager.CurrentState == GameState.Playing && !manager.IsPaused;
+            if (_helpPausedRun) manager.PauseGame();
+            _howToPanel.Show();
+        }
+
+        private void HandleHelpClosed()
+        {
+            if (!_helpPausedRun) return;
+
+            _helpPausedRun = false;
+            GameManager.Instance?.ResumeGame();
+        }
 
         private void SubscribeEvents()
         {
@@ -90,6 +116,8 @@ namespace DogtorBurguer
         {
             if (_settingsPanel != null)
                 _settingsPanel.OnClosed -= HandleSettingsClosed;
+            if (_howToPanel != null)
+                _howToPanel.OnClosed -= HandleHelpClosed;
 
             if (GameManager.Instance != null)
             {

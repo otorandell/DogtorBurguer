@@ -8,7 +8,7 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// The shared top status bar: high-score trophy + star + gem currency pills at fixed
-    /// positions (UIStyles.TOPBAR_*), plus optional shop/settings icon buttons. One recipe
+    /// positions (UIStyles.TOPBAR_*), plus optional help ("?")/settings icon buttons. One recipe
     /// for every screen (game HUD, main menu, shop header) so the bar looks identical and
     /// stays put when screens change. Binds itself to the SaveDataManager currency events
     /// and punches a pill on change (unscaled time — the shop header sits on a paused run).
@@ -24,7 +24,7 @@ namespace DogtorBurguer
         /// <summary>Builds the bar under a canvas. Null callbacks omit their icon button;
         /// <paramref name="settingsPos"/>/<paramref name="settingsSize"/> override the gear's slot
         /// (the menu's lone gear sits bigger and nearer center than the in-game shop+gear pair).</summary>
-        public static TopBar Build(Transform canvas, Action onShop = null, Action onSettings = null,
+        public static TopBar Build(Transform canvas, Action onHelp = null, Action onSettings = null,
             Vector2? settingsPos = null, Vector2? settingsSize = null)
         {
             GameObject obj = new GameObject("TopBar");
@@ -35,12 +35,12 @@ namespace DogtorBurguer
             rect.sizeDelta = Vector2.zero;
 
             TopBar bar = obj.AddComponent<TopBar>();
-            bar.BuildContents(onShop, onSettings, settingsPos ?? UIStyles.TOPBAR_CONFIG_POS,
+            bar.BuildContents(onHelp, onSettings, settingsPos ?? UIStyles.TOPBAR_CONFIG_POS,
                 settingsSize ?? UIStyles.TOPBAR_BUTTON_SIZE);
             return bar;
         }
 
-        private void BuildContents(Action onShop, Action onSettings, Vector2 settingsPos, Vector2 settingsSize)
+        private void BuildContents(Action onHelp, Action onSettings, Vector2 settingsPos, Vector2 settingsSize)
         {
             TextMeshProUGUI highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy",
                 UIStyles.TOPBAR_SCORE_POS, UIStyles.TOPBAR_SCORE_ICON_H);
@@ -49,9 +49,16 @@ namespace DogtorBurguer
             _gemNumber = BuildCurrencyWidget("Gems", "ui_gem",
                 UIStyles.TOPBAR_GEM_POS, UIStyles.TOPBAR_GEM_ICON_H);
 
-            if (onShop != null)
-                UIFactory.CreateSpriteButton(transform, "ShopButton", UiArt.Load("ui_shop_button"),
-                    new Vector2(0f, 1f), UIStyles.TOPBAR_SHOP_POS, UIStyles.TOPBAR_BUTTON_SIZE, () => onShop());
+            if (onHelp != null)
+            {
+                // The "?" help button (replaced the in-game shop button 2026-09-05): the kit's
+                // blank green square with a HUD-palette question mark on it.
+                Button help = UIFactory.CreateSpriteButton(transform, "HelpButton", UiArt.Load("ui_btn_square_green"),
+                    new Vector2(0f, 1f), UIStyles.TOPBAR_HELP_POS, UIStyles.TOPBAR_BUTTON_SIZE, () => onHelp());
+                TextMeshProUGUI mark = UIFactory.CreateText(help.transform, "?", Vector2.zero,
+                    UIStyles.TOPBAR_BUTTON_SIZE, UIStyles.HOWTO_BTN_TEXT_SIZE, FontStyles.Bold);
+                UIFactory.StyleHudText(mark);
+            }
             if (onSettings != null)
                 UIFactory.CreateSpriteButton(transform, "ConfigButton", UiArt.Load("ui_config_button"),
                     new Vector2(0f, 1f), settingsPos, settingsSize, () => onSettings());

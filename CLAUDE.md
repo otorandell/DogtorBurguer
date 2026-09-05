@@ -32,7 +32,7 @@ Assets/_Project/Scripts/
                  ShopRowScroll (nested h-scroll), ShopCell (cell parts), ShopService (purchase
                  rules), ShopCatalog
   UI/            MainMenuUI, GameHUD, TopBar (shared status bar), StatCard (shared Level/Score
-                 card), GameOverPanel, SettingsPanel, CreditsPanel (+ CreditsEntry),
+                 card), GameOverPanel, SettingsPanel, HowToPlayPanel, CreditsPanel (+ CreditsEntry),
                  ModalPanel (shared Settings/Credits chrome: panel art + title + X + pop-in),
                  BurgerChallenge, BurgerChallengeView, BurgerPopup, FloatingText, ScorePopup,
                  Background, OrderType, NumberFormat, UIFactory
@@ -337,7 +337,8 @@ the **2026-09-01 kit's `Assets/Shop` pieces** (`scratchpad/gen_shop_art.ps1`): t
 awning's corner, the shared **TopBar pills inside the page** (dropped by `SHOP_TOPBAR_DROP`, centered by `SHOP_TOPBAR_X_NUDGE`), and
 one vertically scrolling body inset to the page (`SHOP_SCROLL_*`). Own canvas (`SHOP_CANVAS_SORT` 120, above
 everything). Opened via `ShopScreen.Open()` (menu Shop button) or `ShopScreen.OpenInGame()`
-(in-game top-bar shop button and the consumable slots' green plus box) — the in-game path
+(the consumable slots' green plus box — the top-bar shop button became the "?" help button
+2026-09-05) — the in-game path
 **pauses** the run (`GameManager.PauseGame`) and resumes on close; all shop tweens run unscaled.
 Rebuilt each open, destroyed on close (no stale state).
 - **Sections, top → bottom**: support banner (**composed from shop widgets since 2026-09-05**:
@@ -691,7 +692,7 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 
 ## Pending Features
 - **HUD done so far** (authored, screen-space UGUI): the shared **TopBar** (`UI/TopBar.cs` —
-  trophy/star/gem pills + optional shop/settings buttons; one recipe used by the game HUD, the
+  trophy/star/gem pills + optional help-"?"/settings buttons; one recipe used by the game HUD, the
   main menu, and the shop header, so the bar looks identical and stays put across screens; it
   self-binds to the SaveDataManager currency events and punches a pill on change),
   Level/Score cards, the 3-slot consumable row, the Special Order panel. The HUD scales with the
@@ -746,6 +747,11 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   and a button that does nothing is worse than none; add it as one `CreateRowButton` call when
   localization exists (in-game it would then need a 4th row or a tighter pitch). The **level
   stepper** is an inspector opt-in on `MainMenuUI` (see Controls).
+- **How to Play panel (2026-09-05, `UI/HowToPlayPanel.cs`)**: the in-game top bar's **"?"
+  button** (replaced the shop button; the kit's blank green square `ui_btn_square_green` + a HUD
+  question mark) opens the modal chrome ("HOW TO PLAY") with five brown rule lines — strings in
+  the class (trial-font-safe), layout `UIStyles.HOWTO_*`. Same pause/resume pattern as the
+  in-game Settings. `ui_shop_button` stays imported but unused.
 - **Credits panel (authored, 2026-09-01, `UI/CreditsPanel.cs`)**: menu-only, to the mock (`Look
   Reference/Credits.png`) on the modal chrome with **its own sheet** from the 2026-09-01 kit
   (`ui_credits_panel` — taller and wider than the Settings sheet, tab ~38 px higher →
