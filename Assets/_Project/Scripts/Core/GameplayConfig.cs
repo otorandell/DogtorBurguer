@@ -60,7 +60,7 @@ namespace DogtorBurguer
         // orders. The global multiplier is gentle and applies to ALL gameplay score.
         public const float CHALLENGE_MULT_STEP = 0.25f;               // global mult = 1 + step·(level−1): 1, 1.25, 1.5 …
         public const int CHALLENGE_MATCH_MULTIPLIER = 3;              // extra ×3 on the matched burger itself
-        public const int CHALLENGE_ORDERS_TO_LEVEL_CAP = 3;           // orders per mult level: level+1, capped here (2, 3, 3, 3 …)
+        public const int CHALLENGE_ORDERS_TO_LEVEL_CAP = 3;           // orders per mult level: (level+3)/2 capped here (2, 2, 3, 3, 3 …)
         public const int ORDER_MAX_SIZE = Constants.MAX_ROWS - 2;     // biggest physically possible burger (11): a full column minus its two buns
         #endregion
 

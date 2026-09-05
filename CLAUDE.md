@@ -216,7 +216,7 @@ Special Order card's bottom edge — CLASSIC or RELAX, the Level/Score tab recip
   heights `UIStyles.PLATE_*`): burger name + points on the wide green ellipse
   (`ui_popup_plate_wide`), score "N!" and fast-drops on the green round (`ui_popup_plate`),
   multiplier "xN" and star awards on the yellow (`ui_popup_plate_mult`); "Too bad!" stays bare.
-- Level up requires `level + 1` matches, capped at `CHALLENGE_ORDERS_TO_LEVEL_CAP` (3) — 2, 3, 3, 3 …
+- Level up requires `min((level+3)/2, CHALLENGE_ORDERS_TO_LEVEL_CAP)` matches — 2, 2, 3, 3, 3 …
 - ⚠️ Score scale shrank ~10× at high levels with the 0.25-step multiplier — revisit
   `STAR_SCORE_DIVISOR` (end-of-run payout) and the score-tier feel after playtests.
 - Each match also **awards stars** (the currency faucet — see Monetization & Currencies)
