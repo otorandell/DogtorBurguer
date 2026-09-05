@@ -102,8 +102,10 @@ Buns are **decoupled** from regular ingredients (own chances) and from level/typ
   a bottom after `BUN_DROUGHT_LIMIT` (15) bun-less pieces.
 - **Top bun**: only when ≥1 open bottom exists on the grid (a lone top self-destructs). Chance
   `min(TOP_BUN_BASE_CHANCE + TOP_BUN_CHANCE_PER_EXTRA_BOTTOM·(open−1), TOP_BUN_CHANCE_CAP)`
-  = 8% at one open bottom, +4% each additional, cap 40%. So it crosses the 12% bottom rate at
-  2 open bottoms → the board self-balances around ~2 unclosed bottoms instead of accumulating.
+  = 10% at one open bottom, +5% each additional, cap 40% (raised from 8%/+4% on 2026-09-05 —
+  closing felt slow; column placement is player-controlled via the stack swap, so the close rate
+  IS the top rate). At 2 open bottoms (15%) it beats the 12% bottom rate → the board hovers
+  between 1 and 2 unclosed bottoms instead of accumulating.
 - **Mechanic** (in `GridManager`, unchanged): a burger completes when a `BunTop` lands above a
   `BunBottom` in its column; a lone top self-destructs ("Too bad!"); two adjacent bottoms cancel.
 - Per-slot order: drought-forced bottom → flat bottom → scaling top (if eligible) → bag draw.

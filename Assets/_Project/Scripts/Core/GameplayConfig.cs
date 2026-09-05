@@ -38,8 +38,8 @@ namespace DogtorBurguer
         // chance (starts a burger); top only spawns when there's an open bottom to close and scales
         // with the backlog, so open bottoms self-balance near where top chance crosses bottom chance.
         public const float BOTTOM_BUN_CHANCE = 0.12f;                  // flat per-slot chance of a bottom bun
-        public const float TOP_BUN_BASE_CHANCE = 0.08f;               // top chance at exactly one open bottom
-        public const float TOP_BUN_CHANCE_PER_EXTRA_BOTTOM = 0.04f;   // added per additional open bottom
+        public const float TOP_BUN_BASE_CHANCE = 0.10f;               // top chance at exactly one open bottom (0.08 pre-2026-09-05 — closing felt slow)
+        public const float TOP_BUN_CHANCE_PER_EXTRA_BOTTOM = 0.05f;   // added per additional open bottom (was 0.04)
         public const float TOP_BUN_CHANCE_CAP = 0.40f;                // safety cap (rarely reached)
         public const int BUN_DROUGHT_LIMIT = 15;                      // pieces with no bun → force a bottom
         #endregion
