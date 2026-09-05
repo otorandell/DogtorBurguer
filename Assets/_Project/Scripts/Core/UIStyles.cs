@@ -335,10 +335,8 @@ namespace DogtorBurguer
         public const float SETTINGS_ROW_TOP_Y = 47f;                                 // first row center
         public const float SETTINGS_ROW_PITCH = 112f;                                // row-to-row spacing
         public const float SETTINGS_ROW_LABEL_SIZE = 34f;
-        public const float SETTINGS_ROW_LABEL_SIZE_MIN = 14f;                        // AutoFit floor ("Quit to Menu" on a half blank)
+        public const float SETTINGS_ROW_LABEL_SIZE_MIN = 14f;                        // AutoFit floor
         public static readonly Vector2 SETTINGS_ROW_LABEL_NUDGE = new(-3f, 4f);     // word toward the face center (shadow is bottom-right)
-        public const float SETTINGS_PAIR_W = 183f;                                   // half-width blanks (Restart | Quit)
-        public const float SETTINGS_PAIR_X = 98f;                                    // ± from center
         // Dev-only start-level stepper ([−] Lv N [+]) below the panel: flat placeholder widgets.
         public const float SETTINGS_DEV_STEPPER_Y = -330f;
         public const float SETTINGS_DEV_STEPPER_X = 135f;                            // ± for the −/+ buttons

@@ -8,7 +8,7 @@ namespace DogtorBurguer
     /// <summary>
     /// The Settings panel, on the shared ModalPanel chrome (full-canvas panel art, title, round X):
     /// wide blue rows — the Sound and Controls toggles, the menu-only Mode (Classic/Relax) toggle,
-    /// plus a Restart | Quit-to-menu pair in-game (which takes the third row instead of Mode).
+    /// plus a full-width Quit to Menu in-game (which takes the third row instead of Mode).
     /// Opened by the menu gear and the in-game top-bar gear (that one pauses the run and resumes on close).
     /// Layout knobs: UIStyles.SETTINGS_*. The start-level stepper is a testing row under the panel,
     /// opt-in from the MainMenuUI inspector (never in-game — the value only applies to the next run).
@@ -68,17 +68,15 @@ namespace DogtorBurguer
             _controlLabel = CreateRowButton("Controls", new Vector2(0f, RowY(1)), UIStyles.SETTINGS_ROW_W, OnControlToggleClicked);
 
             // Mode toggle — MENU only: the value applies to the NEXT run (managers read it once
-            // at scene load), so an in-game toggle would only mislead; the run pair takes its row.
+            // at scene load), so an in-game toggle would only mislead; Quit to Menu takes its row.
             if (!_showRunButtons)
                 _modeLabel = CreateRowButton("Mode", new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W, OnModeToggleClicked);
 
-            // In-game run controls share the third row as a half-width pair. Scene loads reset
-            // timeScale (SceneLoader), so leaving from the paused panel is safe.
+            // In-game the third row is a full-width Quit to Menu (the Restart half was dropped
+            // 2026-09-05 — game over already offers Retry). Scene loads reset timeScale
+            // (SceneLoader), so leaving from the paused panel is safe.
             if (_showRunButtons)
-            {
-                CreateRowButton("Restart", new Vector2(-UIStyles.SETTINGS_PAIR_X, RowY(2)), UIStyles.SETTINGS_PAIR_W, OnRestartClicked);
-                CreateRowButton("Quit to Menu", new Vector2(UIStyles.SETTINGS_PAIR_X, RowY(2)), UIStyles.SETTINGS_PAIR_W, OnQuitClicked);
-            }
+                CreateRowButton("Quit to Menu", new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W, OnQuitClicked);
 
             if (_showLevelStepper)
                 BuildLevelStepper();
@@ -99,15 +97,6 @@ namespace DogtorBurguer
             UIFactory.StyleHudText(word);
             UIFactory.AutoFit(word, UIStyles.SETTINGS_ROW_LABEL_SIZE_MIN, UIStyles.SETTINGS_ROW_LABEL_SIZE);
             return word;
-        }
-
-        private void OnRestartClicked()
-        {
-            // Same interstitial cadence as the game-over restart — a restart is a new game.
-            if (AdManager.Instance != null)
-                AdManager.Instance.MaybeShowInterstitial(() => GameManager.Instance?.RestartGame());
-            else
-                GameManager.Instance?.RestartGame();
         }
 
         private void OnQuitClicked()

@@ -142,9 +142,9 @@ Menu panel only (the in-game panel never shows it; the value applies to the next
 the shop — pauses a running game, panel on its own canvas (`SETTINGS_CANVAS_SORT` 110, above
 game-over, below shop), resumes via `SettingsPanel.OnClosed`. Sound/control-mode apply live
 mid-run; Start Level applies next run. The in-game variant (`Initialize(canvas, showRunButtons:
-true)`) fills the third row with a half-width **Restart | Quit to Menu** pair — restart runs the
-same interstitial cadence as the game-over restart (`AdManager.MaybeShowInterstitial`, the shared
-gate); quitting keeps live-earned order stars but forfeits the end-of-run score payout.
+true)`) fills the third row with a full-width **Quit to Menu** (the Restart half was dropped
+2026-09-05 — game over already offers Retry); quitting keeps live-earned order stars but
+forfeits the end-of-run score payout.
 
 ### Difficulty (DifficultyManager)
 - 20 levels scaling fall speed, active ingredient (type) count, and triple-wave chance.
@@ -168,7 +168,7 @@ gate); quitting keeps live-earned order stars but forfeits the end-of-run score 
 ### Game Modes (2026-09-05)
 `GameMode` (Classic/Relax), persisted in SaveDataManager, toggled in the **menu** Settings only
 (third row, "Mode: Classic/Relax"; applies to the NEXT run — managers read it once at scene load;
-the in-game panel's third row stays the run pair). **Relax** = the identical speed/type curve but
+the in-game panel's third row stays Quit to Menu). **Relax** = the identical speed/type curve but
 every threshold × `RELAX_LENGTH_SCALE` (3 — runs ~3× longer, kill screen included, no level cap),
 ALL in-run star income halved (`RELAX_STAR_SCALE`, applied in `GameManager.AwardStars` — the one
 faucet; shop purchases unaffected), **no high-score writes** (easier long runs would inflate the
@@ -273,8 +273,9 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   chef European 50◆→80◆ (the premium tier undercut the 400★ star tier), the FREE gems rung capped
   at `GEM_AD_DAILY_CAP` (3/day — uncapped, 4 views ≈ the 0.99 gem pack).
 - Continue after game over: 50 gems or watch ad
-- Interstitial ads every 3 games, shown only on the two **restart** buttons (game over + in-game
-  settings, both via `AdManager.MaybeShowInterstitial`). Menu Play and Quit-to-Menu are ad-free —
+- Interstitial ads every 3 games, shown only on the game-over **Retry** button
+  (`AdManager.MaybeShowInterstitial`; the in-game settings Restart was removed 2026-09-05, so
+  Retry is the one interstitial spot). Menu Play and Quit-to-Menu are ad-free —
   yes, quit→menu→Play can dodge a restart ad; **deliberate decision (2026-07-05)**: the dodge
   costs more friction than it saves and gating Play felt hostile. Don't "fix" it; if ad pacing
   ever needs rework, use a time cooldown at break points instead. **Suppressed once Remove Ads
@@ -736,8 +737,8 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - **Settings panel (authored, 2026-09-01)**: rebuilt to the mock (`Look Reference/settings.png`)
   on the modal chrome: wide blue rows (`ui_btn_blue_wide`, sized by width, HUD-palette auto-fit
   labels) stacked down the body: **Sound: ON/OFF**, **Controls: Drag/Tap**, then the third row is
-  **Mode: Classic/Relax** in the menu (see Core Systems → Game Modes) or the
-  **Restart | Quit to Menu** half-width pair in-game. Both openers (menu gear, in-game
+  **Mode: Classic/Relax** in the menu (see Core Systems → Game Modes) or the full-width
+  **Quit to Menu** in-game (Restart dropped 2026-09-05 — game over already offers Retry). Both openers (menu gear, in-game
   gear) share the one class. Knobs: `UIStyles.SETTINGS_*` (eyeball defaults — tune live). Deliberate gaps:
   the mock's third **"Language: ENG"** row is **not built** — there is no localization system,
   and a button that does nothing is worse than none; add it as one `CreateRowButton` call when
