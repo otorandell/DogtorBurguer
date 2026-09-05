@@ -609,7 +609,12 @@ revisit only if the SFX get reworked).
 ### Phase 2 — Polish & final (CURRENT)
 Making the game feel and look finished. **Playtest-driven**: the developer plays and
 notes what's off; changes land as edits — mostly one-line tweaks, since feel / visual /
-balance values are centralized in `AnimConfig` / `UIStyles` / `GameplayConfig`. Focus areas:
+balance values are centralized in `AnimConfig` / `UIStyles` / `GameplayConfig`.
+**State 2026-09-05**: the screenshot-driven screen pass is COMPLETE — menu, in-game HUD, shop,
+settings, credits and game over all approved (see `Docs/session-2026-09-05.md`). Next up:
+**Play Console setup + payments** (app, the 5 IAP products, internal track — see Pre-Launch
+Checklist), then the on-device test. Playtest-pending: two-type mustard, a full Relax run.
+Focus areas:
 - **Game feel / juice** — animation timing, screen shake, squash/stretch, popups (`AnimConfig`)
 - **Difficulty & balance** — level curve, wave speed, triple-wave chance, Special Order difficulty, scoring (`GameplayConfig`)
 - **Audio** — real SFX/music via the authored-clip override path (`AudioManager._*Override` fields) or procedural/mix tuning (`AudioConfig`)
