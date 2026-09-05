@@ -256,7 +256,7 @@ namespace DogtorBurguer
             // icon) never matched the other pills however it was sized; unused since 2026-09-05.
             // The label tracks live rewarded availability (an ad may finish loading while the
             // shop is open) and the daily cap (TOMORROW! once spent).
-            TextMeshProUGUI watchLabel = UIFactory.CreateText(adCell.Pill.transform, "WATCH",
+            TextMeshProUGUI watchLabel = UIFactory.CreateText(adCell.Pill.transform, "WATCH AD",
                 UIStyles.SHOP_PILL_LABEL_NUDGE,
                 new Vector2(UIStyles.SHOP_CELL_PILL_W - 14f, 32f),
                 UIStyles.SHOP_PILL_TEXT_SIZE, FontStyles.Bold);
@@ -266,7 +266,7 @@ namespace DogtorBurguer
             {
                 bool capped = GemAdsToday() >= MonetizationConfig.GEM_AD_DAILY_CAP;
                 bool available = !capped && AdManager.Instance != null && AdManager.Instance.IsRewardedAvailable;
-                string label = capped ? "TOMORROW!" : available ? "WATCH" : "LOADING...";
+                string label = capped ? "TOMORROW!" : available ? "WATCH AD" : "LOADING...";
                 if (adCell.Button.interactable == available && watchLabel.text == label) return;
                 adCell.Button.interactable = available;
                 adCell.Pill.interactable = available;
