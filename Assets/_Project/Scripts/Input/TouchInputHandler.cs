@@ -97,7 +97,8 @@ namespace DogtorBurguer
 #if UNITY_EDITOR
         // Debug (editor-only): 1/2/3 grant Ketchup/Mustard/Skewer so the effects can be tested
         // without farming fairies; 4 grants stars so the Shop can be exercised without grinding;
-        // F spawns a fairy on demand (render-order/tap testing). Never ships.
+        // F spawns a fairy on demand (render-order/tap testing); V forces game over so that
+        // screen can be inspected without dying. Never ships.
         private void HandleDebugConsumableHotkeys(Keyboard keyboard)
         {
             ConsumableInventory inv = ConsumableInventory.Instance;
@@ -110,6 +111,8 @@ namespace DogtorBurguer
                 SaveDataManager.Instance?.AddStars(MonetizationConfig.DEBUG_STAR_GRANT);
             else if (keyboard.fKey.wasPressedThisFrame)
                 FindAnyObjectByType<BurgerFairySpawner>()?.DebugSpawn();
+            else if (keyboard.vKey.wasPressedThisFrame)
+                GameManager.Instance?.DebugTriggerGameOver();
         }
 #endif
 

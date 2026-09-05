@@ -193,6 +193,15 @@ namespace DogtorBurguer
             Debug.Log("[GameManager] Continued! Columns cleared.");
         }
 
+#if UNITY_EDITOR
+        /// <summary>Debug (editor-only): forces the game-over flow mid-run — bound to V in
+        /// TouchInputHandler so the screen can be inspected without dying. Never ships.</summary>
+        public void DebugTriggerGameOver()
+        {
+            if (CurrentState == GameState.Playing) HandleGameOver();
+        }
+#endif
+
         private void HandleGameOver()
         {
             // Persist the high score as part of the game-over flow (not in the UI panel, F-67).
