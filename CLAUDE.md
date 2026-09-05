@@ -383,8 +383,8 @@ Rebuilt each open, destroyed on close (no stale state).
   the box top; pills stretched thick (`SHOP_CELL_PILL_H` 46) riding over the box bottom
   (`SHOP_CELL_PILL_OVERLAP`), faces centered; ingredient previews SIT on a bigger plate; bun
   pairs sized by width (equal heights made the squat bottom bun read smaller); chef previews
-  keep their own height (`SHOP_SKIN_CHEF_*`); bigger pack/power-up icons + qty text; watch pill
-  sized by width.
+  keep their own height (`SHOP_SKIN_CHEF_*`); bigger pack/power-up icons + qty text; watch pill forced
+  to the green-pill rect.
   Layout knobs: `UIStyles.SHOP_*` (eyeballed off the mocks — tune live); prices:
   `MonetizationConfig` (packs/ladders/bundle) + per-skin `_starCost` on the Skin asset.
 

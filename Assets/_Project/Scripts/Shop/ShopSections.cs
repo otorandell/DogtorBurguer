@@ -63,7 +63,8 @@ namespace DogtorBurguer
             Button pill = null;
             pill = ShopWidgets.CreatePill(row, "Pill", "ui_btn_green_big", new Vector2(1f, 0.5f),
                 new Vector2(UIStyles.SHOP_BANNER_PILL_X, 0f), UIStyles.SHOP_BANNER_PILL_W,
-                () => StorePurchase(screen, MonetizationConfig.REMOVE_ADS_STORE_ID, pill.transform));
+                () => StorePurchase(screen, MonetizationConfig.REMOVE_ADS_STORE_ID, pill.transform),
+                UIStyles.SHOP_BANNER_PILL_H);
             RectTransform pillRect = pill.GetComponent<RectTransform>();
             TextMeshProUGUI price = UIFactory.CreateText(pill.transform,
                 StorePrice(MonetizationConfig.REMOVE_ADS_STORE_ID, MonetizationConfig.REMOVE_ADS_PRICE_LABEL),
@@ -251,12 +252,13 @@ namespace DogtorBurguer
                 });
             AddPackContents(adCell, "ui_gem");
             // The watch pill replaces the green one: the authored blank with its baked TV icon,
-            // sized by WIDTH to match the green pills, + a label that tracks live rewarded
-            // availability (an ad may finish loading while the shop is open) and the daily cap
-            // (TOMORROW! once spent).
+            // forced to the exact green-pill rect so every cell button shares one shape (the art
+            // squashes a touch — accepted), + a label that tracks live rewarded availability (an
+            // ad may finish loading while the shop is open) and the daily cap (TOMORROW! once spent).
             Sprite watchArt = UiArt.Load("ui_shop_watch");
             adCell.Pill.image.sprite = watchArt;
-            adCell.Pill.GetComponent<RectTransform>().sizeDelta = UIFactory.SizeByWidth(watchArt, UIStyles.SHOP_WATCH_PILL_W);
+            adCell.Pill.GetComponent<RectTransform>().sizeDelta =
+                new Vector2(UIStyles.SHOP_CELL_PILL_W, UIStyles.SHOP_CELL_PILL_H);
             TextMeshProUGUI watchLabel = UIFactory.CreateText(adCell.Pill.transform, "WATCH", UIStyles.SHOP_WATCH_LABEL_POS,
                 UIStyles.SHOP_WATCH_LABEL_RECT, UIStyles.SHOP_PILL_TEXT_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(watchLabel);

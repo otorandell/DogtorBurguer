@@ -302,10 +302,17 @@ namespace DogtorBurguer
             {
                 Sprite icon = UiArt.Load(iconArt);
                 Vector2 iconSize = UIFactory.SizeByHeight(icon, iconHeight);
-                Image image = UIFactory.CreateImage(rect, "Icon", icon, Center, Vector2.zero, iconSize);
-                LayoutElement element = image.gameObject.AddComponent<LayoutElement>();
+                // The icon rides in a fixed-size holder so it can be nudged vertically against
+                // the text line (a layout group allows no per-child offset) — digits render above
+                // the baseline, so a centered icon looks low next to them.
+                GameObject holder = new GameObject("IconHolder");
+                holder.transform.SetParent(rect, false);
+                holder.AddComponent<RectTransform>().sizeDelta = iconSize;
+                LayoutElement element = holder.AddComponent<LayoutElement>();
                 element.preferredWidth = iconSize.x;
                 element.preferredHeight = iconSize.y;
+                UIFactory.CreateImage(holder.transform, "Icon", icon, Center,
+                    new Vector2(0f, UIStyles.SHOP_PILL_ICON_Y_NUDGE), iconSize);
             }
             return label;
         }
