@@ -25,7 +25,8 @@ namespace DogtorBurguer
         /// <paramref name="settingsPos"/>/<paramref name="settingsSize"/> override the gear's slot
         /// (the menu's lone gear sits bigger and nearer center than the in-game shop+gear pair).</summary>
         public static TopBar Build(Transform canvas, Action onHelp = null, Action onSettings = null,
-            Vector2? settingsPos = null, Vector2? settingsSize = null)
+            Vector2? settingsPos = null, Vector2? settingsSize = null,
+            Vector2? helpPos = null, Vector2? helpSize = null)
         {
             GameObject obj = new GameObject("TopBar");
             obj.transform.SetParent(canvas, false);
@@ -36,11 +37,13 @@ namespace DogtorBurguer
 
             TopBar bar = obj.AddComponent<TopBar>();
             bar.BuildContents(onHelp, onSettings, settingsPos ?? UIStyles.TOPBAR_CONFIG_POS,
-                settingsSize ?? UIStyles.TOPBAR_BUTTON_SIZE);
+                settingsSize ?? UIStyles.TOPBAR_BUTTON_SIZE,
+                helpPos ?? UIStyles.TOPBAR_HELP_POS, helpSize ?? UIStyles.TOPBAR_BUTTON_SIZE);
             return bar;
         }
 
-        private void BuildContents(Action onHelp, Action onSettings, Vector2 settingsPos, Vector2 settingsSize)
+        private void BuildContents(Action onHelp, Action onSettings, Vector2 settingsPos, Vector2 settingsSize,
+            Vector2 helpPos, Vector2 helpSize)
         {
             TextMeshProUGUI highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy",
                 UIStyles.TOPBAR_SCORE_POS, UIStyles.TOPBAR_SCORE_ICON_H);
@@ -54,9 +57,9 @@ namespace DogtorBurguer
                 // The "?" help button (replaced the in-game shop button 2026-09-05): the kit's
                 // blank green square with a HUD-palette question mark on it.
                 Button help = UIFactory.CreateSpriteButton(transform, "HelpButton", UiArt.Load("ui_btn_square_green"),
-                    new Vector2(0f, 1f), UIStyles.TOPBAR_HELP_POS, UIStyles.TOPBAR_BUTTON_SIZE, () => onHelp());
+                    new Vector2(0f, 1f), helpPos, helpSize, () => onHelp());
                 TextMeshProUGUI mark = UIFactory.CreateText(help.transform, "?", Vector2.zero,
-                    UIStyles.TOPBAR_BUTTON_SIZE, UIStyles.HOWTO_BTN_TEXT_SIZE, FontStyles.Bold);
+                    helpSize, UIStyles.HOWTO_BTN_TEXT_SIZE, FontStyles.Bold);
                 UIFactory.StyleHudText(mark);
             }
             if (onSettings != null)

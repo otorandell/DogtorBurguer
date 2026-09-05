@@ -702,7 +702,7 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   the authored PLAY button (the high-score plaque was dropped 2026-09-03 as redundant — the
   TopBar trophy pill shows the high score; `ui_hs_plaque` stays imported but unused),
   checkered bottom strip with CREDITS + SHOP,
-  TopBar with the settings gear (shop stays a bottom button). Knobs: `UIStyles.MENU_*`; art in
+  TopBar with the "?" help button + settings gear (shop stays a bottom button). Knobs: `UIStyles.MENU_*`; art in
   `Resources/UI` (`ui_logo`, `ui_hs_plaque`, `ui_play_button`, `ui_menu_bottom`, `ui_btn_cream`,
   `ui_btn_yellow` — the last reserved for the Game Over screen). **Completed with the
   2026-09-01 kit**: the colored illustration (`Main Illustration Complete`, resized to 2048 px)
@@ -747,11 +747,14 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   and a button that does nothing is worse than none; add it as one `CreateRowButton` call when
   localization exists (in-game it would then need a 4th row or a tighter pitch). The **level
   stepper** is an inspector opt-in on `MainMenuUI` (see Controls).
-- **How to Play panel (2026-09-05, `UI/HowToPlayPanel.cs`)**: the in-game top bar's **"?"
-  button** (replaced the shop button; the kit's blank green square `ui_btn_square_green` + a HUD
-  question mark) opens the modal chrome ("HOW TO PLAY") with five brown rule lines — strings in
-  the class (trial-font-safe), layout `UIStyles.HOWTO_*`. Same pause/resume pattern as the
-  in-game Settings. `ui_shop_button` stays imported but unused.
+- **How to Play panel (2026-09-05, `UI/HowToPlayPanel.cs`)**: the top bar's **"?" button** —
+  in-game (replaced the shop button) AND on the menu (left of the gear, `MENU_HELP_POS`, gear
+  size); the kit's blank green square `ui_btn_square_green` + a HUD question mark. Opens the
+  modal chrome ("HOW TO PLAY"), **paginated**: `Pages` (string[][] in the class, trial-font-safe,
+  max 3 lines/page — page 3 covers the consumables) with a "1/3" pager (its slash via the
+  LiberationSans sticker material — Panton slivers "/") flanked by rotated `ui_arrow_yellow`
+  prev/next buttons, hidden at the ends. Layout `UIStyles.HOWTO_*`. In-game it pauses/resumes
+  like Settings; the menu opener shows it plain. `ui_shop_button` stays imported but unused.
 - **Credits panel (authored, 2026-09-01, `UI/CreditsPanel.cs`)**: menu-only, to the mock (`Look
   Reference/Credits.png`) on the modal chrome with **its own sheet** from the 2026-09-01 kit
   (`ui_credits_panel` — taller and wider than the Settings sheet, tab ~38 px higher →

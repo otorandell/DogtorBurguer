@@ -20,6 +20,7 @@ namespace DogtorBurguer
         private Canvas _canvas;
         private SettingsPanel _settingsPanel;
         private CreditsPanel _creditsPanel;
+        private HowToPlayPanel _howToPanel;
 
         private void Start()
         {
@@ -34,10 +35,11 @@ namespace DogtorBurguer
             _canvas = UIFactory.CreateCanvas(transform, "Menu_Canvas", 10);
             UIFactory.EnsureEventSystem();
 
-            // Shared top bar: trophy + star + gem pills, plus the gear (shop stays a big
-            // bottom button, so no top-bar shop icon here).
-            TopBar.Build(_canvas.transform, onSettings: OnSettingsClicked,
-                settingsPos: UIStyles.MENU_GEAR_POS, settingsSize: UIStyles.MENU_GEAR_SIZE);
+            // Shared top bar: trophy + star + gem pills, the "?" help button and the gear
+            // (shop stays a big bottom button, so no top-bar shop icon here).
+            TopBar.Build(_canvas.transform, onHelp: OnHelpClicked, onSettings: OnSettingsClicked,
+                settingsPos: UIStyles.MENU_GEAR_POS, settingsSize: UIStyles.MENU_GEAR_SIZE,
+                helpPos: UIStyles.MENU_HELP_POS, helpSize: UIStyles.MENU_GEAR_SIZE);
 
             // Logo — top-anchored so it clears the top bar on tall screens.
             Sprite logo = UiArt.Load("ui_logo");
@@ -59,6 +61,9 @@ namespace DogtorBurguer
 
             _creditsPanel = gameObject.AddComponent<CreditsPanel>();
             _creditsPanel.Initialize(_canvas);
+
+            _howToPanel = gameObject.AddComponent<HowToPlayPanel>();
+            _howToPanel.Initialize(_canvas);
         }
 
         // The checkered diner strip pinned to the bottom edge, with CREDITS and SHOP on it.
@@ -125,6 +130,11 @@ namespace DogtorBurguer
         private void OnCreditsClicked()
         {
             _creditsPanel?.Show();
+        }
+
+        private void OnHelpClicked()
+        {
+            _howToPanel?.Show();
         }
     }
 }

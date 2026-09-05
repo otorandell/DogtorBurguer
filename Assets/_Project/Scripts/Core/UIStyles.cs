@@ -197,6 +197,7 @@ namespace DogtorBurguer
         public static readonly Vector2 TOPBAR_CONFIG_POS = new(511f, TOPBAR_Y); // settings/gear button (rightmost; in-game the shop button sits left of it)
         public static readonly Vector2 MENU_GEAR_POS = new(498f, TOPBAR_Y);      // the MENU's gear: alone on the right, so bigger and nudged toward center
         public static readonly Vector2 MENU_GEAR_SIZE = new(62f, 62f);
+        public static readonly Vector2 MENU_HELP_POS = new(430f, TOPBAR_Y);      // the MENU's "?" help button, left of the gear (same size)
         #endregion
 
         #region Font Sizes - Panels
@@ -345,12 +346,18 @@ namespace DogtorBurguer
         public static readonly Vector2 SETTINGS_STEPPER_BTN_SIZE = new(55f, 55f);
         public const float SETTINGS_DEV_TEXT_SIZE = 22f;
 
-        // How-to-play panel (in-game "?" button; on the modal chrome)
-        public const float HOWTO_TOP_Y = 190f;                                       // first rule line center
-        public const float HOWTO_PITCH = 88f;                                        // line-to-line spacing (rect height too)
-        public const float HOWTO_LINE_W = 396f;
-        public const float HOWTO_TEXT_SIZE = 20f;
+        // How-to-play panel (the "?" top-bar button, in-game + menu; on the modal chrome)
+        public const float HOWTO_TOP_Y = 120f;                                       // first rule line center
+        public const float HOWTO_PITCH = 118f;                                       // line-to-line spacing (rect height too; max 3 lines/page)
+        public const float HOWTO_LINE_W = 370f;
+        public const float HOWTO_TEXT_SIZE = 22f;
         public const float HOWTO_BTN_TEXT_SIZE = 30f;                                // the "?" on the top-bar button
+        public const float HOWTO_PAGER_Y = -255f;                                    // "1/3" + arrows row
+        public const float HOWTO_PAGER_SIZE = 26f;
+        public const float HOWTO_ARROW_X = 120f;                                     // arrows flank the pager
+        public const float HOWTO_ARROW_H = 56f;                                      // ui_arrow_yellow sized by height, then rotated
+        public const float HOWTO_ARROW_ROT_LEFT = -90f;                              // z-rotations turning the arrow art sideways —
+        public const float HOWTO_ARROW_ROT_RIGHT = 90f;                              // flip both signs if the art points the other way
         #endregion
 
         #region Layout — Credits Panel
