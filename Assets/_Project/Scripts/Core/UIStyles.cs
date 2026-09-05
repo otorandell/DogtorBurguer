@@ -138,7 +138,8 @@ namespace DogtorBurguer
         public static readonly Vector2 SPECIAL_CARD_POS = new(-128f, -176f);  // anchored top-right
         public const float SPECIAL_MODE_TAB_H = 58f;                          // red mode tab (CLASSIC/RELAX) straddling the card's bottom edge — the Level/Score tab recipe
         public const float SPECIAL_MODE_TAB_Y = 2f;                           // tab center vs the card's bottom edge
-        public const float SPECIAL_MODE_TAB_TEXT = 20f;
+        public const float SPECIAL_MODE_TAB_X = -14f;                         // nudged left — the mult gauge on the right shifts the card's visual center
+        public const float SPECIAL_MODE_TAB_TEXT = 16f;
         public const float SPECIAL_BANNER_H = 60f;                            // SPECIAL ORDER banner (width follows aspect)
         public const float SPECIAL_BANNER_STRETCH_X = 1.15f;                  // widen the red banner past native aspect (deliberate)
         public static readonly Vector2 SPECIAL_BANNER_OFFSET = new(-40f, 78f);// banner offset within the card (overhangs top-left)

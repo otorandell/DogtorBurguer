@@ -99,7 +99,7 @@ namespace DogtorBurguer
             Sprite tabArt = UiArt.Load("ui_title_tab");
             Vector2 tabSize = UIFactory.SizeByHeight(tabArt, UIStyles.SPECIAL_MODE_TAB_H);
             Image modeTab = UIFactory.CreateImage(_card, "ModeTab", tabArt, new Vector2(0.5f, 0f),
-                new Vector2(0f, UIStyles.SPECIAL_MODE_TAB_Y), tabSize);
+                new Vector2(UIStyles.SPECIAL_MODE_TAB_X, UIStyles.SPECIAL_MODE_TAB_Y), tabSize);
             GameMode mode = SaveDataManager.Instance != null
                 ? SaveDataManager.Instance.Mode : SaveDataManager.DEFAULT_GAME_MODE;
             TextMeshProUGUI modeLabel = UIFactory.CreateText(modeTab.transform,
