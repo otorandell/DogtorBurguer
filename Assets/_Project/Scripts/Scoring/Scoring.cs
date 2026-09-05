@@ -35,6 +35,21 @@ namespace DogtorBurguer
             return basePoints + bonus;
         }
 
+        /// <summary>Flat consumable removal (ketchup): a fixed rate per non-bun piece.</summary>
+        public static int ConsumablePoints(int nonBunCount)
+        {
+            return nonBunCount * GameplayConfig.POINTS_CONSUMABLE_PER_INGREDIENT;
+        }
+
+        /// <summary>Mustard sweep: escalating per-piece value, so a bigger sweep is worth more
+        /// than proportionally more. Piece i (0-based) = base + i * MUSTARD_POINTS_STEP.</summary>
+        public static int MustardSweepPoints(int nonBunCount)
+        {
+            if (nonBunCount <= 0) return 0;
+            int stepTotal = GameplayConfig.MUSTARD_POINTS_STEP * nonBunCount * (nonBunCount - 1) / 2;
+            return ConsumablePoints(nonBunCount) + stepTotal;
+        }
+
         /// <summary>Fast-drop bonus: points scale with the distance the player skipped.</summary>
         public static int FastDropPoints(float distanceToLand)
         {

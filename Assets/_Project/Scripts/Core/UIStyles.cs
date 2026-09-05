@@ -347,10 +347,12 @@ namespace DogtorBurguer
         public const float SETTINGS_DEV_TEXT_SIZE = 22f;
 
         // How-to-play panel (the "?" top-bar button, in-game + menu; on the modal chrome)
-        public const float HOWTO_TOP_Y = 120f;                                       // first rule line center
-        public const float HOWTO_PITCH = 118f;                                       // line-to-line spacing (rect height too; max 3 lines/page)
+        public const float HOWTO_HEADER_Y = 130f;                                    // lime page header (CONTROLS, BURGERS, …)
+        public const float HOWTO_HEADER_SIZE = 30f;
+        public const float HOWTO_BULLET_TOP_Y = 72f;                                 // first dash bullet center
+        public const float HOWTO_BULLET_PITCH = 56f;                                 // bullet-to-bullet spacing (rect height too)
         public const float HOWTO_LINE_W = 370f;
-        public const float HOWTO_TEXT_SIZE = 22f;
+        public const float HOWTO_TEXT_SIZE = 22f;                                    // bullets are REGULAR weight — bold smears the ExtraBold trial font
         public const float HOWTO_BTN_TEXT_SIZE = 30f;                                // the "?" on the top-bar button
         public const float HOWTO_PAGER_Y = -255f;                                    // "1/3" + arrows row
         public const float HOWTO_PAGER_SIZE = 26f;

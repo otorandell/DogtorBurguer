@@ -6,34 +6,52 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// The HOW TO PLAY panel on the shared ModalPanel chrome, opened from the top bar "?" button
-    /// — in-game AND on the main menu, same display everywhere. Paginated: short brown rule
-    /// lines per page, rotated yellow preview arrows to flip, and a "1/3" pager (its slash
-    /// renders through the LiberationSans sticker material — the trial font slivers it).
-    /// Layout knobs: UIStyles.HOWTO_*.
+    /// — in-game AND on the main menu, same display everywhere. Paginated: a lime page header +
+    /// short dash bullets (regular weight — synthetic bold on the ExtraBold trial font smears),
+    /// rotated yellow preview arrows to flip, and a "1/6" pager (its slash renders through the
+    /// LiberationSans sticker material — the trial font slivers it). Layout: UIStyles.HOWTO_*.
     /// </summary>
     public class HowToPlayPanel : MonoBehaviour
     {
-        // One string[] per page. Trial-font safe: letters, digits and . , ; : - ! ? only (no
-        // apostrophes or symbols — see CLAUDE.md trial-font note).
-        private static readonly string[][] Pages =
+        // One (header, bullets) per page, max ~4 bullets. Trial-font safe: letters, digits and
+        // . , ; : - ! ? only (no apostrophes or symbols — see CLAUDE.md trial-font note).
+        private static readonly (string Header, string[] Bullets)[] Pages =
         {
-            new[]
+            ("CONTROLS", new[]
             {
-                "Move the chef left and right; tap him to rotate the plates.",
-                "Combine two ingredients of the same type to pop them and score points.",
-                "Tap a falling ingredient to drop it faster; tap a preview arrow to call it down now.",
-            },
-            new[]
+                "- Swipe left or right to move the chef.",
+                "- Tap the chef to rotate his plates.",
+                "- Tap a falling ingredient to drop it faster.",
+                "- Tap a preview arrow to spawn it right away.",
+            }),
+            ("MATCHING", new[]
             {
-                "Make burgers: open with a bottom bun, stack ingredients on it and close with a top bun. Bigger burgers score more!",
-                "Complete Special Orders to earn stars and raise your point multiplier.",
-            },
-            new[]
+                "- Two stacked ingredients of the same type pop and score points.",
+                "- Keep the columns low: if one overflows, the run ends!",
+            }),
+            ("BURGERS", new[]
             {
-                "Catch the Burger Fairy for gems, stars and power-ups!",
-                "Drag a power-up from its slot onto a column to use it:",
-                "Ketchup clears its column. Mustard clears the top type from the whole board. Skewer slams its column down onto the bottom bun.",
-            },
+                "- Open with a bottom bun.",
+                "- Stack any ingredients on top.",
+                "- Close with a top bun to serve the burger.",
+                "- Bigger burgers score more!",
+            }),
+            ("SPECIAL ORDERS", new[]
+            {
+                "- Serve a burger that fits the shown order.",
+                "- Orders pay stars and raise your multiplier.",
+            }),
+            ("POWER-UPS", new[]
+            {
+                "- The Burger Fairy brings gems, stars and power-ups. Tap her before she leaves!",
+                "- Drag a power-up from its slot onto a column to use it.",
+            }),
+            ("POWER-UPS", new[]
+            {
+                "- Ketchup clears its column.",
+                "- Mustard sweeps the top two ingredient types of its column from the whole board.",
+                "- Skewer slams its column down onto the bottom bun.",
+            }),
         };
 
         private const string PagerSlash =
@@ -80,7 +98,7 @@ namespace DogtorBurguer
             linesRect.sizeDelta = Vector2.zero;
             _linesRoot = linesObj.transform;
 
-            // Pager row: [<] 1/3 [>] — the yellow preview arrow art, rotated sideways.
+            // Pager row: [<] 1/6 [>] — the yellow preview arrow art, rotated sideways.
             _pager = UIFactory.CreateText(_modal.Panel, "", new Vector2(0f, UIStyles.HOWTO_PAGER_Y),
                 new Vector2(120f, 40f), UIStyles.HOWTO_PAGER_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(_pager);
@@ -106,15 +124,21 @@ namespace DogtorBurguer
             for (int i = _linesRoot.childCount - 1; i >= 0; i--)
                 Destroy(_linesRoot.GetChild(i).gameObject);
 
-            string[] lines = Pages[_page];
-            for (int i = 0; i < lines.Length; i++)
+            (string header, string[] bullets) = Pages[_page];
+
+            TextMeshProUGUI headerText = UIFactory.CreateText(_linesRoot, header,
+                new Vector2(0f, UIStyles.HOWTO_HEADER_Y), new Vector2(UIStyles.HOWTO_LINE_W, 40f),
+                UIStyles.HOWTO_HEADER_SIZE, FontStyles.Bold);
+            ShopWidgets.StyleAccent(headerText);
+
+            for (int i = 0; i < bullets.Length; i++)
             {
-                TextMeshProUGUI line = UIFactory.CreateText(_linesRoot, lines[i],
-                    new Vector2(0f, UIStyles.HOWTO_TOP_Y - i * UIStyles.HOWTO_PITCH),
-                    new Vector2(UIStyles.HOWTO_LINE_W, UIStyles.HOWTO_PITCH),
-                    UIStyles.HOWTO_TEXT_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR,
+                TextMeshProUGUI line = UIFactory.CreateText(_linesRoot, bullets[i],
+                    new Vector2(0f, UIStyles.HOWTO_BULLET_TOP_Y - i * UIStyles.HOWTO_BULLET_PITCH),
+                    new Vector2(UIStyles.HOWTO_LINE_W, UIStyles.HOWTO_BULLET_PITCH),
+                    UIStyles.HOWTO_TEXT_SIZE, FontStyles.Normal, UIStyles.TOPBAR_NUMBER_COLOR,
                     TextAlignmentOptions.Left, wrap: true);
-                line.gameObject.name = "Rule" + i;
+                line.gameObject.name = "Bullet" + i;
             }
 
             _pager.text = (_page + 1) + PagerSlash + Pages.Length;

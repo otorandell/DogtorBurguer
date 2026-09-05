@@ -132,13 +132,25 @@ namespace DogtorBurguer
         public const float FAIRY_CONSUMABLE_CHANCE = 0.60f;
 
         // Relative weights for which consumable a consumable-fairy carries. Index by ConsumableType
-        // (Ketchup, Mustard, Skewer). Even thirds to start — down-weight Mustard (strongest, board-
-        // wide) or up-weight Skewer (situational) here if playtest needs it.
+        // (Ketchup, Mustard, Skewer). Even thirds to start — retune here if playtest needs it
+        // (Ketchup = rescue, Mustard = board thinning + cascades, Skewer = mega-burger setup).
         public static readonly float[] CONSUMABLE_SPAWN_WEIGHTS = { 1f, 1f, 1f };
 
         // Direct removals from a consumable score this per NON-BUN ingredient (flat, no multiplier —
         // match-like, not burger-like). Buns destroyed by consumables score nothing.
         public const int POINTS_CONSUMABLE_PER_INGREDIENT = 10;
+
+        // Mustard sweeps this many distinct REGULAR types read from the targeted column, top down
+        // (buns skipped — sweeping open bottoms would kill every burger in progress for 0 points).
+        // The pair rule keeps adjacent pieces distinct, so 2 always yields two types from a
+        // 2+ regular stack. 1 = the original single-type mustard, which scaled DOWN with level
+        // (the shuffle bag spreads types evenly, so a type has ~board/activeTypes copies).
+        public const int MUSTARD_SWEEP_TYPES = 2;
+
+        // Mustard's score escalates with the sweep size: the i-th popped piece (0-based) is worth
+        // POINTS_CONSUMABLE_PER_INGREDIENT + i * this. 5 pops = 100, 10 pops = 325 (see
+        // Scoring.MustardSweepPoints). Rewards the big board-wide clears its identity is about.
+        public const int MUSTARD_POINTS_STEP = 5;
 
         // The consumable faller drops much faster than ingredients and resolves on impact with its
         // target (top-of-stack for Ketchup/Mustard, first bun for Skewer). Seconds per cell.

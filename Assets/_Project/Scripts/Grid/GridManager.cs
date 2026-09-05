@@ -281,7 +281,8 @@ namespace DogtorBurguer
         // ---- Consumable effects ----
         // Granular grid primitives the ConsumableEffect subclasses orchestrate. Each removes
         // ingredients, collapses survivors, and re-runs the standard match cascade. Non-bun
-        // removals score POINTS_CONSUMABLE_PER_INGREDIENT (flat, no multiplier); buns score nothing.
+        // removals score via Scoring (ketchup flat, mustard escalating; no multiplier); buns score
+        // nothing.
 
         private static bool IsBun(IngredientType type) =>
             type == IngredientType.BunBottom || type == IngredientType.BunTop;
@@ -305,22 +306,25 @@ namespace DogtorBurguer
                 ing.DestroyWithFlash(AnimConfig.KETCHUP_CLEAR_START_DELAY
                     + (topRow - row) * AnimConfig.KETCHUP_CLEAR_STAGGER);
             }
-            AwardConsumablePoints(nonBun, pos);
+            AwardConsumablePoints(Scoring.ConsumablePoints(nonBun), pos);
         }
 
-        /// <summary>Mustard: removes every ingredient of <paramref name="type"/> across all columns.</summary>
-        public void ConsumableSweepType(IngredientType type, Column originColumn)
+        /// <summary>Mustard: removes every ingredient whose type is in <paramref name="types"/>
+        /// across all columns. Callers pass regular types only (MustardEffect.SweepTypes).</summary>
+        public void ConsumableSweepTypes(IReadOnlyList<IngredientType> types, Column originColumn)
         {
+            if (types == null || types.Count == 0) return;
+
             int nonBun = 0;
             foreach (Column col in _columns)
             {
                 bool removedAny = false;
                 foreach (Ingredient ing in col.GetAllIngredients())
                 {
-                    if (ing == null || ing.Type != type) continue;
+                    if (ing == null || !ContainsType(types, ing.Type)) continue;
                     col.RemoveIngredient(ing);
                     ing.DestroyWithFlash();
-                    if (!IsBun(type)) nonBun++;
+                    if (!IsBun(ing.Type)) nonBun++;
                     removedAny = true;
                 }
 
@@ -334,7 +338,14 @@ namespace DogtorBurguer
             Vector3 pos = originColumn != null
                 ? originColumn.GetWorldPositionForRow(originColumn.StackHeight)
                 : Vector3.zero;
-            AwardConsumablePoints(nonBun, pos);
+            AwardConsumablePoints(Scoring.MustardSweepPoints(nonBun), pos);
+        }
+
+        private static bool ContainsType(IReadOnlyList<IngredientType> types, IngredientType type)
+        {
+            for (int i = 0; i < types.Count; i++)
+                if (types[i] == type) return true;
+            return false;
         }
 
         /// <summary>
@@ -372,11 +383,10 @@ namespace DogtorBurguer
             CheckAndProcessMatches(column);
         }
 
-        private void AwardConsumablePoints(int nonBunCount, Vector3 pos)
+        private void AwardConsumablePoints(int points, Vector3 pos)
         {
-            if (nonBunCount <= 0) return;
+            if (points <= 0) return;
 
-            int points = nonBunCount * GameplayConfig.POINTS_CONSUMABLE_PER_INGREDIENT;
             GameManager.Instance?.AddExtraScore(points);
             FloatingText.Spawn(pos, $"{points}!", UIStyles.HUD_TEXT_FILL, UIStyles.WORLD_FLOATING_TEXT_SIZE,
                 "ui_popup_plate");

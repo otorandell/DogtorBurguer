@@ -432,12 +432,22 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   falls and it resolves instantly on release** — all polymorphic, no switch) calling granular
   `GridManager` helpers:
   - **Ketchup** → clears the whole targeted column (`ConsumableClearColumn`).
-  - **Mustard** → removes the targeted column's top type **board-wide** (`ConsumableSweepType`),
-    per-column collapse + cascade (chain reactions reuse the normal pair-match loop).
+  - **Mustard** → reads the targeted column's top **`MUSTARD_SWEEP_TYPES` (2) distinct regular
+    types** (top down, buns skipped — `MustardEffect.SweepTypes`) and removes every piece of
+    those types **board-wide** (`ConsumableSweepTypes`), per-column collapse + cascade (chain
+    reactions reuse the normal pair-match loop). Fizzles on a column with no regular piece.
+    **Rebalanced 2026-09-05**: the old single-type sweep scaled DOWN with level (the shuffle
+    bag spreads types evenly → ~board/activeTypes copies, ~2-3 pieces late game, one off the
+    danger column) and swept open bottom buns when one topped the column (0 points, killed
+    every burger in progress). Two regular types ≈ doubles the yield and always takes two
+    rows off the targeted column.
   - **Skewer** → drives one `BunBottom` to row 0, destroys the rest, regulars collapse on top
     (`ConsumableSkewer`).
-- **Scoring**: non-bun removals score `POINTS_CONSUMABLE_PER_INGREDIENT` (10), flat, no
-  multiplier; **buns score nothing** (Ketchup-cleared and Skewer-destroyed alike). Cascades
+- **Scoring** (`Scoring.ConsumablePoints` / `MustardSweepPoints`): ketchup's non-bun removals
+  score `POINTS_CONSUMABLE_PER_INGREDIENT` (10), flat, no multiplier; **mustard escalates** —
+  piece i (0-based) is worth `10 + i·MUSTARD_POINTS_STEP` (5), so 5 pops = 100, 10 = 325, a
+  reward for the big board-wide sweeps; **buns score nothing** (Ketchup-cleared and
+  Skewer-destroyed alike). Cascades
   score normally via `OnMatchEliminated`.
 - **Use VFX** (`ConsumableVfx` + the drag ghost — cosmetic, non-blocking, self-destroying).
   Art direction: the **column ghost IS the nozzle** (ketchup/mustard ghosts are the nozzle art
@@ -750,11 +760,14 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - **How to Play panel (2026-09-05, `UI/HowToPlayPanel.cs`)**: the top bar's **"?" button** —
   in-game (replaced the shop button) AND on the menu (left of the gear, `MENU_HELP_POS`, gear
   size); the kit's blank green square `ui_btn_square_green` + a HUD question mark. Opens the
-  modal chrome ("HOW TO PLAY"), **paginated**: `Pages` (string[][] in the class, trial-font-safe,
-  max 3 lines/page — page 3 covers the consumables) with a "1/3" pager (its slash via the
-  LiberationSans sticker material — Panton slivers "/") flanked by rotated `ui_arrow_yellow`
-  prev/next buttons, hidden at the ends. Layout `UIStyles.HOWTO_*`. In-game it pauses/resumes
-  like Settings; the menu opener shows it plain. `ui_shop_button` stays imported but unused.
+  modal chrome ("HOW TO PLAY"), **paginated** (6 pages): `Pages` = (header, bullets)[] in the
+  class (trial-font-safe) — a lime page header (CONTROLS, MATCHING, BURGERS, SPECIAL ORDERS,
+  POWER-UPS ×2) over up to 4 dash bullets in REGULAR weight brown (⚠️ synthetic Bold on the
+  ExtraBold trial font smears strokes — keep body text FontStyles.Normal), with a "1/6" pager
+  (its slash via the LiberationSans sticker material — Panton slivers "/") flanked by rotated
+  `ui_arrow_yellow` prev/next buttons, hidden at the ends. Layout `UIStyles.HOWTO_*`. In-game it
+  pauses/resumes like Settings; the menu opener shows it plain. `ui_shop_button` stays unused.
+  Keep the Mustard bullet in step with `MUSTARD_SWEEP_TYPES` (top two types, board-wide).
 - **Credits panel (authored, 2026-09-01, `UI/CreditsPanel.cs`)**: menu-only, to the mock (`Look
   Reference/Credits.png`) on the modal chrome with **its own sheet** from the 2026-09-01 kit
   (`ui_credits_panel` — taller and wider than the Settings sheet, tab ~38 px higher →
