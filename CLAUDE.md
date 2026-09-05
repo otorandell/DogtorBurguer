@@ -478,7 +478,12 @@ sprite — acceptable; menu equips always show in-game).
   settings (discovered 2026-07-23 — was misread as a text-wrap bug for a while). **Player-facing
   strings may only use letters, digits, space, and `! , - . : ; ?`** until the font is replaced.
   Where a plus sign is needed, use art (`ui_consumable_plus`, e.g. the Settings stepper's
-  increment button) — the score/star popups use `N!` instead of `+N` for this reason.
+  increment button) — the score/star popups use `N!` instead of `+N` for this reason. Glyphs
+  Panton lacks ENTIRELY (e.g. **€** in localized IAP prices) fall back to **LiberationSans SDF**
+  (`TMP Settings.asset` → m_fallbackFontAssets, wired 2026-09-05): they render, but in the
+  fallback font's own plain material — no sticker stroke/shadow (TMP fallback glyphs can't use
+  the styled material). Acceptable for price labels; the sliver-glyph symbols above do NOT fall
+  back (Panton claims them), so their workarounds stay until the font swap.
 - **Reskin the game** = edit the slot's asset in `Resources/Skins/` (set its **Sprite** field; for
   `bun_default` also **Secondary Sprite** = bottom bun, for `chef_default` = flipped facing), or
   just replace a PNG's contents keeping its filename. Works from the Project window with any scene
