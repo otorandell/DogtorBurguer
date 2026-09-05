@@ -136,6 +136,9 @@ namespace DogtorBurguer
         // consumables bottom (≈194 tall here) — stretched past native aspect on purpose.
         public static readonly Vector2 SPECIAL_CARD_SIZE = new(228f, 194f);   // cream card (stretched taller)
         public static readonly Vector2 SPECIAL_CARD_POS = new(-128f, -176f);  // anchored top-right
+        public const float SPECIAL_MODE_TAB_H = 44f;                          // red mode tab (CLASSIC/RELAX) straddling the card's bottom edge — the Level/Score tab recipe
+        public const float SPECIAL_MODE_TAB_Y = 2f;                           // tab center vs the card's bottom edge
+        public const float SPECIAL_MODE_TAB_TEXT = 18f;
         public const float SPECIAL_BANNER_H = 60f;                            // SPECIAL ORDER banner (width follows aspect)
         public const float SPECIAL_BANNER_STRETCH_X = 1.15f;                  // widen the red banner past native aspect (deliberate)
         public static readonly Vector2 SPECIAL_BANNER_OFFSET = new(-40f, 78f);// banner offset within the card (overhangs top-left)
@@ -193,8 +196,6 @@ namespace DogtorBurguer
         public static readonly Vector2 TOPBAR_SHOP_POS = new(455f, TOPBAR_Y);   // shop button (left of settings)
         public static readonly Vector2 TOPBAR_CONFIG_POS = new(511f, TOPBAR_Y); // settings/gear button (rightmost; in-game the shop button sits left of it)
         public static readonly Vector2 MENU_GEAR_POS = new(498f, TOPBAR_Y);      // the MENU's gear: alone on the right, so bigger and nudged toward center
-        public const float HUD_MODE_TAG_Y = -96f;                          // lime "RELAX MODE" tag, top-center under the bar (Relax runs only)
-        public const float HUD_MODE_TAG_SIZE = 20f;
         public static readonly Vector2 MENU_GEAR_SIZE = new(62f, 62f);
         #endregion
 

@@ -92,6 +92,21 @@ namespace DogtorBurguer
                 UIStyles.SPECIAL_MULT_TEXT_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(_multText);
             _multText.textWrappingMode = TextWrappingModes.NoWrap;
+
+            // Mode tab (CLASSIC/RELAX) straddling the card's bottom edge — the Level/Score tab
+            // recipe (blank red tab + HUD-palette word), so the run's ruleset is labelled where
+            // the orders live. Static per run: the Mode toggle is menu-only.
+            Sprite tabArt = UiArt.Load("ui_title_tab");
+            Vector2 tabSize = UIFactory.SizeByHeight(tabArt, UIStyles.SPECIAL_MODE_TAB_H);
+            Image modeTab = UIFactory.CreateImage(_card, "ModeTab", tabArt, new Vector2(0.5f, 0f),
+                new Vector2(0f, UIStyles.SPECIAL_MODE_TAB_Y), tabSize);
+            GameMode mode = SaveDataManager.Instance != null
+                ? SaveDataManager.Instance.Mode : SaveDataManager.DEFAULT_GAME_MODE;
+            TextMeshProUGUI modeLabel = UIFactory.CreateText(modeTab.transform,
+                mode == GameMode.Relax ? "RELAX" : "CLASSIC", Vector2.zero, tabSize,
+                UIStyles.SPECIAL_MODE_TAB_TEXT, FontStyles.Bold);
+            UIFactory.StyleHudText(modeLabel);
+            UIFactory.AutoFit(modeLabel, UIStyles.HUD_TITLE_LABEL_SIZE_MIN, UIStyles.SPECIAL_MODE_TAB_TEXT);
         }
 
         // The mult meter: a vertical capsule from three stacked layers at one rect — brown well (back) →

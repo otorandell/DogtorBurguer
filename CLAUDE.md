@@ -172,7 +172,9 @@ the in-game panel's third row stays Quit to Menu). **Relax** = the identical spe
 every threshold × `RELAX_LENGTH_SCALE` (3 — runs ~3× longer, kill screen included, no level cap),
 ALL in-run star income halved (`RELAX_STAR_SCALE`, applied in `GameManager.AwardStars` — the one
 faucet; shop purchases unaffected), **no high-score writes** (easier long runs would inflate the
-Classic trophy), and a lime **RELAX MODE** tag top-center under the bar (`HUD_MODE_TAG_*`).
+Classic trophy), and the mode always labelled on a red tab straddling the
+Special Order card's bottom edge — CLASSIC or RELAX, the Level/Score tab recipe
+(`SPECIAL_MODE_TAB_*`, built in `BurgerChallengeView.BuildPanel`).
 
 ### Burger Challenge (BurgerChallenge) — "Special Orders"
 - Two order types, randomly chosen:
