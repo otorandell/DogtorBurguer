@@ -376,6 +376,7 @@ namespace DogtorBurguer
         public static readonly Vector2 SHOP_CLOSE_POS = new(192f, -47f);        // round X over the awning's corner (from top-center)
         public const float SHOP_CLOSE_H = 78f;
         public const float SHOP_TOPBAR_DROP = 141f;                             // the shared TopBar pills, moved down into the page
+        public const float SHOP_TOPBAR_X_NUDGE = 40f;                           // …and nudged right to center the 3 pills (the bar recipe hugs the left)
         // Scroll viewport: the page body between the pills and the page bottom. Side inset + content
         // padding center the 3-column grids (3 × SHOP_CELL_W + 2 × SHOP_CELL_SPACING) in the body.
         public const float SHOP_SCROLL_TOP = 215f;
@@ -388,45 +389,46 @@ namespace DogtorBurguer
         // Text: section titles in the HUD palette; names/amounts in the mock's lime accent.
         public const float SHOP_SECTION_TITLE_H = 54f;
         public const float SHOP_SECTION_TITLE_SIZE = 34f;
-        public const float SHOP_SUBTITLE_H = 26f;                               // per-ingredient row label (Patty, Cheese, …)
-        public const float SHOP_SUBTITLE_SIZE = 18f;
+        public const float SHOP_SUBTITLE_SIZE = 18f;                            // small brown text (Restore Purchases)
         public const float SHOP_RESTORE_H = 34f;                                // "Restore Purchases" text button under the gem grid
         public static readonly Color SHOP_PURCHASE_BLOCKER = new(0f, 0f, 0f, 0.25f); // input shield while a store purchase is in flight
         public static readonly Color SHOP_ACCENT = new(0.62f, 0.75f, 0.20f);    // lime: cell names, pack amounts, THANK YOU
-        public static readonly Color SHOP_BADGE_COLOR = new(1f, 0.85f, 0f);     // "BEST VALUE" tags
-        public const float SHOP_BADGE_SIZE = 11f;
         // Cells (skins, power-ups, currency packs): an authored box (skin checker / item box, sized by
         // width at native aspect) with an optional lime label line above and a wide green price pill
         // below; the whole cell is the button. Skin rows sit on the 9-sliced cream slab.
-        public const float SHOP_CELL_W = 112f;
-        public const float SHOP_CELL_SPACING = 15f;
-        public const float SHOP_CELL_LABEL_H = 24f;
+        public const float SHOP_CELL_W = 125f;                                  // 3 × W + 2 × spacing ≈ the content width, so grids align with the full-width boxes
+        public const float SHOP_CELL_SPACING = 12f;
+        public const float SHOP_CELL_LABEL_H = 24f;                             // the name line half-overlaps the box top edge (mock)
         public const float SHOP_CELL_LABEL_SIZE = 17f;
-        public const float SHOP_CELL_PILL_GAP = 6f;
-        public const float SHOP_ROW_SLAB_PAD = 10f;                             // cells inset inside the slab
-        public const float SHOP_CELL_PILL_W = 112f;                             // green wide blank sized by width (≈ 32 tall)
-        public const float SHOP_PILL_TEXT_SIZE = 18f;
-        public const float SHOP_PILL_ICON_H = 24f;                              // currency icon on a pill, right of the number
+        public const float SHOP_CELL_PILL_OVERLAP = 16f;                        // the pill rides over the box bottom (mock)
+        public const float SHOP_ROW_SLAB_PAD = 14f;                             // cells inset inside the slab
+        public const float SHOP_CELL_PILL_W = 125f;                             // green wide blank width …
+        public const float SHOP_CELL_PILL_H = 46f;                              // … stretched thicker than its native ≈36 (mock pills are chunky)
+        public const float SHOP_PILL_TEXT_SIZE = 20f;
+        public const float SHOP_PILL_ICON_H = 27f;                              // currency icon on a pill, right of the number
         public const float SHOP_PILL_ICON_GAP = 3f;
-        public static readonly Vector2 SHOP_PILL_LABEL_NUDGE = new(-2f, 3f);   // toward the face center (shadow is bottom-right)
+        public static readonly Vector2 SHOP_PILL_LABEL_NUDGE = new(0f, 4f);    // centered; lifted off the art's baked bottom shadow
         public const float SHOP_WATCH_LABEL_MIN = 9f;                           // "LOADING..." shrink floor on the watch pill
-        public const float SHOP_WATCH_PILL_H = 40f;                             // ui_shop_watch sized by height (wider than the green pills)
-        public static readonly Vector2 SHOP_WATCH_LABEL_POS = new(12f, 2f);    // right of the baked TV icon
-        public static readonly Vector2 SHOP_WATCH_LABEL_RECT = new(56f, 26f);
-        public const float SHOP_SKIN_PREVIEW_H = 104f;                          // overflows the box top a touch, like the mock
-        public const float SHOP_SKIN_PREVIEW_MAX_W = 100f;
-        public const float SHOP_SKIN_PREVIEW_Y = 4f;                            // preview center vs box center
-        public const float SHOP_SKIN_PLATE_W = 90f;                             // the plate under ingredient previews
-        public const float SHOP_SKIN_PLATE_Y = -26f;
-        public const float SHOP_SKIN_BUN_H = 42f;                               // bun-pair preview: each half's height
-        public const float SHOP_SKIN_BUN_GAP = 8f;                              // vertical gap between bottom and top
-        public const float SHOP_ITEM_ICON_H = 66f;                              // power-up / currency icons inside the box
-        public static readonly Vector2 SHOP_COUNT_BADGE_POS = new(-46f, 42f);  // owned-count badge on the box's top-left corner
-        public const float SHOP_COUNT_BADGE_H = 30f;
-        public const float SHOP_COUNT_BADGE_TEXT = 15f;
-        public static readonly Vector2 SHOP_QTY_POS = new(34f, -34f);          // "xN" bottom-right of the box
-        public static readonly Vector2 SHOP_QTY_RECT = new(50f, 26f);
-        public const float SHOP_QTY_SIZE = 18f;
+        public const float SHOP_WATCH_PILL_W = 118f;                            // ui_shop_watch sized by WIDTH to match the green pills
+        public static readonly Vector2 SHOP_WATCH_LABEL_POS = new(20f, 3f);    // right of the baked TV icon
+        public static readonly Vector2 SHOP_WATCH_LABEL_RECT = new(66f, 30f);
+        public const float SHOP_SKIN_CHEF_H = 118f;                             // chef previews fill the box (no plate)
+        public const float SHOP_SKIN_CHEF_Y = 2f;
+        public const float SHOP_SKIN_PREVIEW_H = 80f;                           // ingredient previews sit ON the plate
+        public const float SHOP_SKIN_PREVIEW_MAX_W = 112f;
+        public const float SHOP_SKIN_PREVIEW_Y = -2f;                           // preview center vs box center (resting on the plate)
+        public const float SHOP_SKIN_PLATE_W = 106f;                            // the plate under ingredient previews
+        public const float SHOP_SKIN_PLATE_Y = -34f;
+        public const float SHOP_SKIN_BUN_W = 88f;                               // bun-pair preview: BOTH halves sized by width (equal heights made the squat bottom read smaller)
+        public const float SHOP_SKIN_BUN_GAP = 6f;                              // vertical gap between bottom and top
+        public const float SHOP_SKIN_BUN_BOTTOM_Y = -24f;                       // bottom bun center (seated on the plate)
+        public const float SHOP_ITEM_ICON_H = 86f;                              // power-up / currency icons inside the box
+        public static readonly Vector2 SHOP_COUNT_BADGE_POS = new(-50f, 48f);  // owned-count badge on the box's top-left corner
+        public const float SHOP_COUNT_BADGE_H = 34f;
+        public const float SHOP_COUNT_BADGE_TEXT = 17f;
+        public static readonly Vector2 SHOP_QTY_POS = new(40f, -44f);          // "xN" bottom-right of the box
+        public static readonly Vector2 SHOP_QTY_RECT = new(60f, 30f);
+        public const float SHOP_QTY_SIZE = 24f;
         // Wide rows spanning the content width: the authored Remove-Ads banner (price, bonus and the
         // ONE TIME BUY tag are baked in — keep MonetizationConfig's REMOVE_ADS_* in step with the art),
         // the THANK YOU box and the Pro Cook Pack bundle (9-sliced item box).
@@ -436,26 +438,30 @@ namespace DogtorBurguer
         public static readonly Vector2 SHOP_BANNER_TEXT_INSET = new(24f, 12f);
         // Remove-Ads offer banner (composed from widgets 2026-09-05 — the baked ui_shop_remove_ads
         // mock is retired; texts anchor to the box's LEFT edge, the price pill to its RIGHT edge)
-        public static readonly Vector2 SHOP_BANNER_TITLE_POS = new(28f, 30f);
-        public static readonly Vector2 SHOP_BANNER_TITLE_RECT = new(230f, 30f);
+        public static readonly Vector2 SHOP_BANNER_TITLE_POS = new(34f, 24f);
+        public static readonly Vector2 SHOP_BANNER_TITLE_RECT = new(240f, 30f);
         public const float SHOP_BANNER_TITLE_SIZE = 26f;
-        public static readonly Vector2 SHOP_BANNER_TAG_POS = new(28f, 4f);
-        public static readonly Vector2 SHOP_BANNER_TAG_RECT = new(230f, 18f);
-        public const float SHOP_BANNER_TAG_SIZE = 12f;
-        public static readonly Vector2 SHOP_BANNER_BONUS_POS = new(28f, -24f);
-        public static readonly Vector2 SHOP_BANNER_BONUS_RECT = new(150f, 26f);
+        public static readonly Vector2 SHOP_BANNER_TAG_POS = new(34f, -2f);
+        public static readonly Vector2 SHOP_BANNER_TAG_RECT = new(240f, 18f);
+        public const float SHOP_BANNER_TAG_SIZE = 13f;
+        public static readonly Vector2 SHOP_BANNER_BONUS_POS = new(34f, -30f);
+        public static readonly Vector2 SHOP_BANNER_BONUS_RECT = new(150f, 30f);
         public const float SHOP_BANNER_BONUS_SIZE = 18f;
-        public const float SHOP_BANNER_BONUS_ICON_H = 22f;
+        public const float SHOP_BANNER_BONUS_ICON_H = 24f;                      // gem icon a touch taller than the font
         public const float SHOP_BANNER_PILL_W = 150f;                           // ui_btn_green_big on the banner
         public const float SHOP_BANNER_PILL_X = -88f;
+        public const float SHOP_BANNER_PILL_TEXT = 30f;                         // the price fills the pill (auto-fit, floor 14)
+        public const float SHOP_BANNER_DOT_H = 48f;                             // red ONE TIME BUY tag on the pill's corner
+        public static readonly Vector2 SHOP_BANNER_DOT_POS = new(8f, 12f);     // overhangs the top-right corner
+        public const float SHOP_BANNER_DOT_TEXT = 9f;
         public const float SHOP_BUNDLE_H = 110f;
-        public const float SHOP_BUNDLE_ICON_H = 74f;                            // the condiment tray
-        public const float SHOP_BUNDLE_ICON_X = 84f;                            // tray center from the left edge
-        public const float SHOP_BUNDLE_ICON_Y = 8f;
-        public static readonly Vector2 SHOP_BUNDLE_QTY_POS = new(150f, -2f);    // "xN" right of the tray (from the left edge)
-        public static readonly Vector2 SHOP_BUNDLE_NAME_POS = new(96f, -40f);   // "PRO COOK PACK" under the tray (center, from the left edge)
-        public static readonly Vector2 SHOP_BUNDLE_NAME_RECT = new(180f, 24f);
-        public const float SHOP_BUNDLE_NAME_SIZE = 16f;
+        public const float SHOP_BUNDLE_ICON_H = 92f;                            // the condiment tray
+        public const float SHOP_BUNDLE_ICON_X = 104f;                           // tray center from the left edge
+        public const float SHOP_BUNDLE_ICON_Y = 6f;
+        public static readonly Vector2 SHOP_BUNDLE_QTY_POS = new(186f, 0f);     // "xN" right of the tray (from the left edge)
+        public static readonly Vector2 SHOP_BUNDLE_NAME_POS = new(118f, -44f);  // "PRO COOK PACK" under the tray (center, from the left edge)
+        public static readonly Vector2 SHOP_BUNDLE_NAME_RECT = new(240f, 28f);
+        public const float SHOP_BUNDLE_NAME_SIZE = 22f;
         public const float SHOP_BUNDLE_PILL_W = 150f;                           // ui_btn_green_big sized by width (≈ 82 tall)
         public const float SHOP_BUNDLE_PILL_X = -88f;
         public const float SHOP_BUNDLE_PILL_TEXT_SIZE = 26f;

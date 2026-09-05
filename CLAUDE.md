@@ -322,19 +322,21 @@ Built to the artist's mock (`Look Reference/Shop_example_1..3.png` + `Shop buy c
 the **2026-09-01 kit's `Assets/Shop` pieces** (`scratchpad/gen_shop_art.ps1`): the full-canvas
 **page** `ui_shop_page` (striped awning with SHOP baked in + dotted cream body, shown at
 `REFERENCE_RESOLUTION` like the other screens) over the dimmed game/menu, our round X on the
-awning's corner, the shared **TopBar pills inside the page** (dropped by `SHOP_TOPBAR_DROP`), and
+awning's corner, the shared **TopBar pills inside the page** (dropped by `SHOP_TOPBAR_DROP`, centered by `SHOP_TOPBAR_X_NUDGE`), and
 one vertically scrolling body inset to the page (`SHOP_SCROLL_*`). Own canvas (`SHOP_CANVAS_SORT` 120, above
 everything). Opened via `ShopScreen.Open()` (menu Shop button) or `ShopScreen.OpenInGame()`
 (in-game top-bar shop button and the consumable slots' green plus box) — the in-game path
 **pauses** the run (`GameManager.PauseGame`) and resumes on close; all shop tweens run unscaled.
 Rebuilt each open, destroyed on close (no stale state).
 - **Sections, top → bottom**: support banner (**composed from shop widgets since 2026-09-05**:
-  lime REMOVE ADS + ONE TIME BUY! + a plus-art gem-bonus line + the green price pill showing the
-  store's LOCALIZED price via `IapManager.PriceLabel` — the baked-values mock `ui_shop_remove_ads`
-  is retired/unused, so price and bonus retunes are config-only; once bought it becomes
+  lime REMOVE ADS + "REWARD ADS STILL AVAILABLE" + a "+100 ◆" line (the plus renders through the
+  LiberationSans sticker material — Panton slivers it) + the green price pill (store price via
+  `IapManager.PriceLabel`, auto-fit big, red ONE TIME BUY tag on its corner — the kit has no
+  blank red dot, the close button's X is baked, so `ui_consumable_num` stands in); the
+  baked-values mock `ui_shop_remove_ads` is retired/unused; once bought it becomes
   the mock's **THANK YOU FOR SUPPORTING US!** box, knobs `SHOP_BANNER_*`) → DOGTOR SKINS (one h-scroll row on the
-  9-sliced cream slab `ui_shop_row_slab`) → INGREDIENT SKINS (**one labelled sub-row per ingredient type** — Patty, Cheese, …, Buns
-  — via `ShopCatalog.IngredientSkinRows()` + `ShopWidgets.CreateSubTitle`; `ShopRowScroll` rows,
+  9-sliced cream slab `ui_shop_row_slab`) → INGREDIENT SKINS (**one sub-row per ingredient type**, unlabelled
+  since 2026-09-05 — via `ShopCatalog.IngredientSkinRows()`; `ShopRowScroll` rows,
   vertical drags route to the page scroll) → POWER-UPS (a **3-column grid**: one row per
   `CONSUMABLE_PACKS` rung × one column per consumable; each cell = owned-count badge
   (`ui_consumable_num`), the icon — single `ui_consumable_*` for x1, `ui_shop_trio_*` from x3 —
@@ -345,8 +347,8 @@ Rebuilt each open, destroyed on close (no stale state).
   instant) → GEMS (grid; the free rewarded-ad cell first with the authored **WATCH** pill
   `ui_shop_watch` tracking ad availability and the **daily cap** (`GEM_AD_DAILY_CAP` 3/day — the
   label reads TOMORROW! once spent; date + count persist in SaveDataManager), then IAP packs with `ui_pack_gems_1..4` by position —
-  `Gem_Pack_5` is in the kit for a 5th tier, not imported; MOST POPULAR / BEST VALUE badges sit
-  gold on the amount line).
+  `Gem_Pack_5` is in the kit for a 5th tier, not imported; the gold MOST POPULAR / BEST VALUE
+  badges were dropped 2026-09-05 — clutter; the strings stay on the products).
 - **Cells** (`ShopWidgets.CreateCell(…, boxArt, …)` → `ShopCell`): an authored box sized by width
   at native aspect — `ui_shop_item_box` (packs/power-ups; also the 9-sliced banner/bundle box,
   border 200 — ⚠️ **9-slice gotcha**: UGUI draws sprite borders at their *native* pixel size, so
@@ -366,16 +368,23 @@ Rebuilt each open, destroyed on close (no stale state).
   wide green blank (the button sheet has words baked in), so it's the wide blue blank hue-shifted
   (`scratchpad/build_shop_art.py`, outline + highlight preserved). Ask the artist for a wide green
   blank and it's a file swap.
-- Money price labels: digits/separators render in Panton, and `ShopWidgets.MoneyLabel` wraps
-  every other run (currency symbols and codes) in a rich-text `<font>` tag → **LiberationSans
-  SDF** with the hand-authored sticker material (`LiberationSans SDF - Sticker.mat` in TMP's
-  Fonts & Materials — HUD stroke/shadow baked in; the name must keep the font-name prefix for
-  TMP's material lookup). Symbols render slightly thinner than Panton (padding 9 vs 34) but in
-  palette. Delete MoneyLabel's wrapping + the material at the font swap.
+- Money price labels show digits + separators ONLY (`ShopWidgets.MoneyLabel` strips currency
+  symbols from config placeholders AND store-localized strings — showing them via the
+  LiberationSans fallback was tried 2026-09-05 and rejected as off-style; the store purchase
+  sheet has the real symbol). The hand-authored `LiberationSans SDF - Sticker.mat` (TMP
+  Fonts & Materials, HUD stroke/shadow, font-name prefix required for TMP's rich-text lookup)
+  still renders the banner's "+". Revisit both at the font swap.
 - **Layer split**: `ShopScreen` (frame/orchestration + confirm dialog + pills),
   `ShopSections` (page composition), `ShopWidgets` (low-level UGUI builders), `ShopCell` (the
   parts of one cell), `ShopSkinCell` (skin cell states), `ShopService` (atomic purchase rules,
   UI-free), `ShopCatalog` (groups skins; a slot appears only once it has a non-default skin).
+  **2026-09-05 polish pass** (to Oscar's screenshot notes): cells 125 wide / 12 apart so the
+  3-col grids fill the same lateral span as the full-width boxes; skin-name labels half-overlap
+  the box top; pills stretched thick (`SHOP_CELL_PILL_H` 46) riding over the box bottom
+  (`SHOP_CELL_PILL_OVERLAP`), faces centered; ingredient previews SIT on a bigger plate; bun
+  pairs sized by width (equal heights made the squat bottom bun read smaller); chef previews
+  keep their own height (`SHOP_SKIN_CHEF_*`); bigger pack/power-up icons + qty text; watch pill
+  sized by width.
   Layout knobs: `UIStyles.SHOP_*` (eyeballed off the mocks — tune live); prices:
   `MonetizationConfig` (packs/ladders/bundle) + per-skin `_starCost` on the Skin asset.
 

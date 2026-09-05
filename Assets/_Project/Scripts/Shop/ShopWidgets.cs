@@ -147,37 +147,22 @@ namespace DogtorBurguer
             title.gameObject.AddComponent<LayoutElement>().preferredHeight = UIStyles.SHOP_SECTION_TITLE_H;
         }
 
-        /// <summary>A smaller brown row label under a section title (one per ingredient type).</summary>
-        public static void CreateSubTitle(RectTransform pageContent, string text)
-        {
-            TextMeshProUGUI sub = UIFactory.CreateText(pageContent, text, Vector2.zero,
-                Vector2.zero, UIStyles.SHOP_SUBTITLE_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR);
-            sub.gameObject.AddComponent<LayoutElement>().preferredHeight = UIStyles.SHOP_SUBTITLE_H;
-        }
-
         /// <summary>The lime accent with the HUD border — cell names, pack amounts, THANK YOU.</summary>
         public static void StyleAccent(TextMeshProUGUI tmp) =>
             UIFactory.StyleFillAndBorder(tmp, UIStyles.SHOP_ACCENT, UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH);
 
-        /// <summary>Money price labels for display. Digits and separators render in Panton; any
-        /// other run (currency symbols and codes — €, $, "US", "R") is routed via rich text to the
-        /// LiberationSans fallback with the hand-authored sticker material, because the trial font
-        /// can never draw them itself: it lacks € entirely and maps $ to the placeholder sliver
-        /// glyph (see CLAUDE.md). Delete with the font swap — labels can then show verbatim.</summary>
+        /// <summary>Money price labels for display: digits and separators only ("0,01 €" → "0,01",
+        /// "$2.99" → "2.99"). The trial font renders every currency symbol wrong ($ = the
+        /// placeholder sliver, € = a mismatched fallback glyph — tried and rejected 2026-09-05),
+        /// so they are dropped; the store's own purchase sheet shows the real symbol. Delete with
+        /// the font swap.</summary>
         public static string MoneyLabel(string priceLabel)
         {
-            const string open = "<font=\"LiberationSans SDF\" material=\"LiberationSans SDF - Sticker\">";
-            var sb = new System.Text.StringBuilder(priceLabel.Length + 64);
-            bool inSymbol = false;
-            foreach (char c in priceLabel.Trim())
-            {
-                bool plain = char.IsDigit(c) || c == '.' || c == ',' || c == ' ';
-                if (!plain && !inSymbol) { sb.Append(open); inSymbol = true; }
-                else if (plain && inSymbol) { sb.Append("</font>"); inSymbol = false; }
-                sb.Append(c);
-            }
-            if (inSymbol) sb.Append("</font>");
-            return sb.ToString();
+            var sb = new System.Text.StringBuilder(priceLabel.Length);
+            foreach (char c in priceLabel)
+                if (char.IsDigit(c) || c == '.' || c == ',' || c == ' ')
+                    sb.Append(c);
+            return sb.ToString().Trim();
         }
 
         // --- boxes + cells ---
@@ -212,10 +197,11 @@ namespace DogtorBurguer
         /// <summary>A cell's box size: the art at SHOP_CELL_W wide, native aspect.</summary>
         public static Vector2 BoxSize(string boxArt) => UIFactory.SizeByWidth(UiArt.Load(boxArt), UIStyles.SHOP_CELL_W);
 
-        /// <summary>Height of a cell with/without its label line (box + pill + gaps).</summary>
+        /// <summary>Height of a cell with/without its label line: half the label (it overlaps the
+        /// box top edge) + box + pill, minus the pill's ride over the box bottom.</summary>
         public static float CellHeight(bool withLabel, string boxArt) =>
-            (withLabel ? UIStyles.SHOP_CELL_LABEL_H : 0f) + BoxSize(boxArt).y + UIStyles.SHOP_CELL_PILL_GAP
-            + UIFactory.SizeByWidth(UiArt.Load("ui_btn_green_wide"), UIStyles.SHOP_CELL_PILL_W).y;
+            (withLabel ? UIStyles.SHOP_CELL_LABEL_H * 0.5f : 0f) + BoxSize(boxArt).y
+            - UIStyles.SHOP_CELL_PILL_OVERLAP + UIStyles.SHOP_CELL_PILL_H;
 
         /// <summary>A cell: [lime label] over an authored box over a green pill; one button for the
         /// whole thing. Sized for a row (LayoutElement) — a grid overrides with its cell size. Pass a
@@ -246,7 +232,7 @@ namespace DogtorBurguer
             float labelH = withLabel ? UIStyles.SHOP_CELL_LABEL_H : 0f;
             Vector2 boxSize = BoxSize(boxArt);
             Image box = UIFactory.CreateImage(root, "Box", UiArt.Load(boxArt), TopCenter,
-                new Vector2(0f, -labelH - boxSize.y * 0.5f), boxSize);
+                new Vector2(0f, -labelH * 0.5f - boxSize.y * 0.5f), boxSize);
             box.raycastTarget = true;
 
             Button button = rootObj.AddComponent<Button>();
@@ -254,9 +240,13 @@ namespace DogtorBurguer
             if (onClick != null) button.onClick.AddListener(onClick);
 
             Button pill = CreatePill(root, "Pill", "ui_btn_green_wide", BottomCenter, Vector2.zero,
-                UIStyles.SHOP_CELL_PILL_W, onClick);
+                UIStyles.SHOP_CELL_PILL_W, onClick, UIStyles.SHOP_CELL_PILL_H);
             RectTransform pillRect = pill.GetComponent<RectTransform>();
             pillRect.pivot = BottomCenter;
+
+            // The name half-overlaps the box top and the pill rides over its bottom (mock);
+            // keep the label above the box in draw order.
+            if (labelText != null) labelText.transform.SetAsLastSibling();
 
             return new ShopCell(root, box.rectTransform, button, labelText, pill);
         }
@@ -266,10 +256,11 @@ namespace DogtorBurguer
         /// <summary>A wide-blank pill (ui_btn_green_wide / _red_wide / ui_btn_blue_watch …) sized by
         /// width, anchored at a point of its parent. Put a face on it with <see cref="SetPillLabel"/>.</summary>
         public static Button CreatePill(Transform parent, string name, string art, Vector2 anchor, Vector2 pos,
-            float width, UnityAction onClick)
+            float width, UnityAction onClick, float height = 0f)
         {
             Sprite blank = UiArt.Load(art);
-            return UIFactory.CreateSpriteButton(parent, name, blank, anchor, pos, UIFactory.SizeByWidth(blank, width), onClick);
+            Vector2 size = height > 0f ? new Vector2(width, height) : UIFactory.SizeByWidth(blank, width);
+            return UIFactory.CreateSpriteButton(parent, name, blank, anchor, pos, size, onClick);
         }
 
         /// <summary>(Re)writes a pill's face: a HUD-palette word/number and an optional currency

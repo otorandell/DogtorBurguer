@@ -46,32 +46,41 @@ namespace DogtorBurguer
             title.alignment = TextAlignmentOptions.Left;
             ShopWidgets.AnchorLeft(title.rectTransform, UIStyles.SHOP_BANNER_TITLE_POS);
 
-            TextMeshProUGUI tag = UIFactory.CreateText(row, "ONE TIME BUY!", Vector2.zero,
+            TextMeshProUGUI tag = UIFactory.CreateText(row, "REWARD ADS STILL AVAILABLE", Vector2.zero,
                 UIStyles.SHOP_BANNER_TAG_RECT, UIStyles.SHOP_BANNER_TAG_SIZE, FontStyles.Bold,
                 UIStyles.TOPBAR_NUMBER_COLOR, TextAlignmentOptions.Left);
             ShopWidgets.AnchorLeft(tag.rectTransform, UIStyles.SHOP_BANNER_TAG_POS);
 
-            // The gem-bonus line: [plus art][100][gem icon] — the plus is ART because the trial
-            // font renders '+' as the placeholder sliver glyph.
+            // The gem-bonus line: "+100 [gem icon]". The plus renders through the LiberationSans
+            // sticker material via rich text — the trial font maps '+' to the placeholder sliver.
             TextMeshProUGUI bonus = ShopWidgets.CreateIconLine(row, "Bonus", Vector2.zero,
-                UIStyles.SHOP_BANNER_BONUS_RECT, MonetizationConfig.REMOVE_ADS_BONUS_GEMS.ToString(),
+                UIStyles.SHOP_BANNER_BONUS_RECT,
+                "<font=\"LiberationSans SDF\" material=\"LiberationSans SDF - Sticker\">+</font>"
+                + MonetizationConfig.REMOVE_ADS_BONUS_GEMS,
                 UIStyles.SHOP_BANNER_BONUS_SIZE, "ui_gem", UIStyles.SHOP_BANNER_BONUS_ICON_H);
-            RectTransform bonusLine = (RectTransform)bonus.transform.parent;
-            Sprite plusArt = UiArt.Load("ui_consumable_plus");
-            Vector2 plusSize = UIFactory.SizeByHeight(plusArt, UIStyles.SHOP_BANNER_BONUS_ICON_H);
-            Image plus = UIFactory.CreateImage(bonusLine, "Plus", plusArt, Center, Vector2.zero, plusSize);
-            LayoutElement plusElement = plus.gameObject.AddComponent<LayoutElement>();
-            plusElement.preferredWidth = plusSize.x;
-            plusElement.preferredHeight = plusSize.y;
-            plus.transform.SetSiblingIndex(0);
-            ShopWidgets.AnchorLeft(bonusLine, UIStyles.SHOP_BANNER_BONUS_POS);
+            ShopWidgets.AnchorLeft((RectTransform)bonus.transform.parent, UIStyles.SHOP_BANNER_BONUS_POS);
 
             Button pill = null;
             pill = ShopWidgets.CreatePill(row, "Pill", "ui_btn_green_big", new Vector2(1f, 0.5f),
                 new Vector2(UIStyles.SHOP_BANNER_PILL_X, 0f), UIStyles.SHOP_BANNER_PILL_W,
                 () => StorePurchase(screen, MonetizationConfig.REMOVE_ADS_STORE_ID, pill.transform));
-            ShopWidgets.SetPillLabel(pill,
-                StorePrice(MonetizationConfig.REMOVE_ADS_STORE_ID, MonetizationConfig.REMOVE_ADS_PRICE_LABEL), null);
+            RectTransform pillRect = pill.GetComponent<RectTransform>();
+            TextMeshProUGUI price = UIFactory.CreateText(pill.transform,
+                StorePrice(MonetizationConfig.REMOVE_ADS_STORE_ID, MonetizationConfig.REMOVE_ADS_PRICE_LABEL),
+                UIStyles.SHOP_PILL_LABEL_NUDGE, pillRect.sizeDelta * 0.8f,
+                UIStyles.SHOP_BANNER_PILL_TEXT, FontStyles.Bold);
+            UIFactory.StyleHudText(price);
+            UIFactory.AutoFit(price, 14f, UIStyles.SHOP_BANNER_PILL_TEXT);
+
+            // The red ONE TIME BUY tag on the pill's corner. The kit has no BLANK red dot (the
+            // round close button's X is baked into ui_btn_close_x), so the red num box stands in —
+            // a file swap if a blank dot is ever delivered.
+            Sprite dotArt = UiArt.Load("ui_consumable_num");
+            Image dot = UIFactory.CreateImage(pill.transform, "OneTimeTag", dotArt, new Vector2(1f, 1f),
+                UIStyles.SHOP_BANNER_DOT_POS, UIFactory.SizeByHeight(dotArt, UIStyles.SHOP_BANNER_DOT_H));
+            TextMeshProUGUI dotText = UIFactory.CreateText(dot.transform, "ONE\nTIME\nBUY", Vector2.zero,
+                dot.rectTransform.sizeDelta, UIStyles.SHOP_BANNER_DOT_TEXT, FontStyles.Bold);
+            UIFactory.StyleHudText(dotText);
 
             Image thanksBox = ShopWidgets.CreateBox(content, "ThankYou", UIStyles.SHOP_BANNER_H);
             TextMeshProUGUI thanksText = UIFactory.CreateText(thanksBox.transform, "THANK YOU FOR\nSUPPORTING US!", Vector2.zero,
@@ -107,9 +116,9 @@ namespace DogtorBurguer
             if (rows.Count == 0) return;
 
             ShopWidgets.CreateSectionTitle(content, "INGREDIENT SKINS");
-            foreach ((string label, List<Skin> skins) in rows)
+            // Per-type sub-labels dropped 2026-09-05 (Oscar) — the previews say what each row is.
+            foreach ((string _, List<Skin> skins) in rows)
             {
-                ShopWidgets.CreateSubTitle(content, label);
                 RectTransform row = ShopWidgets.CreateHorizontalRow(content, ShopWidgets.CellHeight(true, ShopWidgets.SkinBoxArt));
                 foreach (Skin skin in skins)
                     ShopSkinCell.Create(row, skin, screen);
@@ -214,7 +223,7 @@ namespace DogtorBurguer
                         if (ShopService.TryBuyStarPack(captured)) screen.NotifyChanged();
                         else ShopScreen.Deny(screen.GemPill);
                     }));
-                AddPackContents(cell, "ui_pack_stars_" + (i + 1), captured.Badge);
+                AddPackContents(cell, "ui_pack_stars_" + (i + 1));
                 cell.SetPill(captured.GemCost.ToString(), "ui_gem");
             }
         }
@@ -240,13 +249,14 @@ namespace DogtorBurguer
                         }
                     });
                 });
-            AddPackContents(adCell, "ui_gem", "");
-            // The watch pill replaces the green one: the authored blank with its baked TV icon (sized by
-            // height — it's a wider shape) + a label that tracks live rewarded availability (an ad may
-            // finish loading while the shop is open) and the daily cap (TOMORROW! once spent).
+            AddPackContents(adCell, "ui_gem");
+            // The watch pill replaces the green one: the authored blank with its baked TV icon,
+            // sized by WIDTH to match the green pills, + a label that tracks live rewarded
+            // availability (an ad may finish loading while the shop is open) and the daily cap
+            // (TOMORROW! once spent).
             Sprite watchArt = UiArt.Load("ui_shop_watch");
             adCell.Pill.image.sprite = watchArt;
-            adCell.Pill.GetComponent<RectTransform>().sizeDelta = UIFactory.SizeByHeight(watchArt, UIStyles.SHOP_WATCH_PILL_H);
+            adCell.Pill.GetComponent<RectTransform>().sizeDelta = UIFactory.SizeByWidth(watchArt, UIStyles.SHOP_WATCH_PILL_W);
             TextMeshProUGUI watchLabel = UIFactory.CreateText(adCell.Pill.transform, "WATCH", UIStyles.SHOP_WATCH_LABEL_POS,
                 UIStyles.SHOP_WATCH_LABEL_RECT, UIStyles.SHOP_PILL_TEXT_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(watchLabel);
@@ -269,7 +279,7 @@ namespace DogtorBurguer
                 ShopCell cell = null;
                 cell = ShopWidgets.CreateCell(grid, "Gems_" + captured.Amount, captured.Amount.ToString(),
                     ShopWidgets.ItemBoxArt, () => StorePurchase(screen, captured.StoreId, cell.Root));
-                AddPackContents(cell, "ui_pack_gems_" + (i + 1), captured.Badge);
+                AddPackContents(cell, "ui_pack_gems_" + (i + 1));
                 cell.SetPill(StorePrice(captured.StoreId, captured.PriceLabel));
             }
 
@@ -312,22 +322,13 @@ namespace DogtorBurguer
                 : fallback;
         }
 
-        // A currency pack cell's box: the pack icon, plus a gold merchandising badge on the label
-        // line when the product carries one.
-        private static void AddPackContents(ShopCell cell, string iconArt, string badge)
+        // A currency pack cell's box: the pack icon. (The gold MOST POPULAR / BEST VALUE badges
+        // were dropped 2026-09-05 — they collided with the amount line and read as clutter; the
+        // Badge strings stay on the products in case merchandising returns in another shape.)
+        private static void AddPackContents(ShopCell cell, string iconArt)
         {
             Sprite icon = UiArt.Load(iconArt);
             UIFactory.CreateImage(cell.Box, "Icon", icon, Center, Vector2.zero, UIFactory.SizeByHeight(icon, UIStyles.SHOP_ITEM_ICON_H));
-
-            cell.Label.alignment = TextAlignmentOptions.Left;
-            if (string.IsNullOrEmpty(badge)) return;
-
-            TextMeshProUGUI badgeText = UIFactory.CreateText(cell.Label.transform, badge, Vector2.zero,
-                cell.Label.rectTransform.sizeDelta, UIStyles.SHOP_BADGE_SIZE, FontStyles.Bold,
-                UIStyles.SHOP_BADGE_COLOR, TextAlignmentOptions.Right);
-            badgeText.rectTransform.anchorMin = Vector2.zero;
-            badgeText.rectTransform.anchorMax = Vector2.one;
-            badgeText.rectTransform.sizeDelta = Vector2.zero;
         }
 
         // Single icon for the x1 rung, the trio art from x3 up.

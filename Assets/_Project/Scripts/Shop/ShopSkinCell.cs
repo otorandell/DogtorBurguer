@@ -54,13 +54,21 @@ namespace DogtorBurguer
 
             if (_skin.Slot == SkinSlot.BunSkin && _skin.SecondarySprite != null)
             {
-                // Buns preview as the pair — top over bottom, slightly separated (mirrors the
-                // Special Order stack so the skin reads as one set).
-                AddPreviewSprite(_skin.SecondarySprite, "PreviewBottom",
-                    UIStyles.SHOP_SKIN_PREVIEW_Y - UIStyles.SHOP_SKIN_BUN_GAP * 0.5f, UIStyles.SHOP_SKIN_BUN_H);
-                AddPreviewSprite(_skin.Sprite, "PreviewTop",
-                    UIStyles.SHOP_SKIN_PREVIEW_Y + UIStyles.SHOP_SKIN_BUN_GAP * 0.5f + UIStyles.SHOP_SKIN_BUN_H * 0.55f,
-                    UIStyles.SHOP_SKIN_BUN_H);
+                // Buns preview as the pair, both halves sized by WIDTH — equal heights made the
+                // squatter bottom bun read smaller. Bottom seats on the plate, top floats above.
+                Sprite bottom = _skin.SecondarySprite;
+                Sprite top = _skin.Sprite;
+                float w = UIStyles.SHOP_SKIN_BUN_W;
+                float bottomH = w * bottom.rect.height / bottom.rect.width;
+                float topH = w * top.rect.height / top.rect.width;
+                float bottomY = UIStyles.SHOP_SKIN_BUN_BOTTOM_Y;
+                AddPreviewSized(bottom, "PreviewBottom", bottomY, new Vector2(w, bottomH));
+                AddPreviewSized(top, "PreviewTop",
+                    bottomY + bottomH * 0.5f + UIStyles.SHOP_SKIN_BUN_GAP + topH * 0.5f, new Vector2(w, topH));
+            }
+            else if (_skin.Slot == SkinSlot.ChefSkin)
+            {
+                AddPreviewSprite(_skin.Preview, "Preview", UIStyles.SHOP_SKIN_CHEF_Y, UIStyles.SHOP_SKIN_CHEF_H);
             }
             else
             {
@@ -76,8 +84,11 @@ namespace DogtorBurguer
             Vector2 size = UIFactory.SizeByHeight(sprite, height);
             if (size.x > UIStyles.SHOP_SKIN_PREVIEW_MAX_W)
                 size *= UIStyles.SHOP_SKIN_PREVIEW_MAX_W / size.x;
-            UIFactory.CreateImage(_cell.Box, name, sprite, new Vector2(0.5f, 0.5f), new Vector2(0f, y), size);
+            AddPreviewSized(sprite, name, y, size);
         }
+
+        private void AddPreviewSized(Sprite sprite, string name, float y, Vector2 size) =>
+            UIFactory.CreateImage(_cell.Box, name, sprite, new Vector2(0.5f, 0.5f), new Vector2(0f, y), size);
 
         private void Refresh()
         {

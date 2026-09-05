@@ -179,7 +179,7 @@ namespace DogtorBurguer
                 UIFactory.SizeByHeight(close, UIStyles.SHOP_CLOSE_H), Close);
 
             _topBar = TopBar.Build(_canvas.transform);
-            _topBar.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -UIStyles.SHOP_TOPBAR_DROP);
+            _topBar.GetComponent<RectTransform>().anchoredPosition = new Vector2(UIStyles.SHOP_TOPBAR_X_NUDGE, -UIStyles.SHOP_TOPBAR_DROP);
         }
 
         private void Close() => Destroy(gameObject);
