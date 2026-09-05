@@ -40,7 +40,10 @@ namespace DogtorBurguer
         /// <summary>Progress toward the next challenge level (0..1) — drives the Mult meter.</summary>
         public float ChallengeFill => ProgressTarget > 0 ? (float)_challengeProgress / ProgressTarget : 0f;
 
-        private int ProgressTarget => _challengeLevel + 1; // matches needed to level up
+        // Orders needed to level up: level+1, capped so the meter never drags late-run
+        // (2026-09-05 — the 0.25-step multiplier pays too little for an ever-longer climb).
+        private int ProgressTarget =>
+            Mathf.Min(_challengeLevel + 1, GameplayConfig.CHALLENGE_ORDERS_TO_LEVEL_CAP);
 
         // --- spawner-backed lookups (resolved once, F-59) ---
         public int ActiveIngredientCount =>
