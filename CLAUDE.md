@@ -486,9 +486,9 @@ sprite — acceptable; menu equips always show in-game).
   Shredded cheese, Pico de Gallo/Kumato, Pickled/Crispy onion, Bell Pepper, Avocado/Purple
   Cabbage, Omelet/Quail, Pulled Pork/Iberic Ham, Blue Cheese, Rustic (Bocata) / Black Bread buns
   — sourced from `RawArt/iNGREDEINTS REVISED` (proper names; the earlier kit misnamed several).
-  The star-cheap bun is **Integral** (Integral top + Brioche bottom per Oscar — no Integral
-  bottom was drawn; the asset keeps the `bun_gourmet` id). **Deleted placeholders**: meat_alt,
-  chef_alt, chef_happy (assets + sprites). ⚠️ **Missing art**: only Jalapeño now. Shop rows are
+  The star-cheap bun is **Integral** (top + real bottom, delivered 2026-09-05; the
+  asset keeps the `bun_gourmet` id). **Deleted placeholders**: meat_alt,
+  chef_alt, chef_happy (assets + sprites). Jalapeño (gems 100◆) landed 2026-09-05 — no missing skin art remains. Shop rows are
   ordered buns → level-1 ingredients → the rest by appearance (`ShopCatalog.IngredientSlots`,
   keep in step with `REGULAR_INGREDIENTS`). Shop cells: ingredient previews sit on a plate
   (`SHOP_SKIN_PLATE_*`), buns preview as the top+bottom pair (`SHOP_SKIN_BUN_*`).
