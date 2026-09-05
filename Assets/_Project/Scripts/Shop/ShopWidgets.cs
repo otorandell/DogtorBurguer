@@ -159,10 +159,19 @@ namespace DogtorBurguer
         public static void StyleAccent(TextMeshProUGUI tmp) =>
             UIFactory.StyleFillAndBorder(tmp, UIStyles.SHOP_ACCENT, UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH);
 
-        /// <summary>IAP price labels for display. The trial font maps "$" to a placeholder sliver
-        /// glyph (see CLAUDE.md), so the currency symbol is dropped until the font is replaced —
-        /// the real IAP SDK's localized strings will need the font fix anyway.</summary>
-        public static string MoneyLabel(string priceLabel) => priceLabel.TrimStart('$');
+        /// <summary>Money price labels for display: digits and separators only. The trial font
+        /// renders currency symbols wrong either way — "$" maps to Panton's placeholder sliver
+        /// glyph, "€" falls back to an unstyled font (see CLAUDE.md) — so ALL of them are dropped,
+        /// store-localized strings included ("0,01 €" → "0,01"). The store's own purchase sheet
+        /// shows the real symbol; delete this filter with the font swap.</summary>
+        public static string MoneyLabel(string priceLabel)
+        {
+            var sb = new System.Text.StringBuilder(priceLabel.Length);
+            foreach (char c in priceLabel)
+                if (char.IsDigit(c) || c == '.' || c == ',' || c == ' ')
+                    sb.Append(c);
+            return sb.ToString().Trim();
+        }
 
         // --- boxes + cells ---
 

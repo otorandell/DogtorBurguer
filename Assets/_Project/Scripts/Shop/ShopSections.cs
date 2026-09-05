@@ -301,12 +301,15 @@ namespace DogtorBurguer
             });
         }
 
-        // The store's localized price when it has one (shown verbatim — it's what the store dialog
-        // will say), else the config placeholder with the "$" dropped for the trial font.
+        // The store's localized price when it has one, else the config placeholder — either way
+        // sanitized by MoneyLabel (digits + separators; the trial font can't render currency
+        // symbols in the sticker style — see CLAUDE.md).
         private static string StorePrice(string storeId, string fallbackLabel)
         {
             string fallback = ShopWidgets.MoneyLabel(fallbackLabel);
-            return IapManager.Instance != null ? IapManager.Instance.PriceLabel(storeId, fallback) : fallback;
+            return IapManager.Instance != null
+                ? ShopWidgets.MoneyLabel(IapManager.Instance.PriceLabel(storeId, fallback))
+                : fallback;
         }
 
         // A currency pack cell's box: the pack icon, plus a gold merchandising badge on the label
