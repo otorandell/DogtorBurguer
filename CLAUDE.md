@@ -179,14 +179,17 @@ Special Order card's bottom edge — CLASSIC or RELAX, the Level/Score tab recip
 (`SPECIAL_MODE_TAB_*`, built in `BurgerChallengeView.BuildPanel`).
 
 ### Burger Challenge (BurgerChallenge) — "Special Orders"
-- Two order types, randomly chosen:
-  - **Size**: "N+ Ingredients" — any burger with at least N ingredients matches
-  - **Contains**: the burger must include the required ingredients — extras OK. (Exact-match was
-    tried and reverted the same day, 2026-09-04.) The card communicates "must include" without
-    words: a **ghosted "?" mystery layer** (`SPECIAL_GHOST_ALPHA`) sits between the required
-    ingredients and the top bun — the same silhouette Size orders use for "any ingredients", so
-    it reads as "these, plus whatever else". FlashOrder restores per-image REST colors so the
-    ghost stays translucent after the gold flash.
+- **Redesigned 2026-09-05 (Oscar)** — the order type is MODE-driven, difficulty scales with the
+  challenge (multiplier) level, never the game level:
+  - **Classic** → exact-count recipes (`OrderType.Contains`): total size `min(⌈(L+1)/2⌉,
+    ORDER_MAX_SIZE)` of which `⌈L/2⌉` are named (L1: 1 named → L2: 1+1 free → L3: 2 named →
+    L4: 2+1 free … up to an all-named max burger; named picks go unique-first, duplicates once
+    the pool runs out — the match is a multiset check). The burger must have EXACTLY the total
+    count and include every named ingredient; ordering never matters. The card shows the whole
+    recipe: named art + one ghosted "?" per free slot (`SPECIAL_GHOST_ALPHA`); stacks taller
+    than `SPECIAL_STACK_MAX_SPAN` squeeze their row spacing to fit.
+  - **Relax** → size-only orders (`OrderType.Size`): "N+ Ingredients", N = level+1 up to
+    `ORDER_MAX_SIZE` (11 = a full column minus its buns).
 - **Screen-space UGUI panel** (top-right, `BurgerChallengeView`): authored card + the SPECIAL ORDER
   banner (blank art + TMP word) + the **required-burger stack** (bun → "+N" mystery silhouette /
   required ingredients → bun, on a `Theme.Plate`) + a **multiplier badge** (`GetGlobalMultiplier`).
@@ -202,12 +205,20 @@ Special Order card's bottom edge — CLASSIC or RELAX, the Level/Score tab recip
 - `BurgerChallenge` is logic + read-only state only; the view owns all layout (`UIStyles.SPECIAL_*`).
 - On match: the burger flashes gold; popup shows "Order Complete!" instead of the generated name (via
   GridManager `IsOrderMatch`). Level-up flashes + punches the card, then rolls the next order.
-- 3x challenge multiplier on match; global multiplier: `1 + (level - 1) * 5`
+- **Global multiplier** (2026-09-05): `1 + 0.25·(level−1)` — 1, 1.25, 1.5 … — and it is truly
+  GLOBAL: pair matches and burgers both scale (`BurgerChallenge.Scaled`, applied in GridManager;
+  consumable removals and fast drops stay flat). A matched burger takes ×3 on top
+  (`CHALLENGE_MATCH_MULTIPLIER`). GridManager computes the burger's FINAL points and every
+  listener (score, popup, challenge) receives that number — no x-badge popup anymore; the badge
+  next to the mult meter shows the live multiplier (x1.25 …). The challenge level-up plays its
+  own jingle (`PlayChallengeLevelUp`, replaces the match chord on the leveling match).
 - **World popups ride glow plates** (2026-09-04 kit, set 1; `WorldTextFactory.AttachPlate`,
   heights `UIStyles.PLATE_*`): burger name + points on the wide green ellipse
   (`ui_popup_plate_wide`), score "N!" and fast-drops on the green round (`ui_popup_plate`),
   multiplier "xN" and star awards on the yellow (`ui_popup_plate_mult`); "Too bad!" stays bare.
 - Level up requires `level + 1` matches (`Level` still exposed; the in-panel ★ readout was dropped)
+- ⚠️ Score scale shrank ~10× at high levels with the 0.25-step multiplier — revisit
+  `STAR_SCORE_DIVISOR` (end-of-run payout) and the score-tier feel after playtests.
 - Each match also **awards stars** (the currency faucet — see Monetization & Currencies)
 
 ### Scoring
@@ -590,8 +601,10 @@ wrapping — fix by shortening the string or widening the rect, never by re-enab
   brown) remains for small plain labels (shop subtitles, Restore Purchases).
 - Buttons/popups/panels (menu): white text.
 - World-space popups: **cream sticker lettering** (`HUD_TEXT_FILL` + stroke + shadow, shared
-  material — 2026-09-04). The glow plates carry the popup's meaning (green = score, yellow =
-  multiplier/stars); the one non-cream popup is "Too bad!" (red = failure).
+  material — 2026-09-04) with identity exceptions (2026-09-05): the burger popup's score line is
+  GOLD (`BURGER_SCORE_POPUP`), fast-drop bonuses are sky blue (`FAST_DROP_POPUP`), and
+  "Too bad!" stays red (failure). The glow plates carry the rest (green = score, yellow =
+  multiplier/stars).
 
 ## Roadmap
 

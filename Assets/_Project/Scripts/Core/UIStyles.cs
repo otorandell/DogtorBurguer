@@ -44,10 +44,13 @@ namespace DogtorBurguer
         #endregion
 
         #region Popup Colors
-        // World popups are uniformly cream (HUD_TEXT_FILL) since 2026-09-04 — the glow PLATES
-        // carry the meaning (green = score, yellow = multiplier/stars), not the text color.
-        // The relic per-mechanic colors (yellow/cyan/orange) are gone.
+        // World popups are cream (HUD_TEXT_FILL) with two identity exceptions (Oscar,
+        // 2026-09-05): the burger's FINAL score pops gold and fast-drop bonuses pop sky blue,
+        // so neither is confused with match popups. "Too bad!" stays red. The glow PLATES still
+        // carry the rest of the meaning (green = score, yellow = multiplier/stars).
         public static readonly Color GOLD = new(1f, 0.85f, 0f);     // game-over "stars earned", shop badges
+        public static readonly Color BURGER_SCORE_POPUP = new(1f, 0.85f, 0f);   // the burger popup's score line
+        public static readonly Color FAST_DROP_POPUP = new(0.5f, 0.85f, 1f);    // fast-drop bonus "N!"
         #endregion
 
         #region Panel / Overlay Colors
@@ -153,6 +156,7 @@ namespace DogtorBurguer
         // made the plate tiny and the ingredient ratios inconsistent.
         public const float SPECIAL_STACK_PX_PER_UNIT = 62f;                   // screen px per world unit (bigger burger, 2026-09-04 pass)
         public const float SPECIAL_INGREDIENT_SPACING = 22f;                  // vertical stack spacing (tighter overlap)
+        public const float SPECIAL_STACK_MAX_SPAN = 118f;                     // stack taller than this squeezes its row spacing to fit the card
         public const float SPECIAL_STACK_X = -10f;                            // stack center X within the card (nudged left)
         public const float SPECIAL_STACK_Y = -12f;                            // stack center Y within the card
         public const float SPECIAL_PLACEHOLDER_LABEL_SIZE = 18f;              // "+N" on the mystery silhouette

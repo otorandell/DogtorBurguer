@@ -55,11 +55,12 @@ namespace DogtorBurguer
         #endregion
 
         #region Burger Challenge
-        public const int CHALLENGE_MIN_SIZE = 2;
-        public const int CHALLENGE_MAX_SIZE = 7;
-        public const int CHALLENGE_MAX_CONTAINS = 3;
-        public const int CHALLENGE_MATCH_MULTIPLIER = 3;
-        public const int CHALLENGE_GLOBAL_MULT_PER_LEVEL = 5;
+        // 2026-09-05 redesign (Oscar): order difficulty scales with the CHALLENGE (multiplier)
+        // level. Classic rolls exact-count recipes (named + free slots); Relax rolls size-only
+        // orders. The global multiplier is gentle and applies to ALL gameplay score.
+        public const float CHALLENGE_MULT_STEP = 0.25f;               // global mult = 1 + step·(level−1): 1, 1.25, 1.5 …
+        public const int CHALLENGE_MATCH_MULTIPLIER = 3;              // extra ×3 on the matched burger itself
+        public const int ORDER_MAX_SIZE = Constants.MAX_ROWS - 2;     // biggest physically possible burger (11): a full column minus its two buns
         #endregion
 
         #region Column Swap

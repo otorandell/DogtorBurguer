@@ -73,37 +73,54 @@ namespace DogtorBurguer
                 GridManager.Instance.OnBurgerWithIngredients += HandleBurgerCompleted;
         }
 
-        /// <summary>Rolls a new order and notifies the view to rebuild.</summary>
+        /// <summary>Rolls a new order (mode-dependent — 2026-09-05 redesign) and notifies the view.</summary>
         public void GenerateNewChallenge()
         {
             _targetIngredients.Clear();
-            _orderType = Rng.Range(0, 2) == 0 ? OrderType.Size : OrderType.Contains;
 
-            if (_orderType == OrderType.Size)
+            if (Mode == GameMode.Relax)
             {
-                _requiredSize = Mathf.Clamp(_challengeLevel + 1, GameplayConfig.CHALLENGE_MIN_SIZE, GameplayConfig.CHALLENGE_MAX_SIZE);
+                // Relax: size-only orders — any ingredients, at least N, N grows with the level.
+                _orderType = OrderType.Size;
+                _requiredSize = Mathf.Min(_challengeLevel + 1, GameplayConfig.ORDER_MAX_SIZE);
                 _challengeName = $"{_requiredSize}+ Ingredients";
             }
             else
             {
-                int count = Mathf.Clamp(_challengeLevel, 1, GameplayConfig.CHALLENGE_MAX_CONTAINS);
-                GenerateContainsIngredients(count);
+                // Classic: an exact-count recipe — named ingredients + free slots. The total
+                // grows one step, then the named count catches up, alternating (L1: 1 named,
+                // L2: 1+1 free, L3: 2 named, L4: 2+1 free …) until an all-named max burger.
+                // Ingredient ORDER never matters; extras don't fit (the count is exact).
+                _orderType = OrderType.Contains;
+                _requiredSize = Mathf.Min((_challengeLevel + 2) / 2, GameplayConfig.ORDER_MAX_SIZE);
+                int named = Mathf.Min((_challengeLevel + 1) / 2, _requiredSize);
+                GenerateContainsIngredients(named);
                 _challengeName = BuildContainsName();
             }
 
             OnChallengeChanged?.Invoke();
         }
 
+        private static GameMode Mode => SaveDataManager.Instance != null
+            ? SaveDataManager.Instance.Mode : SaveDataManager.DEFAULT_GAME_MODE;
+
         private void GenerateContainsIngredients(int count)
         {
-            // Pick unique random ingredients from the active pool.
+            // Unique picks from the active pool while possible; duplicates once an order needs
+            // more named ingredients than there are active types (late levels — a real burger
+            // repeats patties anyway; the multiset match handles copies).
             int activeCount = ActiveIngredientCount;
             List<int> available = new List<int>();
             for (int i = 0; i < activeCount; i++)
                 available.Add(i);
 
-            for (int i = 0; i < count && available.Count > 0; i++)
+            for (int i = 0; i < count; i++)
             {
+                if (available.Count == 0)
+                {
+                    _targetIngredients.Add(GameplayConfig.REGULAR_INGREDIENTS[Rng.Range(0, activeCount)]);
+                    continue;
+                }
                 int idx = Rng.Range(0, available.Count);
                 _targetIngredients.Add(GameplayConfig.REGULAR_INGREDIENTS[available[idx]]);
                 available.RemoveAt(idx);
@@ -135,44 +152,35 @@ namespace DogtorBurguer
             if (_orderType == OrderType.Size)
                 return ingredientCount >= _requiredSize;
 
-            // Contains: every required ingredient must be present — extras OK. (Tried exact-match
-            // on 2026-09-04, reverted the same day: the panel now carries a "Contains" word instead.)
+            // Classic recipe (2026-09-05): the total count is EXACT, every named ingredient must
+            // be present (as a multiset — a duplicated name needs that many copies), the free
+            // slots take anything, and ordering never matters.
+            if (ingredientCount != _requiredSize) return false;
+
+            List<IngredientType> pool = new List<IngredientType>(ingredients);
             foreach (var required in _targetIngredients)
             {
-                if (!ingredients.Contains(required))
+                if (!pool.Remove(required))
                     return false;
             }
             return true;
         }
 
-        public int GetGlobalMultiplier()
-        {
-            return 1 + (_challengeLevel - 1) * GameplayConfig.CHALLENGE_GLOBAL_MULT_PER_LEVEL;
-        }
+        /// <summary>The global score multiplier: 1 + 0.25·(level−1) — 1, 1.25, 1.5 … Applies to
+        /// ALL gameplay score (matches and burgers; consumable removals stay flat).</summary>
+        public float Multiplier => 1f + (_challengeLevel - 1) * GameplayConfig.CHALLENGE_MULT_STEP;
 
-        private void HandleBurgerCompleted(Vector3 pos, int basePoints, string name, int ingredientCount, List<IngredientType> ingredients)
+        /// <summary>Base gameplay points scaled by the live global multiplier (rounded).</summary>
+        public static int Scaled(int basePoints) =>
+            Instance != null ? Mathf.RoundToInt(basePoints * Instance.Multiplier) : basePoints;
+
+        // The burger's SCORE is fully handled upstream (GridManager computes the final
+        // multiplied points, GameManager adds them, the popup shows them — no x-badge popup
+        // since the 2026-09-05 redesign). This handler owns only order progression + stars.
+        private void HandleBurgerCompleted(Vector3 pos, int finalPoints, string name, int ingredientCount, List<IngredientType> ingredients)
         {
             if (ingredientCount == 0) return;
-
-            bool isMatch = IsOrderMatch(ingredients, ingredientCount);
-            int globalMult = GetGlobalMultiplier();
-            int challengeMult = isMatch ? GameplayConfig.CHALLENGE_MATCH_MULTIPLIER : 1;
-            int finalPoints = basePoints * globalMult * challengeMult;
-
-            // Award the extra score beyond the base already granted.
-            int extraPoints = finalPoints - basePoints;
-            if (extraPoints > 0)
-                GameManager.Instance?.AddExtraScore(extraPoints);
-
-            // Multiplier feedback popup at the burger position.
-            if (globalMult > 1 || isMatch)
-            {
-                string multText = $"x{globalMult * challengeMult}";
-                FloatingText.Spawn(pos + Vector3.up * 0.5f, multText, UIStyles.HUD_TEXT_FILL,
-                    UIStyles.WORLD_FLOATING_TEXT_SIZE, "ui_popup_plate_mult");
-            }
-
-            if (!isMatch) return;
+            if (!IsOrderMatch(ingredients, ingredientCount)) return;
 
             _challengeProgress++;
 
@@ -183,13 +191,20 @@ namespace DogtorBurguer
             FloatingText.Spawn(pos + Vector3.up * 1.1f, $"{stars}!", UIStyles.HUD_TEXT_FILL,
                 UIStyles.WORLD_STAR_POPUP_SIZE, "ui_popup_plate_mult");
 
-            AudioManager.Instance?.PlayChallengeMatch();
             OnMatched?.Invoke();
 
+            // The leveling match plays the distinct mult-level-up jingle INSTEAD of the match
+            // chord (they were overlapping/reused — Oscar, 2026-09-05).
             if (_challengeProgress >= ProgressTarget)
+            {
+                AudioManager.Instance?.PlayChallengeLevelUp();
                 LevelUp();
+            }
             else
+            {
+                AudioManager.Instance?.PlayChallengeMatch();
                 GenerateNewChallenge();
+            }
         }
 
         private void LevelUp()

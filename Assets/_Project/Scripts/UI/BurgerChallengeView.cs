@@ -170,15 +170,19 @@ namespace DogtorBurguer
             {
                 foreach (IngredientType t in _model.TargetIngredients)
                     rows.Add(t);
-                // The ghosted "?" mystery layer: the same silhouette Size orders use for "any
-                // ingredients", faded — reads as "these, plus whatever else" (extras are OK)
-                // without a word on the card.
-                rows.Add(null);
+                // One ghosted "?" slot PER free ingredient: the order's total is exact
+                // (2026-09-05 redesign), so the card shows the whole recipe — named art +
+                // anything-goes slots.
+                for (int i = _model.TargetIngredients.Count; i < _model.RequiredSize; i++)
+                    rows.Add(null);
                 placeholder = "?";
             }
             rows.Add(IngredientType.BunTop);
 
+            // Big orders squeeze their row spacing so the stack always fits the card.
             float spacing = UIStyles.SPECIAL_INGREDIENT_SPACING;
+            if ((rows.Count - 1) * spacing > UIStyles.SPECIAL_STACK_MAX_SPAN)
+                spacing = UIStyles.SPECIAL_STACK_MAX_SPAN / (rows.Count - 1);
             float startY = -(rows.Count - 1) * spacing * 0.5f;
 
             bool ghostMystery = _model.CurrentOrderType == OrderType.Contains;
@@ -202,7 +206,7 @@ namespace DogtorBurguer
                     AddSprite(UiArt.Load("ui_mystery"), "Placeholder", y, placeholder, ghostMystery);
             }
 
-            _multText.text = $"x{_model.GetGlobalMultiplier()}";
+            _multText.text = $"x{_model.Multiplier:0.##}"; // 1, 1.25, 1.5 … (the gauge badge shows the LIVE value)
             UpdateMeter(animate: true);
         }
 

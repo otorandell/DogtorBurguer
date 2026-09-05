@@ -130,8 +130,10 @@ namespace DogtorBurguer
                 }
                 else
                 {
-                    OnMatchEliminated?.Invoke(GameplayConfig.POINTS_MATCH);
-                    OnMatchEffect?.Invoke(result.EffectPosition, GameplayConfig.POINTS_MATCH);
+                    // The challenge multiplier is GLOBAL (2026-09-05): matches scale with it too.
+                    int points = BurgerChallenge.Scaled(GameplayConfig.POINTS_MATCH);
+                    OnMatchEliminated?.Invoke(points);
+                    OnMatchEffect?.Invoke(result.EffectPosition, points);
                 }
             }
         }
@@ -188,13 +190,20 @@ namespace DogtorBurguer
 
             // Let BurgerChallenge override display name if order matches
             string displayName = data.Name;
-            if (BurgerChallenge.Instance != null &&
-                BurgerChallenge.Instance.IsOrderMatch(data.IngredientTypes, data.IngredientCount))
+            bool isMatch = BurgerChallenge.Instance != null &&
+                BurgerChallenge.Instance.IsOrderMatch(data.IngredientTypes, data.IngredientCount);
+            if (isMatch)
                 displayName = "Order Complete!";
 
-            OnBurgerCompleted?.Invoke(data.Points, displayName);
-            OnBurgerEffect?.Invoke(pos, data.Points, displayName, data.IngredientCount);
-            OnBurgerWithIngredients?.Invoke(pos, data.Points, displayName, data.IngredientCount, data.IngredientTypes);
+            // Final score computed HERE (2026-09-05): base × the global challenge multiplier,
+            // ×3 more when it fills the Special Order. Every listener gets the final number —
+            // GameManager adds it once, the popup displays it (no separate x-badge popup).
+            int finalPoints = BurgerChallenge.Scaled(data.Points)
+                * (isMatch ? GameplayConfig.CHALLENGE_MATCH_MULTIPLIER : 1);
+
+            OnBurgerCompleted?.Invoke(finalPoints, displayName);
+            OnBurgerEffect?.Invoke(pos, finalPoints, displayName, data.IngredientCount);
+            OnBurgerWithIngredients?.Invoke(pos, finalPoints, displayName, data.IngredientCount, data.IngredientTypes);
         }
 
         public void SwapColumnsWithWaveEffect(int columnA, int columnB)

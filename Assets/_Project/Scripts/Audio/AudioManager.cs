@@ -21,6 +21,7 @@ namespace DogtorBurguer
         private AudioClip _fastDropClip;
         private AudioClip _earlySpawnClip;
         private AudioClip _challengeMatchClip;
+        private AudioClip _challengeLevelUpClip;
         private AudioClip _consumableCollectClip;
         private AudioClip _consumableKetchupClip;
         private AudioClip _consumableMustardClip;
@@ -41,6 +42,7 @@ namespace DogtorBurguer
         [SerializeField] private AudioClip _fastDropOverride;
         [SerializeField] private AudioClip _earlySpawnOverride;
         [SerializeField] private AudioClip _challengeMatchOverride;
+        [SerializeField] private AudioClip _challengeLevelUpOverride;
         [SerializeField] private AudioClip _consumableCollectOverride;
         [SerializeField] private AudioClip _consumableKetchupOverride;
         [SerializeField] private AudioClip _consumableMustardOverride;
@@ -143,6 +145,7 @@ namespace DogtorBurguer
             _fastDropClip = Resolve(_fastDropOverride, "FastDrop", 0.12f, GenerateFastDropSamples);
             _earlySpawnClip = Resolve(_earlySpawnOverride, "EarlySpawn", 0.15f, GenerateEarlySpawnSamples);
             _challengeMatchClip = Resolve(_challengeMatchOverride, "ChallengeMatch", 0.35f, GenerateChallengeMatchSamples);
+            _challengeLevelUpClip = Resolve(_challengeLevelUpOverride, "ChallengeLevelUp", 0.55f, GenerateChallengeLevelUpSamples);
             _consumableCollectClip = Resolve(_consumableCollectOverride, "ConsumableCollect", 0.18f, GenerateConsumableCollectSamples);
             _consumableKetchupClip = Resolve(_consumableKetchupOverride, "ConsumableKetchup", 0.18f, GenerateKetchupSamples);
             _consumableMustardClip = Resolve(_consumableMustardOverride, "ConsumableMustard", 0.16f, GenerateMustardSamples);
@@ -384,6 +387,30 @@ namespace DogtorBurguer
         public void PlayChallengeMatch()
         {
             PlayClip(_challengeMatchClip, 0.7f);
+        }
+
+        /// <summary>
+        /// Rising C-major arpeggio with a shimmer tail (C5 E5 G5 C6 E6) — the MULT level-up.
+        /// Deliberately distinct from the game level-up's A-major run and the match chord
+        /// (they read as one reused sound before — Oscar, 2026-09-05).
+        /// </summary>
+        private float GenerateChallengeLevelUpSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float[] notes = { 523f, 659f, 784f, 1047f, 1319f };
+            float noteLength = duration / notes.Length;
+            int noteIndex = Mathf.Min((int)(t / noteLength), notes.Length - 1);
+            float noteT = (t - noteIndex * noteLength) / noteLength;
+            float envelope = (1f - noteT * 0.35f) * (1f - t / duration * 0.4f);
+            float freq = notes[noteIndex];
+            float shimmer = Mathf.Sin(2f * Mathf.PI * freq * 3f * t) * 0.12f * (t / duration);
+            return (Mathf.Sin(2f * Mathf.PI * freq * t) * 0.6f
+                  + Mathf.Sin(2f * Mathf.PI * freq * 2f * t) * 0.25f + shimmer) * envelope * 0.75f;
+        }
+
+        public void PlayChallengeLevelUp()
+        {
+            PlayClip(_challengeLevelUpClip, 0.7f);
         }
 
         /// <summary>
