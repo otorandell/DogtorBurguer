@@ -159,18 +159,25 @@ namespace DogtorBurguer
         public static void StyleAccent(TextMeshProUGUI tmp) =>
             UIFactory.StyleFillAndBorder(tmp, UIStyles.SHOP_ACCENT, UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH);
 
-        /// <summary>Money price labels for display: digits and separators only. The trial font
-        /// renders currency symbols wrong either way — "$" maps to Panton's placeholder sliver
-        /// glyph, "€" falls back to an unstyled font (see CLAUDE.md) — so ALL of them are dropped,
-        /// store-localized strings included ("0,01 €" → "0,01"). The store's own purchase sheet
-        /// shows the real symbol; delete this filter with the font swap.</summary>
+        /// <summary>Money price labels for display. Digits and separators render in Panton; any
+        /// other run (currency symbols and codes — €, $, "US", "R") is routed via rich text to the
+        /// LiberationSans fallback with the hand-authored sticker material, because the trial font
+        /// can never draw them itself: it lacks € entirely and maps $ to the placeholder sliver
+        /// glyph (see CLAUDE.md). Delete with the font swap — labels can then show verbatim.</summary>
         public static string MoneyLabel(string priceLabel)
         {
-            var sb = new System.Text.StringBuilder(priceLabel.Length);
-            foreach (char c in priceLabel)
-                if (char.IsDigit(c) || c == '.' || c == ',' || c == ' ')
-                    sb.Append(c);
-            return sb.ToString().Trim();
+            const string open = "<font=\"LiberationSans SDF\" material=\"LiberationSans SDF - Sticker\">";
+            var sb = new System.Text.StringBuilder(priceLabel.Length + 64);
+            bool inSymbol = false;
+            foreach (char c in priceLabel.Trim())
+            {
+                bool plain = char.IsDigit(c) || c == '.' || c == ',' || c == ' ';
+                if (!plain && !inSymbol) { sb.Append(open); inSymbol = true; }
+                else if (plain && inSymbol) { sb.Append("</font>"); inSymbol = false; }
+                sb.Append(c);
+            }
+            if (inSymbol) sb.Append("</font>");
+            return sb.ToString();
         }
 
         // --- boxes + cells ---

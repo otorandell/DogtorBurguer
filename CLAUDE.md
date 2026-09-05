@@ -366,10 +366,12 @@ Rebuilt each open, destroyed on close (no stale state).
   wide green blank (the button sheet has words baked in), so it's the wide blue blank hue-shifted
   (`scratchpad/build_shop_art.py`, outline + highlight preserved). Ask the artist for a wide green
   blank and it's a file swap.
-- Money price labels show digits + separators ONLY (`ShopWidgets.MoneyLabel` sanitizes both the
-  config placeholders and the store's localized strings, e.g. "0,01 €" → "0,01"): the trial font
-  renders "$" as the sliver and "€" via the unstyled fallback — both wrong next to sticker
-  digits. The store purchase sheet shows the real symbol. Delete the filter at the font swap.
+- Money price labels: digits/separators render in Panton, and `ShopWidgets.MoneyLabel` wraps
+  every other run (currency symbols and codes) in a rich-text `<font>` tag → **LiberationSans
+  SDF** with the hand-authored sticker material (`LiberationSans SDF - Sticker.mat` in TMP's
+  Fonts & Materials — HUD stroke/shadow baked in; the name must keep the font-name prefix for
+  TMP's material lookup). Symbols render slightly thinner than Panton (padding 9 vs 34) but in
+  palette. Delete MoneyLabel's wrapping + the material at the font swap.
 - **Layer split**: `ShopScreen` (frame/orchestration + confirm dialog + pills),
   `ShopSections` (page composition), `ShopWidgets` (low-level UGUI builders), `ShopCell` (the
   parts of one cell), `ShopSkinCell` (skin cell states), `ShopService` (atomic purchase rules,
