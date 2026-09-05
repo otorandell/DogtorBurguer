@@ -6,15 +6,17 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// The HOW TO PLAY panel on the shared ModalPanel chrome, opened from the top bar "?" button
-    /// — in-game AND on the main menu, same display everywhere. Paginated: a lime page header +
-    /// short dash bullets (regular weight — synthetic bold on the ExtraBold trial font smears),
-    /// rotated yellow preview arrows to flip, and a "1/6" pager (its slash renders through the
-    /// LiberationSans sticker material — the trial font slivers it). Layout: UIStyles.HOWTO_*.
+    /// — in-game AND on the main menu, same display everywhere. Paginated: a lime page header
+    /// over a vertical LAYOUT of dash bullets — each bullet auto-sizes to its wrapped height
+    /// (VerticalLayoutGroup + ContentSizeFitter), so multi-line bullets can never overlap and
+    /// the gap between bullets is constant. Bullets are REGULAR weight (synthetic bold on the
+    /// ExtraBold trial font smears). Pager "1/6" (fallback-material slash) + rotated yellow
+    /// arrows flip pages. Layout knobs: UIStyles.HOWTO_*.
     /// </summary>
     public class HowToPlayPanel : MonoBehaviour
     {
-        // One (header, bullets) per page, max ~4 bullets. Trial-font safe: letters, digits and
-        // . , ; : - ! ? only (no apostrophes or symbols — see CLAUDE.md trial-font note).
+        // One (header, bullets) per page. Trial-font safe: letters, digits and . , ; : - ! ?
+        // only (no apostrophes or symbols — see CLAUDE.md trial-font note).
         private static readonly (string Header, string[] Bullets)[] Pages =
         {
             ("CONTROLS", new[]
@@ -59,7 +61,8 @@ namespace DogtorBurguer
 
         private Canvas _canvas;
         private ModalPanel _modal;
-        private Transform _linesRoot;
+        private TextMeshProUGUI _header;
+        private RectTransform _bulletList;
         private TextMeshProUGUI _pager;
         private GameObject _prevArrow;
         private GameObject _nextArrow;
@@ -91,12 +94,11 @@ namespace DogtorBurguer
         {
             _modal = ModalPanel.Build(_canvas, "HOW TO PLAY", "ui_modal_panel", Vector2.zero, Vector2.zero, Hide);
 
-            GameObject linesObj = new GameObject("Lines");
-            linesObj.transform.SetParent(_modal.Panel, false);
-            RectTransform linesRect = linesObj.AddComponent<RectTransform>();
-            linesRect.anchorMin = linesRect.anchorMax = new Vector2(0.5f, 0.5f);
-            linesRect.sizeDelta = Vector2.zero;
-            _linesRoot = linesObj.transform;
+            _header = UIFactory.CreateText(_modal.Panel, "", new Vector2(0f, UIStyles.HOWTO_HEADER_Y),
+                new Vector2(UIStyles.HOWTO_LINE_W, 40f), UIStyles.HOWTO_HEADER_SIZE, FontStyles.Bold);
+            ShopWidgets.StyleAccent(_header);
+
+            _bulletList = BuildBulletList();
 
             // Pager row: [<] 1/6 [>] — the yellow preview arrow art, rotated sideways.
             _pager = UIFactory.CreateText(_modal.Panel, "", new Vector2(0f, UIStyles.HOWTO_PAGER_Y),
@@ -105,6 +107,30 @@ namespace DogtorBurguer
 
             _prevArrow = BuildArrow("Prev", -UIStyles.HOWTO_ARROW_X, UIStyles.HOWTO_ARROW_ROT_LEFT, -1);
             _nextArrow = BuildArrow("Next", UIStyles.HOWTO_ARROW_X, UIStyles.HOWTO_ARROW_ROT_RIGHT, 1);
+        }
+
+        // The bullet list: a top-anchored vertical layout that measures each bullet's wrapped
+        // height (TMP is an ILayoutElement) and stacks them with one constant gap — Unity's own
+        // text-flow mechanism, replacing the fixed-pitch rows that overlapped on long bullets.
+        private RectTransform BuildBulletList()
+        {
+            GameObject obj = new GameObject("Bullets");
+            obj.transform.SetParent(_modal.Panel, false);
+            RectTransform rect = obj.AddComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 1f); // grows downward from a fixed top edge
+            rect.anchoredPosition = new Vector2(0f, UIStyles.HOWTO_BULLETS_TOP_Y);
+            rect.sizeDelta = new Vector2(UIStyles.HOWTO_LINE_W, 0f);
+
+            VerticalLayoutGroup layout = obj.AddComponent<VerticalLayoutGroup>();
+            layout.spacing = UIStyles.HOWTO_BULLET_GAP;
+            layout.childAlignment = TextAnchor.UpperLeft;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+            obj.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            return rect;
         }
 
         private GameObject BuildArrow(string name, float x, float zRotation, int step)
@@ -121,26 +147,23 @@ namespace DogtorBurguer
         {
             _page = Mathf.Clamp(page, 0, Pages.Length - 1);
 
-            for (int i = _linesRoot.childCount - 1; i >= 0; i--)
-                Destroy(_linesRoot.GetChild(i).gameObject);
+            // Deactivate before the deferred Destroy so the layout ignores the old bullets
+            // immediately (a destroyed-this-frame child still counts in the layout pass).
+            for (int i = _bulletList.childCount - 1; i >= 0; i--)
+            {
+                GameObject old = _bulletList.GetChild(i).gameObject;
+                old.SetActive(false);
+                Destroy(old);
+            }
 
             (string header, string[] bullets) = Pages[_page];
+            _header.text = header;
 
-            TextMeshProUGUI headerText = UIFactory.CreateText(_linesRoot, header,
-                new Vector2(0f, UIStyles.HOWTO_HEADER_Y), new Vector2(UIStyles.HOWTO_LINE_W, 40f),
-                UIStyles.HOWTO_HEADER_SIZE, FontStyles.Bold);
-            ShopWidgets.StyleAccent(headerText);
-
-            // TopLeft-aligned: every bullet's FIRST text line starts at its rect top, so the
-            // header gap is identical on every page (midline centering made wrapping bullets
-            // float up toward the header on some pages).
             for (int i = 0; i < bullets.Length; i++)
             {
-                TextMeshProUGUI line = UIFactory.CreateText(_linesRoot, bullets[i],
-                    new Vector2(0f, UIStyles.HOWTO_BULLET_TOP_Y - i * UIStyles.HOWTO_BULLET_PITCH),
-                    new Vector2(UIStyles.HOWTO_LINE_W, UIStyles.HOWTO_BULLET_PITCH),
-                    UIStyles.HOWTO_TEXT_SIZE, FontStyles.Normal, UIStyles.TOPBAR_NUMBER_COLOR,
-                    TextAlignmentOptions.TopLeft, wrap: true);
+                TextMeshProUGUI line = UIFactory.CreateText(_bulletList, bullets[i],
+                    Vector2.zero, Vector2.zero, UIStyles.HOWTO_TEXT_SIZE, FontStyles.Normal,
+                    UIStyles.TOPBAR_NUMBER_COLOR, TextAlignmentOptions.TopLeft, wrap: true);
                 line.gameObject.name = "Bullet" + i;
             }
 

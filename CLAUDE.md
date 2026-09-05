@@ -762,8 +762,10 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   placement/size to the in-game bar — the menu gear override was dropped too); the kit's blank green square `ui_btn_square_green` + a HUD question mark. Opens the
   modal chrome ("HOW TO PLAY"), **paginated** (6 pages): `Pages` = (header, bullets)[] in the
   class (trial-font-safe) — a lime page header (CONTROLS, MATCHING, BURGERS, SPECIAL ORDERS,
-  POWER-UPS ×2) over up to 4 dash bullets in REGULAR weight brown (⚠️ synthetic Bold on the
-  ExtraBold trial font smears strokes — keep body text FontStyles.Normal), with a "1/6" pager
+  POWER-UPS ×2) over dash bullets in REGULAR weight brown (⚠️ synthetic Bold on the ExtraBold
+  trial font smears strokes — keep body text FontStyles.Normal) stacked by a
+  **VerticalLayoutGroup + ContentSizeFitter** (each bullet auto-sizes to its wrapped height,
+  constant `HOWTO_BULLET_GAP` — fixed-pitch rows overlapped on long bullets), with a "1/6" pager
   (its slash via the LiberationSans sticker material — Panton slivers "/") flanked by rotated
   `ui_arrow_yellow` prev/next buttons, hidden at the ends. Layout `UIStyles.HOWTO_*`. In-game it
   pauses/resumes like Settings; the menu opener shows it plain. `ui_shop_button` stays unused.
