@@ -17,6 +17,8 @@ namespace DogtorBurguer
         private const string KEY_OWNED_SKINS = "ownedSkins";          // CSV of skin ids
         private const string KEY_EQUIPPED_PREFIX = "equippedSkin_";   // + (int)SkinSlot → skin id
         private const string KEY_CONSUMABLE_PREFIX = "consumable_";   // + (int)ConsumableType → count
+        private const string KEY_GEM_AD_DATE = "gemAdDate";           // yyyymmdd of the last rewarded-gem ad
+        private const string KEY_GEM_AD_COUNT = "gemAdCount";         // rewarded-gem ads watched on that day
 
         // Canonical first-run defaults. Single source of truth — referenced by
         // LoadData and by consumers that need a fallback when Instance is null.
@@ -152,6 +154,26 @@ namespace DogtorBurguer
             AdsRemoved = true;
             PlayerPrefs.SetInt(KEY_ADS_REMOVED, 1);
             PlayerPrefs.Save();
+        }
+
+        // --- free gem ads (the shop's FREE rung, capped per local calendar day — GEM_AD_DAILY_CAP) ---
+
+        /// <summary>Rewarded gem ads watched today. Resets implicitly when the stored day differs.</summary>
+        public int GemAdsWatchedToday =>
+            PlayerPrefs.GetInt(KEY_GEM_AD_DATE, 0) == TodayStamp() ? PlayerPrefs.GetInt(KEY_GEM_AD_COUNT, 0) : 0;
+
+        public void RecordGemAdWatched()
+        {
+            int count = GemAdsWatchedToday + 1; // reads through the date check, so a stale count restarts at 1
+            PlayerPrefs.SetInt(KEY_GEM_AD_DATE, TodayStamp());
+            PlayerPrefs.SetInt(KEY_GEM_AD_COUNT, count);
+            PlayerPrefs.Save();
+        }
+
+        private static int TodayStamp()
+        {
+            DateTime now = DateTime.Now;
+            return now.Year * 10000 + now.Month * 100 + now.Day;
         }
 
         // --- skins (ownership is by skin id; default skins are implicitly owned — see ShopService) ---

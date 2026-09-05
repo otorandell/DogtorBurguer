@@ -431,9 +431,23 @@ namespace DogtorBurguer
         // ONE TIME BUY tag are baked in — keep MonetizationConfig's REMOVE_ADS_* in step with the art),
         // the THANK YOU box and the Pro Cook Pack bundle (9-sliced item box).
         public static float SHOP_CONTENT_W => REFERENCE_RESOLUTION.x - 2f * (SHOP_SCROLL_SIDE + SHOP_CONTENT_PADDING);
-        public const float SHOP_BANNER_H = 96f;
+        public const float SHOP_BANNER_H = 110f;                                // remove-ads offer / THANK YOU box
         public const float SHOP_BANNER_TEXT_SIZE = 26f;
         public static readonly Vector2 SHOP_BANNER_TEXT_INSET = new(24f, 12f);
+        // Remove-Ads offer banner (composed from widgets 2026-09-05 — the baked ui_shop_remove_ads
+        // mock is retired; texts anchor to the box's LEFT edge, the price pill to its RIGHT edge)
+        public static readonly Vector2 SHOP_BANNER_TITLE_POS = new(28f, 30f);
+        public static readonly Vector2 SHOP_BANNER_TITLE_RECT = new(230f, 30f);
+        public const float SHOP_BANNER_TITLE_SIZE = 26f;
+        public static readonly Vector2 SHOP_BANNER_TAG_POS = new(28f, 4f);
+        public static readonly Vector2 SHOP_BANNER_TAG_RECT = new(230f, 18f);
+        public const float SHOP_BANNER_TAG_SIZE = 12f;
+        public static readonly Vector2 SHOP_BANNER_BONUS_POS = new(28f, -24f);
+        public static readonly Vector2 SHOP_BANNER_BONUS_RECT = new(150f, 26f);
+        public const float SHOP_BANNER_BONUS_SIZE = 18f;
+        public const float SHOP_BANNER_BONUS_ICON_H = 22f;
+        public const float SHOP_BANNER_PILL_W = 150f;                           // ui_btn_green_big on the banner
+        public const float SHOP_BANNER_PILL_X = -88f;
         public const float SHOP_BUNDLE_H = 110f;
         public const float SHOP_BUNDLE_ICON_H = 74f;                            // the condiment tray
         public const float SHOP_BUNDLE_ICON_X = 84f;                            // tray center from the left edge

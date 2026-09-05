@@ -259,6 +259,10 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
     grants + tracks `StarsEarnedThisRun` (shown on the game-over panel). Also from gem→star shop
     packs; editor debug key **4** grants 500.
 - One-directional exchange: gems buy stars, never the reverse (standard freemium convention).
+- **Economy pass (2026-09-05)** — full money/time study in `Docs/economy-2026-09-05.md`. Retunes:
+  consumables 100★/270★/700★ (were 150/400/1000 — hoard prevention), gem-cheap skins 30◆→60◆ and
+  chef European 50◆→80◆ (the premium tier undercut the 400★ star tier), the FREE gems rung capped
+  at `GEM_AD_DAILY_CAP` (3/day — uncapped, 4 views ≈ the 0.99 gem pack).
 - Continue after game over: 50 gems or watch ad
 - Interstitial ads every 3 games, shown only on the two **restart** buttons (game over + in-game
   settings, both via `AdManager.MaybeShowInterstitial`). Menu Play and Quit-to-Menu are ad-free —
@@ -324,10 +328,11 @@ everything). Opened via `ShopScreen.Open()` (menu Shop button) or `ShopScreen.Op
 (in-game top-bar shop button and the consumable slots' green plus box) — the in-game path
 **pauses** the run (`GameManager.PauseGame`) and resumes on close; all shop tweens run unscaled.
 Rebuilt each open, destroyed on close (no stale state).
-- **Sections, top → bottom**: support banner (the authored **REMOVE ADS** image
-  `ui_shop_remove_ads`, one tappable sprite — ⚠️ its price "2.99", "+100" gem bonus and ONE TIME
-  BUY tag are **baked in**, keep `MonetizationConfig.REMOVE_ADS_*` in step; once bought it becomes
-  the mock's **THANK YOU FOR SUPPORTING US!** box) → DOGTOR SKINS (one h-scroll row on the
+- **Sections, top → bottom**: support banner (**composed from shop widgets since 2026-09-05**:
+  lime REMOVE ADS + ONE TIME BUY! + a plus-art gem-bonus line + the green price pill showing the
+  store's LOCALIZED price via `IapManager.PriceLabel` — the baked-values mock `ui_shop_remove_ads`
+  is retired/unused, so price and bonus retunes are config-only; once bought it becomes
+  the mock's **THANK YOU FOR SUPPORTING US!** box, knobs `SHOP_BANNER_*`) → DOGTOR SKINS (one h-scroll row on the
   9-sliced cream slab `ui_shop_row_slab`) → INGREDIENT SKINS (**one labelled sub-row per ingredient type** — Patty, Cheese, …, Buns
   — via `ShopCatalog.IngredientSkinRows()` + `ShopWidgets.CreateSubTitle`; `ShopRowScroll` rows,
   vertical drags route to the page scroll) → POWER-UPS (a **3-column grid**: one row per
@@ -338,7 +343,8 @@ Rebuilt each open, destroyed on close (no stale state).
   star price, `ShopService.TryBuyProCookPack`) → STARS (grid, `ui_pack_stars_1..3` by ladder
   position; gem-priced, **confirm dialog** — the only confirm; soft spends and equips are
   instant) → GEMS (grid; the free rewarded-ad cell first with the authored **WATCH** pill
-  `ui_shop_watch` tracking ad availability, then IAP packs with `ui_pack_gems_1..4` by position —
+  `ui_shop_watch` tracking ad availability and the **daily cap** (`GEM_AD_DAILY_CAP` 3/day — the
+  label reads TOMORROW! once spent; date + count persist in SaveDataManager), then IAP packs with `ui_pack_gems_1..4` by position —
   `Gem_Pack_5` is in the kit for a 5th tier, not imported; MOST POPULAR / BEST VALUE badges sit
   gold on the amount line).
 - **Cells** (`ShopWidgets.CreateCell(…, boxArt, …)` → `ShopCell`): an authored box sized by width
@@ -478,8 +484,8 @@ sprite — acceptable; menu equips always show in-game).
   just replace a PNG's contents keeping its filename. Works from the Project window with any scene
   open — no more opening `Game.unity`.
 - **Purchasable skins (curated catalog, 2026-09-05)**: every slot = default + 2 star skins
-  (cheap 400★ / "golden" end-game 5000★) + 2 gem skins (cheap 30◆ / expensive 100◆). Dogtors:
-  Burgerchain 500★ (cheap), Royale 10000★ (end-game), European 50◆, Japanese/Mexican 150◆ each.
+  (cheap 400★ / "golden" end-game 5000★) + 2 gem skins (cheap 60◆ / expensive 100◆). Dogtors:
+  Burgerchain 500★ (cheap), Royale 10000★ (end-game), European 80◆, Japanese/Mexican 150◆ each.
   Star-cheap = the old gourmet set (Chicken, Cheddar, Cherry Tomato, Caramelized Onion, Relish,
   Shredded Lettuce, **Boiled Egg** — new; the gourmet Quail Egg moved to gems-expensive) and
   Brioche Buns; star-expensive = the gold set. Gem skins (2026-09-04 kit art): Vegan/Wagyu patty,

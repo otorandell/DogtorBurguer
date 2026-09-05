@@ -9,6 +9,10 @@ namespace DogtorBurguer
         #region Gems
         public const int CONTINUE_GEM_COST = 50;
         public const int GEM_REWARD_AD = 25;
+        // Daily cap on the shop's FREE rewarded-gems rung (2026-09-05 economy pass): uncapped,
+        // 4 views ~ the 0.99 pack — a daily habit hook, not a money printer. Count + calendar
+        // day persist in SaveDataManager (GemAdsWatchedToday / RecordGemAdWatched).
+        public const int GEM_AD_DAILY_CAP = 3;
         public const int GEM_PACK_VALUE = 5;
         // Star fairies award ~the gem pack's worth (5 stars/gem shop rate → 5 gems ≈ 25 stars).
         public const int STAR_PACK_VALUE = 25;
@@ -92,15 +96,17 @@ namespace DogtorBurguer
         #endregion
 
         #region Shop — consumables (priced in stars; the soft-currency sink)
-        // One ladder for all three types: single at base price, triple at ~11% off.
+        // One ladder for all three types: single at base price, triple at 10% off.
+        // 2026-09-05 economy pass: dropped from 150/400/1000 — at 3 casual games per single use
+        // players hoard instead of playing with them; ~2 games per use keeps them circulating.
         public static readonly ConsumablePack[] CONSUMABLE_PACKS =
         {
-            new ConsumablePack(1, 150),
-            new ConsumablePack(3, 400),
+            new ConsumablePack(1, 100),
+            new ConsumablePack(3, 270),
         };
         // The "Pro Cook Pack" bundle: Quantity of EACH consumable type for one star price
-        // (9 items for 1000 vs 3 × 400 = 1200 buying the triples separately — ~17% off).
-        public static readonly ConsumablePack PRO_COOK_PACK = new ConsumablePack(3, 1000);
+        // (9 items for 700 vs 3 × 270 = 810 buying the triples separately — ~14% off).
+        public static readonly ConsumablePack PRO_COOK_PACK = new ConsumablePack(3, 700);
         #endregion
 
         #region Stars — earning (the soft-currency faucet; sinks live in the Shop sections above)

@@ -27,19 +27,51 @@ namespace DogtorBurguer
             BuildGemPacks(content, screen);
         }
 
-        // Top of the page: the authored Remove-Ads banner (one tappable image — price, gem bonus and
-        // the ONE TIME BUY tag are baked in) while unbought; afterwards the mock's THANK YOU FOR
-        // SUPPORTING US! box takes its slot. The grant arrives through IapManager (store callback).
+        // Top of the page: the Remove-Ads offer, composed from the shop's own widgets (the authored
+        // ui_shop_remove_ads art was a mock with the price, gem bonus and ONE TIME BUY tag baked
+        // in — retired 2026-09-05 so the pill shows the store's LOCALIZED price and retunes never
+        // need art). Once bought, the mock's THANK YOU box takes the slot. The grant arrives
+        // through IapManager (store callback).
         private static void BuildSupportBanner(RectTransform content, ShopScreen screen)
         {
-            Sprite offerArt = UiArt.Load("ui_shop_remove_ads");
-            Button offer = null;
-            offer = UIFactory.CreateSpriteButton(content, "RemoveAds", offerArt, Center, Vector2.zero,
-                UIFactory.SizeByWidth(offerArt, UIStyles.SHOP_CONTENT_W),
-                () => StorePurchase(screen, MonetizationConfig.REMOVE_ADS_STORE_ID, offer.transform));
-            offer.image.preserveAspect = true; // the page layout stretches widths; keep the art's shape
-            offer.gameObject.AddComponent<LayoutElement>().preferredHeight =
-                UIFactory.SizeByWidth(offerArt, UIStyles.SHOP_CONTENT_W).y;
+            Image offerBox = ShopWidgets.CreateBox(content, "RemoveAds", UIStyles.SHOP_BANNER_H);
+            RectTransform row = offerBox.rectTransform;
+            offerBox.raycastTarget = true; // the whole banner is tappable, not just the pill
+            offerBox.gameObject.AddComponent<Button>().onClick.AddListener(
+                () => StorePurchase(screen, MonetizationConfig.REMOVE_ADS_STORE_ID, offerBox.transform));
+
+            TextMeshProUGUI title = UIFactory.CreateText(row, "REMOVE ADS", Vector2.zero,
+                UIStyles.SHOP_BANNER_TITLE_RECT, UIStyles.SHOP_BANNER_TITLE_SIZE, FontStyles.Bold);
+            ShopWidgets.StyleAccent(title);
+            title.alignment = TextAlignmentOptions.Left;
+            ShopWidgets.AnchorLeft(title.rectTransform, UIStyles.SHOP_BANNER_TITLE_POS);
+
+            TextMeshProUGUI tag = UIFactory.CreateText(row, "ONE TIME BUY!", Vector2.zero,
+                UIStyles.SHOP_BANNER_TAG_RECT, UIStyles.SHOP_BANNER_TAG_SIZE, FontStyles.Bold,
+                UIStyles.TOPBAR_NUMBER_COLOR, TextAlignmentOptions.Left);
+            ShopWidgets.AnchorLeft(tag.rectTransform, UIStyles.SHOP_BANNER_TAG_POS);
+
+            // The gem-bonus line: [plus art][100][gem icon] — the plus is ART because the trial
+            // font renders '+' as the placeholder sliver glyph.
+            TextMeshProUGUI bonus = ShopWidgets.CreateIconLine(row, "Bonus", Vector2.zero,
+                UIStyles.SHOP_BANNER_BONUS_RECT, MonetizationConfig.REMOVE_ADS_BONUS_GEMS.ToString(),
+                UIStyles.SHOP_BANNER_BONUS_SIZE, "ui_gem", UIStyles.SHOP_BANNER_BONUS_ICON_H);
+            RectTransform bonusLine = (RectTransform)bonus.transform.parent;
+            Sprite plusArt = UiArt.Load("ui_consumable_plus");
+            Vector2 plusSize = UIFactory.SizeByHeight(plusArt, UIStyles.SHOP_BANNER_BONUS_ICON_H);
+            Image plus = UIFactory.CreateImage(bonusLine, "Plus", plusArt, Center, Vector2.zero, plusSize);
+            LayoutElement plusElement = plus.gameObject.AddComponent<LayoutElement>();
+            plusElement.preferredWidth = plusSize.x;
+            plusElement.preferredHeight = plusSize.y;
+            plus.transform.SetSiblingIndex(0);
+            ShopWidgets.AnchorLeft(bonusLine, UIStyles.SHOP_BANNER_BONUS_POS);
+
+            Button pill = null;
+            pill = ShopWidgets.CreatePill(row, "Pill", "ui_btn_green_big", new Vector2(1f, 0.5f),
+                new Vector2(UIStyles.SHOP_BANNER_PILL_X, 0f), UIStyles.SHOP_BANNER_PILL_W,
+                () => StorePurchase(screen, MonetizationConfig.REMOVE_ADS_STORE_ID, pill.transform));
+            ShopWidgets.SetPillLabel(pill,
+                StorePrice(MonetizationConfig.REMOVE_ADS_STORE_ID, MonetizationConfig.REMOVE_ADS_PRICE_LABEL), null);
 
             Image thanksBox = ShopWidgets.CreateBox(content, "ThankYou", UIStyles.SHOP_BANNER_H);
             TextMeshProUGUI thanksText = UIFactory.CreateText(thanksBox.transform, "THANK YOU FOR\nSUPPORTING US!", Vector2.zero,
@@ -50,7 +82,7 @@ namespace DogtorBurguer
             void Refresh()
             {
                 bool removed = SaveDataManager.Instance != null && SaveDataManager.Instance.AdsRemoved;
-                offer.gameObject.SetActive(!removed);
+                offerBox.gameObject.SetActive(!removed);
                 thanksBox.gameObject.SetActive(removed);
             }
             Refresh();
@@ -198,17 +230,20 @@ namespace DogtorBurguer
             ShopCell adCell = ShopWidgets.CreateCell(grid, "Gems_Ad", MonetizationConfig.GEM_REWARD_AD.ToString(),
                 ShopWidgets.ItemBoxArt, () =>
                 {
-                    if (AdManager.Instance == null) return;
+                    if (AdManager.Instance == null || GemAdsToday() >= MonetizationConfig.GEM_AD_DAILY_CAP) return;
                     AdManager.Instance.ShowRewarded(success =>
                     {
                         if (success && SaveDataManager.Instance != null)
+                        {
+                            SaveDataManager.Instance.RecordGemAdWatched();
                             SaveDataManager.Instance.AddGems(MonetizationConfig.GEM_REWARD_AD);
+                        }
                     });
                 });
             AddPackContents(adCell, "ui_gem", "");
             // The watch pill replaces the green one: the authored blank with its baked TV icon (sized by
             // height — it's a wider shape) + a label that tracks live rewarded availability (an ad may
-            // finish loading while the shop is open).
+            // finish loading while the shop is open) and the daily cap (TOMORROW! once spent).
             Sprite watchArt = UiArt.Load("ui_shop_watch");
             adCell.Pill.image.sprite = watchArt;
             adCell.Pill.GetComponent<RectTransform>().sizeDelta = UIFactory.SizeByHeight(watchArt, UIStyles.SHOP_WATCH_PILL_H);
@@ -218,11 +253,13 @@ namespace DogtorBurguer
             UIFactory.AutoFit(watchLabel, UIStyles.SHOP_WATCH_LABEL_MIN, UIStyles.SHOP_PILL_TEXT_SIZE);
             screen.RegisterPerFrame(() =>
             {
-                bool available = AdManager.Instance != null && AdManager.Instance.IsRewardedAvailable;
-                if (adCell.Button.interactable == available) return;
+                bool capped = GemAdsToday() >= MonetizationConfig.GEM_AD_DAILY_CAP;
+                bool available = !capped && AdManager.Instance != null && AdManager.Instance.IsRewardedAvailable;
+                string label = capped ? "TOMORROW!" : available ? "WATCH" : "LOADING...";
+                if (adCell.Button.interactable == available && watchLabel.text == label) return;
                 adCell.Button.interactable = available;
                 adCell.Pill.interactable = available;
-                watchLabel.text = available ? "WATCH" : "LOADING...";
+                watchLabel.text = label;
             });
 
             GemProduct[] products = MonetizationConfig.GEM_PRODUCTS;
@@ -296,6 +333,9 @@ namespace DogtorBurguer
             string name = type.ToString().ToLowerInvariant();
             return UiArt.Load(quantity >= 3 ? "ui_shop_trio_" + name : "ui_consumable_" + name);
         }
+
+        private static int GemAdsToday() =>
+            SaveDataManager.Instance != null ? SaveDataManager.Instance.GemAdsWatchedToday : 0;
 
         private static int OwnedCount(ConsumableType type) =>
             ConsumableInventory.Instance != null ? ConsumableInventory.Instance.CountOf(type)
