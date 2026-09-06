@@ -42,6 +42,12 @@ namespace DogtorBurguer
         {
             TextMeshProUGUI highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy",
                 UIStyles.TOPBAR_SCORE_POS, UIStyles.TOPBAR_SCORE_ICON_H);
+            // The trophy pill doubles as the leaderboard button (2026-09-06) — tap opens the
+            // Play Games board (the editor mock just logs). Zero extra layout.
+            Image trophyBox = highScoreNumber.transform.parent.GetComponent<Image>();
+            trophyBox.raycastTarget = true;
+            trophyBox.gameObject.AddComponent<Button>().onClick.AddListener(
+                () => LeaderboardManager.Instance?.ShowLeaderboard());
             _starNumber = BuildCurrencyWidget("Stars", "ui_star",
                 UIStyles.TOPBAR_STAR_POS, UIStyles.TOPBAR_STAR_ICON_H);
             _gemNumber = BuildCurrencyWidget("Gems", "ui_gem",

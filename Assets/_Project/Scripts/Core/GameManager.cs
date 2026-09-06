@@ -205,9 +205,13 @@ namespace DogtorBurguer
         private void HandleGameOver()
         {
             // Persist the high score as part of the game-over flow (not in the UI panel, F-67).
-            // Relax runs never write it — longer, easier games would inflate the Classic trophy.
+            // Relax runs never write it — longer, easier games would inflate the Classic trophy —
+            // and the same gate keeps them off the Play Games leaderboard.
             if (SaveDataManager.Instance != null && CurrentMode == GameMode.Classic)
+            {
                 SaveDataManager.Instance.SetHighScore(_score);
+                LeaderboardManager.Instance?.ReportScore(_score);
+            }
 
             // End-of-run star payout from score — only the slice not paid out by an earlier
             // game over this run (a continue keeps the score, so pay the delta). Awarded before

@@ -42,6 +42,8 @@ Assets/_Project/Scripts/
                  MockIapProvider, UnityIapProvider, IapResult, GemProduct, StarProduct,
                  ConsumablePack, BurgerFairy, BurgerFairySpawner
     Abstractions/ IAdProvider (the ad-network contract), IIapProvider (the store contract)
+  Social/        LeaderboardManager (facade), MockLeaderboardProvider, PlayGamesLeaderboardProvider
+    Abstractions/ ILeaderboardProvider (the leaderboard contract)
   Consumables/   ConsumableType, ConsumableEffect (+ Ketchup/Mustard/Skewer), ConsumableEffects,
                  ConsumableFaller, ConsumableVfx (use effects), ConsumableInventory,
                  ConsumableInventoryView, ConsumableSlotWidget, ConsumableDragController,
@@ -62,6 +64,7 @@ These classes use the singleton pattern. Initialization order matters:
 10. **ConsumableInventoryView** -- world-space inventory slot icons
 11. **ConsumableDragController** -- the drag-to-column carry interaction
 12. **PlateManager** -- the four decorative under-column plates; slides two to swap on the chef flip
+13. **LeaderboardManager** -- Play Games leaderboard facade (mock in editor/unconfigured), DontDestroyOnLoad; created by AppBootstrap right after IapManager
 
 ## Event System
 Key events for cross-system communication:
@@ -711,6 +714,15 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   `internalIDToNameTable`, `spriteSheet.sprites[].internalID`, and `nameFileIdTable`.
 
 ## Pending Manual Steps
+- **Leaderboard activation** (code scaffolded 2026-09-06, `Scripts/Social/`): import the Play
+  Games plugin v2 (`com.google.play.games`), add the **`PLAY_GAMES` scripting define** (Player
+  Settings — the plugin defines no symbol of its own), run its Android setup wizard with the
+  PGS resources from the Play Console (Grow → Play Games Services: create the games project,
+  link the app, add one "High Score" leaderboard), and paste the leaderboard id into
+  `SocialConfig.PLAY_GAMES_LEADERBOARD_ID`. Until all three are done every build uses the
+  logging mock. Classic scores report at game over (same mode gate as the high score; Relax
+  never reports); the **TopBar trophy pill** opens the board on every screen. Scores are
+  client-reported (spoofable) — never hang rewards off leaderboard rank.
 - **Chef size/position tuning**: knobs are the chef sprite **PPU** (990 as of the last tuning pass; an older note said 2009 — trust the meta, not this file, and update here when retuned) for the original
   import) for size, and `Constants.CHEF_BOTTOM_OFFSET` (1.76) for the feet line — `GetWorldPosition` anchors
   the feet and derives the centre from the live sprite height, so resizing keeps the chef on the bottom border.
