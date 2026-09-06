@@ -66,6 +66,21 @@ it in every store listing.
   (`gems_100`, `gems_550`, `gems_1200`, `gems_2600`, `remove_ads`) and the intended prices
   ($0.99 / $4.99 / $9.99 / $19.99 / $2.99); activate them before the first test track upload.
 
+## Play Games Services (leaderboard — code scaffolded 2026-09-06)
+- Grow → Play Games Services → Setup and management → Configuration: **create a new Play Games
+  Services project** (name: Dogtor Burguer) and link this app.
+- Credentials: add an **Android credential** for the app (it wants an OAuth client — the console
+  walks you into Google Cloud: create the OAuth consent screen [External, app name, your email,
+  no scopes beyond the defaults] and an Android OAuth client with the package id + the SHA-1 of
+  the **Play App Signing key** [Play Console → Setup → App signing → App signing key certificate]).
+- Leaderboards → Create: name "High Score", format Numeric, order Larger is better. Copy the
+  **leaderboard ID** → paste into `SocialConfig.PLAY_GAMES_LEADERBOARD_ID`.
+- Publish the PGS configuration (its own Review/Publish button) and add yourself under
+  Testers while it's in review.
+- Unity side (see CLAUDE.md Pending Manual Steps): import plugin v2 `com.google.play.games`,
+  run its Android setup with the resources XML (Configuration → "Get resources"), add the
+  `PLAY_GAMES` scripting define.
+
 ## Before submitting
 - Hosted privacy policy URL entered (listing + LevelPlay dashboard).
 - Play App Signing enrolled; upload an **.aab** (Unity: Build App Bundle), IL2CPP, ARM64.
