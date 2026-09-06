@@ -130,7 +130,7 @@ falling piece) never move or swap the cook (`ProcessInput`):
 (see Core Systems → Consumables) — `TouchInputHandler` hands the gesture to
 `ConsumableDragController` and suppresses chef logic for its duration. **Editor-only debug**: keys
 **1/2/3** grant Ketchup/Mustard/Skewer to the inventory, **4** grants 500 stars, **F** spawns a
-fairy, **V** forces game over, **R** (while the shop is open) wipes shop purchases/equips/remove-ads (`#if UNITY_EDITOR`).
+fairy, **V** forces game over, **F12** saves a Game-view screenshot to Docs/store-assets, **R** (while the shop is open) wipes shop purchases/equips/remove-ads (`#if UNITY_EDITOR`).
 
 **Input-area debug gizmos** (editor-only, `#if UNITY_EDITOR`): each clickable zone is drawn by the
 component owning its hit-test, one color per interaction (`GizmoStyles`): falling fast-drop (green,
@@ -143,6 +143,12 @@ The Settings panel also has a **Start Level** stepper (`[−] Lv N [+]`) → per
 off by default**: the `MainMenuUI` inspector bool **Show Level Stepper** (menu scene) adds it
 below the panel art in flat placeholder widgets — the artist's Settings has no level selector.
 Menu panel only (the in-game panel never shows it; the value applies to the next run anyway).
+**Test Build** (2026-09-06): a second `MainMenuUI` inspector bool next to it → `TestBuild.Enable()`
+(`Core/TestBuild.cs`, a static flag set before the managers spawn): ads bypassed (no provider,
+rewarded ads reward instantly), IAP routed to the mock store, every skin owned (virtual, not
+persisted), stars/gems/consumables topped up to a stash each launch, the level stepper shown, and
+a red TEST BUILD stamp on the menu. Tick it for tester APKs (`Docs/build-and-share.md`), untick
+for release.
 **Settings opens in-game too** (top-bar gear, `GameHUD.OnConfigClicked`): same pause pattern as
 the shop — pauses a running game, panel on its own canvas (`SETTINGS_CANVAS_SORT` 110, above
 game-over, below shop), resumes via `SettingsPanel.OnClosed`. Sound/control-mode apply live

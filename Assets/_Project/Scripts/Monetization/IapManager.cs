@@ -26,12 +26,20 @@ namespace DogtorBurguer
             if (Instance != this) return;
             DontDestroyOnLoad(gameObject);
 
+            // Test builds skip the real store (its products may not exist yet) — the mock grants for free.
+            if (TestBuild.IsEnabled)
+            {
+                _provider = gameObject.AddComponent<MockIapProvider>();
+            }
+            else
+            {
 #if ENABLE_CLOUD_SERVICES_PURCHASING
-            _provider = gameObject.AddComponent<UnityIapProvider>();
+                _provider = gameObject.AddComponent<UnityIapProvider>();
 #else
-            Debug.LogWarning("[IapManager] Purchasing package not installed — using MockIapProvider (purchases are free).");
-            _provider = gameObject.AddComponent<MockIapProvider>();
+                Debug.LogWarning("[IapManager] Purchasing package not installed — using MockIapProvider (purchases are free).");
+                _provider = gameObject.AddComponent<MockIapProvider>();
 #endif
+            }
             _provider.Initialize(Catalog(), Grant);
         }
 

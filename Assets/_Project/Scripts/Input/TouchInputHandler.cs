@@ -113,6 +113,14 @@ namespace DogtorBurguer
                 FindAnyObjectByType<BurgerFairySpawner>()?.DebugSpawn();
             else if (keyboard.vKey.wasPressedThisFrame)
                 GameManager.Instance?.DebugTriggerGameOver();
+            else if (keyboard.f12Key.wasPressedThisFrame)
+            {
+                // Store-listing screenshots: captures the Game view at its CURRENT resolution —
+                // set it to a fixed 1080x1920 first so Play gets clean 9:16 1080p shots.
+                string file = $"Docs/store-assets/screenshot_{System.DateTime.Now:HHmmss}.png";
+                UnityEngine.ScreenCapture.CaptureScreenshot(file);
+                Debug.Log($"[Screenshot] saved {file}");
+            }
         }
 #endif
 

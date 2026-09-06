@@ -274,6 +274,11 @@ namespace DogtorBurguer
         // outline + downward shadow ring.
         public static readonly Color MENU_SUPPORT_TOP = new(0.66f, 0.85f, 0.36f);
         public static readonly Color MENU_SUPPORT_BOTTOM = new(0.42f, 0.62f, 0.0f);
+        // The TEST BUILD stamp (TestBuild): between the logo and PLAY, loud red.
+        public static readonly Vector2 MENU_TEST_BUILD_POS = new(0f, 20f);
+        public static readonly Vector2 MENU_TEST_BUILD_RECT = new(400f, 50f);
+        public const float MENU_TEST_BUILD_SIZE = 34f;
+        public static readonly Color MENU_TEST_BUILD_COLOR = new(1f, 0.25f, 0.2f);
         #endregion
 
         #region Layout — Game Over Screen (authored art — reference px, canvas-centered, y up)

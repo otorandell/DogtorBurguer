@@ -9,9 +9,10 @@ namespace DogtorBurguer
     /// </summary>
     public static class ShopService
     {
-        /// <summary>Default skins are implicitly owned; bought skins are recorded by id.</summary>
+        /// <summary>Default skins are implicitly owned; bought skins are recorded by id. A test
+        /// build owns everything (nothing is persisted — flip the flag off and ownership is real again).</summary>
         public static bool OwnsSkin(Skin skin) =>
-            skin != null && (skin.IsDefault ||
+            skin != null && (skin.IsDefault || TestBuild.IsEnabled ||
                 (SaveDataManager.Instance != null && SaveDataManager.Instance.OwnsSkin(skin.Id)));
 
         /// <summary>Buys a skin with its unlock currency and auto-equips it (buy = wear).</summary>

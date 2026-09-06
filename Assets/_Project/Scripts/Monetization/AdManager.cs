@@ -13,14 +13,18 @@ namespace DogtorBurguer
     {
         private IAdProvider _provider;
 
-        /// <summary>True when a rewarded ad is loaded and can actually show.</summary>
-        public bool IsRewardedAvailable => _provider != null && _provider.IsRewardedReady;
+        /// <summary>True when a rewarded ad is loaded and can actually show (always, on a test build).</summary>
+        public bool IsRewardedAvailable => TestBuild.IsEnabled || (_provider != null && _provider.IsRewardedReady);
 
         protected override void Awake()
         {
             base.Awake();
             if (Instance != this) return;
             DontDestroyOnLoad(gameObject);
+
+            // Test build: no provider at all — no SDK init, no ads. The public surface below
+            // short-circuits (interstitials skipped, rewarded ads reward instantly).
+            if (TestBuild.IsEnabled) return;
 
             // Provider selection: LevelPlay on device builds once its credentials are filled in
             // (MonetizationConfig.LEVELPLAY_*); the editor and unconfigured builds get the mock.
@@ -46,6 +50,8 @@ namespace DogtorBurguer
         /// </summary>
         public bool ShouldShowInterstitial()
         {
+            if (TestBuild.IsEnabled) return false;
+
             // Remove-ads kills forced ads only — rewarded ads (continue, freebies) stay available.
             if (SaveDataManager.Instance != null && SaveDataManager.Instance.AdsRemoved)
                 return false;
@@ -75,6 +81,12 @@ namespace DogtorBurguer
         /// </summary>
         public void ShowRewarded(Action<bool> onResult)
         {
+            if (TestBuild.IsEnabled)
+            {
+                onResult?.Invoke(true);
+                return;
+            }
+
             if (_provider == null || !_provider.IsRewardedReady)
             {
                 onResult?.Invoke(false);

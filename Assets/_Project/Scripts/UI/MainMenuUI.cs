@@ -16,6 +16,8 @@ namespace DogtorBurguer
         [Header("Testing")]
         [Tooltip("Adds the start-level stepper under the Settings panel (a testing tool, not part of the shipped panel).")]
         [SerializeField] private bool _showLevelStepper = false;
+        [Tooltip("TESTER BUILD: everything unlocked (skins, currency, consumables), ads bypassed, store mocked, level stepper shown, red TEST BUILD label on the menu. Never ship with this on.")]
+        [SerializeField] private bool _testBuild = false;
 
         private Canvas _canvas;
         private SettingsPanel _settingsPanel;
@@ -24,7 +26,10 @@ namespace DogtorBurguer
 
         private void Start()
         {
+            // Before the managers: AdManager/IapManager pick their provider in Awake.
+            if (_testBuild) TestBuild.Enable();
             AppBootstrap.EnsureCoreManagers();
+            TestBuild.TopUpStash(SaveDataManager.Instance);
             SoundSettings.Apply();
 
             CreateUI();
@@ -53,9 +58,10 @@ namespace DogtorBurguer
                 UIStyles.MENU_PLAY_POS, UIFactory.SizeByWidth(play, UIStyles.MENU_PLAY_W), OnPlayClicked);
 
             BuildBottomStrip();
+            if (TestBuild.IsEnabled) BuildTestBuildLabel();
 
             _settingsPanel = gameObject.AddComponent<SettingsPanel>();
-            _settingsPanel.Initialize(_canvas, showLevelStepper: _showLevelStepper);
+            _settingsPanel.Initialize(_canvas, showLevelStepper: _showLevelStepper || TestBuild.IsEnabled);
 
             _creditsPanel = gameObject.AddComponent<CreditsPanel>();
             _creditsPanel.Initialize(_canvas);
@@ -93,6 +99,16 @@ namespace DogtorBurguer
             UIFactory.AutoFit(support, UIStyles.MENU_SUPPORT_LABEL_MIN, UIStyles.MENU_SUPPORT_LABEL_SIZE);
             support.transform.DOScale(AnimConfig.MENU_SUPPORT_PULSE_SCALE, AnimConfig.MENU_SUPPORT_PULSE_DURATION)
                 .SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine).SetLink(support.gameObject);
+        }
+
+        // The unmissable red stamp: this build is the tester one (TestBuild). Never on a release.
+        private void BuildTestBuildLabel()
+        {
+            TextMeshProUGUI label = UIFactory.CreateText(_canvas.transform, "TEST BUILD",
+                UIStyles.MENU_TEST_BUILD_POS, UIStyles.MENU_TEST_BUILD_RECT, UIStyles.MENU_TEST_BUILD_SIZE,
+                FontStyles.Bold);
+            UIFactory.StyleFillAndBorder(label, UIStyles.MENU_TEST_BUILD_COLOR,
+                UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH, UIStyles.HUD_TEXT_BORDER);
         }
 
         // An authored blank (the kit's red CREDITS / yellow SHOP buttons) with a HUD-palette word on it.
