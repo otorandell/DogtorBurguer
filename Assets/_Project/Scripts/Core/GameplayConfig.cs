@@ -66,9 +66,13 @@ namespace DogtorBurguer
         #endregion
 
         #region Column Swap
-        public const float SWAP_WAVE_DELAY_PER_ROW = 0.04f;
-        public const float SWAP_THRESHOLD_BUFFER_MULT = 0.2f;
-        public const float SWAP_POST_ANIM_DELAY = 0.3f;
+        public const float SWAP_WAVE_DELAY_PER_ROW = 0.025f;  // spiral stagger per row (0.04 pre-2026-09-07 — resolved too slowly on tall stacks)
+        // Falling pieces BELOW (landing top + this × cell height) ride along with their stack
+        // to the other column. NEGATIVE since 2026-09-07: a piece must already overlap the stack
+        // to be dragged — anything with air under it stays put and lands on the swapped-in stack,
+        // honoring a last-moment flip ("barely in range" forgiveness; checked only at swap time).
+        public const float SWAP_THRESHOLD_BUFFER_MULT = -0.5f;
+        public const float SWAP_POST_ANIM_DELAY = 0.18f;      // settle wait before match/burger checks (0.3 pre-2026-09-07)
         #endregion
 
         #region Difficulty Curve
