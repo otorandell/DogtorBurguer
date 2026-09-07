@@ -300,8 +300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DogtorBurguer.MainMenuUI
-  _showLevelStepper: 0
-  _testBuild: 1
+  _testBuild: 0
 --- !u!1 &300000000
 GameObject:
   m_ObjectHideFlags: 0
