@@ -70,8 +70,8 @@ namespace DogtorBurguer
 
         public void MoveToPosition(int newPosition)
         {
-            if (_isMoving) return;
-
+            // No _isMoving gate: a second swipe mid-move retargets (the tween is killed below and
+            // restarts from the live position). Dropping it read as input lag on device.
             newPosition = Mathf.Clamp(newPosition, 0, Constants.CHEF_POSITION_COUNT - 1);
             if (newPosition == _currentPosition) return;
 

@@ -24,6 +24,11 @@ namespace DogtorBurguer
         public const float PLAY_AREA_WIDTH = 5.55f;
         public const float DESIGN_ORTHO_SIZE = 5f;
 
+        // Frame-rate floor (AppBootstrap.ApplyFrameRate). Unity's mobile default is 30 fps — the
+        // first device test (2026-09-06) read as "clac clac" movement + input lag. The app targets
+        // the display's refresh rate, never below this.
+        public const int MIN_TARGET_FRAME_RATE = 60;
+
         // Chef positions (between columns) — always one fewer than the columns
         public const int CHEF_POSITION_COUNT = COLUMN_COUNT - 1;
         public const int CHEF_START_POSITION = 1; // default middle position

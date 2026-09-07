@@ -19,7 +19,7 @@ namespace DogtorBurguer
         private const float ScreenToWorldZ = 10f;
 
         private Vector2 _touchStartPos;
-        private bool _pressActive; // true between press and release, in both control modes
+        private PressPhase _press = PressPhase.None;
 
         private void Awake()
         {
@@ -130,20 +130,34 @@ namespace DogtorBurguer
             if (mouse == null) return;
 
             if (mouse.leftButton.wasPressedThisFrame)
-            {
-                _touchStartPos = mouse.position.ReadValue();
-                _pressActive = true;
-                TryBeginCarry(_touchStartPos);
-            }
-            else if (mouse.leftButton.wasReleasedThisFrame && _pressActive)
-            {
-                _pressActive = false;
+                BeginPress(mouse.position.ReadValue());
+            else if (mouse.leftButton.wasReleasedThisFrame)
                 EndPress(mouse.position.ReadValue());
-            }
-            else if (_pressActive && IsCarrying)
-            {
-                UpdateCarry(mouse.position.ReadValue());
-            }
+            else
+                ContinuePress(mouse.position.ReadValue());
+        }
+
+        // A swipe resolves the moment the finger crosses the threshold, not on lift — waiting for
+        // the release added a full gesture's worth of latency (first device test, 2026-09-06).
+        // The press is consumed so the lift can't fire a second move or a tap.
+        private void TrySwipeEarly(Vector2 screenPos)
+        {
+            if (!IsSwipe(_touchStartPos, screenPos, out float deltaX)) return;
+
+            _press = PressPhase.None;
+            MoveChefHorizontal(deltaX);
+        }
+
+        // A horizontal swipe = past the threshold AND more sideways than vertical. Vertical drags
+        // past the threshold are consumed as "not a tap" by ResolveRelease (unchanged).
+        private static bool IsSwipeCandidate(Vector2 start, Vector2 end, float threshold) =>
+            (end - start).magnitude > threshold;
+
+        private bool IsSwipe(Vector2 start, Vector2 end, out float deltaX)
+        {
+            Vector2 delta = end - start;
+            deltaX = delta.x;
+            return IsSwipeCandidate(start, end, _swipeThreshold) && Mathf.Abs(delta.x) > Mathf.Abs(delta.y);
         }
 
         private void HandleTouchInput()
@@ -153,44 +167,90 @@ namespace DogtorBurguer
             switch (touch.phase)
             {
                 case UnityEngine.InputSystem.TouchPhase.Began:
-                    _touchStartPos = touch.screenPosition;
-                    _pressActive = true;
-                    TryBeginCarry(touch.screenPosition);
+                    BeginPress(touch.screenPosition);
                     break;
 
                 case UnityEngine.InputSystem.TouchPhase.Moved:
                 case UnityEngine.InputSystem.TouchPhase.Stationary:
-                    if (_pressActive && IsCarrying)
-                        UpdateCarry(touch.screenPosition);
+                    ContinuePress(touch.screenPosition);
                     break;
 
                 case UnityEngine.InputSystem.TouchPhase.Ended:
                 case UnityEngine.InputSystem.TouchPhase.Canceled:
-                    if (_pressActive)
-                    {
-                        _pressActive = false;
-                        EndPress(touch.screenPosition);
-                    }
+                    EndPress(touch.screenPosition);
                     break;
             }
         }
 
-        private void ProcessInput(Vector2 startScreenPos, Vector2 endScreenPos)
+        // ---- The press lifecycle (touch and mouse share it) ----
+
+        // Press: a slot press becomes a carry. Otherwise, in Tap mode the tap intent resolves RIGHT
+        // NOW (side-move, swap, fast-drop, preview, fairy) — waiting for the lift read as lag on
+        // device (2026-09-06). Drag mode keeps taps on the lift: there a press on the chef or a
+        // piece is usually the start of a swipe, and firing on press would swap/fast-drop first.
+        private void BeginPress(Vector2 screenPos)
+        {
+            _touchStartPos = screenPos;
+            _press = PressPhase.Open;
+            TryBeginCarry(screenPos);
+            if (IsCarrying) return;
+
+            if (CurrentControlMode == ControlMode.Tap)
+            {
+                ResolveTap(screenPos);
+                _press = PressPhase.SwipeOnly;
+            }
+        }
+
+        private void ContinuePress(Vector2 screenPos)
+        {
+            if (_press == PressPhase.None) return;
+
+            if (IsCarrying)
+                UpdateCarry(screenPos);
+            else
+                TrySwipeEarly(screenPos);
+        }
+
+        private void EndPress(Vector2 screenPos)
+        {
+            if (_press == PressPhase.None) return;
+            PressPhase phase = _press;
+            _press = PressPhase.None;
+
+            if (IsCarrying)
+                ConsumableDragController.Instance.Release(ToWorld(screenPos));
+            else
+                ResolveRelease(_touchStartPos, screenPos, allowTap: phase == PressPhase.Open);
+        }
+
+        private static ControlMode CurrentControlMode =>
+            SaveDataManager.Instance != null ? SaveDataManager.Instance.ControlMode : SaveDataManager.DEFAULT_CONTROL_MODE;
+
+        // The lift: a horizontal swipe moves the chef in either mode (normally already fired early
+        // by TrySwipeEarly — this catches a swipe that crossed the threshold and lifted within the
+        // same frame). Any drag past the threshold is not a tap; a short press is a tap only when
+        // the press didn't already resolve it (Drag mode).
+        private void ResolveRelease(Vector2 startScreenPos, Vector2 endScreenPos, bool allowTap)
         {
             if (_chef == null) return;
 
-            // Gesture is mode-independent: a horizontal swipe moves the chef in either mode.
-            Vector2 delta = endScreenPos - startScreenPos;
-            if (delta.magnitude > _swipeThreshold)
+            if (IsSwipeCandidate(startScreenPos, endScreenPos, _swipeThreshold))
             {
-                if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
-                    MoveChefHorizontal(delta.x);
+                if (IsSwipe(startScreenPos, endScreenPos, out float deltaX))
+                    MoveChefHorizontal(deltaX);
                 return;
             }
 
-            // Tap: world-object taps (preview / falling / gem pack) work in both modes.
-            if (_camera == null) return;
-            Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(startScreenPos.x, startScreenPos.y, ScreenToWorldZ));
+            if (allowTap) ResolveTap(startScreenPos);
+        }
+
+        // The tap intent at one screen point: world-object taps (fairy / preview / falling) in both
+        // modes, then the mode-specific chef taps.
+        private void ResolveTap(Vector2 screenPos)
+        {
+            if (_chef == null || _camera == null) return;
+            Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, ScreenToWorldZ));
             worldPos.z = 0f;
 
             // Fairy first: it's a transient flying reward rendered on top of the playfield, so a tap
@@ -200,9 +260,7 @@ namespace DogtorBurguer
             if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos)) return;
 
             // Only the remaining tap intent depends on the control mode.
-            ControlMode mode = SaveDataManager.Instance != null
-                ? SaveDataManager.Instance.ControlMode
-                : SaveDataManager.DEFAULT_CONTROL_MODE;
+            ControlMode mode = CurrentControlMode;
 
             // Tapping the chef swaps plates — same in both modes. The radius bounds it, so a tap up
             // in the playfield (e.g. a near-miss on a falling piece) never swaps the cook.
@@ -245,7 +303,7 @@ namespace DogtorBurguer
         // ---- Consumable carry (drag-to-column) ----
         // A press that starts on an inventory slot becomes a carry; the drag controller owns the
         // gesture for its duration and chef logic is suppressed (we route to Release, not
-        // ProcessInput). Origin disambiguates: a press anywhere else stays normal gameplay.
+        // ResolveTap). Origin disambiguates: a press anywhere else stays normal gameplay.
 
         private bool IsCarrying =>
             ConsumableDragController.Instance != null && ConsumableDragController.Instance.IsCarrying;
@@ -264,14 +322,6 @@ namespace DogtorBurguer
             ConsumableDragController.Instance?.UpdateCarry(ToWorld(screenPos));
         }
 
-        private void EndPress(Vector2 screenPos)
-        {
-            if (IsCarrying)
-                ConsumableDragController.Instance.Release(ToWorld(screenPos));
-            else
-                ProcessInput(_touchStartPos, screenPos);
-        }
-
         private void CancelCarryIfActive()
         {
             if (IsCarrying)
@@ -287,7 +337,7 @@ namespace DogtorBurguer
         }
 
 #if UNITY_EDITOR
-        // Debug gizmos for the chef's tap hit-zones (mirrors ProcessInput), mode-aware. Magenta =
+        // Debug gizmos for the chef's tap hit-zones (mirrors ResolveTap), mode-aware. Magenta =
         // flip: tapping within this radius swaps the cook — in BOTH modes. Cyan = move: tapping a
         // side below the grid floor walks the chef — Tap mode ONLY (Drag mode moves by swiping, so
         // it has no move-tap zone). Reads the live ControlMode in play; the default in edit mode.

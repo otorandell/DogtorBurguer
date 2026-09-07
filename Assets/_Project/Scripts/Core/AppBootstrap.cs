@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace DogtorBurguer
 {
     /// <summary>
@@ -9,11 +11,22 @@ namespace DogtorBurguer
     {
         public static void EnsureCoreManagers()
         {
+            ApplyFrameRate();
             MonoBehaviourUtil.EnsureComponent<SaveDataManager>();
             MonoBehaviourUtil.EnsureComponent<AdManager>();
             MonoBehaviourUtil.EnsureComponent<IapManager>();
             MonoBehaviourUtil.EnsureComponent<LeaderboardManager>();
             MonoBehaviourUtil.EnsureComponent<MusicManager>();
+        }
+
+        /// <summary>
+        /// Runs the game at the display's refresh rate (60 fps floor). Without this, Android and
+        /// iOS default to 30 fps regardless of vSync settings — the editor never shows it.
+        /// </summary>
+        private static void ApplyFrameRate()
+        {
+            int refresh = Mathf.RoundToInt((float)Screen.currentResolution.refreshRateRatio.value);
+            Application.targetFrameRate = Mathf.Max(Constants.MIN_TARGET_FRAME_RATE, refresh);
         }
     }
 }
