@@ -102,9 +102,12 @@ namespace DogtorBurguer
                 return;
             }
 
-            // Fall one step down (visual height)
+            // Fall one step down (visual height). X targets the column's true lane — a no-op
+            // normally, but after a swap reassignment the piece GLIDES diagonally into its new
+            // lane over this step instead of teleporting (2026-09-07).
+            float laneX = Constants.GRID_ORIGIN_X + _currentColumn.ColumnIndex * Constants.CELL_WIDTH;
             Vector3 targetPos = new Vector3(
-                currentPos.x,
+                laneX,
                 currentPos.y - Constants.CELL_VISUAL_HEIGHT,
                 currentPos.z
             );
@@ -204,11 +207,8 @@ namespace DogtorBurguer
 
             _currentColumn = newColumn;
 
-            // Snap X position immediately to new column
-            float targetX = Constants.GRID_ORIGIN_X + (newColumn.ColumnIndex * Constants.CELL_WIDTH);
-            Vector3 pos = transform.position;
-            pos.x = targetX;
-            transform.position = pos;
+            // No X snap: the next FallOneStep targets the new column's lane, so the piece
+            // slides in diagonally as it falls (the snap read as a teleport).
 
             // Resume falling
             if (_state == IngredientState.Falling)
