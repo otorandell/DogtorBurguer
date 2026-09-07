@@ -49,6 +49,12 @@ namespace DogtorBurguer
             ApplyPersistedSettings();
             SubscribeEvents();
 
+            // The scripted tutorial: first-ever Play, or an explicit PLAY TUTORIAL request.
+            // TutorialManager.Start (where TutorialMode.Begin flips IsActive) runs AFTER this
+            // Start — that's why the spawner/star gates also check ShouldRun for the first frame.
+            if (TutorialMode.ShouldRun)
+                MonoBehaviourUtil.EnsureComponent<TutorialManager>();
+
             if (_autoStartGame)
                 StartGame();
         }
@@ -204,6 +210,14 @@ namespace DogtorBurguer
 
         private void HandleGameOver()
         {
+            // Should be unreachable in the scripted tutorial (controlled drops) — but if a
+            // column somehow overflows, restart the tutorial instead of the game-over flow.
+            if (TutorialMode.IsActive)
+            {
+                SceneLoader.LoadGame();
+                return;
+            }
+
             // Persist the high score as part of the game-over flow (not in the UI panel, F-67)
             // and report it to the Play Games board.
             if (SaveDataManager.Instance != null)
@@ -245,6 +259,7 @@ namespace DogtorBurguer
         public void AwardStars(int amount)
         {
             if (amount <= 0) return;
+            if (TutorialMode.IsActive || TutorialMode.ShouldRun) return; // tutorial popups celebrate, the wallet stays real
 
             // Every in-run faucet (orders, star fairies, the end-of-run payout) routes through
             // here, the single point; shop purchases go straight to SaveDataManager.AddStars.

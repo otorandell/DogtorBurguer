@@ -31,6 +31,8 @@ Assets/_Project/Scripts/
   Shop/          ShopScreen (full-screen overlay), ShopSections, ShopWidgets, ShopSkinCell,
                  ShopRowScroll (nested h-scroll), ShopCell (cell parts), ShopService (purchase
                  rules), ShopCatalog
+  Tutorial/      TutorialManager (step machine), TutorialPopup (callout), TutorialMode (flags +
+                 input mask), TutorialStep
   UI/            MainMenuUI, GameHUD, TopBar (shared status bar), StatCard (shared Level/Score
                  card), GameOverPanel, SettingsPanel, HowToPlayPanel, CreditsPanel (+ CreditsEntry),
                  ModalPanel (shared Settings/Credits chrome: panel art + title + X + pop-in),
@@ -507,6 +509,24 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   `PlayConsumableUse(type)` / `PlayConsumableFizzle`) — real sound design deferred. Slot
   layout/sizes are placeholder; eyeball-tune via `UIStyles`. Editor debug: keys **1/2/3** grant
   Ketchup/Mustard/Skewer.
+
+### Tutorial (2026-09-07, `Scripts/Tutorial/`)
+Scripted, UNFAILABLE, ~90s. Runs automatically on the first-ever Play (`SaveDataManager.
+TutorialSeen`, set on finish AND skip) and from the **PLAY TUTORIAL** pill on the How to Play
+panel (`TutorialMode.Pending` → load Game scene; an in-game opener forfeits the run like Quit).
+`GameManager.Start` creates `TutorialManager` when `TutorialMode.ShouldRun`; while active the
+auto systems stand down (spawner waves/previews — gated on ShouldRun too for the same-frame
+ordering, fairies, difficulty, auto orders, star persistence — popups still play) and input is
+masked per step (`TutorialMode.Allow*`, enforced in TouchInputHandler). Steps (`TutorialStep`):
+Move (2 swipes) → Swap (tap chef; two pre-placed stacks) → Match (a twin falls at the WRONG
+stack; wrong landings poof + respawn forever) → Burger (scripted 4-drop build, flip disabled) →
+Order (`BurgerChallenge.SetScriptedOrder` — meter pre-filled one short so the match LEVELS UP
+the multiplier on screen) → PowerUp (granted Ketchup on a junk column; a fizzle re-grants) →
+Ready → scene reloads into a normal run. Callout = `TutorialPopup` (red banner + green plate +
+rotated yellow arrow, `UIStyles.TUT_*`; step text/positions live in TutorialManager). SKIP is
+always available and reclaims an unspent granted Ketchup. New hooks: `ChefController.OnMoved/
+OnFlipped`, `IngredientSpawner.SpawnScripted`, `BurgerChallenge.SetScriptedOrder/
+SetPanelVisible`.
 
 ### Skins & Theme (cosmetics)
 All gameplay sprites flow through one place: `Theme` (static) reads `Skin` ScriptableObject

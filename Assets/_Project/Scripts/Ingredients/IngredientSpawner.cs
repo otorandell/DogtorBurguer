@@ -70,6 +70,11 @@ namespace DogtorBurguer
 
         public void StartSpawning()
         {
+            // Tutorial runs on scripted spawns only — no waves, no previews. ShouldRun covers the
+            // same-frame ordering: GameManager.Start calls this before TutorialManager.Start has
+            // flipped IsActive.
+            if (TutorialMode.IsActive || TutorialMode.ShouldRun) return;
+
             _active = true;
             _state = SpawnerState.Delaying;
             _delayTimer = _initialDelay;
@@ -228,7 +233,7 @@ namespace DogtorBurguer
             return false;
         }
 
-        public Ingredient SpawnIngredient(IngredientType type, Column column)
+        public Ingredient SpawnIngredient(IngredientType type, Column column, float? stepDuration = null)
         {
             if (_ingredientPrefab == null)
             {
@@ -245,9 +250,17 @@ namespace DogtorBurguer
             }
 
             ingredient.Initialize(type, column, Theme.Ingredient(type));
-            ingredient.StartFalling(_fallStepDuration);
+            ingredient.StartFalling(stepDuration ?? _fallStepDuration);
 
             return ingredient;
+        }
+
+        /// <summary>Tutorial: one piece into one column at a scripted pace (the auto spawner is
+        /// standing down, so these are the only pieces on the board).</summary>
+        public Ingredient SpawnScripted(IngredientType type, int columnIndex, float stepDuration)
+        {
+            Column column = GridManager.Instance?.GetColumn(columnIndex);
+            return column != null ? SpawnIngredient(type, column, stepDuration) : null;
         }
 
         public void SpawnSpecificIngredient(IngredientType type, int columnIndex)

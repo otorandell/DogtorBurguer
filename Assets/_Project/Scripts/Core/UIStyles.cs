@@ -333,6 +333,24 @@ namespace DogtorBurguer
         #region Layout — Settings Panel
         // In-game it gets its own canvas: above the game-over panel (100), below the shop (120).
         public const int SETTINGS_CANVAS_SORT = 110;
+        public const int TUT_CANVAS_SORT = 115;                                      // tutorial callouts: over settings, under the shop
+
+        #region Tutorial Callout (composed from the red banner + green plate + yellow arrow)
+        public const float TUT_BOX_W = 400f;                                         // the green plate text box
+        public const float TUT_TITLE_W = 240f;                                       // red banner strip on its top edge
+        public const float TUT_TITLE_Y = 26f;
+        public static readonly Vector2 TUT_TITLE_NUDGE = new(0f, 4f);
+        public const float TUT_TITLE_SIZE = 24f;
+        public const float TUT_BODY_Y = -8f;
+        public const float TUT_BODY_H = 120f;
+        public const float TUT_BODY_INSET = 90f;                                     // keeps text off the plate's soft edges
+        public const float TUT_BODY_SIZE = 22f;
+        public const float TUT_CONTINUE_Y = -78f;
+        public const float TUT_CONTINUE_SIZE = 16f;
+        public const float TUT_ARROW_H = 64f;
+        public static readonly Vector2 TUT_SKIP_POS = new(52f, -110f);
+        public const float TUT_SKIP_SIZE = 22f;
+        #endregion
         // Rows: full-width blue blanks stacked down the body (Sound, Controls, then the in-game
         // Restart | Quit pair). The blank's canvas includes its drop shadow (face ~10% smaller).
         public const float SETTINGS_ROW_W = 380f;
@@ -355,6 +373,9 @@ namespace DogtorBurguer
         public const float HOWTO_LINE_W = 370f;
         public const float HOWTO_TEXT_SIZE = 22f;                                    // bullets are REGULAR weight — bold smears the ExtraBold trial font
         public const float HOWTO_BTN_TEXT_SIZE = 30f;                                // the "?" on the top-bar button
+        public const float HOWTO_TUTORIAL_Y = -196f;                                 // PLAY TUTORIAL pill above the pager
+        public const float HOWTO_TUTORIAL_W = 220f;
+        public const float HOWTO_TUTORIAL_H = 50f;
         public const float HOWTO_PAGER_Y = -255f;                                    // "1/3" + arrows row
         public const float HOWTO_PAGER_SIZE = 26f;
         public const float HOWTO_ARROW_X = 120f;                                     // arrows flank the pager

@@ -16,7 +16,8 @@ namespace DogtorBurguer
             // Read game state each frame (order-independent — F-51). Resetting the timer while not
             // playing means the first eligible interval after resuming starts fresh.
             bool isPlaying = GameManager.Instance != null &&
-                             GameManager.Instance.CurrentState == GameState.Playing;
+                             GameManager.Instance.CurrentState == GameState.Playing &&
+                             !TutorialMode.IsActive; // the tutorial scripts its own deliveries
             if (!isPlaying)
             {
                 _spawnTimer = MonetizationConfig.FAIRY_SPAWN_INTERVAL;

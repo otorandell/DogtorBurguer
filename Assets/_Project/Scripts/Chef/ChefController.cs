@@ -21,6 +21,10 @@ namespace DogtorBurguer
         private Tween _flipTween;
         private bool _isFlipped;
 
+        /// <summary>An accepted position change / plate swap — the tutorial listens.</summary>
+        public event System.Action OnMoved;
+        public event System.Action OnFlipped;
+
         public int CurrentPosition => _currentPosition;
         public bool IsMoving => _isMoving;
         public int LeftColumnIndex => _currentPosition;
@@ -85,6 +89,7 @@ namespace DogtorBurguer
                 .DOMove(targetPos, _moveSpeed)
                 .SetEase(Ease.OutBack)
                 .OnComplete(() => _isMoving = false);
+            OnMoved?.Invoke();
         }
 
         public void MoveLeft()
@@ -128,6 +133,7 @@ namespace DogtorBurguer
             // Slide the two plates to swap columns alongside the flip (positions only — the
             // plate sprite itself doesn't rotate/flip).
             PlateManager.Instance?.SwapColumns(LeftColumnIndex, RightColumnIndex, AnimConfig.CHEF_FLIP_DURATION);
+            OnFlipped?.Invoke();
 
             // Tell GridManager to swap with wave effect
             GridManager.Instance?.SwapColumnsWithWaveEffect(LeftColumnIndex, RightColumnIndex);

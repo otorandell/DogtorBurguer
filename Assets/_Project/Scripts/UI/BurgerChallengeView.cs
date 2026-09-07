@@ -24,6 +24,12 @@ namespace DogtorBurguer
         private TextMeshProUGUI _multText;
         private Image _meterFill;
 
+        /// <summary>Tutorial: hides/shows the whole panel canvas (state persists on it).</summary>
+        public void SetVisible(bool visible)
+        {
+            if (_canvas != null) _canvas.gameObject.SetActive(visible);
+        }
+
         public void Initialize(BurgerChallenge model)
         {
             _model = model;

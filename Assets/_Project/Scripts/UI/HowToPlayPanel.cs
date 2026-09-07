@@ -107,6 +107,17 @@ namespace DogtorBurguer
 
             _prevArrow = BuildArrow("Prev", -UIStyles.HOWTO_ARROW_X, UIStyles.ARROW_YELLOW_ROT_LEFT, -1);
             _nextArrow = BuildArrow("Next", UIStyles.HOWTO_ARROW_X, UIStyles.ARROW_YELLOW_ROT_RIGHT, 1);
+
+            // PLAY TUTORIAL — one pill above the pager, on every page. Loads the game scene in
+            // tutorial mode; from an in-game opener this forfeits the paused run (like Quit).
+            Button tut = ShopWidgets.CreatePill(_modal.Panel, "PlayTutorial", "ui_btn_green_wide",
+                new Vector2(0.5f, 0.5f), new Vector2(0f, UIStyles.HOWTO_TUTORIAL_Y),
+                UIStyles.HOWTO_TUTORIAL_W, () =>
+                {
+                    TutorialMode.Pending = true;
+                    SceneLoader.LoadGame();
+                }, UIStyles.HOWTO_TUTORIAL_H);
+            ShopWidgets.SetPillLabel(tut, "PLAY TUTORIAL", null);
         }
 
         // The bullet list: a top-anchored vertical layout that measures each bullet's wrapped

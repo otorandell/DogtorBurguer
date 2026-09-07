@@ -23,6 +23,7 @@ namespace DogtorBurguer
 
         private IngredientSpawner _spawner;
         private BurgerChallengeView _view;
+        private bool _tutorialArmed; // tutorial: matches count only once the scripted order is set
 
         // --- events the view renders ---
         public event Action OnChallengeChanged; // new order rolled → rebuild visuals + name + meter
@@ -58,7 +59,8 @@ namespace DogtorBurguer
             _view = gameObject.AddComponent<BurgerChallengeView>();
             _view.Initialize(this);
 
-            GenerateNewChallenge();
+            if (!TutorialMode.IsActive)
+                GenerateNewChallenge();
             SubscribeEvents();
         }
 
@@ -78,6 +80,9 @@ namespace DogtorBurguer
         /// <summary>Rolls a new order from the ladder and notifies the view.</summary>
         public void GenerateNewChallenge()
         {
+            // The tutorial drives its one scripted order; no auto rolls (incl. post-level-up).
+            if (TutorialMode.IsActive) return;
+
             _targetIngredients.Clear();
 
             // An exact-count recipe — named ingredients + free slots — read from the per-level
@@ -158,12 +163,29 @@ namespace DogtorBurguer
         public static int Scaled(int basePoints) =>
             Instance != null ? Mathf.RoundToInt(basePoints * Instance.Multiplier) : basePoints;
 
+        /// <summary>Tutorial: shows/hides the whole order panel (hidden until the Order step).</summary>
+        public void SetPanelVisible(bool visible) => _view?.SetVisible(visible);
+
+        /// <summary>Tutorial: installs one scripted exact-count order and pre-fills the meter so
+        /// completing it levels the multiplier up (the showcase). Arms match handling.</summary>
+        public void SetScriptedOrder(IngredientType target, int exactCount, int progress)
+        {
+            _tutorialArmed = true;
+            _requiredSize = exactCount;
+            _targetIngredients.Clear();
+            _targetIngredients.Add(target);
+            _challengeProgress = progress;
+            _challengeName = BuildContainsName();
+            OnChallengeChanged?.Invoke();
+        }
+
         // The burger's SCORE is fully handled upstream (GridManager computes the final
         // multiplied points, GameManager adds them, the popup shows them — no x-badge popup
         // since the 2026-09-05 redesign). This handler owns only order progression + stars.
         private void HandleBurgerCompleted(Vector3 pos, int finalPoints, string name, int ingredientCount, List<IngredientType> ingredients)
         {
             if (ingredientCount == 0) return;
+            if (TutorialMode.IsActive && !_tutorialArmed) return; // no order on the card yet
             if (!IsOrderMatch(ingredients, ingredientCount)) return;
 
             _challengeProgress++;

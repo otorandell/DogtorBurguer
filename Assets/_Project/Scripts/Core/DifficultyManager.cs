@@ -63,6 +63,8 @@ namespace DogtorBurguer
 
         private void HandleIngredientPlaced()
         {
+            if (TutorialMode.IsActive) return; // scripted drops never advance the difficulty
+
             _ingredientsPlaced++;
             EvaluateLevel();
         }

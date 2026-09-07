@@ -14,6 +14,7 @@ namespace DogtorBurguer
         private const string KEY_CONTROL_MODE = "controlMode";
         private const string KEY_STARTING_LEVEL = "startingLevel";
         private const string KEY_ADS_REMOVED = "adsRemoved";
+        private const string KEY_TUTORIAL_SEEN = "tutorialSeen";
         private const string KEY_OWNED_SKINS = "ownedSkins";          // CSV of skin ids
         private const string KEY_EQUIPPED_PREFIX = "equippedSkin_";   // + (int)SkinSlot → skin id
         private const string KEY_CONSUMABLE_PREFIX = "consumable_";   // + (int)ConsumableType → count
@@ -38,6 +39,7 @@ namespace DogtorBurguer
         public ControlMode ControlMode { get; private set; }
         public int StartingLevel { get; private set; }
         public bool AdsRemoved { get; private set; }
+        public bool TutorialSeen { get; private set; }
 
         private readonly HashSet<string> _ownedSkins = new();
         private readonly int[] _consumableCounts = new int[ConsumableInventory.TypeCount];
@@ -62,6 +64,7 @@ namespace DogtorBurguer
             StartingLevel = Mathf.Clamp(
                 PlayerPrefs.GetInt(KEY_STARTING_LEVEL, DEFAULT_STARTING_LEVEL), 1, GameplayConfig.SETTINGS_LEVEL_CAP);
             AdsRemoved = PlayerPrefs.GetInt(KEY_ADS_REMOVED, 0) == 1;
+            TutorialSeen = PlayerPrefs.GetInt(KEY_TUTORIAL_SEEN, 0) == 1;
 
             _ownedSkins.Clear();
             string owned = PlayerPrefs.GetString(KEY_OWNED_SKINS, "");
@@ -138,6 +141,14 @@ namespace DogtorBurguer
         {
             ControlMode = mode;
             PlayerPrefs.SetInt(KEY_CONTROL_MODE, (int)mode);
+            PlayerPrefs.Save();
+        }
+
+        /// <summary>One-way: set on tutorial completion OR skip — it never auto-plays twice.</summary>
+        public void SetTutorialSeen()
+        {
+            TutorialSeen = true;
+            PlayerPrefs.SetInt(KEY_TUTORIAL_SEEN, 1);
             PlayerPrefs.Save();
         }
 

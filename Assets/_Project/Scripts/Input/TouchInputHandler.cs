@@ -85,12 +85,15 @@ namespace DogtorBurguer
 
             if (_chef == null) return;
 
-            if (keyboard.aKey.wasPressedThisFrame)
-                _chef.MoveLeft();
-            else if (keyboard.dKey.wasPressedThisFrame)
-                _chef.MoveRight();
+            if (TutorialMode.AllowMove)
+            {
+                if (keyboard.aKey.wasPressedThisFrame)
+                    _chef.MoveLeft();
+                else if (keyboard.dKey.wasPressedThisFrame)
+                    _chef.MoveRight();
+            }
 
-            if (keyboard.spaceKey.wasPressedThisFrame)
+            if (TutorialMode.AllowFlip && keyboard.spaceKey.wasPressedThisFrame)
                 _chef.SwapPlates();
         }
 
@@ -257,7 +260,7 @@ namespace DogtorBurguer
             // on it should collect it rather than be eaten by the preview/falling hit-tests beneath.
             if (BurgerFairy.TryTapAt(worldPos)) return;
             if (_spawner != null && _spawner.TryTapPreview(worldPos)) return;
-            if (_spawner != null && _spawner.TryTapFallingIngredient(worldPos)) return;
+            if (TutorialMode.AllowFastDrop && _spawner != null && _spawner.TryTapFallingIngredient(worldPos)) return;
 
             // Only the remaining tap intent depends on the control mode.
             ControlMode mode = CurrentControlMode;
@@ -270,15 +273,19 @@ namespace DogtorBurguer
             if (mode == ControlMode.Drag)
             {
                 // Drag mode moves by swiping (handled above); a tap only swaps, and only on the chef.
-                if (tappedChef)
+                if (tappedChef && TutorialMode.AllowFlip)
                     _chef.SwapPlates();
                 return;
             }
 
             // Tap mode: tap the chef to swap, or tap to a side (below the playfield) to move there.
             if (tappedChef)
-                _chef.SwapPlates();
-            else if (worldPos.y < Constants.GRID_ORIGIN_Y + GameplayConfig.CHEF_MOVE_ZONE_TOP_OFFSET)
+            {
+                if (TutorialMode.AllowFlip)
+                    _chef.SwapPlates();
+            }
+            else if (TutorialMode.AllowMove &&
+                     worldPos.y < Constants.GRID_ORIGIN_Y + GameplayConfig.CHEF_MOVE_ZONE_TOP_OFFSET)
             {
                 if (worldPos.x < _chef.transform.position.x)
                     _chef.MoveLeft();
@@ -289,6 +296,7 @@ namespace DogtorBurguer
 
         private void MoveChefHorizontal(float deltaX)
         {
+            if (!TutorialMode.AllowMove) return;
             if (deltaX > 0)
                 _chef.MoveRight();
             else
@@ -297,7 +305,8 @@ namespace DogtorBurguer
 
         public void OnSwapButtonPressed()
         {
-            _chef?.SwapPlates();
+            if (TutorialMode.AllowFlip)
+                _chef?.SwapPlates();
         }
 
         // ---- Consumable carry (drag-to-column) ----
@@ -312,6 +321,7 @@ namespace DogtorBurguer
         {
             // Slots are screen-space UGUI, so TryBegin hit-tests the raw screen position; once a carry
             // starts, position the icon immediately (world space) so it doesn't flash at the origin.
+            if (!TutorialMode.AllowConsumable) return;
             ConsumableDragController drag = ConsumableDragController.Instance;
             if (drag != null && drag.TryBegin(screenPos))
                 drag.UpdateCarry(ToWorld(screenPos));
