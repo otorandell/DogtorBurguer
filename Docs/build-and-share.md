@@ -21,7 +21,7 @@ building a tester APK. It sets `TestBuild.IsEnabled`, which:
 - Treats every skin as owned (EQUIP everywhere; nothing is persisted, so unticking restores
   real ownership).
 - Tops stars/gems/consumables up to the stash in `TestBuild` on every launch.
-- Shows the Settings **Start Level** stepper and stamps a red **TEST BUILD** on the menu.
+- Stamps a red **TEST BUILD** on the menu.
 
 **Untick it before any release build.** The red label on the menu is the guard.
 

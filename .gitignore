@@ -107,3 +107,6 @@ DOTween_1_2_790.zip
 
 # Android signing (never commit keys or their passwords)
 Keys/
+
+# Local build/tool temp at the repo root (2026-09-07)
+.utmp/
