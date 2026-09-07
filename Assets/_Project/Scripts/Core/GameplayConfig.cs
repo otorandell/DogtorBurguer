@@ -71,7 +71,7 @@ namespace DogtorBurguer
         // to the other column. NEGATIVE since 2026-09-07: a piece must already overlap the stack
         // to be dragged — anything with air under it stays put and lands on the swapped-in stack,
         // honoring a last-moment flip ("barely in range" forgiveness; checked only at swap time).
-        public const float SWAP_THRESHOLD_BUFFER_MULT = -0.5f;
+        public const float SWAP_THRESHOLD_BUFFER_MULT = -0.35f;
         public const float SWAP_POST_ANIM_DELAY = 0.18f;      // settle wait before match/burger checks (0.3 pre-2026-09-07)
         #endregion
 
