@@ -13,6 +13,7 @@ namespace DogtorBurguer
         private IngredientState _state = IngredientState.Spawned;
         private Tween _currentTween;
         private Tween _waveTween;
+        private Tween _slideTween; // lateral glide into a swapped lane (independent of the fall)
 
         public IngredientType Type => _type;
         public Column CurrentColumn => _currentColumn;
@@ -102,19 +103,11 @@ namespace DogtorBurguer
                 return;
             }
 
-            // Fall one step down (visual height). X targets the column's true lane — a no-op
-            // normally, but after a swap reassignment the piece GLIDES diagonally into its new
-            // lane over this step instead of teleporting (2026-09-07).
-            float laneX = Constants.GRID_ORIGIN_X + _currentColumn.ColumnIndex * Constants.CELL_WIDTH;
-            Vector3 targetPos = new Vector3(
-                laneX,
-                currentPos.y - Constants.CELL_VISUAL_HEIGHT,
-                currentPos.z
-            );
-
+            // Fall one step down (visual height) — Y only: the lateral slide into a swapped
+            // lane runs on its own FASTER tween (_slideTween), so the axes never fight.
             _currentTween?.Kill();
             _currentTween = transform
-                .DOMove(targetPos, stepDuration)
+                .DOMoveY(currentPos.y - Constants.CELL_VISUAL_HEIGHT, stepDuration)
                 .SetEase(Ease.Linear)
                 .OnComplete(() => FallOneStep(stepDuration));
         }
@@ -129,7 +122,8 @@ namespace DogtorBurguer
             // Add to column stack
             _currentColumn.AddIngredient(this);
 
-            // Snap to exact position
+            // Snap to exact position (finish any lateral slide first so it can't fight the snap)
+            _slideTween?.Kill();
             Vector3 landPos = _currentColumn.GetWorldPositionForRow(_currentRow);
             transform.position = landPos;
 
@@ -207,12 +201,14 @@ namespace DogtorBurguer
 
             _currentColumn = newColumn;
 
-            // No X snap: the next FallOneStep targets the new column's lane, so the piece
-            // slides in diagonally as it falls (the snap read as a teleport).
-
-            // Resume falling
+            // The lateral slide is its own FAST tween (much quicker than a fall step — the
+            // one-step diagonal read as sluggish) while the Y-only fall continues independently.
             if (_state == IngredientState.Falling)
             {
+                float targetX = Constants.GRID_ORIGIN_X + newColumn.ColumnIndex * Constants.CELL_WIDTH;
+                _slideTween?.Kill();
+                _slideTween = transform.DOMoveX(targetX, AnimConfig.SWAP_SLIDE_DURATION)
+                    .SetEase(Ease.OutQuad).SetLink(gameObject);
                 FallOneStep(stepDuration);
             }
         }
@@ -238,7 +234,9 @@ namespace DogtorBurguer
                 FloatingText.Spawn(transform.position, $"{points}!", UIStyles.FAST_DROP_POPUP, 3f, "ui_popup_plate");
             }
 
-            // Cancel current fall and drop fast
+            // Cancel current fall and drop fast (a mid-flight lane slide completes instantly
+            // so the drop captures the true lane X).
+            _slideTween?.Complete();
             _currentTween?.Kill();
             Vector3 targetPos = new Vector3(transform.position.x, landingY, transform.position.z);
             _currentTween = transform

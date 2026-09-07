@@ -21,6 +21,7 @@ namespace DogtorBurguer
         public const int WAVE_PUNCH_VIBRATO = 4;
         public const float WAVE_PUNCH_ELASTICITY = 0.5f;
         public const float WAVE_MOVE_DURATION = 0.15f;  // per-piece travel in the swap wave (0.2 pre-2026-09-07)
+        public const float SWAP_SLIDE_DURATION = 0.08f; // lateral glide of a swap-reassigned falling piece into its new lane
         public const float WAVE_COMBINED_PUNCH_DURATION = 0.25f;
         #endregion
 
