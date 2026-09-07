@@ -41,6 +41,9 @@ namespace DogtorBurguer
             // empty. The plus box deep-links into the Shop (paused) — the standard "buy more" path.
             _numBox = MakeBadge(plate.transform, "NumBox", "ui_consumable_num");
             _plusBox = MakeBadge(plate.transform, "PlusBox", "ui_consumable_plus");
+            // CreateImage disables raycastTarget on everything — without this the plus Button
+            // never received a single click (broken since birth; found 2026-09-07).
+            _plusBox.raycastTarget = true;
             Button plusButton = _plusBox.gameObject.AddComponent<Button>();
             plusButton.targetGraphic = _plusBox;
             plusButton.onClick.AddListener(() => ShopScreen.OpenInGame(scrollToPowerUps: true));
