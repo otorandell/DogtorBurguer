@@ -18,8 +18,8 @@ namespace DogtorBurguer
         private const int ColA = 1;
         private const int ColB = 2;
         private const int JunkCol = 3;
-        private const float SlowFall = 0.55f;  // drops the player must REACT to (the Match twin)
-        private const float WatchFall = 0.32f; // drops the player only watches (flip locked) — brisker
+        private const float SlowFall = 0.55f;  // drops the player must REACT to
+        private const float ChefArrowLift = 2.4f; // the follow arrow floats this far above the chef (world units)
         private const float PlaceFall = 0.06f; // instant-ish pre-placements
         private const float RespawnDelay = 0.8f;
 
@@ -31,7 +31,7 @@ namespace DogtorBurguer
         private bool _matchFired;
         private Ingredient _matchPiece;
         private bool _burgerServed;
-        private bool _ketchupOutstanding;
+        private bool _powerUpReady;
 
         private void Start()
         {
@@ -54,9 +54,6 @@ namespace DogtorBurguer
                 GridManager.Instance.OnMatchEliminated += HandleMatch;
                 GridManager.Instance.OnBurgerCompleted += HandleBurger;
             }
-            if (SaveDataManager.Instance != null)
-                SaveDataManager.Instance.OnConsumablesChanged += HandleConsumablesChanged;
-
             EnterMove();
         }
 
@@ -72,8 +69,6 @@ namespace DogtorBurguer
                 GridManager.Instance.OnMatchEliminated -= HandleMatch;
                 GridManager.Instance.OnBurgerCompleted -= HandleBurger;
             }
-            if (SaveDataManager.Instance != null)
-                SaveDataManager.Instance.OnConsumablesChanged -= HandleConsumablesChanged;
         }
 
         // ---------------- steps ----------------
@@ -82,8 +77,13 @@ namespace DogtorBurguer
         {
             _step = TutorialStep.Move;
             TutorialMode.SetMask(move: true, flip: false, fastDrop: false, consumable: false);
-            _popup.Show("MOVE!", "Swipe left or right to move the Dogtor between the counters.",
-                new Vector2(0f, -110f), new Vector2(0f, -300f), 0f);
+            // Text follows the live control mode — Tap moves by side-taps, Drag by swipes.
+            bool tapMode = SaveDataManager.Instance != null &&
+                           SaveDataManager.Instance.ControlMode == ControlMode.Tap;
+            string how = tapMode
+                ? "Tap LEFT or RIGHT of the Dogtor to move him between the counters."
+                : "Swipe left or right to move the Dogtor between the counters.";
+            _popup.Show("MOVE!", how, new Vector2(0f, -110f), new Vector2(0f, -300f), 0f);
         }
 
         private void HandleMoved()
@@ -128,6 +128,26 @@ namespace DogtorBurguer
 
         private void Update()
         {
+            // The pointer follows the chef through the two chef-focused steps.
+            if ((_step == TutorialStep.Move || _step == TutorialStep.Swap) && _chef != null)
+                _popup.PointAtWorld(_chef.transform.position + Vector3.up * ChefArrowLift);
+
+            // PowerUp completion: the junk column is clean (the free Ketchup can't run out, so
+            // a missed drop just means trying again — nothing else to track).
+            if (_step == TutorialStep.PowerUp && _powerUpReady)
+            {
+                Column junk = GridManager.Instance?.GetColumn(JunkCol);
+                if (junk != null && junk.IsEmpty)
+                {
+                    _powerUpReady = false;
+                    TutorialMode.VirtualKetchup = false;
+                    ConsumableInventory.Instance?.NotifyChanged();
+                    _popup.Show("POWER-UP!", "Spotless! Burger Fairies bring more power-ups - tap them when they fly by.",
+                        new Vector2(0f, 40f), Vector2.zero, 0f, arrowVisible: false);
+                    _popup.ArmContinue(EnterReady);
+                }
+            }
+
             if (_step != TutorialStep.Match || _matchFired) return;
 
             if (_matchPiece != null && _matchPiece.State == IngredientState.Landed)
@@ -174,7 +194,7 @@ namespace DogtorBurguer
         // self-destructs on its own (the grid teaching "Too bad!" for us). Loops forever.
         private IEnumerator BuildBurgerInteractive()
         {
-            Ingredient bun = _spawner.SpawnScripted(IngredientType.BunBottom, ColA, WatchFall);
+            Ingredient bun = _spawner.SpawnScripted(IngredientType.BunBottom, ColA, SlowFall);
             while (bun != null && bun.State != IngredientState.Landed)
                 yield return null;
 
@@ -261,16 +281,18 @@ namespace DogtorBurguer
             StartCoroutine(DropOrderSequence());
         }
 
+        // The order burger just APPEARS piece by piece (near-instant drops) — the falling
+        // theater broke too easily and the artificial pace read wrong (Oscar, 2026-09-07).
         private IEnumerator DropOrderSequence()
         {
             yield return new WaitForSeconds(1.2f);
             IngredientType[] sequence = { IngredientType.BunBottom, IngredientType.Cheese, IngredientType.BunTop };
             foreach (IngredientType type in sequence)
             {
-                Ingredient piece = _spawner.SpawnScripted(type, ColB, WatchFall);
+                Ingredient piece = _spawner.SpawnScripted(type, ColB, PlaceFall);
                 while (piece != null && piece.State != IngredientState.Landed)
                     yield return null;
-                yield return new WaitForSeconds(0.25f);
+                yield return new WaitForSeconds(0.35f);
             }
         }
 
@@ -278,15 +300,20 @@ namespace DogtorBurguer
         {
             _step = TutorialStep.PowerUp;
             TutorialMode.SetMask(move: true, flip: false, fastDrop: false, consumable: true);
+            _powerUpReady = false;
             StartCoroutine(PreparePowerUp());
         }
 
         private IEnumerator PreparePowerUp()
         {
-            // A junk column (alternating types — no accidental matches), then the Ketchup grant.
+            // A TALL junk column appears (alternating types — no accidental matches); nothing
+            // else falls. The Ketchup is a free VIRTUAL one (TutorialMode.VirtualKetchup): the
+            // slot always shows it and using it never touches the persistent stock, so a missed
+            // drop simply means trying again.
             IngredientType[] junk =
             {
-                IngredientType.Tomato, IngredientType.Bacon,
+                IngredientType.Tomato, IngredientType.Bacon, IngredientType.Tomato,
+                IngredientType.Bacon, IngredientType.Tomato, IngredientType.Bacon,
                 IngredientType.Tomato, IngredientType.Bacon,
             };
             foreach (IngredientType type in junk)
@@ -295,46 +322,11 @@ namespace DogtorBurguer
                 while (piece != null && piece.State != IngredientState.Landed)
                     yield return null;
             }
-            GrantKetchup();
-            _popup.Show("POWER-UP!", "A Ketchup for you! Drag it from its slot onto the messy column to clean it.",
-                new Vector2(0f, 40f), new Vector2(-175f, -95f), 90f);
-        }
-
-        private void GrantKetchup()
-        {
-            _ketchupOutstanding = true;
-            ConsumableInventory.Instance?.Add(ConsumableType.Ketchup);
-        }
-
-        private void HandleConsumablesChanged()
-        {
-            if (_step != TutorialStep.PowerUp || !_ketchupOutstanding) return;
-            if (ConsumableInventory.Instance != null &&
-                ConsumableInventory.Instance.CountOf(ConsumableType.Ketchup) > 0) return; // the grant, not the use
-
-            _ketchupOutstanding = false;
-            StartCoroutine(CheckKetchupResult());
-        }
-
-        private IEnumerator CheckKetchupResult()
-        {
-            // Give the clear VFX a beat, then check the junk column. A fizzle (dropped on an
-            // empty column) re-grants and retries — the step cannot be failed.
-            yield return new WaitForSeconds(1.6f);
-            if (_step != TutorialStep.PowerUp) yield break;
-
-            Column junk = GridManager.Instance?.GetColumn(JunkCol);
-            if (junk != null && !junk.IsEmpty)
-            {
-                GrantKetchup();
-                _popup.Show("POWER-UP!", "It fizzled! Drag the Ketchup onto the MESSY column.",
-                    new Vector2(0f, 40f), new Vector2(-175f, -95f), 90f);
-                yield break;
-            }
-
-            _popup.Show("POWER-UP!", "Spotless! Burger Fairies bring more power-ups - tap them when they fly by.",
-                new Vector2(0f, 40f), Vector2.zero, 0f, arrowVisible: false);
-            _popup.ArmContinue(EnterReady);
+            TutorialMode.VirtualKetchup = true;
+            ConsumableInventory.Instance?.NotifyChanged();
+            _popup.Show("POWER-UP!", "A free Ketchup! Drag it from its slot onto the messy column to clean it.",
+                new Vector2(0f, -40f), UIStyles.TUT_ARROW_SLOT_POS, 0f);
+            _powerUpReady = true;
         }
 
         private void EnterReady()
@@ -346,12 +338,10 @@ namespace DogtorBurguer
             _popup.ArmContinue(Finish);
         }
 
-        // Finish or skip: persist seen, reclaim an unspent tutorial Ketchup, restart clean.
+        // Finish or skip: persist seen, restart clean (End also clears the virtual Ketchup).
         private void Finish()
         {
             _step = TutorialStep.Done;
-            if (_ketchupOutstanding)
-                SaveDataManager.Instance?.TryConsumeConsumable(ConsumableType.Ketchup);
             SaveDataManager.Instance?.SetTutorialSeen();
             TutorialMode.End();
             SceneLoader.LoadGame();

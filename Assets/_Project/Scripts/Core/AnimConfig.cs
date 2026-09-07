@@ -133,6 +133,7 @@ namespace DogtorBurguer
         public const float GEM_COLLECT_SCALE_DOWN_DURATION = 0.2f;
         public const float FAIRY_PULSE_SCALE = 1.08f;  // gentle breathing pulse (absolute root scale)
         public const float FAIRY_PULSE_DURATION = 0.4f;
+        public const float TUT_ARROW_BOB_DURATION = 0.45f; // tutorial pointer idle bob (yoyo half-cycle)
         public const float FAIRY_WOBBLE = 1.6f;        // vertical scatter of each path waypoint (world units)
         public const float FAIRY_WOBBLE_X = 0.7f;      // horizontal jitter of each waypoint — breaks the even pacing
         public const int FAIRY_PATH_WAYPOINTS = 4;     // intermediate points; more = twitchier flight

@@ -264,6 +264,11 @@ namespace DogtorBurguer
             _card.DOPunchScale(Vector3.one * AnimConfig.LEVELUP_PUNCH_SCALE, AnimConfig.LEVELUP_PUNCH_DURATION, 6);
             yield return new WaitForSeconds(AnimConfig.LEVELUP_HOLD);
             _model.GenerateNewChallenge();
+            // The badge/meter normally refresh via the new order's OnChallengeChanged — but the
+            // tutorial suppresses the roll, which left the badge stuck at x1 after the showcase
+            // level-up (2026-09-07). Refresh them explicitly; harmless when the roll happened.
+            _multText.text = $"x{_model.Multiplier:0.##}";
+            UpdateMeter(animate: true);
         }
     }
 }

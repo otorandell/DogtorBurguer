@@ -348,6 +348,8 @@ namespace DogtorBurguer
         public const float TUT_CONTINUE_Y = -78f;
         public const float TUT_CONTINUE_SIZE = 16f;
         public const float TUT_ARROW_H = 64f;
+        public const float TUT_ARROW_BOB = 14f;                                      // idle bob amplitude (the child image tweens)
+        public static readonly Vector2 TUT_ARROW_SLOT_POS = new(-212f, 320f);       // over the Ketchup slot, pointing down
         public static readonly Vector2 TUT_SKIP_POS = new(52f, -110f);
         public const float TUT_SKIP_SIZE = 22f;
         #endregion

@@ -523,11 +523,16 @@ stack; wrong landings poof + respawn forever) → Burger (INTERACTIVE since 2026
 falls beside the bun column, one swap routes it on; misses poof and return, a stray top bun
 self-destructs on its own) → Order (`BurgerChallenge.SetScriptedOrder` — meter pre-filled one short so the match LEVELS UP
 the multiplier on screen) → PowerUp (granted Ketchup on a junk column; a fizzle re-grants) →
-Ready → scene reloads into a normal run. Callout = `TutorialPopup` (red banner + green plate +
-rotated yellow arrow, `UIStyles.TUT_*`; step text/positions live in TutorialManager). SKIP is
-always available and reclaims an unspent granted Ketchup. New hooks: `ChefController.OnMoved/
-OnFlipped`, `IngredientSpawner.SpawnScripted`, `BurgerChallenge.SetScriptedOrder/
-SetPanelVisible`.
+Ready → scene reloads into a normal run. Iteration 2026-09-07 (Oscar's playtest): the Move text
+follows the live ControlMode; the pointer arrow idle-BOBS and FOLLOWS the chef through Move/Swap
+(`TutorialPopup.PointAtWorld`, per-frame); the Order burger APPEARS (near-instant drops — the
+falling theater broke too easily); the PowerUp step is a tall 8-piece junk column + a **virtual
+Ketchup** (`TutorialMode.VirtualKetchup` — ConsumableInventory shows one and consuming it never
+touches the persistent stock; completion = the column is empty). Callout = `TutorialPopup`
+(green plate title + green plate box + bobbing yellow arrow, `UIStyles.TUT_*`; step
+text/positions live in TutorialManager). SKIP is always available. New hooks:
+`ChefController.OnMoved/OnFlipped`, `IngredientSpawner.SpawnScripted`,
+`BurgerChallenge.SetScriptedOrder/SetPanelVisible`, `ConsumableInventory.NotifyChanged`.
 
 ### Skins & Theme (cosmetics)
 All gameplay sprites flow through one place: `Theme` (static) reads `Skin` ScriptableObject

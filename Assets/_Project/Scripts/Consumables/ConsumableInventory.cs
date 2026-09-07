@@ -34,15 +34,30 @@ namespace DogtorBurguer
 
         private void RaiseChanged() => OnChanged?.Invoke();
 
-        public int CountOf(ConsumableType type) =>
-            SaveDataManager.Instance != null ? SaveDataManager.Instance.ConsumableCount(type) : 0;
+        /// <summary>Tutorial: refreshes the slot views after toggling the virtual Ketchup.</summary>
+        public void NotifyChanged() => RaiseChanged();
+
+        public int CountOf(ConsumableType type)
+        {
+            // The tutorial's free Ketchup: always visible, never depletes (see TryConsume).
+            if (TutorialMode.VirtualKetchup && type == ConsumableType.Ketchup) return 1;
+            return SaveDataManager.Instance != null ? SaveDataManager.Instance.ConsumableCount(type) : 0;
+        }
 
         /// <summary>Adds one of a consumable (no cap).</summary>
         public void Add(ConsumableType type) =>
             SaveDataManager.Instance?.AddConsumables(type, 1);
 
         /// <summary>Uses one if available. Returns false (no-op) when that slot is empty.</summary>
-        public bool TryConsume(ConsumableType type) =>
-            SaveDataManager.Instance != null && SaveDataManager.Instance.TryConsumeConsumable(type);
+        public bool TryConsume(ConsumableType type)
+        {
+            // The tutorial's free Ketchup is spent without touching the persistent stock.
+            if (TutorialMode.VirtualKetchup && type == ConsumableType.Ketchup)
+            {
+                RaiseChanged();
+                return true;
+            }
+            return SaveDataManager.Instance != null && SaveDataManager.Instance.TryConsumeConsumable(type);
+        }
     }
 }

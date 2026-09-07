@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,18 +7,20 @@ using UnityEngine.UI;
 namespace DogtorBurguer
 {
     /// <summary>
-    /// The tutorial callout, composed from existing art: the red SPECIAL ORDER banner blank as
-    /// the title strip, the wide green glow plate as the text box, and a rotated yellow preview
-    /// arrow as the pointer. One instance, restyled per step; also owns the SKIP button and the
-    /// full-screen tap-to-continue overlay. Layout knobs: UIStyles.TUT_*.
+    /// The tutorial callout, composed from existing art: the wide green glow plate (the
+    /// Order-Complete popup's) as both the title strip and the text box, and a yellow preview
+    /// arrow as the pointer — idle-bobbing, and steerable at a world object via
+    /// <see cref="PointAtWorld"/>. One instance, restyled per step; also owns the SKIP button
+    /// and the full-screen tap-to-continue overlay. Layout knobs: UIStyles.TUT_*.
     /// </summary>
     public class TutorialPopup : MonoBehaviour
     {
         private Canvas _canvas;
+        private Camera _camera;
         private RectTransform _box;
         private TextMeshProUGUI _title;
         private TextMeshProUGUI _body;
-        private Image _arrow;
+        private RectTransform _arrowRoot;
         private GameObject _continueOverlay;
         private TextMeshProUGUI _continueLabel;
         private Action _onContinue;
@@ -32,9 +35,10 @@ namespace DogtorBurguer
                 new Vector2(0.5f, 0.5f), Vector2.zero, UIFactory.SizeByWidth(plate, UIStyles.TUT_BOX_W));
             _box = boxImg.rectTransform;
 
-            Sprite banner = UiArt.Load("ui_special_title");
-            Image bannerImg = UIFactory.CreateImage(_box, "Title", banner, new Vector2(0.5f, 1f),
-                new Vector2(0f, UIStyles.TUT_TITLE_Y), UIFactory.SizeByWidth(banner, UIStyles.TUT_TITLE_W));
+            // Title strip: the same green plate, smaller (the red banner read as broken next
+            // to the Order-Complete look — Oscar, 2026-09-07).
+            Image bannerImg = UIFactory.CreateImage(_box, "Title", plate, new Vector2(0.5f, 1f),
+                new Vector2(0f, UIStyles.TUT_TITLE_Y), UIFactory.SizeByWidth(plate, UIStyles.TUT_TITLE_W));
             _title = UIFactory.CreateText(bannerImg.transform, "", UIStyles.TUT_TITLE_NUDGE,
                 bannerImg.rectTransform.sizeDelta, UIStyles.TUT_TITLE_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(_title);
@@ -44,9 +48,19 @@ namespace DogtorBurguer
                 UIStyles.TUT_BODY_SIZE, FontStyles.Bold, null, TextAlignmentOptions.Center, wrap: true);
             UIFactory.StyleHudText(_body);
 
+            // The pointer: a positioned root + a child image that idle-bobs (so per-frame
+            // follow and the bob tween never fight over one transform).
+            GameObject arrowObj = new GameObject("Pointer");
+            arrowObj.transform.SetParent(_canvas.transform, false);
+            _arrowRoot = arrowObj.AddComponent<RectTransform>();
+            _arrowRoot.anchorMin = _arrowRoot.anchorMax = new Vector2(0.5f, 0.5f);
+            _arrowRoot.sizeDelta = Vector2.zero;
             Sprite arrowArt = UiArt.Load("ui_arrow_yellow");
-            _arrow = UIFactory.CreateImage(_canvas.transform, "Pointer", arrowArt,
+            Image arrowImg = UIFactory.CreateImage(_arrowRoot, "ArrowArt", arrowArt,
                 new Vector2(0.5f, 0.5f), Vector2.zero, UIFactory.SizeByHeight(arrowArt, UIStyles.TUT_ARROW_H));
+            arrowImg.rectTransform.DOAnchorPosY(-UIStyles.TUT_ARROW_BOB, AnimConfig.TUT_ARROW_BOB_DURATION)
+                .SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine).SetLink(arrowImg.gameObject);
+            _camera = Camera.main;
 
             // Tap-to-continue: an invisible full-screen button + a pulsing prompt line.
             GameObject overlay = UIFactory.CreateOverlay(_canvas.transform, Color.clear);
@@ -85,11 +99,21 @@ namespace DogtorBurguer
             _box.anchoredPosition = boxPos;
             _title.text = title;
             _body.text = body;
-            _arrow.gameObject.SetActive(arrowVisible);
-            _arrow.rectTransform.anchoredPosition = arrowPos;
-            _arrow.rectTransform.localEulerAngles = new Vector3(0f, 0f, arrowRot);
+            _arrowRoot.gameObject.SetActive(arrowVisible);
+            _arrowRoot.anchoredPosition = arrowPos;
+            _arrowRoot.localEulerAngles = new Vector3(0f, 0f, arrowRot);
             _continueOverlay.SetActive(false);
             _continueLabel.gameObject.SetActive(false);
+        }
+
+        /// <summary>Steers the arrow over a world position (call per frame to follow the chef).</summary>
+        public void PointAtWorld(Vector3 worldPos)
+        {
+            if (_camera == null || !_arrowRoot.gameObject.activeSelf) return;
+            Vector3 screen = _camera.WorldToScreenPoint(worldPos);
+            _arrowRoot.anchoredPosition = new Vector2(
+                (screen.x - Screen.width * 0.5f) / _canvas.scaleFactor,
+                (screen.y - Screen.height * 0.5f) / _canvas.scaleFactor);
         }
 
         /// <summary>Arms the full-screen tap: the next tap anywhere runs <paramref name="onTap"/>.</summary>
