@@ -74,18 +74,32 @@ namespace DogtorBurguer
             _perFrameTicks.Add(tick);
         }
 
+#if UNITY_EDITOR
+        private bool _rWasDown;
+        private bool _announcedR;
+#endif
+
         private void Update()
         {
 #if UNITY_EDITOR
-            // Debug: R wipes all shop purchases (owned skins, equips, remove-ads) for testing.
-            if (UnityEngine.InputSystem.Keyboard.current != null &&
-                UnityEngine.InputSystem.Keyboard.current.rKey.wasPressedThisFrame)
+            // Debug: R wipes shop purchases/consumables/tutorial-seen. Manual edge detection on
+            // isPressed — wasPressedThisFrame proved unreliable in the paused-shop context
+            // (2026-09-07: V/F in TouchInputHandler fired, this handler never did).
+            if (!_announcedR)
+            {
+                _announcedR = true;
+                Debug.Log("[ShopScreen] R listener alive (Game view must be focused).");
+            }
+            var keyboard = UnityEngine.InputSystem.Keyboard.current;
+            bool rDown = keyboard != null && keyboard.rKey.isPressed;
+            if (rDown && !_rWasDown)
             {
                 SaveDataManager.Instance?.DebugResetShop();
                 Theme.DebugResetToDefaults();
                 NotifyChanged();
                 Debug.Log("[ShopScreen] Debug reset: skins, equips, remove-ads, consumables and tutorial-seen wiped.");
             }
+            _rWasDown = rDown;
 #endif
             foreach (Action tick in _perFrameTicks)
                 tick();
