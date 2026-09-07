@@ -40,7 +40,7 @@ namespace DogtorBurguer
 
         private void Update()
         {
-            if (!_active) return;
+            if (!_active || TutorialMode.IsActive) return; // belt and braces for the tutorial
 
             switch (_state)
             {
@@ -93,6 +93,9 @@ namespace DogtorBurguer
 
         public void ResumeSpawning()
         {
+            // Same gate as StartSpawning: closing an overlay (settings/shop/help) resumes the
+            // game, and this un-gated _active=true started REAL waves mid-tutorial (2026-09-07).
+            if (TutorialMode.IsActive) return;
             _active = true;
         }
 

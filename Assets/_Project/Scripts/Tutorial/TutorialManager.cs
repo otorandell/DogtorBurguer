@@ -183,26 +183,27 @@ namespace DogtorBurguer
             _step = TutorialStep.Burger;
             TutorialMode.SetMask(move: true, flip: true, fastDrop: true, consumable: false);
             ClearBoardSilently();
-            _burgerServed = false;
             _popup.Show("BURGER TIME!", "Your turn! A bottom bun opens the burger - SWAP the stacks so every falling piece lands ON it. Close it with the top bun!",
                 new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
-            StartCoroutine(BuildBurgerInteractive());
+            StartCoroutine(BuildGuidedBurger(new[] { IngredientType.Meat, IngredientType.Cheese }, ColA));
         }
 
         // Interactive but unfailable (2026-09-07): each piece falls beside the burger, so the
         // player must swap it underneath. A miss poofs and returns; a stray top bun even
         // self-destructs on its own (the grid teaching "Too bad!" for us). Loops forever.
-        private IEnumerator BuildBurgerInteractive()
+        // Shared by the Burger and the Special Order steps (fillings + a closing top bun).
+        private IEnumerator BuildGuidedBurger(IngredientType[] fillings, int startCol)
         {
-            Ingredient bun = _spawner.SpawnScripted(IngredientType.BunBottom, ColA, SlowFall);
+            _burgerServed = false;
+            Ingredient bun = _spawner.SpawnScripted(IngredientType.BunBottom, startCol, SlowFall);
             while (bun != null && bun.State != IngredientState.Landed)
                 yield return null;
 
-            IngredientType[] sequence = { IngredientType.Meat, IngredientType.Cheese, IngredientType.BunTop };
-            foreach (IngredientType type in sequence)
+            for (int i = 0; i < fillings.Length + 1; i++)
             {
+                IngredientType type = i < fillings.Length ? fillings[i] : IngredientType.BunTop;
                 bool placed = false;
-                while (!placed && _step == TutorialStep.Burger)
+                while (!placed && (_step == TutorialStep.Burger || _step == TutorialStep.Order))
                 {
                     // Aim beside the CURRENT bun column (the player may have walked it around),
                     // always adjacent so a single swap solves it.
@@ -262,6 +263,7 @@ namespace DogtorBurguer
             else if (_step == TutorialStep.Order)
             {
                 // The scripted order just matched: the pre-filled meter levels the multiplier up.
+                _burgerServed = true;
                 _popup.Show("SPECIAL ORDER!", "Orders fill the gauge and raise your score multiplier - for EVERY point you earn!",
                     new Vector2(0f, -60f), new Vector2(160f, 120f), 180f);
                 _popup.ArmContinue(EnterPowerUp);
@@ -271,29 +273,22 @@ namespace DogtorBurguer
         private void EnterOrder()
         {
             _step = TutorialStep.Order;
-            TutorialMode.SetMask(move: true, flip: false, fastDrop: true, consumable: false);
+            TutorialMode.SetMask(move: true, flip: true, fastDrop: true, consumable: false);
             BurgerChallenge.Instance?.SetPanelVisible(true);
             // One cheese, exact size 1; meter pre-filled one short of level-up so THIS order
             // triggers the showcase (level 1 needs 2 orders).
             BurgerChallenge.Instance?.SetScriptedOrder(IngredientType.Cheese, exactCount: 1, progress: 1);
-            _popup.Show("SPECIAL ORDER!", "A customer wants THIS exact burger! The ingredient ORDER does not matter - watch it get served.",
+            _popup.Show("SPECIAL ORDER!", "A customer wants THIS exact burger! Ingredient ORDER does not matter - build it and serve it!",
                 new Vector2(0f, -60f), new Vector2(160f, 120f), 180f);
-            StartCoroutine(DropOrderSequence());
+            StartCoroutine(GuidedOrderSequence());
         }
 
-        // The order burger just APPEARS piece by piece (near-instant drops) — the falling
-        // theater broke too easily and the artificial pace read wrong (Oscar, 2026-09-07).
-        private IEnumerator DropOrderSequence()
+        // The player BUILDS the order burger (2026-09-07) — same guided, unfailable routine as
+        // the Burger step: only the recipe's pieces fall, misses poof and return.
+        private IEnumerator GuidedOrderSequence()
         {
             yield return new WaitForSeconds(1.2f);
-            IngredientType[] sequence = { IngredientType.BunBottom, IngredientType.Cheese, IngredientType.BunTop };
-            foreach (IngredientType type in sequence)
-            {
-                Ingredient piece = _spawner.SpawnScripted(type, ColB, PlaceFall);
-                while (piece != null && piece.State != IngredientState.Landed)
-                    yield return null;
-                yield return new WaitForSeconds(0.35f);
-            }
+            yield return BuildGuidedBurger(new[] { IngredientType.Cheese }, ColB);
         }
 
         private void EnterPowerUp()

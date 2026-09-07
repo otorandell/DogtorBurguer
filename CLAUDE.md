@@ -525,8 +525,10 @@ self-destructs on its own) → Order (`BurgerChallenge.SetScriptedOrder` — met
 the multiplier on screen) → PowerUp (granted Ketchup on a junk column; a fizzle re-grants) →
 Ready → scene reloads into a normal run. Iteration 2026-09-07 (Oscar's playtest): the Move text
 follows the live ControlMode; the pointer arrow idle-BOBS and FOLLOWS the chef through Move/Swap
-(`TutorialPopup.PointAtWorld`, per-frame); the Order burger APPEARS (near-instant drops — the
-falling theater broke too easily); the PowerUp step is a tall 8-piece junk column + a **virtual
+(`TutorialPopup.PointAtWorld`, per-frame); the Order burger is BUILT by the player (the shared
+guided routine — only the recipe's pieces fall, misses poof and return); overlay closes no
+longer leak real waves in (ResumeSpawning + the spawner Update are tutorial-gated); the PowerUp
+step is a tall 8-piece junk column + a **virtual
 Ketchup** (`TutorialMode.VirtualKetchup` — ConsumableInventory shows one and consuming it never
 touches the persistent stock; completion = the column is empty). Callout = `TutorialPopup`
 (green plate title + green plate box + bobbing yellow arrow, `UIStyles.TUT_*`; step
