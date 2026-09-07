@@ -214,6 +214,20 @@ namespace DogtorBurguer
             PlayerPrefs.Save();
             OnConsumablesChanged?.Invoke();
         }
+
+        /// <summary>Editor-menu wipe usable OUTSIDE play mode (no live instance): deletes the
+        /// same keys DebugResetShop clears, straight through PlayerPrefs.</summary>
+        public static void DebugWipeProgressKeys()
+        {
+            PlayerPrefs.DeleteKey(KEY_TUTORIAL_SEEN);
+            PlayerPrefs.DeleteKey(KEY_OWNED_SKINS);
+            foreach (SkinSlot slot in System.Enum.GetValues(typeof(SkinSlot)))
+                PlayerPrefs.DeleteKey(KEY_EQUIPPED_PREFIX + (int)slot);
+            PlayerPrefs.DeleteKey(KEY_ADS_REMOVED);
+            for (int i = 0; i < ConsumableInventory.TypeCount; i++)
+                PlayerPrefs.DeleteKey(KEY_CONSUMABLE_PREFIX + i);
+            PlayerPrefs.Save();
+        }
 #endif
 
         public void GrantSkin(string skinId)

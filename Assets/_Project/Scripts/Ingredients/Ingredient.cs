@@ -301,7 +301,12 @@ namespace DogtorBurguer
         {
             _currentTween?.Kill();
             _waveTween?.Kill();
+            _slideTween?.Kill();
             DOTween.Kill(gameObject);
+            // Tweens that target the RENDERER directly (the burger gold flash, the blink in
+            // DestroyWithFlash) aren't reached by the gameObject-target kill — they were the
+            // "destroyed SpriteRenderer" DOTween spam in the editor log (2026-09-07).
+            if (_spriteRenderer != null) _spriteRenderer.DOKill();
             // Ensure we're unregistered from falling list
             GridManager.Instance?.UnregisterFallingIngredient(this);
         }

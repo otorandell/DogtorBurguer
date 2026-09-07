@@ -141,7 +141,10 @@ display refresh with a `MIN_TARGET_FRAME_RATE` floor (60) — Unity's mobile def
 (see Core Systems → Consumables) — `TouchInputHandler` hands the gesture to
 `ConsumableDragController` and suppresses chef logic for its duration. **Editor-only debug**: keys
 **1/2/3** grant Ketchup/Mustard/Skewer to the inventory, **4** grants 500 stars, **F** spawns a
-fairy, **V** forces game over, **F12** saves a Game-view screenshot to Docs/store-assets, **R** (while the shop is open) wipes shop purchases/equips/remove-ads, the consumable stock AND the tutorial-seen flag (`#if UNITY_EDITOR`).
+fairy, **V** forces game over, **F12** saves a Game-view screenshot to Docs/store-assets, **R** (while the shop is open, Game view FOCUSED — editor keys go to the last-clicked panel
+otherwise) wipes shop purchases/equips/remove-ads, the consumable stock AND the tutorial-seen
+flag; the same wipe is on the editor menu **Tools → Dogtor → Reset Shop + Tutorial +
+Consumables** (`Scripts/Editor/DebugMenu.cs` — focus-proof, works outside play mode too) (`#if UNITY_EDITOR`).
 
 **Input-area debug gizmos** (editor-only, `#if UNITY_EDITOR`): each clickable zone is drawn by the
 component owning its hit-test, one color per interaction (`GizmoStyles`): falling fast-drop (green,
