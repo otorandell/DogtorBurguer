@@ -35,6 +35,12 @@ namespace DogtorBurguer
         /// <summary>The gem pill transform — deny-shake target for failed gem spends.</summary>
         public Transform GemPill => _topBar.GemPill;
 
+        private RectTransform _scrollContent;
+
+        /// <summary>The POWER-UPS section title — set by ShopSections each build; the consumable
+        /// plus-box deep link jumps the scroll here.</summary>
+        public RectTransform PowerUpsAnchor { get; set; }
+
         public static void Open(Action onClosed = null)
         {
             if (_openInstance != null) return;
@@ -45,13 +51,16 @@ namespace DogtorBurguer
             _openInstance.Build();
         }
 
-        /// <summary>Opens from the in-game HUD: pauses a running game, resumes it on close.</summary>
-        public static void OpenInGame()
+        /// <summary>Opens from in-game: pauses a running game, resumes it on close. The
+        /// consumable plus-box deep link passes <paramref name="scrollToPowerUps"/> to open the
+        /// page already POSITIONED at the POWER-UPS section (instant, no scroll animation).</summary>
+        public static void OpenInGame(bool scrollToPowerUps = false)
         {
             GameManager manager = GameManager.Instance;
             bool pause = manager != null && manager.CurrentState == GameState.Playing && !manager.IsPaused;
             if (pause) manager.PauseGame();
             Open(() => { if (pause) GameManager.Instance?.ResumeGame(); });
+            if (scrollToPowerUps) _openInstance?.JumpToPowerUps();
         }
 
         /// <summary>Sections register their state re-render here; see <see cref="NotifyChanged"/>.</summary>
@@ -156,9 +165,9 @@ namespace DogtorBurguer
             UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY);
             BuildPage();
 
-            RectTransform content = ShopWidgets.CreateVerticalScroll(_page,
+            _scrollContent = ShopWidgets.CreateVerticalScroll(_page,
                 UIStyles.SHOP_SCROLL_TOP, UIStyles.SHOP_SCROLL_BOTTOM, UIStyles.SHOP_SCROLL_SIDE);
-            ShopSections.BuildAll(content, this);
+            ShopSections.BuildAll(_scrollContent, this);
 
             // Store grants can land outside a tap (a restore, a replayed purchase) — re-render then too.
             if (IapManager.Instance != null)
@@ -166,6 +175,21 @@ namespace DogtorBurguer
         }
 
         private void HandleGranted(string storeId) => NotifyChanged();
+
+        // Instant jump so the POWER-UPS title sits at the viewport top. Layout is forced first —
+        // the shop was built this same frame and the vertical layout hasn't run yet.
+        private void JumpToPowerUps()
+        {
+            if (PowerUpsAnchor == null || _scrollContent == null) return;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_scrollContent);
+            float childTop = PowerUpsAnchor.localPosition.y
+                + PowerUpsAnchor.rect.height * (1f - PowerUpsAnchor.pivot.y);
+            RectTransform viewport = (RectTransform)_scrollContent.parent;
+            float maxScroll = Mathf.Max(0f, _scrollContent.rect.height - viewport.rect.height);
+            Vector2 pos = _scrollContent.anchoredPosition;
+            pos.y = Mathf.Clamp(-childTop, 0f, maxScroll);
+            _scrollContent.anchoredPosition = pos;
+        }
 
         // The page art is a full-phone canvas (SHOP baked on the awning): shown at the reference
         // resolution it lands where drawn. The round X over the awning's corner, and the shared

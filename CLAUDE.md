@@ -141,7 +141,7 @@ display refresh with a `MIN_TARGET_FRAME_RATE` floor (60) — Unity's mobile def
 (see Core Systems → Consumables) — `TouchInputHandler` hands the gesture to
 `ConsumableDragController` and suppresses chef logic for its duration. **Editor-only debug**: keys
 **1/2/3** grant Ketchup/Mustard/Skewer to the inventory, **4** grants 500 stars, **F** spawns a
-fairy, **V** forces game over, **F12** saves a Game-view screenshot to Docs/store-assets, **R** (while the shop is open) wipes shop purchases/equips/remove-ads AND the tutorial-seen flag (`#if UNITY_EDITOR`).
+fairy, **V** forces game over, **F12** saves a Game-view screenshot to Docs/store-assets, **R** (while the shop is open) wipes shop purchases/equips/remove-ads, the consumable stock AND the tutorial-seen flag (`#if UNITY_EDITOR`).
 
 **Input-area debug gizmos** (editor-only, `#if UNITY_EDITOR`): each clickable zone is drawn by the
 component owning its hit-test, one color per interaction (`GizmoStyles`): falling fast-drop (green,
@@ -454,7 +454,7 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   runs); the inventory is a thin gameplay facade forwarding `OnConsumablesChanged` as `OnChanged`.
   `ConsumableInventoryView` + `ConsumableSlotWidget` render a **screen-space UGUI** row below
   Level/Score: round plate + icon + corner badge (**red num box with the live count**, or **green
-  plus box** when empty — the plus box **opens the Shop** paused, the "buy more" deep link).
+  plus box** when empty — the plus box **opens the Shop** paused and JUMPED straight to the POWER-UPS section (instant position via `ShopScreen.PowerUpsAnchor`), the "buy more" deep link).
 - **Use — drag-to-column**: press a slot (a stocked one) → carry (the slot icon hides; the only
   visual is the translucent targeting ghost snapped to the nearest column — **nothing follows
   the finger**) → release **over the playfield** to use, **off it** to cancel. `ConsumableDragController.TryBegin` hit-tests the **screen-space** slot

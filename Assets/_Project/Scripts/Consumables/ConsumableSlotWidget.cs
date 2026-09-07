@@ -43,7 +43,7 @@ namespace DogtorBurguer
             _plusBox = MakeBadge(plate.transform, "PlusBox", "ui_consumable_plus");
             Button plusButton = _plusBox.gameObject.AddComponent<Button>();
             plusButton.targetGraphic = _plusBox;
-            plusButton.onClick.AddListener(ShopScreen.OpenInGame);
+            plusButton.onClick.AddListener(() => ShopScreen.OpenInGame(scrollToPowerUps: true));
 
             _count = UIFactory.CreateText(_numBox.transform, "0", Vector2.zero,
                 new Vector2(UIStyles.CONSUMABLE_BADGE_H, UIStyles.CONSUMABLE_BADGE_H),

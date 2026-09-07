@@ -131,7 +131,8 @@ namespace DogtorBurguer
         // then the Pro Cook Pack row. Star spends are instant (no confirm — soft currency).
         private static void BuildPowerUps(RectTransform content, ShopScreen screen)
         {
-            ShopWidgets.CreateSectionTitle(content, "POWER-UPS");
+            // The plus-box deep link jumps the page scroll to this title (ShopScreen).
+            screen.PowerUpsAnchor = ShopWidgets.CreateSectionTitle(content, "POWER-UPS").rectTransform;
 
             RectTransform grid = ShopWidgets.CreateGrid(content, ShopWidgets.CellHeight(false, ShopWidgets.ItemBoxArt));
             foreach (ConsumablePack pack in MonetizationConfig.CONSUMABLE_PACKS)

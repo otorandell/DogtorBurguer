@@ -193,8 +193,8 @@ namespace DogtorBurguer
 
 #if UNITY_EDITOR
         /// <summary>Debug (editor-only): wipes shop purchases — owned skins, per-slot equips and
-        /// remove-ads — and the tutorial-seen flag, so the next Play exercises the first-run
-        /// tutorial. Bound to R while the shop is open (ShopScreen).</summary>
+        /// remove-ads — plus the consumable stock and the tutorial-seen flag, so the next Play
+        /// exercises the first-run tutorial. Bound to R while the shop is open (ShopScreen).</summary>
         public void DebugResetShop()
         {
             TutorialSeen = false;
@@ -206,7 +206,13 @@ namespace DogtorBurguer
                 PlayerPrefs.SetString(KEY_EQUIPPED_PREFIX + (int)slot, "");
             AdsRemoved = false;
             PlayerPrefs.SetInt(KEY_ADS_REMOVED, 0);
+            for (int i = 0; i < _consumableCounts.Length; i++)
+            {
+                _consumableCounts[i] = 0;
+                PlayerPrefs.SetInt(KEY_CONSUMABLE_PREFIX + i, 0);
+            }
             PlayerPrefs.Save();
+            OnConsumablesChanged?.Invoke();
         }
 #endif
 

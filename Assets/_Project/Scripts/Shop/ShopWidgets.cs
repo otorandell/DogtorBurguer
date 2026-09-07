@@ -138,13 +138,15 @@ namespace DogtorBurguer
 
         // --- text ---
 
-        /// <summary>"DOGTOR SKINS" — centered, HUD palette (cream + brown border).</summary>
-        public static void CreateSectionTitle(RectTransform pageContent, string text)
+        /// <summary>"DOGTOR SKINS" — centered, HUD palette (cream + brown border). Returned so
+        /// a section can register itself as a scroll anchor (the POWER-UPS deep link).</summary>
+        public static TextMeshProUGUI CreateSectionTitle(RectTransform pageContent, string text)
         {
             TextMeshProUGUI title = UIFactory.CreateText(pageContent, text, Vector2.zero,
                 Vector2.zero, UIStyles.SHOP_SECTION_TITLE_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(title);
             title.gameObject.AddComponent<LayoutElement>().preferredHeight = UIStyles.SHOP_SECTION_TITLE_H;
+            return title;
         }
 
         /// <summary>The lime accent with the HUD border — cell names, pack amounts, THANK YOU.</summary>
