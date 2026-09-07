@@ -204,10 +204,9 @@ namespace DogtorBurguer
 
         private void HandleGameOver()
         {
-            // Persist the high score as part of the game-over flow (not in the UI panel, F-67).
-            // Relax runs never write it — longer, easier games would inflate the Classic trophy —
-            // and the same gate keeps them off the Play Games leaderboard.
-            if (SaveDataManager.Instance != null && CurrentMode == GameMode.Classic)
+            // Persist the high score as part of the game-over flow (not in the UI panel, F-67)
+            // and report it to the Play Games board.
+            if (SaveDataManager.Instance != null)
             {
                 SaveDataManager.Instance.SetHighScore(_score);
                 LeaderboardManager.Instance?.ReportScore(_score);
@@ -247,18 +246,11 @@ namespace DogtorBurguer
         {
             if (amount <= 0) return;
 
-            // Relax runs earn scaled-down stars. Every in-run faucet (orders, star fairies, the
-            // end-of-run payout) routes through here, so this is the single point; shop purchases
-            // go straight to SaveDataManager.AddStars and are untouched.
-            if (CurrentMode == GameMode.Relax)
-                amount = Mathf.Max(1, Mathf.RoundToInt(amount * MonetizationConfig.RELAX_STAR_SCALE));
-
+            // Every in-run faucet (orders, star fairies, the end-of-run payout) routes through
+            // here, the single point; shop purchases go straight to SaveDataManager.AddStars.
             _starsEarnedThisRun += amount;
             SaveDataManager.Instance?.AddStars(amount);
         }
-
-        private static GameMode CurrentMode => SaveDataManager.Instance != null
-            ? SaveDataManager.Instance.Mode : SaveDataManager.DEFAULT_GAME_MODE;
 
         private void AddScore(int points)
         {

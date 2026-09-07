@@ -60,7 +60,6 @@ namespace DogtorBurguer
         #endregion
 
         #region Button Colors
-        public static readonly Color BTN_DEV_STEPPER = new(0.3f, 0.5f, 0.7f);    // dev-only start-level stepper (Settings)
         #endregion
 
         #region Consumable / Fairy Sizes (world-space heights)
@@ -139,10 +138,6 @@ namespace DogtorBurguer
         // consumables bottom (≈194 tall here) — stretched past native aspect on purpose.
         public static readonly Vector2 SPECIAL_CARD_SIZE = new(228f, 194f);   // cream card (stretched taller)
         public static readonly Vector2 SPECIAL_CARD_POS = new(-128f, -176f);  // anchored top-right
-        public const float SPECIAL_MODE_TAB_H = 58f;                          // red mode tab (CLASSIC/RELAX) straddling the card's bottom edge — the Level/Score tab recipe
-        public const float SPECIAL_MODE_TAB_Y = 2f;                           // tab center vs the card's bottom edge
-        public const float SPECIAL_MODE_TAB_X = -14f;                         // nudged left — the mult gauge on the right shifts the card's visual center
-        public const float SPECIAL_MODE_TAB_TEXT = 16f;
         public const float SPECIAL_BANNER_H = 60f;                            // SPECIAL ORDER banner (width follows aspect)
         public const float SPECIAL_BANNER_STRETCH_X = 1.15f;                  // widen the red banner past native aspect (deliberate)
         public static readonly Vector2 SPECIAL_BANNER_OFFSET = new(-40f, 78f);// banner offset within the card (overhangs top-left)
@@ -347,11 +342,10 @@ namespace DogtorBurguer
         public const float SETTINGS_ROW_LABEL_SIZE_MIN = 14f;                        // AutoFit floor
         public static readonly Vector2 SETTINGS_ROW_LABEL_NUDGE = new(-3f, 4f);     // word toward the face center (shadow is bottom-right)
         // Dev-only start-level stepper ([−] Lv N [+]) below the panel: flat placeholder widgets.
-        public const float SETTINGS_DEV_STEPPER_Y = -330f;
-        public const float SETTINGS_DEV_STEPPER_X = 135f;                            // ± for the −/+ buttons
-        public static readonly Vector2 SETTINGS_STEPPER_LABEL_SIZE = new(210f, 55f);
-        public static readonly Vector2 SETTINGS_STEPPER_BTN_SIZE = new(55f, 55f);
-        public const float SETTINGS_DEV_TEXT_SIZE = 22f;
+        // The START level row (menu, third row — replaced the mode toggle 2026-09-07): the same
+        // blue blank, "START: LVL N" centered, a yellow arrow button INSIDE each end.
+        public const float SETTINGS_LEVEL_ARROW_X = 150f;                            // ± from the row center
+        public const float SETTINGS_LEVEL_ARROW_H = 40f;                             // ui_arrow_yellow sized by height, then rotated
 
         // How-to-play panel (the "?" top-bar button, in-game + menu; on the modal chrome)
         public const float HOWTO_HEADER_Y = 130f;                                    // lime page header (CONTROLS, BURGERS, …)
@@ -365,8 +359,10 @@ namespace DogtorBurguer
         public const float HOWTO_PAGER_SIZE = 26f;
         public const float HOWTO_ARROW_X = 120f;                                     // arrows flank the pager
         public const float HOWTO_ARROW_H = 56f;                                      // ui_arrow_yellow sized by height, then rotated
-        public const float HOWTO_ARROW_ROT_LEFT = -90f;                              // z-rotations turning the arrow art sideways —
-        public const float HOWTO_ARROW_ROT_RIGHT = 90f;                              // flip both signs if the art points the other way
+        // z-rotations turning ui_arrow_yellow sideways (a property of the art — shared by the
+        // How-to pager and the Settings START level row); flip both signs if the art points the other way.
+        public const float ARROW_YELLOW_ROT_LEFT = -90f;
+        public const float ARROW_YELLOW_ROT_RIGHT = 90f;
         #endregion
 
         #region Layout — Credits Panel

@@ -27,6 +27,7 @@ namespace DogtorBurguer
         private readonly List<Action> _perFrameTicks = new();
         private Action _onClosed;
         private Canvas _canvas;
+        private RectTransform _page;
         private TopBar _topBar;
         private GameObject _dialog;
         private GameObject _purchaseBlocker;
@@ -155,7 +156,7 @@ namespace DogtorBurguer
             UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY);
             BuildPage();
 
-            RectTransform content = ShopWidgets.CreateVerticalScroll(_canvas.transform,
+            RectTransform content = ShopWidgets.CreateVerticalScroll(_page,
                 UIStyles.SHOP_SCROLL_TOP, UIStyles.SHOP_SCROLL_BOTTOM, UIStyles.SHOP_SCROLL_SIDE);
             ShopSections.BuildAll(content, this);
 
@@ -168,17 +169,27 @@ namespace DogtorBurguer
 
         // The page art is a full-phone canvas (SHOP baked on the awning): shown at the reference
         // resolution it lands where drawn. The round X over the awning's corner, and the shared
-        // TopBar dropped into the page below it.
+        // TopBar dropped into the page below it. Everything hangs off a PAGE ROOT at the
+        // reference size (the ModalPanel pattern), not the canvas: on phones taller than 9:16 the
+        // canvas outgrows the page (match-width scaling), and canvas-anchored chrome floated above
+        // the awning while the scroll viewport spilled past the page (first device test, 2026-09-06).
         private void BuildPage()
         {
-            UIFactory.CreateImage(_canvas.transform, "Page", UiArt.Load("ui_shop_page"), Center, Vector2.zero,
+            GameObject pageObj = new GameObject("Page");
+            pageObj.transform.SetParent(_canvas.transform, false);
+            _page = pageObj.AddComponent<RectTransform>();
+            _page.anchorMin = Center;
+            _page.anchorMax = Center;
+            _page.sizeDelta = UIStyles.REFERENCE_RESOLUTION;
+
+            UIFactory.CreateImage(_page, "Art", UiArt.Load("ui_shop_page"), Center, Vector2.zero,
                 UIStyles.REFERENCE_RESOLUTION);
 
             Sprite close = UiArt.Load("ui_btn_close_x");
-            UIFactory.CreateSpriteButton(_canvas.transform, "Close", close, TopCenter, UIStyles.SHOP_CLOSE_POS,
+            UIFactory.CreateSpriteButton(_page, "Close", close, TopCenter, UIStyles.SHOP_CLOSE_POS,
                 UIFactory.SizeByHeight(close, UIStyles.SHOP_CLOSE_H), Close);
 
-            _topBar = TopBar.Build(_canvas.transform);
+            _topBar = TopBar.Build(_page);
             _topBar.GetComponent<RectTransform>().anchoredPosition = new Vector2(UIStyles.SHOP_TOPBAR_X_NUDGE, -UIStyles.SHOP_TOPBAR_DROP);
         }
 

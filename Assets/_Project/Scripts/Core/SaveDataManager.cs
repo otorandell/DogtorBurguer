@@ -14,7 +14,6 @@ namespace DogtorBurguer
         private const string KEY_CONTROL_MODE = "controlMode";
         private const string KEY_STARTING_LEVEL = "startingLevel";
         private const string KEY_ADS_REMOVED = "adsRemoved";
-        private const string KEY_GAME_MODE = "gameMode";              // (int)GameMode — Classic/Relax
         private const string KEY_OWNED_SKINS = "ownedSkins";          // CSV of skin ids
         private const string KEY_EQUIPPED_PREFIX = "equippedSkin_";   // + (int)SkinSlot → skin id
         private const string KEY_CONSUMABLE_PREFIX = "consumable_";   // + (int)ConsumableType → count
@@ -26,7 +25,6 @@ namespace DogtorBurguer
         public const bool DEFAULT_SOUND_ON = true;
         public const ControlMode DEFAULT_CONTROL_MODE = ControlMode.Drag;
         public const int DEFAULT_STARTING_LEVEL = 1;
-        public const GameMode DEFAULT_GAME_MODE = GameMode.Classic;
 
         public event Action<int> OnGemsChanged;
         public event Action<int> OnStarsChanged;
@@ -39,7 +37,6 @@ namespace DogtorBurguer
         public int GamesPlayed { get; private set; }
         public ControlMode ControlMode { get; private set; }
         public int StartingLevel { get; private set; }
-        public GameMode Mode { get; private set; }
         public bool AdsRemoved { get; private set; }
 
         private readonly HashSet<string> _ownedSkins = new();
@@ -65,7 +62,6 @@ namespace DogtorBurguer
             StartingLevel = Mathf.Clamp(
                 PlayerPrefs.GetInt(KEY_STARTING_LEVEL, DEFAULT_STARTING_LEVEL), 1, GameplayConfig.SETTINGS_LEVEL_CAP);
             AdsRemoved = PlayerPrefs.GetInt(KEY_ADS_REMOVED, 0) == 1;
-            Mode = (GameMode)PlayerPrefs.GetInt(KEY_GAME_MODE, (int)DEFAULT_GAME_MODE);
 
             _ownedSkins.Clear();
             string owned = PlayerPrefs.GetString(KEY_OWNED_SKINS, "");
@@ -142,13 +138,6 @@ namespace DogtorBurguer
         {
             ControlMode = mode;
             PlayerPrefs.SetInt(KEY_CONTROL_MODE, (int)mode);
-            PlayerPrefs.Save();
-        }
-
-        public void SetGameMode(GameMode mode)
-        {
-            Mode = mode;
-            PlayerPrefs.SetInt(KEY_GAME_MODE, (int)mode);
             PlayerPrefs.Save();
         }
 

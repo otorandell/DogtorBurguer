@@ -15,6 +15,7 @@ namespace DogtorBurguer
     /// </summary>
     public class TopBar : MonoBehaviour
     {
+        private TextMeshProUGUI _highScoreNumber;
         private TextMeshProUGUI _starNumber;
         private TextMeshProUGUI _gemNumber;
 
@@ -40,11 +41,11 @@ namespace DogtorBurguer
 
         private void BuildContents(Action onHelp, Action onSettings)
         {
-            TextMeshProUGUI highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy",
+            _highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy",
                 UIStyles.TOPBAR_SCORE_POS, UIStyles.TOPBAR_SCORE_ICON_H);
             // The trophy pill doubles as the leaderboard button (2026-09-06) — tap opens the
             // Play Games board (the editor mock just logs). Zero extra layout.
-            Image trophyBox = highScoreNumber.transform.parent.GetComponent<Image>();
+            Image trophyBox = _highScoreNumber.transform.parent.GetComponent<Image>();
             trophyBox.raycastTarget = true;
             trophyBox.gameObject.AddComponent<Button>().onClick.AddListener(
                 () => LeaderboardManager.Instance?.ShowLeaderboard());
@@ -69,7 +70,7 @@ namespace DogtorBurguer
 
             SaveDataManager save = SaveDataManager.Instance;
             // High score only changes at game over, so a one-time seed is enough (no live event).
-            highScoreNumber.text = NumberFormat.Abbreviate(save != null ? save.HighScore : 0);
+            _highScoreNumber.text = NumberFormat.Abbreviate(save != null ? save.HighScore : 0);
             _starNumber.text = NumberFormat.Abbreviate(save != null ? save.Stars : 0);
             _gemNumber.text = NumberFormat.Abbreviate(save != null ? save.Gems : 0);
             if (save != null)

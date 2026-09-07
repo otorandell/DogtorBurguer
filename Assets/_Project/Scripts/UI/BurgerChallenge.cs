@@ -15,7 +15,6 @@ namespace DogtorBurguer
     public class BurgerChallenge : Singleton<BurgerChallenge>
     {
         // --- challenge state ---
-        private OrderType _orderType;
         private int _requiredSize;
         private readonly List<IngredientType> _targetIngredients = new List<IngredientType>();
         private int _challengeLevel = 1;
@@ -31,7 +30,6 @@ namespace DogtorBurguer
         public event Action OnLevelUp;           // progress filled → play level-up effect
 
         // --- state exposed to the view ---
-        public OrderType CurrentOrderType => _orderType;
         public int RequiredSize => _requiredSize;
         public IReadOnlyList<IngredientType> TargetIngredients => _targetIngredients;
         public string ChallengeName => _challengeName;
@@ -77,36 +75,21 @@ namespace DogtorBurguer
                 GridManager.Instance.OnBurgerWithIngredients += HandleBurgerCompleted;
         }
 
-        /// <summary>Rolls a new order (mode-dependent — 2026-09-05 redesign) and notifies the view.</summary>
+        /// <summary>Rolls a new order from the ladder and notifies the view.</summary>
         public void GenerateNewChallenge()
         {
             _targetIngredients.Clear();
 
-            if (Mode == GameMode.Relax)
-            {
-                // Relax: size-only orders — any ingredients, at least N, N grows with the level.
-                _orderType = OrderType.Size;
-                _requiredSize = Mathf.Min(_challengeLevel + 1, GameplayConfig.ORDER_MAX_SIZE);
-                _challengeName = $"{_requiredSize}+ Ingredients";
-            }
-            else
-            {
-                // Classic: an exact-count recipe — named ingredients + free slots. The total
-                // grows one step, then the named count catches up, alternating (L1: 1 named,
-                // L2: 1+1 free, L3: 2 named, L4: 2+1 free …) until an all-named max burger.
-                // Ingredient ORDER never matters; extras don't fit (the count is exact).
-                _orderType = OrderType.Contains;
-                _requiredSize = Mathf.Min((_challengeLevel + 2) / 2, GameplayConfig.ORDER_MAX_SIZE);
-                int named = Mathf.Min((_challengeLevel + 1) / 2, _requiredSize);
-                GenerateContainsIngredients(named);
-                _challengeName = BuildContainsName();
-            }
+            // An exact-count recipe — named ingredients + free slots — read from the per-level
+            // ladder tables (GameplayConfig.ORDER_*_BY_LEVEL, clamped at the last entry).
+            // Ingredient ORDER never matters; extras don't fit (the count is exact).
+            int i = Mathf.Min(_challengeLevel - 1, GameplayConfig.ORDER_SIZE_BY_LEVEL.Length - 1);
+            _requiredSize = Mathf.Min(GameplayConfig.ORDER_SIZE_BY_LEVEL[i], GameplayConfig.ORDER_MAX_SIZE);
+            GenerateContainsIngredients(Mathf.Min(GameplayConfig.ORDER_NAMED_BY_LEVEL[i], _requiredSize));
+            _challengeName = BuildContainsName();
 
             OnChallengeChanged?.Invoke();
         }
-
-        private static GameMode Mode => SaveDataManager.Instance != null
-            ? SaveDataManager.Instance.Mode : SaveDataManager.DEFAULT_GAME_MODE;
 
         private void GenerateContainsIngredients(int count)
         {
@@ -153,10 +136,7 @@ namespace DogtorBurguer
         {
             if (ingredientCount == 0) return false;
 
-            if (_orderType == OrderType.Size)
-                return ingredientCount >= _requiredSize;
-
-            // Classic recipe (2026-09-05): the total count is EXACT, every named ingredient must
+            // The recipe (2026-09-05): the total count is EXACT, every named ingredient must
             // be present (as a multiset — a duplicated name needs that many copies), the free
             // slots take anything, and ordering never matters.
             if (ingredientCount != _requiredSize) return false;

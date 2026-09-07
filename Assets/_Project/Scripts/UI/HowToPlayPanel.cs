@@ -105,8 +105,8 @@ namespace DogtorBurguer
                 new Vector2(120f, 40f), UIStyles.HOWTO_PAGER_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(_pager);
 
-            _prevArrow = BuildArrow("Prev", -UIStyles.HOWTO_ARROW_X, UIStyles.HOWTO_ARROW_ROT_LEFT, -1);
-            _nextArrow = BuildArrow("Next", UIStyles.HOWTO_ARROW_X, UIStyles.HOWTO_ARROW_ROT_RIGHT, 1);
+            _prevArrow = BuildArrow("Prev", -UIStyles.HOWTO_ARROW_X, UIStyles.ARROW_YELLOW_ROT_LEFT, -1);
+            _nextArrow = BuildArrow("Next", UIStyles.HOWTO_ARROW_X, UIStyles.ARROW_YELLOW_ROT_RIGHT, 1);
         }
 
         // The bullet list: a top-anchored vertical layout that measures each bullet's wrapped

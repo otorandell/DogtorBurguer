@@ -14,9 +14,7 @@ namespace DogtorBurguer
     public class MainMenuUI : MonoBehaviour
     {
         [Header("Testing")]
-        [Tooltip("Adds the start-level stepper under the Settings panel (a testing tool, not part of the shipped panel).")]
-        [SerializeField] private bool _showLevelStepper = false;
-        [Tooltip("TESTER BUILD: everything unlocked (skins, currency, consumables), ads bypassed, store mocked, level stepper shown, red TEST BUILD label on the menu. Never ship with this on.")]
+        [Tooltip("TESTER BUILD: everything unlocked (skins, currency, consumables), ads bypassed, store mocked, red TEST BUILD label on the menu. Never ship with this on.")]
         [SerializeField] private bool _testBuild = false;
 
         private Canvas _canvas;
@@ -61,7 +59,7 @@ namespace DogtorBurguer
             if (TestBuild.IsEnabled) BuildTestBuildLabel();
 
             _settingsPanel = gameObject.AddComponent<SettingsPanel>();
-            _settingsPanel.Initialize(_canvas, showLevelStepper: _showLevelStepper || TestBuild.IsEnabled);
+            _settingsPanel.Initialize(_canvas);
 
             _creditsPanel = gameObject.AddComponent<CreditsPanel>();
             _creditsPanel.Initialize(_canvas);

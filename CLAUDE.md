@@ -126,6 +126,15 @@ falling piece) never move or swap the cook (`ProcessInput`):
   (below / into the bottom of the playfield; the offset gives the side-taps vertical room).
 - **Swipe** moves in both modes (gesture, checked before any tap logic).
 
+**Gesture timing (2026-09-06, first device test — "input lag")**: a swipe fires the moment the
+finger crosses the threshold (`TrySwipeEarly`), never on the lift; the chef retargets mid-move
+(no `_isMoving` gate on `MoveToPosition`). In **Tap mode the whole tap intent resolves on the
+PRESS** (`BeginPress` → `ResolveTap`; the press then goes `PressPhase.SwipeOnly`, so the lift can
+only still swipe). **Drag mode keeps taps on the lift** — there a press on the chef or a piece is
+usually the start of a swipe. `PressPhase` (None / Open / SwipeOnly) is the press state; a
+consumable carry stays Open. Also from that test: `AppBootstrap.ApplyFrameRate` targets the
+display refresh with a `MIN_TARGET_FRAME_RATE` floor (60) — Unity's mobile default was 30 fps.
+
 **Consumable carry**: a press that *starts on an inventory slot* becomes a drag-to-column carry
 (see Core Systems → Consumables) — `TouchInputHandler` hands the gesture to
 `ConsumableDragController` and suppresses chef logic for its duration. **Editor-only debug**: keys
@@ -138,17 +147,17 @@ component owning its hit-test, one color per interaction (`GizmoStyles`): fallin
 sides (cyan, `TouchInputHandler` — mode-aware, Tap mode only), fairy tap (orange, `BurgerFairy` —
 play-mode only, runtime-spawned). Toggle per-script via Unity's Gizmos menu.
 
-The Settings panel also has a **Start Level** stepper (`[−] Lv N [+]`) → persists
-`SaveDataManager.StartingLevel`; clamped 1..`SETTINGS_LEVEL_CAP`. See Difficulty. **Testing-only,
-off by default**: the `MainMenuUI` inspector bool **Show Level Stepper** (menu scene) adds it
-below the panel art in flat placeholder widgets — the artist's Settings has no level selector.
-Menu panel only (the in-game panel never shows it; the value applies to the next run anyway).
-**Test Build** (2026-09-06): a second `MainMenuUI` inspector bool next to it → `TestBuild.Enable()`
+The menu Settings' third row is the **START level row** (a player feature since 2026-09-07 —
+it replaced the mode toggle): the blue blank with a yellow `ui_arrow_yellow` button inside each
+end and "START: LVL N" between; the arrows step `SaveDataManager.StartingLevel` by one, clamped
+1..`SETTINGS_LEVEL_CAP`, and hide at the ends of the range. See Difficulty. Menu panel only (the
+in-game panel never shows it; the value applies to the next run anyway). Knobs
+`SETTINGS_LEVEL_ARROW_*`.
+**Test Build** (2026-09-06): the `MainMenuUI` inspector bool → `TestBuild.Enable()`
 (`Core/TestBuild.cs`, a static flag set before the managers spawn): ads bypassed (no provider,
 rewarded ads reward instantly), IAP routed to the mock store, every skin owned (virtual, not
-persisted), stars/gems/consumables topped up to a stash each launch, the level stepper shown, and
-a red TEST BUILD stamp on the menu. Tick it for tester APKs (`Docs/build-and-share.md`), untick
-for release.
+persisted), stars/gems/consumables topped up to a stash each launch, and a red TEST BUILD stamp
+on the menu. Tick it for tester APKs (`Docs/build-and-share.md`), untick for release.
 **Settings opens in-game too** (top-bar gear, `GameHUD.OnConfigClicked`): same pause pattern as
 the shop — pauses a running game, panel on its own canvas (`SETTINGS_CANVAS_SORT` 110, above
 game-over, below shop), resumes via `SettingsPanel.OnClosed`. Sound/control-mode apply live
@@ -165,43 +174,43 @@ forfeits the end-of-run score payout.
   one level. An `Awake` assert enforces all tables (+ `LEVEL_THRESHOLDS`) stay `MAX_LEVEL` long.
 - **Curve shape** (front-loaded): L1 fall 0.45s / 4 types; L10 ≈ 0.205s (the old L15 speed);
   L20 0.10s / 8 types. Triple waves start L6, ramp to 0.50 at L20.
-- **Pacing**: `LEVEL_THRESHOLDS` (ingredients placed per level) — reaches L20 at 394 placements
-  (longer early levels than before, much shorter late ones).
-- **Killer level (21)** — Tetris-style kill screen above the curve, NOT in the tables: always-triple
-  waves at `MIN_FALL_STEP_DURATION` (0.06s, the absolute fall floor) with 8 types. Entered by
-  sustained survival past `KILLER_LEVEL_THRESHOLD` (434 placements); selectable from Settings only
-  while `SETTINGS_LEVEL_CAP == KILLER_LEVEL` (testing — see Pending Manual Steps).
-- **Starting level**: `SaveDataManager.StartingLevel` (persisted, set via the Settings stepper)
+- **Pacing**: `LEVEL_THRESHOLDS` (ingredients placed per level) is **time-budgeted** (2026-09-07):
+  each level is sized for ~42 s of play from the speed curve (a placement count is a bad clock —
+  pieces fall ~4× faster at L20, so the earlier ×2/×3 tables had late levels flashing by in
+  ~25 s; 60 s/level was trimmed 30% the same day). L20 at 917 placements, ~14 min to the kill
+  screen. Re-derive with
+  `scratchpad/level_time.py` whenever `FALL_STEP_BY_LEVEL` / `TRIPLE_CHANCE_BY_LEVEL` change
+  (the formula is in the config comment). **One ruleset since 2026-09-07**: the 2026-09-05/06
+  Classic/Relax→Classic/Hard mode toggle is gone (the fast ruleset with it — a speed player
+  picks a higher START level in Settings instead), so `GameMode`, the per-mode tables, the
+  card's mode tab and the per-mode trophies/boards were all deleted.
+- **Killer level (21)** — Tetris-style kill screen above the curve, NOT in the curve tables:
+  always-triple waves at `MIN_FALL_STEP_DURATION` (0.06s, the absolute fall floor) with 8 types.
+  Entered by sustained survival past `KILLER_LEVEL_THRESHOLD` (1012 placements); selectable from
+  Settings only while `SETTINGS_LEVEL_CAP == KILLER_LEVEL` (testing — see Pending Manual Steps).
+- **Starting level**: `SaveDataManager.StartingLevel` (persisted, set via the Settings START row)
   seeds `_currentLevel`; `DifficultyManager` runs at `[DefaultExecutionOrder(-100)]` so the seed
   is applied before the HUD/spawner init. Initial level is pull-state (no init-time `OnLevelChanged`).
 - HUD shows "Level X" (full word, distinguishes from challenge star)
 
-### Game Modes (2026-09-05)
-`GameMode` (Classic/Relax), persisted in SaveDataManager, toggled in the **menu** Settings only
-(third row, "Mode: Classic/Relax"; applies to the NEXT run — managers read it once at scene load;
-the in-game panel's third row stays Quit to Menu). **Relax** = the identical speed/type curve but
-every threshold × `RELAX_LENGTH_SCALE` (3 — runs ~3× longer, kill screen included, no level cap),
-ALL in-run star income halved (`RELAX_STAR_SCALE`, applied in `GameManager.AwardStars` — the one
-faucet; shop purchases unaffected), **no high-score writes** (easier long runs would inflate the
-Classic trophy), and the mode always labelled on a red tab straddling the
-Special Order card's bottom edge — CLASSIC or RELAX, the Level/Score tab recipe
-(`SPECIAL_MODE_TAB_*`, built in `BurgerChallengeView.BuildPanel`).
-
 ### Burger Challenge (BurgerChallenge) — "Special Orders"
-- **Redesigned 2026-09-05 (Oscar)** — the order type is MODE-driven, difficulty scales with the
-  challenge (multiplier) level, never the game level:
-  - **Classic** → exact-count recipes (`OrderType.Contains`): total size `min(⌈(L+1)/2⌉,
-    ORDER_MAX_SIZE)` of which `⌈L/2⌉` are named (L1: 1 named → L2: 1+1 free → L3: 2 named →
-    L4: 2+1 free … up to an all-named max burger; named picks go unique-first, duplicates once
-    the pool runs out — the match is a multiset check). The burger must have EXACTLY the total
-    count and include every named ingredient; ordering never matters. The card shows the whole
-    recipe: named art + one ghosted "?" per free slot (`SPECIAL_GHOST_ALPHA`); stacks taller
-    than `SPECIAL_STACK_MAX_SPAN` squeeze their row spacing to fit.
-  - **Relax** → size-only orders (`OrderType.Size`): "N+ Ingredients", N = level+1 up to
-    `ORDER_MAX_SIZE` (11 = a full column minus its buns).
+- **Redesigned 2026-09-05 (Oscar), table-driven 2026-09-06** — every order is an exact-count
+  recipe: a TOTAL size with NAMED ingredients among it, the rest free slots. Difficulty scales
+  with the challenge (multiplier) level, never the game level, via two tables in
+  `GameplayConfig` indexed `challengeLevel − 1`, clamped at the last entry:
+  - `ORDER_SIZE_BY_LEVEL` / `ORDER_NAMED_BY_LEVEL`: ONE named ingredient while the free slots
+    grow (L1: 1 → L2: 1+1 free → L3: 1+2), a second named only from L4, a third from L7, then
+    one more named every ~4 levels while the total grows every 2 (L6 5-2, L7 5-3, L8 6-3,
+    L9 6-3 … 11-7 by L21). Oscar's spec from the 2026-09-06 playtest.
+  - Named picks go unique-first, duplicates once the pool runs out — the match is a multiset
+    check. The burger must have EXACTLY the total count and include every named ingredient;
+    ordering never matters. The card shows the whole recipe: named art + **one ghosted "?"
+    mystery slot PER free ingredient** (`SPECIAL_GHOST_ALPHA`; the old size-only orders and their
+    single "N" placeholder were deleted with `OrderType` on 2026-09-06); stacks taller than
+    `SPECIAL_STACK_MAX_SPAN` squeeze their row spacing to fit.
 - **Screen-space UGUI panel** (top-right, `BurgerChallengeView`): authored card + the SPECIAL ORDER
-  banner (blank art + TMP word) + the **required-burger stack** (bun → "+N" mystery silhouette /
-  required ingredients → bun, on a `Theme.Plate`) + a **multiplier badge** (`GetGlobalMultiplier`).
+  banner (blank art + TMP word) + the **required-burger stack** (bun → required ingredients +
+  "?" mystery slots → bun, on a `Theme.Plate`) + a **multiplier badge** (`GetGlobalMultiplier`).
   No requirement text (the burger conveys the order; matches the art).
 - **Mult meter**: a vertical capsule (`ui_mult_meter_back/fill/front` — brown well + green fill + frame,
   3 layers stacked at one rect) whose green fill is a UGUI `Image.Filled` (vertical, bottom-origin). Fill =
@@ -358,7 +367,10 @@ the **2026-09-01 kit's `Assets/Shop` pieces** (`scratchpad/gen_shop_art.ps1`): t
 `REFERENCE_RESOLUTION` like the other screens) over the dimmed game/menu, our round X on the
 awning's corner, the shared **TopBar pills inside the page** (dropped by `SHOP_TOPBAR_DROP`, centered by `SHOP_TOPBAR_X_NUDGE`), and
 one vertically scrolling body inset to the page (`SHOP_SCROLL_*`). Own canvas (`SHOP_CANVAS_SORT` 120, above
-everything). Opened via `ShopScreen.Open()` (menu Shop button) or `ShopScreen.OpenInGame()`
+everything). **Everything hangs off a page root at `REFERENCE_RESOLUTION`** (the ModalPanel pattern,
+since 2026-09-06): on phones taller than 9:16 the match-width canvas outgrows the page, and
+canvas-anchored chrome floated above the awning while the scroll spilled past the page. Any new
+full-canvas-sheet screen must root its content the same way, never on the canvas. Opened via `ShopScreen.Open()` (menu Shop button) or `ShopScreen.OpenInGame()`
 (the consumable slots' green plus box — the top-bar shop button became the "?" help button
 2026-09-05) — the in-game path
 **pauses** the run (`GameManager.PauseGame`) and resumes on close; all shop tweens run unscaled.
@@ -634,10 +646,15 @@ revisit only if the SFX get reworked).
 Making the game feel and look finished. **Playtest-driven**: the developer plays and
 notes what's off; changes land as edits — mostly one-line tweaks, since feel / visual /
 balance values are centralized in `AnimConfig` / `UIStyles` / `GameplayConfig`.
-**State 2026-09-05**: the screenshot-driven screen pass is COMPLETE — menu, in-game HUD, shop,
-settings, credits and game over all approved (see `Docs/session-2026-09-05.md`). Next up:
+**State 2026-09-07**: first phone build shipped to a tester; its feedback drove the frame-rate /
+gesture-latency fixes, the shop page-root fix, the single-ruleset + START level row redesign and
+the time-budgeted pacing — all in `Docs/session-2026-09-07.md` (**uncommitted at session end**,
+read it first). The screenshot-driven screen pass was completed 2026-09-05
+(`Docs/session-2026-09-05.md`). Next up:
 **Play Console setup + payments** (app, the 5 IAP products, internal track — see Pre-Launch
-Checklist), then the on-device test. Playtest-pending: two-type mustard, a full Relax run.
+Checklist), then the on-device test. Playtest-pending: two-type mustard, the 2026-09-06 order
+ladder + the long pacing as the only ruleset (every cell is a table entry, retune freely), the
+START level row.
 Focus areas:
 - **Game feel / juice** — animation timing, screen shake, squash/stretch, popups (`AnimConfig`)
 - **Difficulty & balance** — level curve, wave speed, triple-wave chance, Special Order difficulty, scoring (`GameplayConfig`)
@@ -726,17 +743,19 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   PGS resources from the Play Console (Grow → Play Games Services: create the games project,
   link the app, add one "High Score" leaderboard), and paste the leaderboard id into
   `SocialConfig.PLAY_GAMES_LEADERBOARD_ID`. Until all three are done every build uses the
-  logging mock. Classic scores report at game over (same mode gate as the high score; Relax
-  never reports); the **TopBar trophy pill** opens the board on every screen. Scores are
-  client-reported (spoofable) — never hang rewards off leaderboard rank.
+  logging mock. Every finished run reports at game over (next to the high-score write); the
+  **TopBar trophy pill** opens the board on every screen. Scores are client-reported
+  (spoofable) — never hang rewards off leaderboard rank. Note a run started at a high START
+  level competes on the same board as one from level 1 — accepted for now.
 - **Chef size/position tuning**: knobs are the chef sprite **PPU** (990 as of the last tuning pass; an older note said 2009 — trust the meta, not this file, and update here when retuned) for the original
   import) for size, and `Constants.CHEF_BOTTOM_OFFSET` (1.76) for the feet line — `GetWorldPosition` anchors
   the feet and derives the centre from the live sprite height, so resizing keeps the chef on the bottom border.
 - **Verify skin import (Phase 1)**: open Unity, confirm a clean compile and that `Resources/Skins/*.asset`
   each show their sprite (not "None"); the game should look identical to before.
-- **Before release: lower `SETTINGS_LEVEL_CAP` to `MAX_LEVEL`** (`GameplayConfig`). It's currently
-  `KILLER_LEVEL` (21) so the kill screen is reachable from the Settings stepper for testing; players
-  should not be able to *start* on the kill screen. One-line flip (comment marks it).
+- **Before release: lower `SETTINGS_LEVEL_CAP` to `MAX_LEVEL`** (`GameplayConfig`) — or lower,
+  now that the START level row is a player feature (2026-09-07). It's currently `KILLER_LEVEL`
+  (21) so the kill screen is reachable from Settings for testing; players should not be able
+  to *start* on the kill screen. One-line flip (comment marks it).
 
 ## Pending Features
 - **HUD done so far** (authored, screen-space UGUI): the shared **TopBar** (`UI/TopBar.cs` —
@@ -788,13 +807,13 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - **Settings panel (authored, 2026-09-01)**: rebuilt to the mock (`Look Reference/settings.png`)
   on the modal chrome: wide blue rows (`ui_btn_blue_wide`, sized by width, HUD-palette auto-fit
   labels) stacked down the body: **Sound: ON/OFF**, **Controls: Drag/Tap**, then the third row is
-  **Mode: Classic/Relax** in the menu (see Core Systems → Game Modes) or the full-width
+  the **START: LVL N** level row in the menu (see Controls; replaced the Mode toggle 2026-09-07)
+  or the full-width
   **Quit to Menu** in-game (Restart dropped 2026-09-05 — game over already offers Retry). Both openers (menu gear, in-game
   gear) share the one class. Knobs: `UIStyles.SETTINGS_*` (eyeball defaults — tune live). Deliberate gaps:
   the mock's third **"Language: ENG"** row is **not built** — there is no localization system,
   and a button that does nothing is worse than none; add it as one `CreateRowButton` call when
-  localization exists (in-game it would then need a 4th row or a tighter pitch). The **level
-  stepper** is an inspector opt-in on `MainMenuUI` (see Controls).
+  localization exists (in-game it would then need a 4th row or a tighter pitch).
 - **How to Play panel (2026-09-05, `UI/HowToPlayPanel.cs`)**: the top bar's **"?" button** —
   in-game (replaced the shop button) AND on the menu (identical
   placement/size to the in-game bar — the menu gear override was dropped too); the kit's blank green square `ui_btn_square_green` + a HUD question mark. Opens the

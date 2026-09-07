@@ -11,8 +11,8 @@ namespace DogtorBurguer
     ///   - IapManager uses the mock store — gem packs and Remove Ads grant for free.
     ///   - ShopService treats every skin as owned (EQUIP everywhere).
     ///   - The currency and consumable stock are topped up to the stash below on each launch.
-    ///   - The Settings level stepper shows, and the menu carries a red TEST BUILD label so a
-    ///     build with this on can't be mistaken for a release.
+    ///   - The menu carries a red TEST BUILD label so a build with this on can't be mistaken
+    ///     for a release.
     /// Stash values are testing conveniences, not balance — they live here, not in a config.
     /// </summary>
     public static class TestBuild

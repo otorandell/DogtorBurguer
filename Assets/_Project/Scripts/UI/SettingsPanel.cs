@@ -7,11 +7,12 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// The Settings panel, on the shared ModalPanel chrome (full-canvas panel art, title, round X):
-    /// wide blue rows — the Sound and Controls toggles, the menu-only Mode (Classic/Relax) toggle,
-    /// plus a full-width Quit to Menu in-game (which takes the third row instead of Mode).
-    /// Opened by the menu gear and the in-game top-bar gear (that one pauses the run and resumes on close).
-    /// Layout knobs: UIStyles.SETTINGS_*. The start-level stepper is a testing row under the panel,
-    /// opt-in from the MainMenuUI inspector (never in-game — the value only applies to the next run).
+    /// wide blue rows — the Sound and Controls toggles, then the menu-only START level row (the
+    /// blue blank with a yellow arrow inside each end, "START: LVL N" between — steps the persisted
+    /// StartingLevel, 1..SETTINGS_LEVEL_CAP; replaced the mode toggle 2026-09-07) or the
+    /// full-width Quit to Menu in-game (the level applies to the NEXT run, so in-game it would
+    /// only mislead). Opened by the menu gear and the in-game top-bar gear (that one pauses the
+    /// run and resumes on close). Layout knobs: UIStyles.SETTINGS_*.
     /// </summary>
     public class SettingsPanel : MonoBehaviour
     {
@@ -21,22 +22,21 @@ namespace DogtorBurguer
         private ModalPanel _modal;
         private TextMeshProUGUI _soundLabel;
         private TextMeshProUGUI _controlLabel;
-        private TextMeshProUGUI _modeLabel;
+        private TextMeshProUGUI _levelLabel;
+        private GameObject _levelDown;
+        private GameObject _levelUp;
         private bool _showRunButtons;
-        private bool _showLevelStepper;
 
         /// <summary>Fired when the panel closes — the in-game opener resumes the run on this.</summary>
         public event System.Action OnClosed;
 
         /// <summary>Injects the canvas to build into (F-77), instead of scanning the scene.
-        /// Pass <paramref name="showRunButtons"/> from the in-game opener to add the
-        /// Restart / Quit-to-menu row (meaningless in the menu, so off by default); pass
-        /// <paramref name="showLevelStepper"/> from the menu to add the start-level testing row.</summary>
-        public void Initialize(Canvas canvas, bool showRunButtons = false, bool showLevelStepper = false)
+        /// Pass <paramref name="showRunButtons"/> from the in-game opener to get the
+        /// Quit-to-menu row in place of the START level row.</summary>
+        public void Initialize(Canvas canvas, bool showRunButtons = false)
         {
             _canvas = canvas;
             _showRunButtons = showRunButtons;
-            _showLevelStepper = showLevelStepper;
         }
 
         public void Show()
@@ -46,8 +46,7 @@ namespace DogtorBurguer
 
             UpdateSoundLabel();
             UpdateControlLabel();
-            UpdateModeLabel();
-            UpdateLevelLabel();
+            UpdateLevelRow();
             _modal.Show();
         }
 
@@ -63,23 +62,17 @@ namespace DogtorBurguer
         {
             _modal = ModalPanel.Build(_canvas, "SETTINGS", "ui_modal_panel", Vector2.zero, Vector2.zero, Hide);
 
-            // Rows down the body. The label strings are set by the Update*Label refreshers.
+            // Rows down the body. The label strings are set by the Update* refreshers.
             _soundLabel = CreateRowButton("Sound", new Vector2(0f, RowY(0)), UIStyles.SETTINGS_ROW_W, OnSoundToggleClicked);
             _controlLabel = CreateRowButton("Controls", new Vector2(0f, RowY(1)), UIStyles.SETTINGS_ROW_W, OnControlToggleClicked);
 
-            // Mode toggle — MENU only: the value applies to the NEXT run (managers read it once
-            // at scene load), so an in-game toggle would only mislead; Quit to Menu takes its row.
-            if (!_showRunButtons)
-                _modeLabel = CreateRowButton("Mode", new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W, OnModeToggleClicked);
-
-            // In-game the third row is a full-width Quit to Menu (the Restart half was dropped
-            // 2026-09-05 — game over already offers Retry). Scene loads reset timeScale
-            // (SceneLoader), so leaving from the paused panel is safe.
+            // Third row: in-game a full-width Quit to Menu (the Restart half was dropped
+            // 2026-09-05 — game over already offers Retry; scene loads reset timeScale, so
+            // leaving from the paused panel is safe). In the menu, the START level row.
             if (_showRunButtons)
                 CreateRowButton("Quit to Menu", new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W, OnQuitClicked);
-
-            if (_showLevelStepper)
-                BuildLevelStepper();
+            else
+                BuildLevelRow(new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W);
         }
 
         private static float RowY(int row) => UIStyles.SETTINGS_ROW_TOP_Y - row * UIStyles.SETTINGS_ROW_PITCH;
@@ -90,13 +83,42 @@ namespace DogtorBurguer
             Sprite blank = UiArt.Load("ui_btn_blue_wide");
             Vector2 size = UIFactory.SizeByWidth(blank, width);
             Button btn = UIFactory.CreateSpriteButton(_modal.Panel, label, blank, Center, pos, size, onClick);
+            CreateRowLabel(btn.transform, label, size);
+            return btn.GetComponentInChildren<TextMeshProUGUI>();
+        }
 
-            TextMeshProUGUI word = UIFactory.CreateText(btn.transform, label, UIStyles.SETTINGS_ROW_LABEL_NUDGE,
+        private static TextMeshProUGUI CreateRowLabel(Transform row, string label, Vector2 size)
+        {
+            TextMeshProUGUI word = UIFactory.CreateText(row, label, UIStyles.SETTINGS_ROW_LABEL_NUDGE,
                 size, UIStyles.SETTINGS_ROW_LABEL_SIZE, FontStyles.Bold);
             word.gameObject.name = "Label";
             UIFactory.StyleHudText(word);
             UIFactory.AutoFit(word, UIStyles.SETTINGS_ROW_LABEL_SIZE_MIN, UIStyles.SETTINGS_ROW_LABEL_SIZE);
             return word;
+        }
+
+        // The START level row: the same blue blank (not itself a button), the label in the middle
+        // and a yellow arrow button inside each end. Arrows hide at the ends of the range.
+        private void BuildLevelRow(Vector2 pos, float width)
+        {
+            Sprite blank = UiArt.Load("ui_btn_blue_wide");
+            Vector2 size = UIFactory.SizeByWidth(blank, width);
+            Image row = UIFactory.CreateImage(_modal.Panel, "StartLevel", blank, Center, pos, size);
+            _levelLabel = CreateRowLabel(row.transform, "START: LVL 1", size);
+
+            _levelDown = BuildLevelArrow(row.transform, "Down", -UIStyles.SETTINGS_LEVEL_ARROW_X,
+                UIStyles.ARROW_YELLOW_ROT_LEFT, -1);
+            _levelUp = BuildLevelArrow(row.transform, "Up", UIStyles.SETTINGS_LEVEL_ARROW_X,
+                UIStyles.ARROW_YELLOW_ROT_RIGHT, 1);
+        }
+
+        private GameObject BuildLevelArrow(Transform row, string name, float x, float zRotation, int step)
+        {
+            Sprite arrow = UiArt.Load("ui_arrow_yellow");
+            Button btn = UIFactory.CreateSpriteButton(row, name, arrow, Center, new Vector2(x, 0f),
+                UIFactory.SizeByHeight(arrow, UIStyles.SETTINGS_LEVEL_ARROW_H), () => OnLevelStep(step));
+            btn.transform.localEulerAngles = new Vector3(0f, 0f, zRotation);
+            return btn.gameObject;
         }
 
         private void OnQuitClicked()
@@ -142,67 +164,28 @@ namespace DogtorBurguer
             _controlLabel.text = mode == ControlMode.Drag ? "Controls: Drag" : "Controls: Tap";
         }
 
-        private void OnModeToggleClicked()
-        {
-            if (SaveDataManager.Instance == null) return;
-
-            GameMode next = SaveDataManager.Instance.Mode == GameMode.Classic
-                ? GameMode.Relax : GameMode.Classic;
-            SaveDataManager.Instance.SetGameMode(next);
-            UpdateModeLabel();
-        }
-
-        private void UpdateModeLabel()
-        {
-            if (_modeLabel == null) return;
-            GameMode mode = SaveDataManager.Instance != null
-                ? SaveDataManager.Instance.Mode : SaveDataManager.DEFAULT_GAME_MODE;
-            _modeLabel.text = mode == GameMode.Classic ? "Mode: Classic" : "Mode: Relax";
-        }
-
-        private void OnDestroy()
-        {
-            _modal?.Kill();
-        }
-
-        // Start-level stepper — a testing tool, not part of the shipped panel: [−] Lv N [+] in flat
-        // placeholder widgets below the art. Steps the persisted StartingLevel by one, clamped
-        // 1..SETTINGS_LEVEL_CAP (see GameplayConfig — lower the cap to MAX_LEVEL before release).
-        private TextMeshProUGUI _levelLabel;
-
-        private void BuildLevelStepper()
-        {
-            Transform root = _modal.Panel;
-            float y = UIStyles.SETTINGS_DEV_STEPPER_Y;
-            UIFactory.CreateButton(root, "-", new Vector2(-UIStyles.SETTINGS_DEV_STEPPER_X, y),
-                UIStyles.SETTINGS_STEPPER_BTN_SIZE, UIStyles.BTN_DEV_STEPPER,
-                UIStyles.SETTINGS_DEV_TEXT_SIZE, () => OnLevelStep(-1));
-
-            _levelLabel = UIFactory.CreateText(root, "Lv 1", new Vector2(0f, y),
-                UIStyles.SETTINGS_STEPPER_LABEL_SIZE, UIStyles.SETTINGS_DEV_TEXT_SIZE, FontStyles.Bold);
-
-            // The trial font renders "+" as a placeholder sliver glyph, so the increment
-            // button uses the authored plus art instead of a text label.
-            UIFactory.CreateSpriteButton(root, "Plus", UiArt.Load("ui_consumable_plus"),
-                Center, new Vector2(UIStyles.SETTINGS_DEV_STEPPER_X, y),
-                UIStyles.SETTINGS_STEPPER_BTN_SIZE, () => OnLevelStep(1));
-        }
-
         private void OnLevelStep(int delta)
         {
             if (SaveDataManager.Instance == null) return;
 
             SaveDataManager.Instance.SetStartingLevel(SaveDataManager.Instance.StartingLevel + delta);
-            UpdateLevelLabel();
+            UpdateLevelRow();
         }
 
-        private void UpdateLevelLabel()
+        private void UpdateLevelRow()
         {
             if (_levelLabel == null) return;
             int level = SaveDataManager.Instance != null
                 ? SaveDataManager.Instance.StartingLevel
                 : SaveDataManager.DEFAULT_STARTING_LEVEL;
-            _levelLabel.text = $"Lv {level}";
+            _levelLabel.text = $"START: LVL {level}";
+            _levelDown.SetActive(level > 1);
+            _levelUp.SetActive(level < GameplayConfig.SETTINGS_LEVEL_CAP);
+        }
+
+        private void OnDestroy()
+        {
+            _modal?.Kill();
         }
     }
 }

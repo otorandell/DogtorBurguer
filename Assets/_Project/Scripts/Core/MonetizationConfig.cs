@@ -117,10 +117,6 @@ namespace DogtorBurguer
         // End-of-run payout: 1 star per this much score (only score not yet paid out —
         // a continue extends the run without double-paying earlier score).
         public const int STAR_SCORE_DIVISOR = 500;
-        // Relax mode earns scaled-down stars across every faucet (orders, star fairies, score
-        // payout — all route through GameManager.AwardStars, the single point). Gems and shop
-        // purchases are untouched; Relax also never writes the high score.
-        public const float RELAX_STAR_SCALE = 0.5f;
         #endregion
 
         #region Shop — remove ads (one-time IAP; kills interstitials, keeps rewarded ads)

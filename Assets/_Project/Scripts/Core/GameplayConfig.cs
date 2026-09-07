@@ -56,8 +56,9 @@ namespace DogtorBurguer
 
         #region Burger Challenge
         // 2026-09-05 redesign (Oscar): order difficulty scales with the CHALLENGE (multiplier)
-        // level. Classic rolls exact-count recipes (named + free slots); Relax rolls size-only
-        // orders. The global multiplier is gentle and applies to ALL gameplay score.
+        // level, never the game level. Every order is an exact-count recipe (named + free slots)
+        // from the ladder tables (the Special Order Ladder region below). The global multiplier
+        // is gentle and applies to ALL gameplay score.
         public const float CHALLENGE_MULT_STEP = 0.25f;               // global mult = 1 + step·(level−1): 1, 1.25, 1.5 …
         public const int CHALLENGE_MATCH_MULTIPLIER = 3;              // extra ×3 on the matched burger itself
         public const int CHALLENGE_ORDERS_TO_LEVEL_CAP = 3;           // orders per mult level: (level+3)/2 capped here (2, 2, 3, 3, 3 …)
@@ -81,8 +82,9 @@ namespace DogtorBurguer
         public const int STARTING_INGREDIENT_COUNT = 4;
         public const int MAX_INGREDIENT_COUNT = 8;
 
-        // Highest level selectable from Settings. TESTING: set to KILLER_LEVEL so the kill
-        // screen can be entered directly from the stepper; drop to MAX_LEVEL for release.
+        // Highest level selectable from the Settings START level row (a player feature since
+        // 2026-09-07 — it replaced the mode toggle). TESTING: set to KILLER_LEVEL so the kill
+        // screen can be entered directly; drop to MAX_LEVEL (or lower) for release.
         public const int SETTINGS_LEVEL_CAP = KILLER_LEVEL;
 
         // Per-level curves: index 0 = level 1 … index 19 = level 20. Length MUST equal MAX_LEVEL.
@@ -100,11 +102,6 @@ namespace DogtorBurguer
             0f,    0f,    0f,    0f,    0f,    0.05f, 0.08f, 0.11f, 0.15f, 0.18f,
             0.22f, 0.26f, 0.30f, 0.34f, 0.38f, 0.41f, 0.44f, 0.47f, 0.49f, 0.50f
         };
-        public const int KILLER_LEVEL_THRESHOLD = 434; // ingredients placed to enter the kill screen
-        // Relax mode: the identical speed/type curve, but every threshold (LEVEL_THRESHOLDS and
-        // the killer one) is multiplied by this at read time (DifficultyManager) — runs last
-        // ~3x longer. The reward side lives in MonetizationConfig.RELAX_STAR_SCALE.
-        public const int RELAX_LENGTH_SCALE = 3;
         #endregion
 
         #region Scoring
@@ -118,13 +115,33 @@ namespace DogtorBurguer
         public const int BONUS_MAX_BURGER = 500;     // 9+ ingredients
         #endregion
 
-        #region Difficulty Thresholds
-        /// <summary>
-        /// Ingredients placed required to reach each level (index 0 = level 1).
-        /// </summary>
+        #region Difficulty Thresholds (ingredients placed to reach each level, index 0 = level 1)
+        // TIME-BUDGETED (2026-09-07, Oscar): a placement count is a bad clock — pieces fall ~4x
+        // faster at L20 than at L1, so equal counts meant late levels flashed by (L1 ~68 s, L19
+        // ~24 s on the old 2x table). Each level is now sized for ~42 s of play (60 s felt long —
+        // trimmed 30%, Oscar 2026-09-07) from the speed curve: placements = 42 / secPerPlacement,
+        // secPerPlacement ≈ (9 rows × fallStep + WAVE_MOVE_DURATION) / (2 + tripleChance).
+        // Re-derive when FALL_STEP_BY_LEVEL or TRIPLE_CHANCE_BY_LEVEL change
+        // (scratchpad/level_time.py). ~14 min to the kill screen.
+        // One ruleset since 2026-09-07 (the mode toggle went; speed players pick a higher START
+        // level in Settings). MAX_LEVEL long (asserted).
         public static readonly int[] LEVEL_THRESHOLDS = {
-            0, 16, 33, 50, 68, 86, 105, 124, 144, 164,
-            185, 206, 228, 250, 273, 296, 320, 344, 369, 394
+            0, 20, 44, 70, 98, 129, 162, 198, 237, 278,
+            323, 372, 424, 480, 540, 604, 673, 748, 829, 917
+        };
+        public const int KILLER_LEVEL_THRESHOLD = 1012; // ingredients placed to enter the kill screen
+        #endregion
+
+        #region Special Order Ladder (indexed by challenge level − 1, clamped at the last entry)
+        // An order = an exact TOTAL size with NAMED ingredients among it (the rest are free
+        // mystery slots): one named ingredient while the free slots grow (L1 1, L2 1+1, L3 1+2),
+        // a second named only from level 4, a third from 7, then one more named every ~4 levels
+        // while the total grows every 2 (L6 5-2, L7 5-3, L8 6-3, L9 6-3 … — Oscar, 2026-09-06).
+        public static readonly int[] ORDER_SIZE_BY_LEVEL = {
+            1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 11, 11
+        };
+        public static readonly int[] ORDER_NAMED_BY_LEVEL = {
+            1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 7
         };
         #endregion
 

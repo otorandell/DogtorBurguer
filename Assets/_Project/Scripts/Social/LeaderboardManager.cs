@@ -5,8 +5,8 @@ namespace DogtorBurguer
     /// <summary>
     /// Game-facing leaderboard facade, sibling of AdManager/IapManager: owns one
     /// <see cref="ILeaderboardProvider"/> — Play Games on a configured device build (plugin +
-    /// PLAY_GAMES define + SocialConfig id), the logging mock everywhere else. CLASSIC scores
-    /// only: the mode gate lives at the game-over call site, next to the high-score write.
+    /// PLAY_GAMES define + SocialConfig id), the logging mock everywhere else. Every finished
+    /// run reports from the game-over call site next to the high-score write.
     /// Created by AppBootstrap; the TopBar trophy pill opens the board on every screen.
     /// </summary>
     public class LeaderboardManager : Singleton<LeaderboardManager>
@@ -37,7 +37,7 @@ namespace DogtorBurguer
             _provider.Initialize();
         }
 
-        /// <summary>Reports a finished Classic run's score (the caller gates the mode).</summary>
+        /// <summary>Reports a finished run's score.</summary>
         public void ReportScore(int score) => _provider?.ReportScore(score);
 
         /// <summary>Opens the platform leaderboard UI (the mock logs).</summary>

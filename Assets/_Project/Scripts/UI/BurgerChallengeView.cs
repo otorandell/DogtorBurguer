@@ -92,21 +92,8 @@ namespace DogtorBurguer
                 UIStyles.SPECIAL_MULT_TEXT_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(_multText);
             _multText.textWrappingMode = TextWrappingModes.NoWrap;
-
-            // Mode tab (CLASSIC/RELAX) straddling the card's bottom edge — the Level/Score tab
-            // recipe (blank red tab + HUD-palette word), so the run's ruleset is labelled where
-            // the orders live. Static per run: the Mode toggle is menu-only.
-            Sprite tabArt = UiArt.Load("ui_title_tab");
-            Vector2 tabSize = UIFactory.SizeByHeight(tabArt, UIStyles.SPECIAL_MODE_TAB_H);
-            Image modeTab = UIFactory.CreateImage(_card, "ModeTab", tabArt, new Vector2(0.5f, 0f),
-                new Vector2(UIStyles.SPECIAL_MODE_TAB_X, UIStyles.SPECIAL_MODE_TAB_Y), tabSize);
-            GameMode mode = SaveDataManager.Instance != null
-                ? SaveDataManager.Instance.Mode : SaveDataManager.DEFAULT_GAME_MODE;
-            TextMeshProUGUI modeLabel = UIFactory.CreateText(modeTab.transform,
-                mode == GameMode.Relax ? "RELAX" : "CLASSIC", Vector2.zero, tabSize,
-                UIStyles.SPECIAL_MODE_TAB_TEXT, FontStyles.Bold);
-            UIFactory.StyleHudText(modeLabel);
-            UIFactory.AutoFit(modeLabel, UIStyles.HUD_TITLE_LABEL_SIZE_MIN, UIStyles.SPECIAL_MODE_TAB_TEXT);
+            // (The red CLASSIC/RELAX mode tab that straddled the card's bottom edge went with
+            // the mode toggle on 2026-09-07 — one ruleset, nothing to label.)
         }
 
         // The mult meter: a vertical capsule from three stacked layers at one rect — brown well (back) →
@@ -156,36 +143,23 @@ namespace DogtorBurguer
         {
             ClearStack();
 
-            // bun bottom → (size: a "+N" mystery placeholder | contains: each required ingredient) → bun top
+            // bun bottom → each required ingredient → one "?" mystery slot PER free ingredient → bun top.
+            // The order's total is exact, so the card shows the whole recipe: named art +
+            // anything-goes slots (one per instance since 2026-09-06 — the old size-only orders
+            // and their single "N" placeholder are gone).
             List<IngredientType?> rows = new List<IngredientType?> { IngredientType.BunBottom };
-            string placeholder = null;
-            if (_model.CurrentOrderType == OrderType.Size)
-            {
-                rows.Add(null); // mystery placeholder
-                // Number only: the trial font renders "+" (and most symbols) as a placeholder
-                // sliver glyph, and it has no ≥. Revisit when the font is replaced.
-                placeholder = $"{_model.RequiredSize}";
-            }
-            else
-            {
-                foreach (IngredientType t in _model.TargetIngredients)
-                    rows.Add(t);
-                // One ghosted "?" slot PER free ingredient: the order's total is exact
-                // (2026-09-05 redesign), so the card shows the whole recipe — named art +
-                // anything-goes slots.
-                for (int i = _model.TargetIngredients.Count; i < _model.RequiredSize; i++)
-                    rows.Add(null);
-                placeholder = "?";
-            }
+            foreach (IngredientType t in _model.TargetIngredients)
+                rows.Add(t);
+            for (int i = _model.TargetIngredients.Count; i < _model.RequiredSize; i++)
+                rows.Add(null);
             rows.Add(IngredientType.BunTop);
+            const string placeholder = "?";
 
             // Big orders squeeze their row spacing so the stack always fits the card.
             float spacing = UIStyles.SPECIAL_INGREDIENT_SPACING;
             if ((rows.Count - 1) * spacing > UIStyles.SPECIAL_STACK_MAX_SPAN)
                 spacing = UIStyles.SPECIAL_STACK_MAX_SPAN / (rows.Count - 1);
             float startY = -(rows.Count - 1) * spacing * 0.5f;
-
-            bool ghostMystery = _model.CurrentOrderType == OrderType.Contains;
 
             // Plate under the bottom bun (added first → renders behind the stack).
             Sprite plate = Theme.Plate;
@@ -203,7 +177,7 @@ namespace DogtorBurguer
                 if (rows[i].HasValue)
                     AddSprite(_model.GetIngredientSprite(rows[i].Value), $"Ing_{rows[i].Value}", y, null);
                 else
-                    AddSprite(UiArt.Load("ui_mystery"), "Placeholder", y, placeholder, ghostMystery);
+                    AddSprite(UiArt.Load("ui_mystery"), "Placeholder", y, placeholder);
             }
 
             _multText.text = $"x{_model.Multiplier:0.##}"; // 1, 1.25, 1.5 … (the gauge badge shows the LIVE value)
@@ -218,12 +192,14 @@ namespace DogtorBurguer
         }
 
         // Adds one stacked image (ingredient or placeholder) with an optional centred label (the
-        // "+N" on the mystery silhouette). Gameplay sprites are sized from their world dimensions
-        // (see WorldScaled); the mystery placeholder is UI art with no tuned PPU, sized by height.
-        private void AddSprite(Sprite sprite, string name, float y, string label, bool ghosted = false)
+        // "?" on the mystery silhouette, which is also ghosted by SPECIAL_GHOST_ALPHA). Gameplay
+        // sprites are sized from their world dimensions (see WorldScaled); the mystery placeholder
+        // is UI art with no tuned PPU, sized by height.
+        private void AddSprite(Sprite sprite, string name, float y, string label)
         {
             if (sprite == null) return;
             bool isMystery = !string.IsNullOrEmpty(label);
+            bool ghosted = isMystery;
             Vector2 size = isMystery
                 ? new Vector2(UIStyles.SPECIAL_MYSTERY_H * sprite.rect.width / sprite.rect.height, UIStyles.SPECIAL_MYSTERY_H)
                 : WorldScaled(sprite);
