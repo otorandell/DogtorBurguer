@@ -18,7 +18,8 @@ namespace DogtorBurguer
         private const int ColA = 1;
         private const int ColB = 2;
         private const int JunkCol = 3;
-        private const float SlowFall = 0.55f;  // scripted teaching drops
+        private const float SlowFall = 0.55f;  // drops the player must REACT to (the Match twin)
+        private const float WatchFall = 0.32f; // drops the player only watches (flip locked) — brisker
         private const float PlaceFall = 0.06f; // instant-ish pre-placements
         private const float RespawnDelay = 0.8f;
 
@@ -176,7 +177,7 @@ namespace DogtorBurguer
             };
             foreach (IngredientType type in sequence)
             {
-                Ingredient piece = _spawner.SpawnScripted(type, ColA, SlowFall);
+                Ingredient piece = _spawner.SpawnScripted(type, ColA, WatchFall);
                 while (piece != null && piece.State != IngredientState.Landed)
                     yield return null;
                 yield return new WaitForSeconds(0.25f);
@@ -219,7 +220,7 @@ namespace DogtorBurguer
             IngredientType[] sequence = { IngredientType.BunBottom, IngredientType.Cheese, IngredientType.BunTop };
             foreach (IngredientType type in sequence)
             {
-                Ingredient piece = _spawner.SpawnScripted(type, ColB, SlowFall);
+                Ingredient piece = _spawner.SpawnScripted(type, ColB, WatchFall);
                 while (piece != null && piece.State != IngredientState.Landed)
                     yield return null;
                 yield return new WaitForSeconds(0.25f);

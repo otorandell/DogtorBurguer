@@ -48,6 +48,11 @@ namespace DogtorBurguer
             if (GameManager.Instance != null && GameManager.Instance.TestDualColumn)
                 startLevel = GameManager.Instance.TestDualColumnLevel;
 
+            // The tutorial always teaches at level 1 — a high Settings START level must not
+            // leak into the scripted run (ShouldRun: this Start runs before TutorialManager's).
+            if (TutorialMode.IsActive || TutorialMode.ShouldRun)
+                startLevel = 1;
+
             _currentLevel = Mathf.Clamp(startLevel, 1, GameplayConfig.KILLER_LEVEL);
             // The initial level is pull-state, not an event: subscribers read CurrentLevel
             // on their own init (GameHUD.RefreshAll, GameOverPanel). Firing OnLevelChanged
