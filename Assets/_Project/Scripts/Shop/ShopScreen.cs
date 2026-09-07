@@ -132,6 +132,7 @@ namespace DogtorBurguer
         /// <summary>Denied-transaction feedback (insufficient funds): shake the offender.</summary>
         public static void Deny(Transform target)
         {
+            AudioManager.Instance?.PlayDeny();
             target.DOKill(true);
             target.DOShakePosition(AnimConfig.SHOP_DENY_DURATION, AnimConfig.SHOP_DENY_STRENGTH)
                 .SetUpdate(true).SetLink(target.gameObject);

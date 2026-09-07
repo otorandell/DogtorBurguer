@@ -22,6 +22,11 @@ namespace DogtorBurguer
         private AudioClip _earlySpawnClip;
         private AudioClip _challengeMatchClip;
         private AudioClip _challengeLevelUpClip;
+        private AudioClip _uiTapClip;
+        private AudioClip _purchaseClip;
+        private AudioClip _equipClip;
+        private AudioClip _denyClip;
+        private AudioClip _fairyAppearClip;
         private AudioClip _consumableCollectClip;
         private AudioClip _consumableKetchupClip;
         private AudioClip _consumableMustardClip;
@@ -43,6 +48,11 @@ namespace DogtorBurguer
         [SerializeField] private AudioClip _earlySpawnOverride;
         [SerializeField] private AudioClip _challengeMatchOverride;
         [SerializeField] private AudioClip _challengeLevelUpOverride;
+        [SerializeField] private AudioClip _uiTapOverride;
+        [SerializeField] private AudioClip _purchaseOverride;
+        [SerializeField] private AudioClip _equipOverride;
+        [SerializeField] private AudioClip _denyOverride;
+        [SerializeField] private AudioClip _fairyAppearOverride;
         [SerializeField] private AudioClip _consumableCollectOverride;
         [SerializeField] private AudioClip _consumableKetchupOverride;
         [SerializeField] private AudioClip _consumableMustardOverride;
@@ -146,6 +156,11 @@ namespace DogtorBurguer
             _earlySpawnClip = Resolve(_earlySpawnOverride, "EarlySpawn", 0.15f, GenerateEarlySpawnSamples);
             _challengeMatchClip = Resolve(_challengeMatchOverride, "ChallengeMatch", 0.35f, GenerateChallengeMatchSamples);
             _challengeLevelUpClip = Resolve(_challengeLevelUpOverride, "ChallengeLevelUp", 0.55f, GenerateChallengeLevelUpSamples);
+            _uiTapClip = Resolve(_uiTapOverride, "UiTap", 0.06f, GenerateUiTapSamples);
+            _purchaseClip = Resolve(_purchaseOverride, "Purchase", 0.3f, GeneratePurchaseSamples);
+            _equipClip = Resolve(_equipOverride, "Equip", 0.16f, GenerateEquipSamples);
+            _denyClip = Resolve(_denyOverride, "Deny", 0.16f, GenerateDenySamples);
+            _fairyAppearClip = Resolve(_fairyAppearOverride, "FairyAppear", 0.45f, GenerateFairyAppearSamples);
             _consumableCollectClip = Resolve(_consumableCollectOverride, "ConsumableCollect", 0.18f, GenerateConsumableCollectSamples);
             _consumableKetchupClip = Resolve(_consumableKetchupOverride, "ConsumableKetchup", 0.18f, GenerateKetchupSamples);
             _consumableMustardClip = Resolve(_consumableMustardOverride, "ConsumableMustard", 0.16f, GenerateMustardSamples);
@@ -412,6 +427,89 @@ namespace DogtorBurguer
         {
             PlayClip(_challengeLevelUpClip, 0.7f);
         }
+
+        // ---- UI voice (2026-09-07) ----
+        // The buttons were silent while gameplay sang — every factory-made button taps
+        // (UIFactory wraps onClick), the shop speaks on purchase/equip/deny, fairies announce
+        // themselves. Placeholder tones like the consumables; override slots for real audio.
+
+        /// <summary>Soft short blip — every UGUI button press (wired in UIFactory).</summary>
+        private float GenerateUiTapSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float freq = Mathf.Lerp(950f, 620f, t / duration);
+            float envelope = 1f - (t / duration);
+            return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * envelope * 0.5f;
+        }
+
+        public void PlayUiTap() => PlayClip(_uiTapClip, 0.35f);
+
+        /// <summary>Coin ka-ching: two quick high strikes with a sparkle tail — successful spends.</summary>
+        private float GeneratePurchaseSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float split = duration * 0.35f;
+            float envelope;
+            float signal;
+            if (t < split)
+            {
+                float noteT = t / split;
+                envelope = 1f - noteT * 0.3f;
+                signal = Mathf.Sin(2f * Mathf.PI * 1568f * t) * 0.5f   // G6
+                       + Mathf.Sin(2f * Mathf.PI * 2093f * t) * 0.25f; // C7
+            }
+            else
+            {
+                float t2 = (t - split) / (duration - split);
+                envelope = 1f - t2;
+                signal = Mathf.Sin(2f * Mathf.PI * 2093f * t) * 0.45f  // C7
+                       + Mathf.Sin(2f * Mathf.PI * 3136f * t) * 0.2f;  // G7 sparkle
+            }
+            return signal * envelope * 0.7f;
+        }
+
+        public void PlayPurchase() => PlayClip(_purchaseClip, 0.6f);
+
+        /// <summary>Quick two-note up-confirm — a skin equipping.</summary>
+        private float GenerateEquipSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float half = duration * 0.5f;
+            float freq = t < half ? 660f : 880f; // E5 -> A5
+            float noteT = (t < half ? t : t - half) / half;
+            float envelope = (1f - noteT * 0.5f) * (1f - t / duration * 0.3f);
+            return (Mathf.Sin(2f * Mathf.PI * freq * t) * 0.6f
+                  + Mathf.Sin(2f * Mathf.PI * freq * 2f * t) * 0.2f) * envelope * 0.7f;
+        }
+
+        public void PlayEquip() => PlayClip(_equipClip, 0.55f);
+
+        /// <summary>Low double buzz — a denied spend (pairs with the shake).</summary>
+        private float GenerateDenySamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float gate = Mathf.Sin(2f * Mathf.PI * 14f * t) > 0f ? 1f : 0.25f; // two pulses
+            float envelope = 1f - (t / duration) * 0.6f;
+            float square = Mathf.Sign(Mathf.Sin(2f * Mathf.PI * 130f * t)) * 0.35f
+                         + Mathf.Sin(2f * Mathf.PI * 98f * t) * 0.3f;
+            return square * gate * envelope * 0.6f;
+        }
+
+        public void PlayDeny() => PlayClip(_denyClip, 0.5f);
+
+        /// <summary>Rising flutter with vibrato — a Burger Fairy entering the screen.</summary>
+        private float GenerateFairyAppearSamples(float duration, int i)
+        {
+            float t = (float)i / SAMPLE_RATE;
+            float progress = t / duration;
+            float baseFreq = Mathf.Lerp(740f, 1480f, progress);          // F#5 -> F#6 rise
+            float vibrato = 1f + Mathf.Sin(2f * Mathf.PI * 9f * t) * 0.03f; // wing flutter
+            float envelope = Mathf.Sin(progress * Mathf.PI);              // swell in and out
+            return (Mathf.Sin(2f * Mathf.PI * baseFreq * vibrato * t) * 0.5f
+                  + Mathf.Sin(2f * Mathf.PI * baseFreq * 2f * t) * 0.15f) * envelope * 0.6f;
+        }
+
+        public void PlayFairyAppear() => PlayClip(_fairyAppearClip, 0.45f);
 
         /// <summary>
         /// Descending tones for game over (A4, F#4, Eb4, C4)

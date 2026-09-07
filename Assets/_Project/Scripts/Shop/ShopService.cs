@@ -28,6 +28,7 @@ namespace DogtorBurguer
 
             save.GrantSkin(skin.Id);
             Theme.Equip(skin);
+            AudioManager.Instance?.PlayPurchase(); // success feedback lives at the atomic points (2026-09-07)
             return true;
         }
 
@@ -36,6 +37,7 @@ namespace DogtorBurguer
         {
             if (!OwnsSkin(skin)) return false;
             Theme.Equip(skin);
+            AudioManager.Instance?.PlayEquip();
             return true;
         }
 
@@ -45,6 +47,7 @@ namespace DogtorBurguer
             if (save == null || !save.SpendStars(pack.StarCost)) return false;
 
             save.AddConsumables(type, pack.Quantity);
+            AudioManager.Instance?.PlayPurchase();
             return true;
         }
 
@@ -58,6 +61,7 @@ namespace DogtorBurguer
             save.AddConsumables(ConsumableType.Ketchup, pack.Quantity);
             save.AddConsumables(ConsumableType.Mustard, pack.Quantity);
             save.AddConsumables(ConsumableType.Skewer, pack.Quantity);
+            AudioManager.Instance?.PlayPurchase();
             return true;
         }
 
@@ -67,6 +71,7 @@ namespace DogtorBurguer
             if (save == null || !save.SpendGems(product.GemCost)) return false;
 
             save.AddStars(product.Amount);
+            AudioManager.Instance?.PlayPurchase();
             return true;
         }
 
@@ -75,6 +80,7 @@ namespace DogtorBurguer
         public static void GrantGemPack(GemProduct product)
         {
             SaveDataManager.Instance?.AddGems(product.Amount);
+            AudioManager.Instance?.PlayPurchase();
         }
 
         /// <summary>Grant half of Remove Ads plus its bundled gem sweetener. Idempotent — the store
@@ -86,6 +92,9 @@ namespace DogtorBurguer
 
             save.SetAdsRemoved();
             save.AddGems(MonetizationConfig.REMOVE_ADS_BONUS_GEMS);
+            // The idempotent early-return above keeps store REPLAYS silent — this only rings
+            // on the first actual grant.
+            AudioManager.Instance?.PlayPurchase();
         }
     }
 }

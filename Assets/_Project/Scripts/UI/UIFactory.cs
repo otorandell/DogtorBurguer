@@ -95,7 +95,11 @@ namespace DogtorBurguer
 
             Button btn = btnObj.AddComponent<Button>();
             btn.targetGraphic = btnImg;
-            btn.onClick.AddListener(onClick);
+            btn.onClick.AddListener(() =>
+            {
+                AudioManager.Instance?.PlayUiTap();
+                onClick();
+            });
 
             // Label stretches to fill the button.
             GameObject textObj = new GameObject("Text");
@@ -186,7 +190,13 @@ namespace DogtorBurguer
             Button btn = obj.AddComponent<Button>();
             btn.targetGraphic = img;
             if (onClick != null)
-                btn.onClick.AddListener(onClick);
+                btn.onClick.AddListener(() =>
+                {
+                    // Every factory-made button carries the UI tap (2026-09-07); a missing
+                    // AudioManager (none in a scene) just means silence.
+                    AudioManager.Instance?.PlayUiTap();
+                    onClick();
+                });
 
             return btn;
         }

@@ -56,6 +56,7 @@ namespace DogtorBurguer
 
             float duration = Rng.Range(AnimConfig.GEM_FLY_DURATION_MIN, AnimConfig.GEM_FLY_DURATION_MAX);
 
+            AudioManager.Instance?.PlayFairyAppear();
             GameObject obj = new GameObject("BurgerFairy");
             BurgerFairy fairy = obj.AddComponent<BurgerFairy>();
             fairy.Initialize(RollPayload(), startPos, endPos, duration);

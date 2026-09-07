@@ -294,6 +294,12 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
 - **AudioManager**: All SFX procedurally generated (sin waves, envelopes, harmonics). No audio asset
   files. Each sound has an optional `_*Override` clip slot for authored audio. Consumable hooks:
   `PlayConsumableCollect` / `PlayConsumableUse(type)` / `PlayConsumableFizzle` (placeholder tones).
+  **UI voice (2026-09-07, placeholder tones too)**: every UIFactory-made button plays `PlayUiTap`
+  (wrapped into CreateSpriteButton/CreateButton onClick — hand-added Buttons stay silent),
+  successful spends `PlayPurchase` and equips `PlayEquip` (at ShopService's atomic success
+  points; Remove-Ads replays stay silent via its idempotent early-return), the deny shake
+  `PlayDeny` (ShopScreen.Deny), a spawning fairy `PlayFairyAppear`. The MENU scene ensures a
+  scene-local AudioManager (MainMenuUI) so its buttons tap too.
 - **MusicManager**: Loads tracks from Resources/Music/. Random selection per scene
 
 ### Monetization & Currencies

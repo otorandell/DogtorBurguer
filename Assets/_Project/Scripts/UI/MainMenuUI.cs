@@ -27,6 +27,7 @@ namespace DogtorBurguer
             // Before the managers: AdManager/IapManager pick their provider in Awake.
             if (_testBuild) TestBuild.Enable();
             AppBootstrap.EnsureCoreManagers();
+            MonoBehaviourUtil.EnsureComponent<AudioManager>(); // scene-local SFX so menu buttons tap (2026-09-07)
             TestBuild.TopUpStash(SaveDataManager.Instance);
             SoundSettings.Apply();
 
