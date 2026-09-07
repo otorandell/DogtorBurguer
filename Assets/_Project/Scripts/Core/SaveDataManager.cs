@@ -193,9 +193,13 @@ namespace DogtorBurguer
 
 #if UNITY_EDITOR
         /// <summary>Debug (editor-only): wipes shop purchases — owned skins, per-slot equips and
-        /// remove-ads. Bound to R while the shop is open (ShopScreen).</summary>
+        /// remove-ads — and the tutorial-seen flag, so the next Play exercises the first-run
+        /// tutorial. Bound to R while the shop is open (ShopScreen).</summary>
         public void DebugResetShop()
         {
+            TutorialSeen = false;
+            PlayerPrefs.SetInt(KEY_TUTORIAL_SEEN, 0);
+
             _ownedSkins.Clear();
             PlayerPrefs.SetString(KEY_OWNED_SKINS, "");
             foreach (SkinSlot slot in System.Enum.GetValues(typeof(SkinSlot)))
