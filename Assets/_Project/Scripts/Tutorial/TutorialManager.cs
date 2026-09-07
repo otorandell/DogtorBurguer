@@ -59,6 +59,11 @@ namespace DogtorBurguer
 
         private void OnDestroy()
         {
+            // Scene-exit safety: a tutorial abandoned any way but Finish (quit to menu from the
+            // settings panel, scene reload) must release the gates and the virtual Ketchup.
+            if (_step != TutorialStep.Done && TutorialMode.IsActive)
+                TutorialMode.End();
+
             if (_chef != null)
             {
                 _chef.OnMoved -= HandleMoved;

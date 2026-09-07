@@ -9,6 +9,16 @@ namespace DogtorBurguer
     /// </summary>
     public static class TutorialMode
     {
+        // Statics survive scene loads AND (with domain reload disabled) editor play sessions —
+        // a tutorial abandoned mid-run (quit to menu, editor stop) must never leak its gates
+        // into the next run: reset everything at every play start.
+        [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            Pending = false;
+            End();
+        }
+
         public static bool Pending;
         public static bool IsActive { get; private set; }
 

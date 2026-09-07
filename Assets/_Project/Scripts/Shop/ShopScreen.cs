@@ -84,7 +84,7 @@ namespace DogtorBurguer
                 SaveDataManager.Instance?.DebugResetShop();
                 Theme.DebugResetToDefaults();
                 NotifyChanged();
-                Debug.Log("[ShopScreen] Debug reset: skins, equips and remove-ads wiped.");
+                Debug.Log("[ShopScreen] Debug reset: skins, equips, remove-ads, consumables and tutorial-seen wiped.");
             }
 #endif
             foreach (Action tick in _perFrameTicks)
