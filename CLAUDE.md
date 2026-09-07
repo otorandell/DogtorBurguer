@@ -519,8 +519,9 @@ auto systems stand down (spawner waves/previews — gated on ShouldRun too for t
 ordering, fairies, difficulty, auto orders, star persistence — popups still play) and input is
 masked per step (`TutorialMode.Allow*`, enforced in TouchInputHandler). Steps (`TutorialStep`):
 Move (2 swipes) → Swap (tap chef; two pre-placed stacks) → Match (a twin falls at the WRONG
-stack; wrong landings poof + respawn forever) → Burger (scripted 4-drop build, flip disabled) →
-Order (`BurgerChallenge.SetScriptedOrder` — meter pre-filled one short so the match LEVELS UP
+stack; wrong landings poof + respawn forever) → Burger (INTERACTIVE since 2026-09-07: each piece
+falls beside the bun column, one swap routes it on; misses poof and return, a stray top bun
+self-destructs on its own) → Order (`BurgerChallenge.SetScriptedOrder` — meter pre-filled one short so the match LEVELS UP
 the multiplier on screen) → PowerUp (granted Ketchup on a junk column; a fizzle re-grants) →
 Ready → scene reloads into a normal run. Callout = `TutorialPopup` (red banner + green plate +
 rotated yellow arrow, `UIStyles.TUT_*`; step text/positions live in TutorialManager). SKIP is

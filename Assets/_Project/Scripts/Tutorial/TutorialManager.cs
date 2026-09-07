@@ -30,6 +30,7 @@ namespace DogtorBurguer
         private int _movesMade;
         private bool _matchFired;
         private Ingredient _matchPiece;
+        private bool _burgerServed;
         private bool _ketchupOutstanding;
 
         private void Start()
@@ -160,27 +161,72 @@ namespace DogtorBurguer
         private void EnterBurger()
         {
             _step = TutorialStep.Burger;
-            TutorialMode.SetMask(move: true, flip: false, fastDrop: true, consumable: false);
+            TutorialMode.SetMask(move: true, flip: true, fastDrop: true, consumable: false);
             ClearBoardSilently();
-            _popup.Show("BURGER TIME!", "A bottom bun opens a burger, fillings stack on it, a top bun serves it. Tap a falling piece to hurry it!",
+            _burgerServed = false;
+            _popup.Show("BURGER TIME!", "Your turn! A bottom bun opens the burger - SWAP the stacks so every falling piece lands ON it. Close it with the top bun!",
                 new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
-            StartCoroutine(DropBurgerSequence());
+            StartCoroutine(BuildBurgerInteractive());
         }
 
-        // The whole burger drops into one column with the flip disabled — nothing to fail.
-        private IEnumerator DropBurgerSequence()
+        // Interactive but unfailable (2026-09-07): each piece falls beside the burger, so the
+        // player must swap it underneath. A miss poofs and returns; a stray top bun even
+        // self-destructs on its own (the grid teaching "Too bad!" for us). Loops forever.
+        private IEnumerator BuildBurgerInteractive()
         {
-            IngredientType[] sequence =
-            {
-                IngredientType.BunBottom, IngredientType.Meat,
-                IngredientType.Cheese, IngredientType.BunTop,
-            };
+            Ingredient bun = _spawner.SpawnScripted(IngredientType.BunBottom, ColA, WatchFall);
+            while (bun != null && bun.State != IngredientState.Landed)
+                yield return null;
+
+            IngredientType[] sequence = { IngredientType.Meat, IngredientType.Cheese, IngredientType.BunTop };
             foreach (IngredientType type in sequence)
             {
-                Ingredient piece = _spawner.SpawnScripted(type, ColA, WatchFall);
-                while (piece != null && piece.State != IngredientState.Landed)
-                    yield return null;
-                yield return new WaitForSeconds(0.25f);
+                bool placed = false;
+                while (!placed && _step == TutorialStep.Burger)
+                {
+                    // Aim beside the CURRENT bun column (the player may have walked it around),
+                    // always adjacent so a single swap solves it.
+                    int bunCol = FindBunColumn();
+                    int besideCol = bunCol < Constants.COLUMN_COUNT - 1 ? bunCol + 1 : bunCol - 1;
+                    Ingredient piece = _spawner.SpawnScripted(type, besideCol, SlowFall);
+
+                    if (type == IngredientType.BunTop)
+                    {
+                        // Success = the burger completes (the piece is consumed by the compress
+                        // animation before the event fires — hence the grace window). A lone-top
+                        // self-destruct leaves _burgerServed false → retry.
+                        while (!_burgerServed && piece != null)
+                            yield return null;
+                        float grace = 1.5f;
+                        while (!_burgerServed && grace > 0f)
+                        {
+                            grace -= Time.deltaTime;
+                            yield return null;
+                        }
+                        placed = _burgerServed;
+                        if (!placed) yield return new WaitForSeconds(RespawnDelay);
+                        continue;
+                    }
+
+                    while (piece != null && piece.State != IngredientState.Landed)
+                        yield return null;
+                    if (piece == null)
+                    {
+                        yield return new WaitForSeconds(RespawnDelay);
+                        continue;
+                    }
+
+                    if (ColumnHasBunBottom(piece.CurrentColumn))
+                    {
+                        placed = true; // it stacked onto the burger
+                    }
+                    else
+                    {
+                        piece.CurrentColumn?.RemoveIngredient(piece);
+                        piece.DestroyWithFlash();
+                        yield return new WaitForSeconds(RespawnDelay);
+                    }
+                }
             }
         }
 
@@ -188,6 +234,7 @@ namespace DogtorBurguer
         {
             if (_step == TutorialStep.Burger)
             {
+                _burgerServed = true;
                 _popup.Show("BURGER TIME!", "Served! Bigger burgers score much more.",
                     new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
                 _popup.ArmContinue(EnterOrder);
@@ -209,7 +256,7 @@ namespace DogtorBurguer
             // One cheese, exact size 1; meter pre-filled one short of level-up so THIS order
             // triggers the showcase (level 1 needs 2 orders).
             BurgerChallenge.Instance?.SetScriptedOrder(IngredientType.Cheese, exactCount: 1, progress: 1);
-            _popup.Show("SPECIAL ORDER!", "A customer wants THIS exact burger - watch it get served!",
+            _popup.Show("SPECIAL ORDER!", "A customer wants THIS exact burger! The ingredient ORDER does not matter - watch it get served.",
                 new Vector2(0f, -60f), new Vector2(160f, 120f), 180f);
             StartCoroutine(DropOrderSequence());
         }
@@ -311,6 +358,24 @@ namespace DogtorBurguer
         }
 
         // ---------------- helpers ----------------
+
+        private static int FindBunColumn()
+        {
+            for (int c = 0; c < Constants.COLUMN_COUNT; c++)
+            {
+                Column col = GridManager.Instance?.GetColumn(c);
+                if (ColumnHasBunBottom(col)) return c;
+            }
+            return ColA;
+        }
+
+        private static bool ColumnHasBunBottom(Column col)
+        {
+            if (col == null) return false;
+            foreach (Ingredient ing in col.GetAllIngredients())
+                if (ing != null && ing.Type == IngredientType.BunBottom) return true;
+            return false;
+        }
 
         private static IngredientType ColumnTopType(int columnIndex)
         {

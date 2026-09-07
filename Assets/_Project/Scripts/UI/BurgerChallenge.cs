@@ -59,8 +59,18 @@ namespace DogtorBurguer
             _view = gameObject.AddComponent<BurgerChallengeView>();
             _view.Initialize(this);
 
-            if (!TutorialMode.IsActive)
+            if (TutorialMode.IsActive || TutorialMode.ShouldRun)
+            {
+                // Tutorial: no auto order, and hide the panel OURSELVES — same-frame Start order
+                // vs TutorialManager is unspecified, so its SetPanelVisible call can arrive
+                // before the view exists (the broken empty card, found 2026-09-07). ShouldRun
+                // covers the case where this Start wins the race.
+                _view.SetVisible(false);
+            }
+            else
+            {
                 GenerateNewChallenge();
+            }
             SubscribeEvents();
         }
 
