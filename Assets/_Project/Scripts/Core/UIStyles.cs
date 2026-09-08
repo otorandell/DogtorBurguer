@@ -75,7 +75,7 @@ namespace DogtorBurguer
         public const float PLATE_SCORE_H = 1.1f;                           // green round behind "N!" score popups
         public const float PLATE_FLOAT_H = 1.0f;                           // round blob behind floating texts that ask for one
         public const float FLOAT_ICON_H = 0.45f;                           // inline reward icon on a floating popup (fairy loot)
-        public const float FLOAT_ICON_GAP = 0.12f;                         // gap between the amount and its icon
+        public const float FLOAT_ICON_GAP = 0.28f;                         // gap between the amount and its icon
         public const float FLOAT_ICON_Y = 0.02f;                           // icon vertical trim vs the text line
         public const float CONSUMABLE_FALLER_HEIGHT = 2.0f;  // default falling item (badge art)
         public const float CONSUMABLE_GHOST_HEIGHT = 1.4f;   // column preview (nozzle art; 30% down from 2.0)
