@@ -24,7 +24,7 @@ namespace DogtorBurguer
         public static readonly Color32 HUD_TEXT_BORDER = new(0x49, 0x26, 0x11, 0xFF);  // #492611 dark brown — the SHADOW ring (and legacy border for colored headings)
         public static readonly Color32 HUD_TEXT_STROKE = new(0x88, 0x46, 0x2A, 0xFF);  // #88462A mid brown — the inner stroke (sampled off the mock's PLAY)
         public const float HUD_TEXT_BORDER_WIDTH = 0.25f;                               // TMP outline width (0..1) — tune live
-        public const float TEXT_FACE_DILATE = -0.18f;                                    // NEGATIVE thins Black toward the old ExtraBold weight (+0.2 was tuned for the trial ExtraBold) — tune live; applies to styled AND plain texts
+        public const float TEXT_FACE_DILATE = 0f;                                       // weight trim (negative thins) — 0 for Baloo 2 ExtraBold; was -0.18 compensating Panton Black, +0.2 on the trial ExtraBold. Tune live; styled AND plain texts
         // The sticker drop shadow (TMP Underlay) applied by StyleFillAndBorder to EVERY bordered
         // text, matching the artist's Photoshop stroke+shadow recipe (Look Reference/Font info.png).
         // Offsets/dilate are in SDF *spread* units (-1..1): the on-screen reach = value × atlas

@@ -17,7 +17,11 @@ namespace DogtorBurguer
     /// </summary>
     public static class FontBaker
     {
-        private const string SourceFontPath = "Assets/_Project/Fonts/PantonDemo-Black.otf";
+        // CANDIDATE TRIAL (2026-09-08): Baloo 2 ExtraBold (Google Fonts, OFL — embedding free,
+        // mixed case, full accents) vs the caps-only Panton Black, which Oscar disliked. The
+        // bake still targets the wired SDF asset; swap the path back to PantonDemo-Black.otf
+        // to compare. Rename the asset once a winner is picked.
+        private const string SourceFontPath = "Assets/_Project/Fonts/Baloo2-ExtraBold.ttf";
         private const string TargetAssetPath = "Assets/_Project/Fonts/PantonDemo-Black SDF.asset";
 
         // 96pt / 8px padding keeps the old 144/12 padding-to-point ratio, so the sticker
