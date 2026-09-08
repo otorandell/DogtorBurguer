@@ -806,6 +806,17 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   `internalIDToNameTable`, `spriteSheet.sprites[].internalID`, and `nameFileIdTable`.
 
 ## Pending Manual Steps
+- **Font swap to Panton Black Caps (2026-09-08, decided — see Pre-Launch Checklist)**: in the
+  editor open Window - TextMeshPro - Font Asset Creator: Source Font = `PantonDemo-Black`,
+  Sampling Point Size Auto, Padding 12, Packing Fast, Atlas 2048x2048, Render Mode SDFAA,
+  Character Set = Unicode Range (Hex):
+  `20-7E,A1-FF,11E-11F,130-131,152-153,15E-15F,17D-17E,2013-2014,2018-201A,201C-201E,2026,20AC`
+  then Generate Font Atlas and **Save As over the existing**
+  `Assets/_Project/Fonts/Panton-Trial-ExtraBold SDF.asset` (overwriting keeps the GUID, so the
+  TMP-Settings default font and the LiberationSans fallback stay wired; the asset gets renamed
+  in a later commit). A "missing character 0131" warning is expected and harmless. Verify all
+  screens render CAPS in the sticker style; THEN the trial-font symbol workarounds can be
+  removed (safe-charset rule, N! instead of +N, the LiberationSans + and / material hacks).
 - **Leaderboard activation** (code scaffolded 2026-09-06, `Scripts/Social/`): import the Play
   Games plugin v2 (`com.google.play.games`), add the **`PLAY_GAMES` scripting define** (Player
   Settings — the plugin defines no symbol of its own), run its Android setup wizard with the
@@ -935,6 +946,11 @@ listing and the LevelPlay dashboard) and `Docs/play-store-listing.md` (descripti
 questionnaire answers, product ids, asset specs). ⚠️ **Font**: the "licensed" Panton zip
 (`Fuentes/panton.zip`, 2026-09-01 kit) contains the same **trial** TTFs plus Fontfabric's
 **free** weights (`Commercial/PantonDemo-Black.otf` = "Panton Black Caps", caps-only, and
-Light; FF Free Font EULA allows apps). The ExtraBold in use is still trial — decide: buy
-Panton ExtraBold, or switch to the free Black Caps (all-caps UI). Either way the SDF is
-regenerated in the editor (1024 atlas / ~12 padding / SDFAA) and the symbol workarounds go.
+Light; FF Free Font EULA allows apps). **DECIDED 2026-09-08: the free Black Caps** (buying means the
+App license, from ~190 USD tiered by downloads — NOT the 47 USD desktop one, which forbids
+embedding). Outline-level study (fontTools): every trial weight DRAWS all accented Latin as
+the sliver glyph AND claims the codepoints, so fallback never triggers — the trial can never
+ship ES/PT/FR/DE/IT/TR. Demo Black has real accents (only dotless i missing — irrelevant in
+caps, and caps-only Turkish never needs it). `PantonDemo-Black.otf` + the FF EULA are in the
+repo (`Assets/_Project/Fonts/`, `Docs/`); the SDF regeneration is an editor step (see Pending
+Manual Steps) — after it the UI renders ALL CAPS and the symbol workarounds can go.
