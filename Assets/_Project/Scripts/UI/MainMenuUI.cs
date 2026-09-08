@@ -57,7 +57,7 @@ namespace DogtorBurguer
             Vector2 playSize = UIFactory.SizeByWidth(play, UIStyles.MENU_PLAY_W);
             Button playBtn = UIFactory.CreateSpriteButton(_canvas.transform, "Play", play,
                 new Vector2(0.5f, 0.5f), UIStyles.MENU_PLAY_POS, playSize, OnPlayClicked);
-            TextMeshProUGUI playWord = UIFactory.CreateText(playBtn.transform, "PLAY",
+            TextMeshProUGUI playWord = UIFactory.CreateText(playBtn.transform, Loc.Get(LocKey.MenuPlay),
                 UIStyles.MENU_PLAY_LABEL_NUDGE, playSize, UIStyles.MENU_PLAY_LABEL_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(playWord);
 
@@ -84,13 +84,13 @@ namespace DogtorBurguer
             UIFactory.CreateImage(_canvas.transform, "BottomStrip", strip, new Vector2(0.5f, 0f),
                 new Vector2(0f, stripSize.y * 0.5f), stripSize);
 
-            CreateBottomButton("CREDITS", -UIStyles.MENU_BOTTOM_BTN_X, "ui_menu_btn_credits",
+            CreateBottomButton(Loc.Get(LocKey.MenuCredits), -UIStyles.MENU_BOTTOM_BTN_X, "ui_menu_btn_credits",
                 UIStyles.MENU_CREDITS_LABEL_SIZE, OnCreditsClicked);
-            Button shop = CreateBottomButton("SHOP", UIStyles.MENU_BOTTOM_BTN_X, "ui_menu_btn_shop",
+            Button shop = CreateBottomButton(Loc.Get(LocKey.MenuShop), UIStyles.MENU_BOTTOM_BTN_X, "ui_menu_btn_shop",
                 UIStyles.MENU_SHOP_LABEL_SIZE, OnShopClicked);
 
             float shopHeight = shop.GetComponent<RectTransform>().sizeDelta.y;
-            TextMeshProUGUI support = UIFactory.CreateText(shop.transform, "Support the devs!",
+            TextMeshProUGUI support = UIFactory.CreateText(shop.transform, Loc.Get(LocKey.MenuSupportDevs),
                 new Vector2(0f, shopHeight * 0.5f + UIStyles.MENU_SUPPORT_LABEL_Y),
                 new Vector2(UIStyles.MENU_SUPPORT_LABEL_W, 36f), UIStyles.MENU_SUPPORT_LABEL_SIZE, FontStyles.Bold);
             // Flashy per the mock: green vertical gradient + dark outline + the downward shadow ring.

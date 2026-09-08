@@ -98,9 +98,9 @@ namespace DogtorBurguer
             _box.rectTransform.sizeDelta = ShopWidgets.BoxSize(equipped ? ShopWidgets.SkinEquippedBoxArt : ShopWidgets.SkinBoxArt);
 
             if (equipped)
-                _cell.SetPill("EQUIPPED");
+                _cell.SetPill(Loc.Get(LocKey.ShopEquipped));
             else if (ShopService.OwnsSkin(_skin))
-                _cell.SetPill("EQUIP");
+                _cell.SetPill(Loc.Get(LocKey.ShopEquip));
             else
             {
                 bool gems = _skin.Unlock == UnlockMethod.Gems;

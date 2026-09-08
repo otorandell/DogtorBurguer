@@ -53,7 +53,7 @@ namespace DogtorBurguer
             _panel = panel.gameObject;
             Transform root = panel.transform;
 
-            TextMeshProUGUI title = UIFactory.CreateText(root, "GAME OVER...", UIStyles.GAMEOVER_TITLE_POS,
+            TextMeshProUGUI title = UIFactory.CreateText(root, Loc.Get(LocKey.GameOverTitle), UIStyles.GAMEOVER_TITLE_POS,
                 UIStyles.GAMEOVER_TITLE_RECT, UIStyles.GAMEOVER_TITLE_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(title);
 
@@ -74,7 +74,7 @@ namespace DogtorBurguer
         // The "Continue" heading plus the gem-cost (cream) and watch-ad (blue, TV icon baked in) buttons.
         private void BuildContinueRow(Transform root)
         {
-            _continueLabel = UIFactory.CreateText(root, "Continue", UIStyles.GAMEOVER_CONTINUE_LABEL_POS,
+            _continueLabel = UIFactory.CreateText(root, Loc.Get(LocKey.GameOverContinue), UIStyles.GAMEOVER_CONTINUE_LABEL_POS,
                 UIStyles.GAMEOVER_CONTINUE_LABEL_RECT, UIStyles.GAMEOVER_CONTINUE_LABEL_SIZE, FontStyles.Bold);
             UIFactory.StyleFillAndBorder(_continueLabel, UIStyles.TOPBAR_NUMBER_COLOR,
                 UIStyles.GAMEOVER_CONTINUE_BORDER, UIStyles.GAMEOVER_CONTINUE_BORDER_WIDTH);
@@ -95,7 +95,7 @@ namespace DogtorBurguer
             _continueAdButton = UIFactory.CreateSpriteButton(root, "ContinueAd", blue, Center,
                 new Vector2(UIStyles.GAMEOVER_CONTINUE_BTN_X, UIStyles.GAMEOVER_CONTINUE_BTN_Y),
                 UIFactory.SizeByWidth(blue, UIStyles.GAMEOVER_CONTINUE_BTN_W), OnContinueAdClicked);
-            _continueAdLabel = UIFactory.CreateText(_continueAdButton.transform, "Watch", UIStyles.GAMEOVER_WATCH_LABEL_POS,
+            _continueAdLabel = UIFactory.CreateText(_continueAdButton.transform, Loc.Get(LocKey.GameOverWatch), UIStyles.GAMEOVER_WATCH_LABEL_POS,
                 UIStyles.GAMEOVER_WATCH_LABEL_RECT, UIStyles.GAMEOVER_WATCH_LABEL_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(_continueAdLabel);
             UIFactory.AutoFit(_continueAdLabel, UIStyles.GAMEOVER_WATCH_LABEL_SIZE_MIN, UIStyles.GAMEOVER_WATCH_LABEL_SIZE);
@@ -103,8 +103,8 @@ namespace DogtorBurguer
 
         private void BuildNavRow(Transform root)
         {
-            CreateNavButton(root, "MainMenu", "Main\nMenu", "ui_btn_green", -UIStyles.GAMEOVER_NAV_BTN_X, OnMenuClicked);
-            CreateNavButton(root, "Retry", "Retry", "ui_btn_yellow", UIStyles.GAMEOVER_NAV_BTN_X, OnRestartClicked);
+            CreateNavButton(root, "MainMenu", Loc.Get(LocKey.GameOverMainMenu), "ui_btn_green", -UIStyles.GAMEOVER_NAV_BTN_X, OnMenuClicked);
+            CreateNavButton(root, "Retry", Loc.Get(LocKey.GameOverRetry), "ui_btn_yellow", UIStyles.GAMEOVER_NAV_BTN_X, OnRestartClicked);
         }
 
         // An authored blank with a HUD-palette word on it.
@@ -135,11 +135,11 @@ namespace DogtorBurguer
             // High score is persisted by GameManager's game-over flow (F-67), not here.
             // Stars (orders + score payout) are already granted by that flow too — display only.
             int stars = manager != null ? manager.StarsEarnedThisRun : 0;
-            _starsText.text = stars > 0 ? $"{stars} stars earned!" : "";
+            _starsText.text = stars > 0 ? Loc.Format(LocKey.GameOverStarsEarned, stars) : "";
 
             // One continue per run: afterwards the band keeps its heading but loses the buttons.
             bool canContinue = !_hasContinued;
-            _continueLabel.text = canContinue ? "Continue" : "No more continues";
+            _continueLabel.text = Loc.Get(canContinue ? LocKey.GameOverContinue : LocKey.GameOverNoMoreContinues);
             _continueGemsButton.gameObject.SetActive(canContinue);
             _continueAdButton.gameObject.SetActive(canContinue);
             if (canContinue && SaveDataManager.Instance != null)
@@ -175,7 +175,7 @@ namespace DogtorBurguer
 
             bool available = AdManager.Instance != null && AdManager.Instance.IsRewardedAvailable;
             _continueAdButton.interactable = available;
-            _continueAdLabel.text = available ? "Watch" : "Loading...";
+            _continueAdLabel.text = Loc.Get(available ? LocKey.GameOverWatch : LocKey.GameOverLoading);
         }
 
         private void OnContinueGemsClicked()

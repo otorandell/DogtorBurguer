@@ -13,16 +13,15 @@ namespace DogtorBurguer
     {
         private static readonly Vector2 Center = new(0.5f, 0.5f);
 
-        // The credits themselves. Player-facing strings: letters, digits, space and ! , - . : ; ?
-        // only (trial-font glyph limits — see CLAUDE.md). A name may span lines with explicit
-        // newlines — it auto-fits inside the band (down to CREDITS_NAME_SIZE_MIN).
-        // The music names are a CC-BY attribution requirement — see Docs/music-attribution.md
-        // before editing them.
-        private static readonly CreditsEntry[] Entries =
+        // The credits themselves — roles localized, names literal. A name may span explicit
+        // newlines and auto-fits inside the band (down to CREDITS_NAME_SIZE_MIN). The music
+        // names are a CC-BY attribution requirement — see Docs/music-attribution.md before
+        // editing them. A property (not a cached static) so a language change is live.
+        private static CreditsEntry[] Entries => new[]
         {
-            new("A GAME BY", "Oscar Torandell", UIStyles.CREDITS_GAME_ROLE, "ui_credits_band_game"),
-            new("ART BY", "Lucia Varona", UIStyles.CREDITS_ART_ROLE, "ui_credits_band_art"),
-            new("MUSIC BY", "SketchyLogic, BossLevelVGM,\nMartin Nilsson, Alex McCulloch,\nSpring Spring. Thanks!",
+            new CreditsEntry(Loc.Get(LocKey.CreditsGameBy), "Oscar Torandell", UIStyles.CREDITS_GAME_ROLE, "ui_credits_band_game"),
+            new CreditsEntry(Loc.Get(LocKey.CreditsArtBy), "Lucia Varona", UIStyles.CREDITS_ART_ROLE, "ui_credits_band_art"),
+            new CreditsEntry(Loc.Get(LocKey.CreditsMusicBy), "SketchyLogic, BossLevelVGM,\nMartin Nilsson, Alex McCulloch,\nSpring Spring. Thanks!",
                 UIStyles.CREDITS_MUSIC_ROLE, "ui_credits_band_music"),
         };
 
@@ -49,7 +48,7 @@ namespace DogtorBurguer
 
         private void CreatePanel()
         {
-            _modal = ModalPanel.Build(_canvas, "CREDITS", "ui_credits_panel", Vector2.zero,
+            _modal = ModalPanel.Build(_canvas, Loc.Get(LocKey.CreditsTitle), "ui_credits_panel", Vector2.zero,
                 UIStyles.CREDITS_CHROME_OFFSET, Hide);
 
             for (int i = 0; i < Entries.Length; i++)

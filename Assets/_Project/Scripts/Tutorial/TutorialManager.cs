@@ -85,10 +85,8 @@ namespace DogtorBurguer
             // Text follows the live control mode — Tap moves by side-taps, Drag by swipes.
             bool tapMode = SaveDataManager.Instance != null &&
                            SaveDataManager.Instance.ControlMode == ControlMode.Tap;
-            string how = tapMode
-                ? "Tap LEFT or RIGHT of the Dogtor to move him between the counters."
-                : "Swipe left or right to move the Dogtor between the counters.";
-            _popup.Show("MOVE!", how, new Vector2(0f, -110f), new Vector2(0f, -300f), 0f);
+            string how = Loc.Get(tapMode ? LocKey.TutMoveTap : LocKey.TutMoveSwipe);
+            _popup.Show(Loc.Get(LocKey.TutMoveTitle), how, new Vector2(0f, -110f), new Vector2(0f, -300f), 0f);
         }
 
         private void HandleMoved()
@@ -103,7 +101,7 @@ namespace DogtorBurguer
             TutorialMode.SetMask(move: true, flip: true, fastDrop: false, consumable: false);
             _spawner.SpawnScripted(IngredientType.Meat, ColA, PlaceFall);
             _spawner.SpawnScripted(IngredientType.Cheese, ColB, PlaceFall);
-            _popup.Show("SWAP!", "Tap the Dogtor to swap the two stacks in front of him!",
+            _popup.Show(Loc.Get(LocKey.TutSwapTitle), Loc.Get(LocKey.TutSwapBody),
                 new Vector2(0f, -110f), new Vector2(0f, -300f), 0f);
         }
 
@@ -118,7 +116,7 @@ namespace DogtorBurguer
             _step = TutorialStep.Match;
             TutorialMode.SetMask(move: true, flip: true, fastDrop: true, consumable: false);
             _matchFired = false;
-            _popup.Show("MATCH!", "Two of a kind pop! Swap the stacks so the falling patty lands on its twin.",
+            _popup.Show(Loc.Get(LocKey.TutMatchTitle), Loc.Get(LocKey.TutMatchBody),
                 new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
             SpawnMatchPiece();
         }
@@ -147,7 +145,7 @@ namespace DogtorBurguer
                     _powerUpReady = false;
                     TutorialMode.VirtualKetchup = false;
                     ConsumableInventory.Instance?.NotifyChanged();
-                    _popup.Show("POWER-UP!", "Spotless! Burger Fairies bring more power-ups - tap them when they fly by.",
+                    _popup.Show(Loc.Get(LocKey.TutPowerUpTitle), Loc.Get(LocKey.TutPowerUpDone),
                         new Vector2(0f, 40f), Vector2.zero, 0f, arrowVisible: false);
                     _popup.ArmContinue(EnterReady);
                 }
@@ -178,7 +176,7 @@ namespace DogtorBurguer
             if (_step != TutorialStep.Match) return;
             _matchFired = true;
             _matchPiece = null;
-            _popup.Show("MATCH!", "Delicious! Matching clears the counter and scores points.",
+            _popup.Show(Loc.Get(LocKey.TutMatchTitle), Loc.Get(LocKey.TutMatchDone),
                 new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
             _popup.ArmContinue(EnterBurger);
         }
@@ -188,7 +186,7 @@ namespace DogtorBurguer
             _step = TutorialStep.Burger;
             TutorialMode.SetMask(move: true, flip: true, fastDrop: true, consumable: false);
             ClearBoardSilently();
-            _popup.Show("BURGER TIME!", "Your turn! A bottom bun opens the burger - SWAP the stacks so every falling piece lands ON it. Close it with the top bun!",
+            _popup.Show(Loc.Get(LocKey.TutBurgerTitle), Loc.Get(LocKey.TutBurgerBody),
                 new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
             StartCoroutine(BuildGuidedBurger(new[] { IngredientType.Meat, IngredientType.Cheese }, ColA));
         }
@@ -261,7 +259,7 @@ namespace DogtorBurguer
             if (_step == TutorialStep.Burger)
             {
                 _burgerServed = true;
-                _popup.Show("BURGER TIME!", "Served! Bigger burgers score much more.",
+                _popup.Show(Loc.Get(LocKey.TutBurgerTitle), Loc.Get(LocKey.TutBurgerDone),
                     new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
                 _popup.ArmContinue(EnterOrder);
             }
@@ -269,7 +267,7 @@ namespace DogtorBurguer
             {
                 // The scripted order just matched: the pre-filled meter levels the multiplier up.
                 _burgerServed = true;
-                _popup.Show("SPECIAL ORDER!", "Orders fill the gauge and raise your score multiplier - for EVERY point you earn!",
+                _popup.Show(Loc.Get(LocKey.TutOrderTitle), Loc.Get(LocKey.TutOrderDone),
                     new Vector2(0f, -60f), new Vector2(160f, 120f), 180f);
                 _popup.ArmContinue(EnterPowerUp);
             }
@@ -283,7 +281,7 @@ namespace DogtorBurguer
             // One cheese, exact size 1; meter pre-filled one short of level-up so THIS order
             // triggers the showcase (level 1 needs 2 orders).
             BurgerChallenge.Instance?.SetScriptedOrder(IngredientType.Cheese, exactCount: 1, progress: 1);
-            _popup.Show("SPECIAL ORDER!", "A customer wants THIS exact burger! Ingredient ORDER does not matter - build it and serve it!",
+            _popup.Show(Loc.Get(LocKey.TutOrderTitle), Loc.Get(LocKey.TutOrderBody),
                 new Vector2(0f, -60f), new Vector2(160f, 120f), 180f);
             StartCoroutine(GuidedOrderSequence());
         }
@@ -324,7 +322,7 @@ namespace DogtorBurguer
             }
             TutorialMode.VirtualKetchup = true;
             ConsumableInventory.Instance?.NotifyChanged();
-            _popup.Show("POWER-UP!", "A free Ketchup! Drag it from its slot onto the messy column to clean it.",
+            _popup.Show(Loc.Get(LocKey.TutPowerUpTitle), Loc.Get(LocKey.TutPowerUpBody),
                 new Vector2(0f, -40f), UIStyles.TUT_ARROW_SLOT_POS, 0f);
             _powerUpReady = true;
         }
@@ -333,7 +331,7 @@ namespace DogtorBurguer
         {
             _step = TutorialStep.Ready;
             TutorialMode.SetMask(false, false, false, false);
-            _popup.Show("READY!", "The diner is yours. Serve them well, Dogtor!",
+            _popup.Show(Loc.Get(LocKey.TutReadyTitle), Loc.Get(LocKey.TutReadyBody),
                 new Vector2(0f, 0f), Vector2.zero, 0f, arrowVisible: false);
             _popup.ArmContinue(Finish);
         }

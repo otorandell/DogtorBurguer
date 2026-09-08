@@ -27,6 +27,7 @@ namespace DogtorBurguer
         private GameObject _levelDown;
         private GameObject _levelUp;
         private bool _showRunButtons;
+        private Language _languageAtShow;
 
         /// <summary>Fired when the panel closes — the in-game opener resumes the run on this.</summary>
         public event System.Action OnClosed;
@@ -45,6 +46,7 @@ namespace DogtorBurguer
             if (_modal == null)
                 CreatePanel();
 
+            _languageAtShow = Loc.Current;
             RefreshTexts();
             _modal.Show();
         }
@@ -55,6 +57,11 @@ namespace DogtorBurguer
 
             _modal.Hide();
             OnClosed?.Invoke();
+
+            // Menu texts are built once at scene load — a language change applies to them by
+            // reloading the menu when the panel closes (the panel itself relabels live).
+            if (!_showRunButtons && Loc.Current != _languageAtShow)
+                SceneLoader.LoadMainMenu();
         }
 
         private void CreatePanel()

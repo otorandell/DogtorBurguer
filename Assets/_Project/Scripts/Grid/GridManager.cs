@@ -99,7 +99,7 @@ namespace DogtorBurguer
                     Vector3 pos = ingredient.transform.position;
                     column.RemoveIngredient(ingredient);
                     ingredient.DestroyWithFlash();
-                    FloatingText.Spawn(pos, "Too bad!", UIStyles.TEXT_TOO_BAD, UIStyles.WORLD_FLOATING_TEXT_SIZE);
+                    FloatingText.Spawn(pos, Loc.Get(LocKey.TooBad), UIStyles.TEXT_TOO_BAD, UIStyles.WORLD_FLOATING_TEXT_SIZE);
                 }
                 return;
             }
@@ -126,7 +126,7 @@ namespace DogtorBurguer
             {
                 if (result.IsBunMatch)
                 {
-                    FloatingText.Spawn(result.EffectPosition, "Too bad!", UIStyles.TEXT_TOO_BAD, UIStyles.WORLD_FLOATING_TEXT_SIZE);
+                    FloatingText.Spawn(result.EffectPosition, Loc.Get(LocKey.TooBad), UIStyles.TEXT_TOO_BAD, UIStyles.WORLD_FLOATING_TEXT_SIZE);
                 }
                 else
                 {
@@ -193,7 +193,7 @@ namespace DogtorBurguer
             bool isMatch = BurgerChallenge.Instance != null &&
                 BurgerChallenge.Instance.IsOrderMatch(data.IngredientTypes, data.IngredientCount);
             if (isMatch)
-                displayName = "Order Complete!";
+                displayName = Loc.Get(LocKey.OrderComplete);
 
             // Final score computed HERE (2026-09-05): base × the global challenge multiplier,
             // ×3 more when it fills the Special Order. Every listener gets the final number —

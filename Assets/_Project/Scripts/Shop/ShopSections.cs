@@ -20,7 +20,7 @@ namespace DogtorBurguer
         public static void BuildAll(RectTransform content, ShopScreen screen)
         {
             BuildSupportBanner(content, screen);
-            BuildSkinRow(content, screen, "DOGTOR SKINS", ShopCatalog.ChefSkins());
+            BuildSkinRow(content, screen, Loc.Get(LocKey.ShopDogtorSkins), ShopCatalog.ChefSkins());
             BuildIngredientSkins(content, screen);
             BuildPowerUps(content, screen);
             BuildStarPacks(content, screen);
@@ -40,13 +40,13 @@ namespace DogtorBurguer
             offerBox.gameObject.AddComponent<Button>().onClick.AddListener(
                 () => StorePurchase(screen, MonetizationConfig.REMOVE_ADS_STORE_ID, offerBox.transform));
 
-            TextMeshProUGUI title = UIFactory.CreateText(row, "REMOVE ADS", Vector2.zero,
+            TextMeshProUGUI title = UIFactory.CreateText(row, Loc.Get(LocKey.ShopRemoveAds), Vector2.zero,
                 UIStyles.SHOP_BANNER_TITLE_RECT, UIStyles.SHOP_BANNER_TITLE_SIZE, FontStyles.Bold);
             ShopWidgets.StyleAccent(title);
             title.alignment = TextAlignmentOptions.Left;
             ShopWidgets.AnchorLeft(title.rectTransform, UIStyles.SHOP_BANNER_TITLE_POS);
 
-            TextMeshProUGUI tag = UIFactory.CreateText(row, "REWARD ADS STILL AVAILABLE", Vector2.zero,
+            TextMeshProUGUI tag = UIFactory.CreateText(row, Loc.Get(LocKey.ShopRewardAds), Vector2.zero,
                 UIStyles.SHOP_BANNER_TAG_RECT, UIStyles.SHOP_BANNER_TAG_SIZE, FontStyles.Bold,
                 UIStyles.TOPBAR_NUMBER_COLOR, TextAlignmentOptions.Left);
             ShopWidgets.AnchorLeft(tag.rectTransform, UIStyles.SHOP_BANNER_TAG_POS);
@@ -78,12 +78,12 @@ namespace DogtorBurguer
             Sprite dotArt = UiArt.Load("ui_consumable_num");
             Image dot = UIFactory.CreateImage(pill.transform, "OneTimeTag", dotArt, new Vector2(1f, 1f),
                 UIStyles.SHOP_BANNER_DOT_POS, UIFactory.SizeByHeight(dotArt, UIStyles.SHOP_BANNER_DOT_H));
-            TextMeshProUGUI dotText = UIFactory.CreateText(dot.transform, "ONE\nTIME\nBUY", Vector2.zero,
+            TextMeshProUGUI dotText = UIFactory.CreateText(dot.transform, Loc.Get(LocKey.ShopOneTimeBuy), Vector2.zero,
                 dot.rectTransform.sizeDelta, UIStyles.SHOP_BANNER_DOT_TEXT, FontStyles.Bold);
             UIFactory.StyleHudText(dotText);
 
             Image thanksBox = ShopWidgets.CreateBox(content, "ThankYou", UIStyles.SHOP_BANNER_H);
-            TextMeshProUGUI thanksText = UIFactory.CreateText(thanksBox.transform, "THANK YOU FOR\nSUPPORTING US!", Vector2.zero,
+            TextMeshProUGUI thanksText = UIFactory.CreateText(thanksBox.transform, Loc.Get(LocKey.ShopThankYou), Vector2.zero,
                 new Vector2(UIStyles.SHOP_CONTENT_W, UIStyles.SHOP_BANNER_H) - UIStyles.SHOP_BANNER_TEXT_INSET,
                 UIStyles.SHOP_BANNER_TEXT_SIZE, FontStyles.Bold);
             ShopWidgets.StyleAccent(thanksText);
@@ -115,7 +115,7 @@ namespace DogtorBurguer
             List<(string Label, List<Skin> Skins)> rows = ShopCatalog.IngredientSkinRows();
             if (rows.Count == 0) return;
 
-            ShopWidgets.CreateSectionTitle(content, "INGREDIENT SKINS");
+            ShopWidgets.CreateSectionTitle(content, Loc.Get(LocKey.ShopIngredientSkins));
             // Per-type sub-labels dropped 2026-09-05 (Oscar) — the previews say what each row is.
             foreach ((string _, List<Skin> skins) in rows)
             {
@@ -131,7 +131,7 @@ namespace DogtorBurguer
         private static void BuildPowerUps(RectTransform content, ShopScreen screen)
         {
             // The plus-box deep link jumps the page scroll to this title (ShopScreen).
-            screen.PowerUpsAnchor = ShopWidgets.CreateSectionTitle(content, "POWER-UPS").rectTransform;
+            screen.PowerUpsAnchor = ShopWidgets.CreateSectionTitle(content, Loc.Get(LocKey.PowerUps)).rectTransform;
 
             RectTransform grid = ShopWidgets.CreateGrid(content, ShopWidgets.CellHeight(false, ShopWidgets.ItemBoxArt));
             foreach (ConsumablePack pack in MonetizationConfig.CONSUMABLE_PACKS)
@@ -188,7 +188,7 @@ namespace DogtorBurguer
             UIFactory.StyleHudText(qty);
             ShopWidgets.AnchorLeft(qty.rectTransform, UIStyles.SHOP_BUNDLE_QTY_POS);
 
-            TextMeshProUGUI name = UIFactory.CreateText(row, "PRO COOK PACK", Vector2.zero,
+            TextMeshProUGUI name = UIFactory.CreateText(row, Loc.Get(LocKey.ShopProCookPack), Vector2.zero,
                 UIStyles.SHOP_BUNDLE_NAME_RECT, UIStyles.SHOP_BUNDLE_NAME_SIZE, FontStyles.Bold);
             ShopWidgets.StyleAccent(name);
             RectTransform nameRect = name.rectTransform;
@@ -211,7 +211,7 @@ namespace DogtorBurguer
         // dialog — the one place the shop asks "are you sure". Pack art by ladder position.
         private static void BuildStarPacks(RectTransform content, ShopScreen screen)
         {
-            ShopWidgets.CreateSectionTitle(content, "STARS");
+            ShopWidgets.CreateSectionTitle(content, Loc.Get(LocKey.ShopStars));
             RectTransform grid = ShopWidgets.CreateGrid(content, ShopWidgets.CellHeight(true, ShopWidgets.ItemBoxArt));
             StarProduct[] products = MonetizationConfig.STAR_PRODUCTS;
             for (int i = 0; i < products.Length; i++)
@@ -234,7 +234,7 @@ namespace DogtorBurguer
         // App Store's mandatory Restore Purchases sits under the grid.
         private static void BuildGemPacks(RectTransform content, ShopScreen screen)
         {
-            ShopWidgets.CreateSectionTitle(content, "GEMS");
+            ShopWidgets.CreateSectionTitle(content, Loc.Get(LocKey.ShopGems));
             RectTransform grid = ShopWidgets.CreateGrid(content, ShopWidgets.CellHeight(true, ShopWidgets.ItemBoxArt));
 
             ShopCell adCell = ShopWidgets.CreateCell(grid, "Gems_Ad", MonetizationConfig.GEM_REWARD_AD.ToString(),
@@ -256,7 +256,7 @@ namespace DogtorBurguer
             // icon) never matched the other pills however it was sized; unused since 2026-09-05.
             // The label tracks live rewarded availability (an ad may finish loading while the
             // shop is open) and the daily cap (TOMORROW! once spent).
-            TextMeshProUGUI watchLabel = UIFactory.CreateText(adCell.Pill.transform, "WATCH AD",
+            TextMeshProUGUI watchLabel = UIFactory.CreateText(adCell.Pill.transform, Loc.Get(LocKey.ShopWatchAd),
                 UIStyles.SHOP_PILL_LABEL_NUDGE,
                 new Vector2(UIStyles.SHOP_CELL_PILL_W - 14f, 32f),
                 UIStyles.SHOP_PILL_TEXT_SIZE, FontStyles.Bold);
@@ -266,7 +266,7 @@ namespace DogtorBurguer
             {
                 bool capped = GemAdsToday() >= MonetizationConfig.GEM_AD_DAILY_CAP;
                 bool available = !capped && AdManager.Instance != null && AdManager.Instance.IsRewardedAvailable;
-                string label = capped ? "TOMORROW!" : available ? "WATCH AD" : "LOADING...";
+                string label = Loc.Get(capped ? LocKey.ShopTomorrow : available ? LocKey.ShopWatchAd : LocKey.ShopLoading);
                 if (adCell.Button.interactable == available && watchLabel.text == label) return;
                 adCell.Button.interactable = available;
                 adCell.Pill.interactable = available;
@@ -288,7 +288,7 @@ namespace DogtorBurguer
             // The App Store requires a user-facing restore button; everywhere else (Google Play,
             // the editor) the store restores automatically at init and IAP 5 rejects the call
             // ("not a supported platform for the restore button"), so the row is iOS-only.
-            TextMeshProUGUI restore = UIFactory.CreateText(content, "Restore Purchases", Vector2.zero, Vector2.zero,
+            TextMeshProUGUI restore = UIFactory.CreateText(content, Loc.Get(LocKey.ShopRestorePurchases), Vector2.zero, Vector2.zero,
                 UIStyles.SHOP_SUBTITLE_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR);
             restore.gameObject.AddComponent<LayoutElement>().preferredHeight = UIStyles.SHOP_RESTORE_H;
             restore.raycastTarget = true;

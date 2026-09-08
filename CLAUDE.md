@@ -588,8 +588,11 @@ table carries every key. `SaveDataManager.Language` persists the choice; first r
 auto-detects from `Application.systemLanguage` (unsupported -> English). The menu Settings'
 4th row cycles the language by native name (menu-only, like START — a mid-run swap would
 leave built HUD text stale); Settings sits on its own 4-row sheet `ui_settings_panel`
-(How to Play keeps `ui_modal_panel`). **STATUS: core + Settings pilot wired; PENDING: the
-extraction pass (every UI string literal -> LocKey) and filling the 6 non-English tables.**
+(How to Play keeps `ui_modal_panel`). **STATUS: extraction COMPLETE 2026-09-08 — every
+player-facing string is a LocKey (~100 keys) and all 7 tables are filled (machine-drafted;
+Oscar proofreads ES). Skin display names (on Skin assets) remain English. Menu texts rebuild
+via a menu-scene reload when Settings closes after a language change; HowTo/Credits resolve
+Loc per open (properties, not cached statics).**
 All translations render ALL CAPS (Panton Black Caps). Store-listing translations are a
 separate Play Console task.
 

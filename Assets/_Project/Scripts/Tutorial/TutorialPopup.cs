@@ -74,7 +74,7 @@ namespace DogtorBurguer
                 cb?.Invoke();
             });
             _continueOverlay = overlay;
-            _continueLabel = UIFactory.CreateText(_box, "TAP TO CONTINUE",
+            _continueLabel = UIFactory.CreateText(_box, Loc.Get(LocKey.TutTapToContinue),
                 new Vector2(0f, UIStyles.TUT_CONTINUE_Y), new Vector2(UIStyles.TUT_BOX_W, 26f),
                 UIStyles.TUT_CONTINUE_SIZE, FontStyles.Bold);
             ShopWidgets.StyleAccent(_continueLabel);
@@ -82,7 +82,7 @@ namespace DogtorBurguer
             _continueLabel.gameObject.SetActive(false);
 
             // SKIP — small, always available, top-left (clear of the pills and the order card).
-            TextMeshProUGUI skip = UIFactory.CreateText(UIFactory.SafeRoot(_canvas), "SKIP", Vector2.zero,
+            TextMeshProUGUI skip = UIFactory.CreateText(UIFactory.SafeRoot(_canvas), Loc.Get(LocKey.TutSkip), Vector2.zero,
                 new Vector2(90f, 36f), UIStyles.TUT_SKIP_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(skip);
             RectTransform skipRect = skip.rectTransform;

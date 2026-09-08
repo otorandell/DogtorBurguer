@@ -153,17 +153,17 @@ namespace DogtorBurguer
             Transform root = card.transform;
 
             ShopWidgets.CreateIconLine(root, "Line1", new Vector2(0f, UIStyles.SHOP_CONFIRM_LINE1_Y), UIStyles.SHOP_CONFIRM_LINE_RECT,
-                $"Buy {amount}", UIStyles.SHOP_CONFIRM_TEXT_SIZE, amountIcon, UIStyles.SHOP_CONFIRM_ICON_H);
+                Loc.Format(LocKey.ShopBuyAmount, amount), UIStyles.SHOP_CONFIRM_TEXT_SIZE, amountIcon, UIStyles.SHOP_CONFIRM_ICON_H);
             ShopWidgets.CreateIconLine(root, "Line2", new Vector2(0f, UIStyles.SHOP_CONFIRM_LINE2_Y), UIStyles.SHOP_CONFIRM_LINE_RECT,
-                $"for {cost}", UIStyles.SHOP_CONFIRM_TEXT_SIZE, costIcon, UIStyles.SHOP_CONFIRM_ICON_H);
+                Loc.Format(LocKey.ShopForCost, cost), UIStyles.SHOP_CONFIRM_TEXT_SIZE, costIcon, UIStyles.SHOP_CONFIRM_ICON_H);
 
             Button buy = ShopWidgets.CreatePill(root, "Buy", "ui_btn_confirm_buy", Center,
                 new Vector2(-UIStyles.SHOP_CONFIRM_BTN_X, UIStyles.SHOP_CONFIRM_BTN_Y), UIStyles.SHOP_CONFIRM_BTN_W,
                 () => { CloseDialog(); onConfirm(); });
-            ShopWidgets.SetPillLabel(buy, "BUY", null);
+            ShopWidgets.SetPillLabel(buy, Loc.Get(LocKey.ShopBuy), null);
             Button cancel = ShopWidgets.CreatePill(root, "Cancel", "ui_btn_confirm_cancel", Center,
                 new Vector2(UIStyles.SHOP_CONFIRM_BTN_X, UIStyles.SHOP_CONFIRM_BTN_Y), UIStyles.SHOP_CONFIRM_BTN_W, CloseDialog);
-            ShopWidgets.SetPillLabel(cancel, "CANCEL", null);
+            ShopWidgets.SetPillLabel(cancel, Loc.Get(LocKey.ShopCancel), null);
         }
 
         private void CloseDialog()
@@ -227,7 +227,7 @@ namespace DogtorBurguer
 
             // The awning title — overlaid since 2026-09-08 (the sheet is the no-text version now,
             // so the word follows the game font and, later, the language).
-            TextMeshProUGUI title = UIFactory.CreateText(_page, "SHOP", UIStyles.SHOP_TITLE_POS,
+            TextMeshProUGUI title = UIFactory.CreateText(_page, Loc.Get(LocKey.ShopTitle), UIStyles.SHOP_TITLE_POS,
                 new Vector2(460f, 120f), UIStyles.SHOP_TITLE_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(title);
 

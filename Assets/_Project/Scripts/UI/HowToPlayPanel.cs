@@ -15,45 +15,19 @@ namespace DogtorBurguer
     /// </summary>
     public class HowToPlayPanel : MonoBehaviour
     {
-        // One (header, bullets) per page. Trial-font safe: letters, digits and . , ; : - ! ?
-        // only (no apostrophes or symbols — see CLAUDE.md trial-font note).
-        private static readonly (string Header, string[] Bullets)[] Pages =
+        // One (header, bullets) per page — resolved through Loc on every access, so a
+        // language change is live on the next open (a cached static array would go stale).
+        private static (string Header, string[] Bullets)[] Pages => new[]
         {
-            ("CONTROLS", new[]
-            {
-                "- Swipe left or right to move the chef.",
-                "- Tap the chef to rotate his plates.",
-                "- Tap a falling ingredient to drop it faster.",
-                "- Tap a preview arrow to spawn it right away.",
-            }),
-            ("MATCHING", new[]
-            {
-                "- Two stacked ingredients of the same type pop and score points.",
-                "- Keep the columns low: if one overflows, the run ends!",
-            }),
-            ("BURGERS", new[]
-            {
-                "- Open with a bottom bun.",
-                "- Stack any ingredients on top.",
-                "- Close with a top bun to serve the burger.",
-                "- Bigger burgers score more!",
-            }),
-            ("SPECIAL ORDERS", new[]
-            {
-                "- Serve a burger that fits the shown order.",
-                "- Orders pay stars and raise your multiplier.",
-            }),
-            ("POWER-UPS", new[]
-            {
-                "- The Burger Fairy brings gems, stars and power-ups. Tap her before she leaves!",
-                "- Drag a power-up from its slot onto a column to use it.",
-            }),
-            ("POWER-UPS", new[]
-            {
-                "- Ketchup clears its column.",
-                "- Mustard sweeps the top two ingredient types of its column from the whole board.",
-                "- Skewer pushes a bottom bun down to the base of its column.",
-            }),
+            (Loc.Get(LocKey.HowToControls), new[] { Loc.Get(LocKey.HowToControls1),
+                Loc.Get(LocKey.HowToControls2), Loc.Get(LocKey.HowToControls3), Loc.Get(LocKey.HowToControls4) }),
+            (Loc.Get(LocKey.HowToMatching), new[] { Loc.Get(LocKey.HowToMatching1), Loc.Get(LocKey.HowToMatching2) }),
+            (Loc.Get(LocKey.HowToBurgers), new[] { Loc.Get(LocKey.HowToBurgers1),
+                Loc.Get(LocKey.HowToBurgers2), Loc.Get(LocKey.HowToBurgers3), Loc.Get(LocKey.HowToBurgers4) }),
+            (Loc.Get(LocKey.HowToOrders), new[] { Loc.Get(LocKey.HowToOrders1), Loc.Get(LocKey.HowToOrders2) }),
+            (Loc.Get(LocKey.PowerUps), new[] { Loc.Get(LocKey.HowToPowerUpsA1), Loc.Get(LocKey.HowToPowerUpsA2) }),
+            (Loc.Get(LocKey.PowerUps), new[] { Loc.Get(LocKey.HowToPowerUpsB1),
+                Loc.Get(LocKey.HowToPowerUpsB2), Loc.Get(LocKey.HowToPowerUpsB3) }),
         };
 
         private const string PagerSlash = "/"; // plain since the Baloo swap (the trial slivered it)
@@ -91,7 +65,7 @@ namespace DogtorBurguer
 
         private void CreatePanel()
         {
-            _modal = ModalPanel.Build(_canvas, "HOW TO PLAY", "ui_modal_panel", Vector2.zero, Vector2.zero, Hide);
+            _modal = ModalPanel.Build(_canvas, Loc.Get(LocKey.HowToTitle), "ui_modal_panel", Vector2.zero, Vector2.zero, Hide);
 
             _header = UIFactory.CreateText(_modal.Panel, "", new Vector2(0f, UIStyles.HOWTO_HEADER_Y),
                 new Vector2(UIStyles.HOWTO_LINE_W, 40f), UIStyles.HOWTO_HEADER_SIZE, FontStyles.Bold);
@@ -116,7 +90,7 @@ namespace DogtorBurguer
                     TutorialMode.Pending = true;
                     SceneLoader.LoadGame();
                 }, UIStyles.HOWTO_TUTORIAL_H);
-            ShopWidgets.SetPillLabel(tut, "PLAY TUTORIAL", null);
+            ShopWidgets.SetPillLabel(tut, Loc.Get(LocKey.HowToPlayTutorial), null);
         }
 
         // The bullet list: a top-anchored vertical layout that measures each bullet's wrapped
