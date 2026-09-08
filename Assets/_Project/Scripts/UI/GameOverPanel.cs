@@ -57,9 +57,9 @@ namespace DogtorBurguer
                 UIStyles.GAMEOVER_TITLE_RECT, UIStyles.GAMEOVER_TITLE_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(title);
 
-            _levelNumber = StatCard.Build(root, "LevelCard", "Level", Center,
+            _levelNumber = StatCard.Build(root, "LevelCard", Loc.Get(LocKey.StatLevel), Center,
                 UIStyles.GAMEOVER_LEVEL_CARD_POS, UIStyles.GAMEOVER_CARD_SCALE);
-            _scoreNumber = StatCard.Build(root, "ScoreCard", "Score", Center,
+            _scoreNumber = StatCard.Build(root, "ScoreCard", Loc.Get(LocKey.StatScore), Center,
                 UIStyles.GAMEOVER_SCORE_CARD_POS, UIStyles.GAMEOVER_CARD_SCALE);
 
             BuildContinueRow(root);

@@ -147,6 +147,7 @@ namespace DogtorBurguer
         public const float SPECIAL_BANNER_STRETCH_X = 1.15f;                  // widen the red banner past native aspect (deliberate)
         public static readonly Vector2 SPECIAL_BANNER_OFFSET = new(-40f, 78f);// banner offset within the card (overhangs top-left)
         public const float SPECIAL_BANNER_LABEL_SIZE = 18f;                   // "SPECIAL ORDER" TMP (auto-size max)
+        public const float SPECIAL_BANNER_LABEL_W_FRAC = 0.8f;                       // label rect vs the banner art (its canvas has transparent margins)
         public const float SPECIAL_BANNER_LABEL_SIZE_MIN = 7f;                // auto-size floor
         public static readonly Vector2 SPECIAL_BANNER_LABEL_OFFSET = new(6f, 5f); // right + up a touch to sit in the bubble
         // Stack sprites (ingredients/buns/plate) are sized from their WORLD dimensions (pixel rect /

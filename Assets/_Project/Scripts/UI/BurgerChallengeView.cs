@@ -69,8 +69,11 @@ namespace DogtorBurguer
             Image bannerImg = UIFactory.CreateImage(_card, "Banner", banner, new Vector2(0.5f, 0.5f),
                 UIStyles.SPECIAL_BANNER_OFFSET, bannerSize);
 
+            // The label rect is the VISIBLE red band, not the art canvas (transparent margins) —
+            // long translations (SPEZIALBESTELLUNG) auto-shrink against the band width.
+            Vector2 bannerLabelRect = new(bannerSize.x * UIStyles.SPECIAL_BANNER_LABEL_W_FRAC, bannerSize.y);
             TextMeshProUGUI bannerLabel = UIFactory.CreateText(bannerImg.transform, Loc.Get(LocKey.SpecialOrder),
-                UIStyles.SPECIAL_BANNER_LABEL_OFFSET, bannerSize, UIStyles.SPECIAL_BANNER_LABEL_SIZE,
+                UIStyles.SPECIAL_BANNER_LABEL_OFFSET, bannerLabelRect, UIStyles.SPECIAL_BANNER_LABEL_SIZE,
                 FontStyles.Bold);
             UIFactory.StyleHudText(bannerLabel);
             bannerLabel.textWrappingMode = TextWrappingModes.NoWrap;

@@ -109,5 +109,7 @@
         ShopCancel,
         ShopEquipped,
         ShopEquip,
+        StatLevel,
+        StatScore,
     }
 }

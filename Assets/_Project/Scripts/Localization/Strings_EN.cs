@@ -110,6 +110,8 @@ namespace DogtorBurguer
             { LocKey.ShopCancel, "CANCEL" },
             { LocKey.ShopEquipped, "EQUIPPED" },
             { LocKey.ShopEquip, "EQUIP" },
+            { LocKey.StatLevel, "Level" },
+            { LocKey.StatScore, "Score" },
         };
     }
 }

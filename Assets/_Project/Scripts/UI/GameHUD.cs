@@ -29,8 +29,8 @@ namespace DogtorBurguer
             Transform safe = UIFactory.SafeRoot(_canvas); // top-anchored chrome ducks the notch
             TopBar.Build(safe, OnHelpClicked, OnConfigClicked);
             Vector2 topLeft = new(0f, 1f);
-            _levelNumber = StatCard.Build(safe, "LevelPanel", "Level", topLeft, UIStyles.HUD_LEVEL_PANEL_POS);
-            _scoreNumber = StatCard.Build(safe, "ScorePanel", "Score", topLeft, UIStyles.HUD_SCORE_PANEL_POS);
+            _levelNumber = StatCard.Build(safe, "LevelPanel", Loc.Get(LocKey.StatLevel), topLeft, UIStyles.HUD_LEVEL_PANEL_POS);
+            _scoreNumber = StatCard.Build(safe, "ScorePanel", Loc.Get(LocKey.StatScore), topLeft, UIStyles.HUD_SCORE_PANEL_POS);
         }
 
         // In-game settings: same pause pattern as the shop — pause a running game, show the
