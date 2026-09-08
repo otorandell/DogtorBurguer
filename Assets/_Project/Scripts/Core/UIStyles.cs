@@ -34,7 +34,7 @@ namespace DogtorBurguer
         // (the original 12-padding atlas caps the whole effect at ~1px per 30px of text).
         public const float TEXT_SHADOW_OFFSET_X = 0f;
         public const float TEXT_SHADOW_OFFSET_Y = -0.5f;                                // straight down; big values read as the dark layers sagging
-        public const float TEXT_SHADOW_DILATE = 0.8f;                                   // thickens the black outer ring (fill + brown stroke + THIS)
+        public const float TEXT_SHADOW_DILATE = 1f;                                     // thickens the black outer ring (fill + brown stroke + THIS)
         public const float TEXT_SHADOW_SOFTNESS = 0f;                                   // hard edge — a sticker, not a blur
         #endregion
 
