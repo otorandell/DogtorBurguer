@@ -466,7 +466,7 @@ namespace DogtorBurguer
         public const float SHOP_PILL_ICON_Y_NUDGE = -2f;                        // icon down vs the text (digits sit high above the baseline)
         public static readonly Vector2 SHOP_PILL_LABEL_NUDGE = new(0f, 4f);    // centered; lifted off the art's baked bottom shadow
         public const float SHOP_WATCH_LABEL_MIN = 8f;                           // WATCH / LOADING... / TOMORROW! shrink floor on the FREE gems pill
-        public const float SHOP_SKIN_CHEF_H = 118f;                             // chef previews fill the box (no plate)
+        public const float SHOP_SKIN_CHEF_H = 140f;                             // chef previews fill the box (no plate) — bumped 118 -> 140 (Oscar, 2026-09-09)
         public const float SHOP_SKIN_CHEF_Y = 2f;
         public const float SHOP_SKIN_PREVIEW_H = 66f;                           // ingredient previews sit ON the plate
         public const float SHOP_SKIN_PREVIEW_MAX_W = 92f;

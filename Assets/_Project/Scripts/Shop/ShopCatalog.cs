@@ -55,7 +55,10 @@ namespace DogtorBurguer
             _ => slot.ToString()
         };
 
-        // All skins for one slot, default first (the "classic" cell), then cheapest to priciest.
+        // All skins for one slot. Order (Oscar, 2026-09-08): the classic default anchors the
+        // row, then the STAR skins with the golden/end-game ones LEFTMOST (star cost
+        // descending — the aspirational stuff greets the scroll), then the gem skins cheapest
+        // first. (The old cheap-to-pricey sort put gem skins, star cost 0, before every star skin.)
         private static List<Skin> SkinsForSlot(SkinSlot slot)
         {
             List<Skin> ofSlot = new();
@@ -63,9 +66,14 @@ namespace DogtorBurguer
                 if (skin.Slot == slot)
                     ofSlot.Add(skin);
 
-            ofSlot.Sort((a, b) => a.IsDefault != b.IsDefault
-                ? (a.IsDefault ? -1 : 1)
-                : a.StarCost.CompareTo(b.StarCost));
+            ofSlot.Sort((a, b) =>
+            {
+                if (a.IsDefault != b.IsDefault) return a.IsDefault ? -1 : 1;
+                bool aStar = a.Unlock == UnlockMethod.Stars;
+                bool bStar = b.Unlock == UnlockMethod.Stars;
+                if (aStar != bStar) return aStar ? -1 : 1;
+                return aStar ? b.StarCost.CompareTo(a.StarCost) : a.GemCost.CompareTo(b.GemCost);
+            });
             return ofSlot;
         }
 
