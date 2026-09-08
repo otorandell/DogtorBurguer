@@ -9,14 +9,14 @@ namespace DogtorBurguer
         // only; the excitement marks are baked into the strings (! -> !! -> !!! at the top).
         private static readonly string[] NameBySize =
         {
-            "Good Burger!",       // 1
-            "Tasty Burger!",      // 2
-            "Great Burger!",      // 3
-            "Delicious Burger!",  // 4
-            "Awesome Burger!!",   // 5
-            "Incredible Burger!!",// 6
-            "Exquisite Burger!!", // 7
-            "Gourmet Burger!!",   // 8
+            "Good!",       // 1
+            "Tasty!",      // 2
+            "Great!",      // 3
+            "Delicious!",  // 4
+            "Awesome!!",   // 5
+            "Incredible!!",// 6
+            "Exquisite!!", // 7
+            "Gourmet!!",   // 8
         };
 
         public static string Generate(int ingredientCount)
