@@ -171,9 +171,9 @@ on the menu. Tick it for tester APKs (`Docs/build-and-share.md`), untick for rel
 the shop — pauses a running game, panel on its own canvas (`SETTINGS_CANVAS_SORT` 110, above
 game-over, below shop), resumes via `SettingsPanel.OnClosed`. Sound/control-mode apply live
 mid-run; Start Level applies next run. The in-game variant (`Initialize(canvas, showRunButtons:
-true)`) fills the third row with a full-width **Quit to Menu** (the Restart half was dropped
-2026-09-05 — game over already offers Retry); quitting keeps live-earned order stars but
-forfeits the end-of-run score payout.
+true)`) fills rows 3+4 with **Restart** (back 2026-09-08 — the 4-row sheet has the space; ad-free,
+interstitials stay exclusive to game-over Retry) and **Quit to Menu**; both keep live-earned
+order stars but forfeit the end-of-run score payout.
 
 ### Difficulty (DifficultyManager)
 - 20 levels scaling fall speed, active ingredient (type) count, and triple-wave chance.
@@ -899,8 +899,8 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   on the modal chrome: wide blue rows (`ui_btn_blue_wide`, sized by width, HUD-palette auto-fit
   labels) stacked down the body: **Sound: ON/OFF**, **Controls: Drag/Tap**, then the third row is
   the **START: LVL N** level row in the menu (see Controls; replaced the Mode toggle 2026-09-07)
-  or the full-width
-  **Quit to Menu** in-game (Restart dropped 2026-09-05 — game over already offers Retry). Both openers (menu gear, in-game
+  or, in-game,
+  **Restart** (returned 2026-09-08, ad-free) + **Quit to Menu**. Both openers (menu gear, in-game
   gear) share the one class. Knobs: `UIStyles.SETTINGS_*` (eyeball defaults — tune live). Deliberate gaps:
   the mock's third **"Language: ENG"** row is **not built** — there is no localization system,
   and a button that does nothing is worse than none; add it as one `CreateRowButton` call when
