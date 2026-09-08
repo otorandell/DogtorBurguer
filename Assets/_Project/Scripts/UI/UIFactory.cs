@@ -248,7 +248,8 @@ namespace DogtorBurguer
             // one character per line. Explicit newlines still break lines under NoWrap, so only
             // genuinely auto-wrapping paragraphs need wrap = true.
             tmp.textWrappingMode = wrap ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;
-            // The weight thinning (TEXT_FACE_DILATE) must reach PLAIN texts too — a cached
+            tmp.characterSpacing = UIStyles.TEXT_CHARACTER_SPACING;
+            // The weight trim (TEXT_FACE_DILATE) must reach PLAIN texts too — a cached
             // dilate-only clone of the font material. Styled texts replace it a moment later via
             // StyleFillAndBorder, which bakes the same dilate into its own cached materials.
             tmp.fontSharedMaterial = PlainMaterial(tmp.font.material);

@@ -36,6 +36,7 @@ namespace DogtorBurguer
             tmp.color = color;
             tmp.alignment = alignment;
             tmp.fontStyle = fontStyle;
+            tmp.characterSpacing = UIStyles.TEXT_CHARACTER_SPACING;
             tmp.textWrappingMode = TextWrappingModes.NoWrap;
             tmp.overflowMode = TextOverflowModes.Overflow;
             tmp.sortingOrder = sortingOrder;
