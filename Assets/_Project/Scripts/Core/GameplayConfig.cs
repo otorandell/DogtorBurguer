@@ -87,11 +87,10 @@ namespace DogtorBurguer
         public const int MAX_LEVEL = 20;
         public const int KILLER_LEVEL = 21; // Tetris-style kill screen, above the normal curve.
         public const int STARTING_INGREDIENT_COUNT = 4;
-        // Wave grace (2026-09-08): EVERY wave is followed by this many fall-steps of pause
-        // before the next one spawns — a readable beat that also stops tall-stack cascades.
-        // Scales with the fall step, so it self-shortens with level; the preview ghosts blink
-        // FAST through the wait (the "incoming" cue).
-        public const float SPAWN_GRACE_FALL_STEPS = 3f;
+        // Wave grace (2026-09-08): EVERY wave is followed by this flat pause before the next
+        // one spawns — a readable beat that also stops tall-stack cascades. The preview ghosts
+        // blink FAST through the wait (the "incoming" cue).
+        public const float SPAWN_GRACE_SECONDS = 1f;
         public const int MAX_INGREDIENT_COUNT = 8;
 
         // Highest level selectable from the Settings START level row (a player feature since

@@ -206,9 +206,9 @@ forfeits the end-of-run score payout.
   871 placements. ⚠️ The flat 42s-per-level budget is **DROPPED as a design rule** (Oscar,
   2026-09-08): later levels SHOULD take longer to beat — the current threshold numbers are
   approved as-is; `scratchpad/level_time.py` is an estimation TOOL only, never a target.
-  **Wave grace**: EVERY wave is followed by `SPAWN_GRACE_FALL_STEPS` (3) fall-steps of pause —
-  a readable beat that also stops tall-stack cascades, self-shortening with level; the preview
-  ghosts blink FAST through the wait (`PREVIEW_FADE_DURATION_URGENT`, `SetUrgent`).
+  **Wave grace**: EVERY wave is followed by a flat `SPAWN_GRACE_SECONDS` (1s) pause — a
+  readable beat that also stops tall-stack cascades; the preview ghosts blink FAST through the
+  wait (`PREVIEW_FADE_DURATION_URGENT` 0.09s, `SetUrgent`).
 
 ### Burger Challenge (BurgerChallenge) — "Special Orders"
 - **Redesigned 2026-09-05 (Oscar), table-driven 2026-09-06** — every order is an exact-count

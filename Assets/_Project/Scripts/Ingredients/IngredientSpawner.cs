@@ -61,11 +61,10 @@ namespace DogtorBurguer
                     _previewManager.RevealCleared(ColumnsWithPieceInPreviewZone());
                     if (AllCurrentWaveLanded())
                     {
-                        // Wave grace — ALWAYS a beat between a wave landing and the next one
-                        // (Oscar, 2026-09-08): a readable pause scaling with the fall step,
-                        // announced by the previews' fast blink.
+                        // Wave grace — ALWAYS a flat beat between a wave landing and the next
+                        // one (Oscar, 2026-09-08), announced by the previews' fast blink.
                         _state = SpawnerState.Delaying;
-                        _delayTimer = _fallStepDuration * GameplayConfig.SPAWN_GRACE_FALL_STEPS;
+                        _delayTimer = GameplayConfig.SPAWN_GRACE_SECONDS;
                         _previewManager.SetUrgent(true); // fast blink: incoming!
                     }
                     break;
