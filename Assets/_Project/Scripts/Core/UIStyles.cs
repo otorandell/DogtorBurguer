@@ -428,7 +428,7 @@ namespace DogtorBurguer
         public static readonly Vector2 SHOP_CLOSE_POS = new(192f, -47f);        // round X over the awning's corner (from top-center)
         public const float SHOP_CLOSE_H = 78f;
         public const float SHOP_TOPBAR_DROP = 141f;                             // the shared TopBar pills, moved down into the page
-        public static readonly Vector2 SHOP_TITLE_POS = new(0f, 412f);          // SHOP word centered on the awning roof — tune live
+        public static readonly Vector2 SHOP_TITLE_POS = new(0f, 400f);          // SHOP word centered on the awning roof — tune live
         public const float SHOP_TITLE_SIZE = 92f;
         public const float SHOP_TOPBAR_X_NUDGE = 40f;                           // …and nudged right to center the 3 pills (the bar recipe hugs the left)
         // Scroll viewport: the page body between the pills and the page bottom. Side inset + content
