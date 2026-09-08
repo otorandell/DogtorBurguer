@@ -112,8 +112,8 @@ namespace DogtorBurguer
         #region Stars — earning (the soft-currency faucet; sinks live in the Shop sections above)
         // Per completed Special Order: BASE + PER_LEVEL·(challengeLevel−1), awarded live.
         // A good run reaching challenge level 4 nets ~50 order stars; casual runs ~10-20.
-        public const int STARS_PER_ORDER_BASE = 3;
-        public const int STARS_PER_ORDER_PER_LEVEL = 2;
+        public const int STARS_PER_ORDER_BASE = 2;
+        public const int STARS_PER_ORDER_PER_LEVEL = 1;
         // End-of-run payout: 1 star per this much score (only score not yet paid out —
         // a continue extends the run without double-paying earlier score).
         public const int STAR_SCORE_DIVISOR = 500;
