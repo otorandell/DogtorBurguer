@@ -295,6 +295,15 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   StatCards, the order card, the consumable row, the menu TopBar + logo, the tutorial SKIP.
   Full-bleed page art (shop page, modal sheets, game over) stays on the canvas: drawing under a
   notch is fine, being tappable there is not. New edge-anchored UI must use SafeRoot.
+- **Checker letterbox (2026-09-08, `UI/ScreenFrame.cs`)**: the artist's red/white mosaic
+  (`ui_checker_border`, PPU 175 -> 0.4-world squares, FullRect mesh for Tiled draw) covers the
+  world revealed beyond the designed 9:16 window (inner rect: `DESIGN_ORTHO_SIZE` x its 9:16
+  width). The width-framing camera guarantees one surplus axis only — tall phones band top +
+  bottom (also hiding the chef art's cut-off bottom edge), tablets band left + right, 9:16 none.
+  Game scene only (created by `Background`; the menu bg center-crop fills any aspect).
+  `ScreenFrame.InnerScreenRect` feeds SafeAreaRoot, so the in-game HUD lays out INSIDE the
+  bands — a phone's HUD matches the editor 9:16 layout exactly. Sort `SORT_SCREEN_FRAME` (55):
+  over the chef/pieces, under popups + fairies (they still fly over the frame).
 
 ### Render Order Convention
 - The in-game HUD canvas is **Screen Space - Camera** (sorting order 50, via

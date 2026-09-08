@@ -20,6 +20,15 @@ namespace DogtorBurguer
         private void LateUpdate()
         {
             Rect safe = Screen.safeArea;
+
+            // The game scene's checker letterbox (ScreenFrame) narrows the window further:
+            // HUD chrome lays out inside the bands, matching the editor 9:16 layout exactly.
+            Rect frame = ScreenFrame.InnerScreenRect;
+            if (frame.width > 0f)
+                safe = Rect.MinMaxRect(
+                    Mathf.Max(safe.xMin, frame.xMin), Mathf.Max(safe.yMin, frame.yMin),
+                    Mathf.Min(safe.xMax, frame.xMax), Mathf.Min(safe.yMax, frame.yMax));
+
             if (safe == _applied) return;
             _applied = safe;
 

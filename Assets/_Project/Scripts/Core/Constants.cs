@@ -49,6 +49,7 @@ namespace DogtorBurguer
         // but below the challenge/preview/UI layers (60+).
         public const int SORT_PLATE = -2;
         public const int SORT_CHEF = 50;
+        public const int SORT_SCREEN_FRAME = 55; // checker letterbox: over the chef (50) so his cut edge tucks under, below popups/fairies
         public const int SORT_CHALLENGE_BASE = 60;
         public const int SORT_WAVE_PREVIEW = 90;                 // the arrow back-picture renders at −1 under it
         public const float PREVIEW_Y_OFFSET = 0.4f;              // ghosts sit this much below the grid top (room for the arrows)

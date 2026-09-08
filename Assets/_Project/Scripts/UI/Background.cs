@@ -25,6 +25,7 @@ namespace DogtorBurguer
             {
                 BuildRestaurant();
                 BuildGridCells();
+                gameObject.AddComponent<ScreenFrame>(); // checker letterbox outside the 9:16 window
             }
         }
 
