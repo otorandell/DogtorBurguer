@@ -1,4 +1,7 @@
-# Estimates seconds per level from the fall-speed curve, and derives thresholds for a time budget.
+# Estimates seconds per level from the fall-speed curve. NOTE (2026-09-08): the flat
+# time-per-level budget is NOT a design rule anymore — later levels should take longer to
+# beat (Oscar). Use this only to ESTIMATE; never paste flat-budget thresholds back without
+# asking. Model: every wave is also followed by SPAWN_GRACE_FALL_STEPS (3) of pause.
 # Model: a wave's pieces fall ~FALL_ROWS rows at fallStep each (+ the wave move), and a wave
 # places 2 + tripleChance pieces on average.
 fall = [0.45, 0.37, 0.33, 0.31, 0.28, 0.27, 0.25, 0.23, 0.22, 0.205,
@@ -9,7 +12,8 @@ FALL_ROWS = 9.0      # average rows a piece falls (spawn above row 13, stacks ~4
 WAVE_MOVE = 0.2
 
 def sec_per_placement(i):
-    return (FALL_ROWS * fall[i] + WAVE_MOVE) / (2 + triple[i])
+    GRACE_STEPS = 3.0  # always-on wave grace (2026-09-08)
+    return ((FALL_ROWS + GRACE_STEPS) * fall[i] + WAVE_MOVE) / (2 + triple[i])
 
 current = [0, 20, 44, 70, 98, 129, 162, 198, 237, 278, 323, 372, 424, 480, 540, 604, 673, 748, 829, 917]
 kill_cur = 1012
