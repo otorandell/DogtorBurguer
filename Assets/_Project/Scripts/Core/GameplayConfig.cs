@@ -64,7 +64,7 @@ namespace DogtorBurguer
         // is gentle and applies to ALL gameplay score.
         public const float CHALLENGE_MULT_STEP = 0.25f;               // global mult = 1 + step·(level−1): 1, 1.25, 1.5 …
         public const int CHALLENGE_MATCH_MULTIPLIER = 3;              // extra ×3 on the matched burger itself
-        public const int CHALLENGE_ORDERS_TO_LEVEL_CAP = 3;           // orders per mult level: (level+3)/2 capped here (2, 2, 3, 3, 3 …)
+        public const int CHALLENGE_ORDERS_TO_LEVEL_CAP = 2;           // orders per mult level: (level+3)/2 capped here — flat 2 every level (2026-09-08)
         public const int ORDER_MAX_SIZE = Constants.MAX_ROWS - 2;     // biggest physically possible burger (11): a full column minus its two buns
         #endregion
 
@@ -149,14 +149,14 @@ namespace DogtorBurguer
 
         #region Special Order Ladder (indexed by challenge level − 1, clamped at the last entry)
         // An order = an exact TOTAL size with NAMED ingredients among it (the rest are free
-        // mystery slots): one named ingredient while the free slots grow (L1 1, L2 1+1, L3 1+2),
-        // a second named only from level 4, a third from 7, then one more named every ~4 levels
-        // while the total grows every 2 (L6 5-2, L7 5-3, L8 6-3, L9 6-3 … — Oscar, 2026-09-06).
+        // mystery slots). Small recipes only (Oscar, 2026-09-08 — the old ladder grew to 11-7
+        // and was too hard): L1 one specific, L2-3 a specific + a free, L4-5 exactly-these-2,
+        // L6-8 two specifics + a free, L9+ exactly-these-3 — the final form.
         public static readonly int[] ORDER_SIZE_BY_LEVEL = {
-            1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 11, 11
+            1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
         };
         public static readonly int[] ORDER_NAMED_BY_LEVEL = {
-            1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 7
+            1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
         };
         #endregion
 

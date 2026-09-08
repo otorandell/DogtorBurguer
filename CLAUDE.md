@@ -215,10 +215,10 @@ forfeits the end-of-run score payout.
   recipe: a TOTAL size with NAMED ingredients among it, the rest free slots. Difficulty scales
   with the challenge (multiplier) level, never the game level, via two tables in
   `GameplayConfig` indexed `challengeLevel − 1`, clamped at the last entry:
-  - `ORDER_SIZE_BY_LEVEL` / `ORDER_NAMED_BY_LEVEL`: ONE named ingredient while the free slots
-    grow (L1: 1 → L2: 1+1 free → L3: 1+2), a second named only from L4, a third from L7, then
-    one more named every ~4 levels while the total grows every 2 (L6 5-2, L7 5-3, L8 6-3,
-    L9 6-3 … 11-7 by L21). Oscar's spec from the 2026-09-06 playtest.
+  - `ORDER_SIZE_BY_LEVEL` / `ORDER_NAMED_BY_LEVEL`: small recipes only (Oscar, 2026-09-08 —
+    the 2026-09-06 ladder grew to 11-7 and was too hard): L1 one specific, L2-3 a specific +
+    a free slot, L4-5 exactly-these-2, L6-8 two specifics + a free, L9+ exactly-these-3
+    (the final form; both tables clamp there).
   - Named picks go unique-first, duplicates once the pool runs out — the match is a multiset
     check. The burger must have EXACTLY the total count and include every named ingredient;
     ordering never matters. The card shows the whole recipe: named art + **one ghosted "?"
@@ -253,7 +253,7 @@ forfeits the end-of-run score payout.
   multiplier "xN", star awards AND the fairy loot popups on the yellow (`ui_popup_plate_mult` —
   fairy popups concatenate the reward icon after the amount via FloatingText's `iconArt`,
   2026-09-08; every fairy tap also plays the collect chime); "Too bad!" stays bare.
-- Level up requires `min((level+3)/2, CHALLENGE_ORDERS_TO_LEVEL_CAP)` matches — 2, 2, 3, 3, 3 …
+- Level up requires 2 matches at EVERY level (`CHALLENGE_ORDERS_TO_LEVEL_CAP` 2 since 2026-09-08; the (level+3)/2 formula is capped flat)
 - ⚠️ Score scale shrank ~10× at high levels with the 0.25-step multiplier — revisit
   `STAR_SCORE_DIVISOR` (end-of-run payout) and the score-tier feel after playtests.
 - Each match also **awards stars** (the currency faucet — see Monetization & Currencies)
