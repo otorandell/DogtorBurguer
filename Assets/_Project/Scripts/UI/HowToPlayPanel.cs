@@ -65,7 +65,9 @@ namespace DogtorBurguer
 
         private void CreatePanel()
         {
-            _modal = ModalPanel.Build(_canvas, Loc.Get(LocKey.HowToTitle), "ui_modal_panel", Vector2.zero, Vector2.zero, Hide);
+            // The taller 4-row sheet (2026-09-08): translated bullet pages outgrew the short
+            // modal body; the extra height is claimed by the HOWTO_* Y knobs.
+            _modal = ModalPanel.Build(_canvas, Loc.Get(LocKey.HowToTitle), "ui_settings_panel", Vector2.zero, Vector2.zero, Hide);
 
             _header = UIFactory.CreateText(_modal.Panel, "", new Vector2(0f, UIStyles.HOWTO_HEADER_Y),
                 new Vector2(UIStyles.HOWTO_LINE_W, 40f), UIStyles.HOWTO_HEADER_SIZE, FontStyles.Bold);

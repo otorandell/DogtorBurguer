@@ -377,17 +377,17 @@ namespace DogtorBurguer
         public static readonly Vector2 SETTINGS_CHROME_OFFSET = Vector2.zero;        // title + X nudge if the 4-row sheet tab sits elsewhere
 
         // How-to-play panel (the "?" top-bar button, in-game + menu; on the modal chrome)
-        public const float HOWTO_HEADER_Y = 130f;                                    // lime page header (CONTROLS, BURGERS, …)
+        public const float HOWTO_HEADER_Y = 150f;                                    // lime page header (CONTROLS, BURGERS, …)
         public const float HOWTO_HEADER_SIZE = 30f;
-        public const float HOWTO_BULLETS_TOP_Y = 92f;                                // top edge of the auto-height bullet list (grows downward)
-        public const float HOWTO_BULLET_GAP = 18f;                                   // constant gap between bullets (each auto-sizes to its wrapped height)
+        public const float HOWTO_BULLETS_TOP_Y = 116f;                                // top edge of the auto-height bullet list (grows downward)
+        public const float HOWTO_BULLET_GAP = 14f;                                   // constant gap between bullets (each auto-sizes to its wrapped height)
         public const float HOWTO_LINE_W = 370f;
         public const float HOWTO_TEXT_SIZE = 22f;                                    // bullets are REGULAR weight — bold smears the ExtraBold trial font
         public const float HOWTO_BTN_TEXT_SIZE = 30f;                                // the "?" on the top-bar button
-        public const float HOWTO_TUTORIAL_Y = -196f;                                 // PLAY TUTORIAL pill above the pager
+        public const float HOWTO_TUTORIAL_Y = -252f;                                 // PLAY TUTORIAL pill above the pager
         public const float HOWTO_TUTORIAL_W = 220f;
         public const float HOWTO_TUTORIAL_H = 50f;
-        public const float HOWTO_PAGER_Y = -255f;                                    // "1/3" + arrows row
+        public const float HOWTO_PAGER_Y = -312f;                                    // "1/3" + arrows row
         public const float HOWTO_PAGER_SIZE = 26f;
         public const float HOWTO_ARROW_X = 120f;                                     // arrows flank the pager
         public const float HOWTO_ARROW_H = 56f;                                      // ui_arrow_yellow sized by height, then rotated
