@@ -41,11 +41,11 @@ namespace DogtorBurguer
 
             // Shared top bar: trophy + star + gem pills, the "?" help button and the gear —
             // identical placement and size to the in-game bar (shop stays a big bottom button).
-            TopBar.Build(_canvas.transform, onHelp: OnHelpClicked, onSettings: OnSettingsClicked);
+            TopBar.Build(UIFactory.SafeRoot(_canvas), onHelp: OnHelpClicked, onSettings: OnSettingsClicked);
 
             // Logo — top-anchored so it clears the top bar on tall screens.
             Sprite logo = UiArt.Load("ui_logo");
-            UIFactory.CreateImage(_canvas.transform, "Logo", logo, new Vector2(0.5f, 1f),
+            UIFactory.CreateImage(UIFactory.SafeRoot(_canvas), "Logo", logo, new Vector2(0.5f, 1f),
                 UIStyles.MENU_LOGO_POS, UIFactory.SizeByWidth(logo, UIStyles.MENU_LOGO_W));
 
             // (The old high-score plaque was dropped 2026-09-03 — the TopBar trophy pill already

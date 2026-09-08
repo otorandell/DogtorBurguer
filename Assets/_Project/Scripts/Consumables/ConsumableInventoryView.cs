@@ -44,7 +44,7 @@ namespace DogtorBurguer
                 Vector2 pos = new(
                     UIStyles.CONSUMABLE_SLOT_X_START + i * UIStyles.CONSUMABLE_SLOT_SPACING,
                     UIStyles.CONSUMABLE_ROW_Y);
-                _slots[i] = new ConsumableSlotWidget(_canvas.transform, _canvas.worldCamera, (ConsumableType)i, pos);
+                _slots[i] = new ConsumableSlotWidget(UIFactory.SafeRoot(_canvas), _canvas.worldCamera, (ConsumableType)i, pos);
             }
         }
 

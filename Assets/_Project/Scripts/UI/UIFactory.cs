@@ -46,8 +46,22 @@ namespace DogtorBurguer
 
             canvasObj.AddComponent<GraphicRaycaster>();
 
+            // The notch-safe container (see SafeAreaRoot): edge-anchored interactive chrome
+            // parents to UIFactory.SafeRoot(canvas); full-bleed art stays on the canvas.
+            GameObject safeObj = new GameObject("SafeRoot");
+            safeObj.transform.SetParent(canvasObj.transform, false);
+            RectTransform safeRect = safeObj.AddComponent<RectTransform>();
+            safeRect.anchorMin = Vector2.zero;
+            safeRect.anchorMax = Vector2.one;
+            safeRect.sizeDelta = Vector2.zero;
+            safeObj.AddComponent<SafeAreaRoot>();
+
             return canvas;
         }
+
+        /// <summary>The canvas's safe-area container (created by CreateCanvas): parent
+        /// edge-anchored interactive chrome here so a camera notch can never swallow it.</summary>
+        public static Transform SafeRoot(Canvas canvas) => canvas.transform.Find("SafeRoot");
 
         /// <summary>
         /// Ensures an EventSystem exists in the scene (required for button input).

@@ -55,7 +55,7 @@ namespace DogtorBurguer
             // fairies (100), popups — fly OVER the panel instead of vanishing behind it.
             _canvas = UIFactory.CreateCanvas(transform, "ChallengeCanvas", Constants.SORT_CHALLENGE_BASE, Camera.main);
 
-            Image card = UIFactory.CreateImage(_canvas.transform, "SpecialCard", UiArt.Load("ui_special_card"),
+            Image card = UIFactory.CreateImage(UIFactory.SafeRoot(_canvas), "SpecialCard", UiArt.Load("ui_special_card"),
                 new Vector2(1f, 1f), UIStyles.SPECIAL_CARD_POS, UIStyles.SPECIAL_CARD_SIZE);
             _card = card.rectTransform;
 

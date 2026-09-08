@@ -289,6 +289,12 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   "trophy/star look weird" bug). Baked dotted cards must display at their **native aspect** or the
   halftone dots smear (the Special Order card is a deliberate exception — stretched taller).
 - Tunables: `Constants.PLAY_AREA_WIDTH` / `DESIGN_ORTHO_SIZE`; all HUD layout in `UIStyles`.
+- **Notch safety (2026-09-08)**: every `UIFactory.CreateCanvas` carries a **SafeRoot** child
+  (`UI/SafeAreaRoot.cs` — anchors tracked to `Screen.safeArea`, change-guarded). Edge-anchored
+  interactive chrome parents to `UIFactory.SafeRoot(canvas)` — currently the in-game TopBar +
+  StatCards, the order card, the consumable row, the menu TopBar + logo, the tutorial SKIP.
+  Full-bleed page art (shop page, modal sheets, game over) stays on the canvas: drawing under a
+  notch is fine, being tappable there is not. New edge-anchored UI must use SafeRoot.
 
 ### Render Order Convention
 - The in-game HUD canvas is **Screen Space - Camera** (sorting order 50, via

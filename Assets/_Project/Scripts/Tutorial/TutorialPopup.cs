@@ -82,7 +82,7 @@ namespace DogtorBurguer
             _continueLabel.gameObject.SetActive(false);
 
             // SKIP — small, always available, top-left (clear of the pills and the order card).
-            TextMeshProUGUI skip = UIFactory.CreateText(_canvas.transform, "SKIP", Vector2.zero,
+            TextMeshProUGUI skip = UIFactory.CreateText(UIFactory.SafeRoot(_canvas), "SKIP", Vector2.zero,
                 new Vector2(90f, 36f), UIStyles.TUT_SKIP_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(skip);
             RectTransform skipRect = skip.rectTransform;
