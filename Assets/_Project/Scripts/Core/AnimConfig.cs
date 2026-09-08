@@ -143,8 +143,8 @@ namespace DogtorBurguer
         #endregion
 
         #region Wave Preview
-        public const float PREVIEW_FADE_MIN = 0.3f;
-        public const float PREVIEW_FADE_DURATION = 0.25f;
+        public const float PREVIEW_FADE_MIN = 0.55f; // idle blink floor — shallow swing since 2026-09-08 (urgent mode carries the drama)
+        public const float PREVIEW_FADE_DURATION = 0.75f; // idle blink half-cycle (calm)
         public const float PREVIEW_FADE_DURATION_URGENT = 0.09f; // wave-grace fast blink (about to FALL — snappy on purpose)
         public const float PREVIEW_INITIAL_ALPHA = 0.8f;
         // How far (world units) a falling piece must drop below the spawn line before that column's
