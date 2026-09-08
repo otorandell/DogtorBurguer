@@ -10,19 +10,18 @@ namespace DogtorBurguer
     /// <summary>
     /// One-click, deterministic replacement for the Font Asset Creator window (two manual runs
     /// went wrong: an ASCII-only charset, then an empty static asset): bakes the full
-    /// localization character set from PantonDemo-Black INTO the existing SDF asset in place —
+    /// localization character set from the source font INTO the existing SDF asset in place —
     /// same GUID and sub-asset fileIDs, so the TMP-Settings default font, the LiberationSans
     /// fallback and every cached material stay wired. Rerun whenever the charset or the source
     /// font changes.
     /// </summary>
     public static class FontBaker
     {
-        // CANDIDATE TRIAL (2026-09-08): Baloo 2 ExtraBold (Google Fonts, OFL — embedding free,
-        // mixed case, full accents) vs the caps-only Panton Black, which Oscar disliked. The
-        // bake still targets the wired SDF asset; swap the path back to PantonDemo-Black.otf
-        // to compare. Rename the asset once a winner is picked.
+        // Baloo 2 ExtraBold WON the 2026-09-08 font trial (Google Fonts OFL — embedding
+        // free, mixed case, full accents). The Panton trials are deleted; the free
+        // PantonDemo-Black.otf stays in the repo as a licensed backup.
         private const string SourceFontPath = "Assets/_Project/Fonts/Baloo2-ExtraBold.ttf";
-        private const string TargetAssetPath = "Assets/_Project/Fonts/PantonDemo-Black SDF.asset";
+        private const string TargetAssetPath = "Assets/_Project/Fonts/Baloo2-ExtraBold SDF.asset";
 
         // Padding is the ceiling for stroke + the black ring (all material widths are
         // padding-normalized): 16px @ 96pt doubles the old 8px reach — the 2026-09-08 triple
@@ -43,7 +42,7 @@ namespace DogtorBurguer
             (0x2018, 0x201A), (0x201C, 0x201E), (0x2026, 0x2026), (0x20AC, 0x20AC),
         };
 
-        [MenuItem("Tools/Dogtor/Bake Panton Font Atlas")]
+        [MenuItem("Tools/Dogtor/Bake Font Atlas")]
         public static void Bake()
         {
             Font source = AssetDatabase.LoadAssetAtPath<Font>(SourceFontPath);
@@ -74,9 +73,9 @@ namespace DogtorBurguer
             so.FindProperty("m_AtlasTextures").GetArrayElementAtIndex(0).objectReferenceValue = targetTex;
             so.ApplyModifiedPropertiesWithoutUndo();
             targetMat.SetTexture(ShaderUtilities.ID_MainTex, targetTex);
-            target.name = "PantonDemo-Black SDF";
-            targetTex.name = "PantonDemo-Black SDF Atlas";
-            targetMat.name = "PantonDemo-Black SDF Material";
+            target.name = "Baloo2-ExtraBold SDF";
+            targetTex.name = "Baloo2-ExtraBold SDF Atlas";
+            targetMat.name = "Baloo2-ExtraBold SDF Material";
 
             int count = target.characterTable.Count;
             EditorUtility.SetDirty(target);

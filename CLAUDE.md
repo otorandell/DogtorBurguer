@@ -252,7 +252,7 @@ forfeits the end-of-run score payout.
   own jingle (`PlayChallengeLevelUp`, replaces the match chord on the leveling match).
 - **World popups ride glow plates** (2026-09-04 kit, set 1; `WorldTextFactory.AttachPlate`,
   heights `UIStyles.PLATE_*`): burger name + points on the wide green ellipse
-  (`ui_popup_plate_wide`), score "N!" and fast-drops on the green round (`ui_popup_plate`),
+  (`ui_popup_plate_wide`), score "+N" and fast-drops on the green round (`ui_popup_plate`),
   multiplier "xN", star awards AND the fairy loot popups on the yellow (`ui_popup_plate_mult` —
   fairy popups concatenate the reward icon after the amount via FloatingText's `iconArt`,
   2026-09-08; every fairy tap also plays the collect chime); "Too bad!" stays bare.
@@ -422,8 +422,7 @@ full-canvas-sheet screen must root its content the same way, never on the canvas
 **pauses** the run (`GameManager.PauseGame`) and resumes on close; all shop tweens run unscaled.
 Rebuilt each open, destroyed on close (no stale state).
 - **Sections, top → bottom**: support banner (**composed from shop widgets since 2026-09-05**:
-  lime REMOVE ADS + "REWARD ADS STILL AVAILABLE" + a "+100 ◆" line (the plus renders through the
-  LiberationSans sticker material — Panton slivers it) + the green price pill (store price via
+  lime REMOVE ADS + "REWARD ADS STILL AVAILABLE" + a "+100 ◆" line + the green price pill (store price via
   `IapManager.PriceLabel`, auto-fit big, red ONE TIME BUY tag on its corner — the kit has no
   blank red dot, the close button's X is baked, so `ui_consumable_num` stands in); the
   baked-values mock `ui_shop_remove_ads` is retired/unused; once bought it becomes
@@ -464,11 +463,11 @@ Rebuilt each open, destroyed on close (no stale state).
   (`scratchpad/build_shop_art.py`, outline + highlight preserved). Ask the artist for a wide green
   blank and it's a file swap.
 - Money price labels show digits + separators ONLY (`ShopWidgets.MoneyLabel` strips currency
-  symbols from config placeholders AND store-localized strings — showing them via the
-  LiberationSans fallback was tried 2026-09-05 and rejected as off-style; the store purchase
-  sheet has the real symbol). The hand-authored `LiberationSans SDF - Sticker.mat` (TMP
-  Fonts & Materials, HUD stroke/shadow, font-name prefix required for TMP's rich-text lookup)
-  still renders the banner's "+". Revisit both at the font swap.
+  symbols from config placeholders AND store-localized strings) — KEPT after the 2026-09-08
+  Baloo swap: no single font covers every store currency (₹ ₩ …) and fallback-rendered symbols
+  read off-style; the store purchase sheet shows the real symbol. The `LiberationSans SDF -
+  Sticker.mat` rich-text hacks (banner "+", pager "/") are retired — Baloo draws both natively;
+  the .mat stays for possible exotic-glyph needs.
 - **Layer split**: `ShopScreen` (frame/orchestration + confirm dialog + pills),
   `ShopSections` (page composition), `ShopWidgets` (low-level UGUI builders), `ShopCell` (the
   parts of one cell), `ShopSkinCell` (skin cell states), `ShopService` (atomic purchase rules,
@@ -625,23 +624,21 @@ sprite — acceptable; menu equips always show in-game).
   old dim-filter overlay was removed entirely. The menu background uses the base layer only.
 - **UI chrome & font** (outside the Theme/Skins pipeline): authored UI sprites load directly from
   `Resources/UI` via `UiArt.Load(name)`; build UGUI Images with `UIFactory.CreateImage`. The game
-  font is **Panton-Trial-ExtraBold** (SDF in `Assets/_Project/Fonts/`), wired as the **TMP default
-  font** (`TMP Settings.asset`), so all TMP text follows it — no per-component font is set. `GameHUD`
-  builds the authored **Level/Score panels** (card + title tab + TMP number). ⚠️ Panton is a **trial**
-  font (replace before release); regenerate any SDF at **1024 atlas / ~12 padding / SDFAA** (a
-  512/low-padding atlas renders pixelated).
-  ⚠️ **Trial-font placeholder glyphs**: the trial TTF maps most symbols — `" # $ % & ' ( ) * + / <
-  = > @ [ \ ] ^ _ ` + backtick + `{ | } ~` — to a single tall sliver glyph (tiny vertical "trial"
-  lettering baked into the SDF atlas). It renders as a weird vertical word, immune to wrapping
-  settings (discovered 2026-07-23 — was misread as a text-wrap bug for a while). **Player-facing
-  strings may only use letters, digits, space, and `! , - . : ; ?`** until the font is replaced.
-  Where a plus sign is needed, use art (`ui_consumable_plus`, e.g. the Settings stepper's
-  increment button) — the score/star popups use `N!` instead of `+N` for this reason. Glyphs
-  Panton lacks ENTIRELY (e.g. **€** in localized IAP prices) fall back to **LiberationSans SDF**
-  (`TMP Settings.asset` → m_fallbackFontAssets, wired 2026-09-05): they render, but in the
-  fallback font's own plain material — no sticker stroke/shadow (TMP fallback glyphs can't use
-  the styled material). Acceptable for price labels; the sliver-glyph symbols above do NOT fall
-  back (Panton claims them), so their workarounds stay until the font swap.
+  font is **Baloo 2 ExtraBold** (Google Fonts OFL — embedding free, `Docs/Baloo2-OFL.txt`;
+  chosen 2026-09-08 after the Panton trial proved unshippable — its accents drew sliver glyphs —
+  and the free Panton Black Caps read too heavy and all-caps). SDF asset
+  `Fonts/Baloo2-ExtraBold SDF.asset` is the **TMP default font** (`TMP Settings.asset`) — no
+  per-component font is set; LiberationSans SDF stays the fallback for exotic glyphs (renders
+  plain, no sticker material). Rebake anytime: **Tools > Dogtor > Bake Font Atlas**
+  (`Scripts/Editor/FontBaker.cs` — full 7-language charset, 96pt/16px padding, SDFAA, one 2048
+  atlas; the asset is git-LFS, commit after baking). Look knobs (`UIStyles`):
+  `TEXT_FACE_DILATE` (weight trim), `TEXT_CHARACTER_SPACING` / `TEXT_LINE_SPACING` (Baloo's
+  native tracking/leading run loose), `HUD_TEXT_BORDER_WIDTH` (brown stroke) + the near-black
+  outer ring (`HUD_TEXT_BORDER` as the underlay, `TEXT_SHADOW_*`) — the width knobs are
+  padding-normalized: rescale them if FontBaker's Padding changes. The old trial-font
+  safe-charset rule is **DEAD** (2026-09-08): full Latin, symbols and currency glyphs render
+  natively (★ U+2605 is still missing — use the Star sprite). `GameHUD`
+  builds the authored **Level/Score panels** (card + title tab + TMP number).
 - **Reskin the game** = edit the slot's asset in `Resources/Skins/` (set its **Sprite** field; for
   `bun_default` also **Secondary Sprite** = bottom bun, for `chef_default` = flipped facing), or
   just replace a PNG's contents keeping its filename. Works from the Project window with any scene
@@ -823,17 +820,11 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   `internalIDToNameTable`, `spriteSheet.sprites[].internalID`, and `nameFileIdTable`.
 
 ## Pending Manual Steps
-- **Font bake — Tools > Dogtor > Bake Panton Font Atlas** (`Scripts/Editor/FontBaker.cs`,
-  2026-09-08 — replaces the Font Asset Creator recipe after two manual runs went wrong: an
-  ASCII-only charset, then an EMPTY static asset). One click bakes the full localization
-  charset from `PantonDemo-Black` INTO the existing `PantonDemo-Black SDF.asset` (GUID and
-  sub-asset fileIDs kept, so TMP Settings stays wired; 96pt/8px preserves the old 144/12
-  stroke-shadow ratio; one 2048 atlas — multi-atlas would break the custom styled materials).
-  Expect a console line "Baked ~190 characters". The asset is **git-LFS** — commit after a
-  good bake. Black is thinned toward the old ExtraBold weight via `UIStyles.TEXT_FACE_DILATE`
-  (-0.1; +0.2 was the trial-ExtraBold tuning — tune live; UIFactory applies it to styled AND
-  plain texts via cached materials). Once verified, the trial-font symbol workarounds can be
-  removed (safe-charset rule, N! instead of +N, the LiberationSans + and / material hacks).
+- **Font rebake — Tools > Dogtor > Bake Font Atlas** (`Scripts/Editor/FontBaker.cs`): rebakes
+  the 7-language charset from `Baloo2-ExtraBold.ttf` into `Fonts/Baloo2-ExtraBold SDF.asset`
+  in place (GUID kept, TMP Settings stays wired). Run after changing the charset, padding or
+  source font; the asset is git-LFS — commit after a good bake. Width knobs are
+  padding-normalized (see Skins & Theme -> UI chrome & font).
 - **Leaderboard activation** (code scaffolded 2026-09-06, `Scripts/Social/`): import the Play
   Games plugin v2 (`com.google.play.games`), add the **`PLAY_GAMES` scripting define** (Player
   Settings — the plugin defines no symbol of its own), run its Android setup wizard with the
@@ -916,11 +907,11 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   placement/size to the in-game bar — the menu gear override was dropped too); the kit's blank green square `ui_btn_square_green` + a HUD question mark. Opens the
   modal chrome ("HOW TO PLAY"), **paginated** (6 pages): `Pages` = (header, bullets)[] in the
   class (trial-font-safe) — a lime page header (CONTROLS, MATCHING, BURGERS, SPECIAL ORDERS,
-  POWER-UPS ×2) over dash bullets in REGULAR weight brown (⚠️ synthetic Bold on the ExtraBold
-  trial font smears strokes — keep body text FontStyles.Normal) stacked by a
+  POWER-UPS ×2) over dash bullets in REGULAR weight brown (keep body text FontStyles.Normal — synthetic
+  Bold over-fattens an already-ExtraBold face) stacked by a
   **VerticalLayoutGroup + ContentSizeFitter** (each bullet auto-sizes to its wrapped height,
   constant `HOWTO_BULLET_GAP` — fixed-pitch rows overlapped on long bullets), with a "1/6" pager
-  (its slash via the LiberationSans sticker material — Panton slivers "/") flanked by rotated
+  flanked by rotated
   `ui_arrow_yellow` prev/next buttons, hidden at the ends. Layout `UIStyles.HOWTO_*`. In-game it
   pauses/resumes like Settings; the menu opener shows it plain. `ui_shop_button` stays unused.
   Keep the Mustard bullet in step with `MUSTARD_SWEEP_TYPES` (top two types, board-wide).
@@ -960,14 +951,7 @@ list (save layer security, cloud save, schema versioning, IAP receipt
 validation, analytics, privacy policy, etc.). Ready-to-use copy:
 `Docs/privacy-policy.md` (+ `.html` to host, e.g. GitHub Pages — the URL goes in the Play
 listing and the LevelPlay dashboard) and `Docs/play-store-listing.md` (descriptions,
-questionnaire answers, product ids, asset specs). ⚠️ **Font**: the "licensed" Panton zip
-(`Fuentes/panton.zip`, 2026-09-01 kit) contains the same **trial** TTFs plus Fontfabric's
-**free** weights (`Commercial/PantonDemo-Black.otf` = "Panton Black Caps", caps-only, and
-Light; FF Free Font EULA allows apps). **DECIDED 2026-09-08: the free Black Caps** (buying means the
-App license, from ~190 USD tiered by downloads — NOT the 47 USD desktop one, which forbids
-embedding). Outline-level study (fontTools): every trial weight DRAWS all accented Latin as
-the sliver glyph AND claims the codepoints, so fallback never triggers — the trial can never
-ship ES/PT/FR/DE/IT/TR. Demo Black has real accents (only dotless i missing — irrelevant in
-caps, and caps-only Turkish never needs it). `PantonDemo-Black.otf` + the FF EULA are in the
-repo (`Assets/_Project/Fonts/`, `Docs/`); the SDF regeneration is an editor step (see Pending
-Manual Steps) — after it the UI renders ALL CAPS and the symbol workarounds can go.
+questionnaire answers, product ids, asset specs). **Font: RESOLVED 2026-09-08 — Baloo 2 ExtraBold** (Google Fonts OFL, embedding free;
+`Docs/Baloo2-OFL.txt`). The Panton trial files are deleted; the free `PantonDemo-Black.otf`
+(+ FF EULA in `Docs/`) stays as a licensed backup. Bake workflow + look knobs: Skins & Theme
+-> UI chrome & font.

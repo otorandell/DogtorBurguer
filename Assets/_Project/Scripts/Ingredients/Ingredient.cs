@@ -231,7 +231,7 @@ namespace DogtorBurguer
             if (points > 0)
             {
                 GameManager.Instance?.AddExtraScore(points);
-                FloatingText.Spawn(transform.position, $"{points}!", UIStyles.FAST_DROP_POPUP, 3f, "ui_popup_plate");
+                FloatingText.Spawn(transform.position, $"+{points}", UIStyles.FAST_DROP_POPUP, 3f, "ui_popup_plate");
             }
 
             // Cancel current fall and drop fast (a mid-flight lane slide completes instantly

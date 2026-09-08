@@ -56,8 +56,7 @@ namespace DogtorBurguer
             }),
         };
 
-        private const string PagerSlash =
-            "<font=\"LiberationSans SDF\" material=\"LiberationSans SDF - Sticker\">/</font>";
+        private const string PagerSlash = "/"; // plain since the Baloo swap (the trial slivered it)
 
         private Canvas _canvas;
         private ModalPanel _modal;

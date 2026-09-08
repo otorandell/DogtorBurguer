@@ -397,7 +397,7 @@ namespace DogtorBurguer
             if (points <= 0) return;
 
             GameManager.Instance?.AddExtraScore(points);
-            FloatingText.Spawn(pos, $"{points}!", UIStyles.HUD_TEXT_FILL, UIStyles.WORLD_FLOATING_TEXT_SIZE,
+            FloatingText.Spawn(pos, $"+{points}", UIStyles.HUD_TEXT_FILL, UIStyles.WORLD_FLOATING_TEXT_SIZE,
                 "ui_popup_plate");
         }
 

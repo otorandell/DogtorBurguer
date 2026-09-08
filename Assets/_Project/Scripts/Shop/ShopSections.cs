@@ -51,12 +51,11 @@ namespace DogtorBurguer
                 UIStyles.TOPBAR_NUMBER_COLOR, TextAlignmentOptions.Left);
             ShopWidgets.AnchorLeft(tag.rectTransform, UIStyles.SHOP_BANNER_TAG_POS);
 
-            // The gem-bonus line: "+100 [gem icon]". The plus renders through the LiberationSans
-            // sticker material via rich text — the trial font maps '+' to the placeholder sliver.
+            // The gem-bonus line: "+100 [gem icon]" (a plain + since the 2026-09-08 Baloo swap —
+            // the old trial font slivered it and needed a LiberationSans rich-text hack).
             TextMeshProUGUI bonus = ShopWidgets.CreateIconLine(row, "Bonus", Vector2.zero,
                 UIStyles.SHOP_BANNER_BONUS_RECT,
-                "<font=\"LiberationSans SDF\" material=\"LiberationSans SDF - Sticker\">+</font>"
-                + MonetizationConfig.REMOVE_ADS_BONUS_GEMS,
+                "+" + MonetizationConfig.REMOVE_ADS_BONUS_GEMS,
                 UIStyles.SHOP_BANNER_BONUS_SIZE, "ui_gem", UIStyles.SHOP_BANNER_BONUS_ICON_H);
             ShopWidgets.AnchorLeft((RectTransform)bonus.transform.parent, UIStyles.SHOP_BANNER_BONUS_POS);
 
