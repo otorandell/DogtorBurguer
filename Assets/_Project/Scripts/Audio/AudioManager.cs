@@ -446,16 +446,18 @@ namespace DogtorBurguer
         // (UIFactory wraps onClick), the shop speaks on purchase/equip/deny, fairies announce
         // themselves. Placeholder tones like the consumables; override slots for real audio.
 
-        /// <summary>Soft short blip — every UGUI button press (wired in UIFactory).</summary>
+        /// <summary>Soft low thump — every UGUI button press (wired in UIFactory). One plain
+        /// bass tone, and quiet enough that the chip chain's drive never squares it
+        /// (peak × CHIP_DRIVE stays under the clamp), so it keeps a round, unobtrusive body.</summary>
         private float GenerateUiTapSamples(float duration, int i)
         {
             float t = (float)i / SAMPLE_RATE;
-            float freq = Mathf.Lerp(950f, 620f, t / duration);
+            float freq = Mathf.Lerp(240f, 180f, t / duration);
             float envelope = 1f - (t / duration);
-            return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * envelope * 0.5f;
+            return Mathf.Sin(2f * Mathf.PI * freq * t) * envelope * envelope * 0.3f;
         }
 
-        public void PlayUiTap() => PlayClip(_uiTapClip, 0.35f);
+        public void PlayUiTap() => PlayClip(_uiTapClip, 0.3f);
 
         /// <summary>Coin ka-ching: two quick high strikes with a sparkle tail — successful spends.</summary>
         private float GeneratePurchaseSamples(float duration, int i)
