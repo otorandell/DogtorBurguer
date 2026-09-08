@@ -120,14 +120,18 @@ namespace DogtorBurguer
             {
                 if (available.Count == 0)
                 {
-                    _targetIngredients.Add(GameplayConfig.REGULAR_INGREDIENTS[Rng.Range(0, activeCount)]);
+                    _targetIngredients.Add(ActiveType(Rng.Range(0, activeCount)));
                     continue;
                 }
                 int idx = Rng.Range(0, available.Count);
-                _targetIngredients.Add(GameplayConfig.REGULAR_INGREDIENTS[available[idx]]);
+                _targetIngredients.Add(ActiveType(available[idx]));
                 available.RemoveAt(idx);
             }
         }
+
+        // This run's type at an unlock position — the per-run random roster (2026-09-08).
+        private IngredientType ActiveType(int index) =>
+            _spawner != null ? _spawner.ActiveTypeAt(index) : GameplayConfig.REGULAR_INGREDIENTS[index];
 
         private string BuildContainsName()
         {

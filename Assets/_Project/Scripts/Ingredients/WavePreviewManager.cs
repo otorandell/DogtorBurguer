@@ -15,6 +15,7 @@ namespace DogtorBurguer
     {
         // One list of (preview, slot, revealed) entries — they can never desync (F-41).
         private readonly List<(GameObject preview, WaveSlot slot, bool revealed)> _entries = new();
+        private bool _urgent; // wave-grace window: the next wave is imminent → fast blink
         private Func<IngredientType, Sprite> _getSprite;
 
         public int Count => _entries.Count;
@@ -52,11 +53,33 @@ namespace DogtorBurguer
                 foreach (SpriteRenderer sr in entry.preview.GetComponentsInChildren<SpriteRenderer>())
                 {
                     sr.color = new Color(1f, 1f, 1f, AnimConfig.PREVIEW_INITIAL_ALPHA);
-                    sr.DOFade(AnimConfig.PREVIEW_FADE_MIN, AnimConfig.PREVIEW_FADE_DURATION)
+                    sr.DOFade(AnimConfig.PREVIEW_FADE_MIN, BlinkDuration)
                         .SetLoops(-1, LoopType.Yoyo)
                         .SetEase(Ease.InOutSine);
                 }
                 _entries[i] = (entry.preview, entry.slot, true);
+            }
+        }
+
+        private float BlinkDuration => _urgent
+            ? AnimConfig.PREVIEW_FADE_DURATION_URGENT : AnimConfig.PREVIEW_FADE_DURATION;
+
+        /// <summary>Fast-blink mode for the wave-grace window ("the next wave is imminent"):
+        /// every revealed ghost re-blinks at the urgent rate; new reveals start urgent too.</summary>
+        public void SetUrgent(bool urgent)
+        {
+            if (_urgent == urgent) return;
+            _urgent = urgent;
+            foreach (var (preview, _, revealed) in _entries)
+            {
+                if (!revealed || preview == null) continue;
+                foreach (SpriteRenderer sr in preview.GetComponentsInChildren<SpriteRenderer>())
+                {
+                    sr.DOKill();
+                    sr.color = new Color(1f, 1f, 1f, AnimConfig.PREVIEW_INITIAL_ALPHA);
+                    sr.DOFade(AnimConfig.PREVIEW_FADE_MIN, BlinkDuration)
+                        .SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+                }
             }
         }
 

@@ -145,6 +145,7 @@ namespace DogtorBurguer
         #region Wave Preview
         public const float PREVIEW_FADE_MIN = 0.3f;
         public const float PREVIEW_FADE_DURATION = 0.25f;
+        public const float PREVIEW_FADE_DURATION_URGENT = 0.18f; // wave-grace fast blink (the next wave is imminent)
         public const float PREVIEW_INITIAL_ALPHA = 0.8f;
         // How far (world units) a falling piece must drop below the spawn line before that column's
         // preview appears — keeps the ghost from overlapping the falling sprite. ~one ingredient tall.

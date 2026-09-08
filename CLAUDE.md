@@ -24,7 +24,8 @@ Assets/_Project/Scripts/
                  FeedbackManager, Rng, SceneLoader, CameraFit, Singleton<T> (manager base)
   Grid/          GridManager, Column, MatchDetector, MatchResult, BurgerAnimator, BurgerData
   Ingredients/   Ingredient, IngredientState, IngredientSpawner, SpawnerState,
-                 IngredientType, WavePreviewManager, WaveComposer, WaveSlot, IngredientBag
+                 IngredientType, WavePreviewManager, WaveComposer, WaveSlot, IngredientBag,
+                 IngredientRoster (per-run random unlock order)
   Input/         TouchInputHandler
   Scoring/       Scoring (points/tiers), BurgerTier, BurgerNamer
   Skins/         Skin (ScriptableObject), SkinSlot, UnlockMethod, SkinMap, Theme (static accessor)
@@ -197,6 +198,15 @@ forfeits the end-of-run score payout.
   seeds `_currentLevel`; `DifficultyManager` runs at `[DefaultExecutionOrder(-100)]` so the seed
   is applied before the HUD/spawner init. Initial level is pull-state (no init-time `OnLevelChanged`).
 - HUD shows "Level X" (full word, distinguishes from challenge star)
+- **2026-09-08 progression rework (Oscar)**: ingredient unlock order is PER-RUN RANDOM
+  (`IngredientRoster`: Meat/Cheese/Bacon always start + a random 4th; the rest join shuffled —
+  the bag and Special Orders read through `IngredientSpawner.ActiveTypeAt`). Counts now
+  4,4,5,5,5,6,6,6,7,7,7,8… (unlocks L3/6/9/12 — all in by L12, was L16). The fall curve is
+  gentler and **holds flat on every unlock level** (the new type IS that bump); thresholds
+  re-derived at the 42s budget (kill screen 871 placements, ~14 min). **Wave grace**: a wave
+  never fires sooner than `SPAWN_GRACE_FALL_STEPS` (3) fall-steps after the last — prevents
+  unreadable cascades on tall stacks, self-shortens with level; the preview ghosts blink FAST
+  through the wait (`PREVIEW_FADE_DURATION_URGENT`, `WavePreviewManager.SetUrgent`).
 
 ### Burger Challenge (BurgerChallenge) — "Special Orders"
 - **Redesigned 2026-09-05 (Oscar), table-driven 2026-09-06** — every order is an exact-count

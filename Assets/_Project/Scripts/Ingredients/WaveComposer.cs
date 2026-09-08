@@ -12,7 +12,13 @@ namespace DogtorBurguer
     public class WaveComposer
     {
         private readonly IngredientBag _bag = new();
+        private readonly IngredientRoster _roster; // this run's random unlock order
         private int _piecesSinceBun;
+
+        public WaveComposer(IngredientRoster roster)
+        {
+            _roster = roster;
+        }
 
         /// <summary>Rolls a single slot for a specific column (used to build/refill the preview queue).</summary>
         public WaveSlot RollSlot(int activeIngredientCount, int column)
@@ -32,7 +38,7 @@ namespace DogtorBurguer
                 return bun;
 
             _piecesSinceBun++;
-            return _bag.Next(activeIngredientCount);
+            return _bag.Next(_roster, activeIngredientCount);
         }
 
         /// <summary>

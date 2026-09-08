@@ -26,6 +26,8 @@ namespace DogtorBurguer
 
         private WavePreviewManager _previewManager;
         private WaveComposer _composer;
+        private IngredientRoster _roster;
+        private float _lastWaveSpawnTime;
 
         // Reused per-frame scratch buffers to avoid per-frame allocations.
         private readonly List<int> _eligibleColumns = new();
@@ -35,7 +37,8 @@ namespace DogtorBurguer
         {
             _previewManager = gameObject.AddComponent<WavePreviewManager>();
             _previewManager.Initialize(GetSpriteForType);
-            _composer = new WaveComposer();
+            _roster = new IngredientRoster(); // this run's random unlock order
+            _composer = new WaveComposer(_roster);
         }
 
         private void Update()
@@ -58,7 +61,22 @@ namespace DogtorBurguer
                     // Purely visual: reveal each reserved ghost once its column's spawn zone is clear.
                     _previewManager.RevealCleared(ColumnsWithPieceInPreviewZone());
                     if (AllCurrentWaveLanded())
-                        SpawnNextWave();
+                    {
+                        // Wave grace: never fire sooner than N fall-steps after the last wave —
+                        // tall stacks land near-instantly and waves cascaded unreadably fast.
+                        float grace = _fallStepDuration * GameplayConfig.SPAWN_GRACE_FALL_STEPS;
+                        float remaining = _lastWaveSpawnTime + grace - Time.time;
+                        if (remaining > 0f)
+                        {
+                            _state = SpawnerState.Delaying;
+                            _delayTimer = remaining;
+                            _previewManager.SetUrgent(true); // fast blink: incoming!
+                        }
+                        else
+                        {
+                            SpawnNextWave();
+                        }
+                    }
                     break;
             }
         }
@@ -113,9 +131,15 @@ namespace DogtorBurguer
 
         public Sprite GetSpriteForType(IngredientType type) => Theme.Ingredient(type);
 
+        /// <summary>This run's ingredient at unlock position <paramref name="index"/> (the
+        /// per-run random roster — see IngredientRoster).</summary>
+        public IngredientType ActiveTypeAt(int index) => _roster.At(index);
+
         private void SpawnNextWave()
         {
             if (GridManager.Instance == null) return;
+            _lastWaveSpawnTime = Time.time;
+            _previewManager.SetUrgent(false);
 
             // The standing preview queue IS the wave (seeded in StartSpawning, refilled every frame).
             // ConsumeRemainingData also clears the previews.

@@ -14,11 +14,12 @@ namespace DogtorBurguer
         private readonly List<IngredientType> _bag = new();
         private int _builtForCount = -1;
 
-        /// <summary>Draws the next regular ingredient, refilling/rebuilding as needed.</summary>
-        public IngredientType Next(int activeIngredientCount)
+        /// <summary>Draws the next regular ingredient, refilling/rebuilding as needed. The
+        /// roster maps unlock positions to this run's random types (2026-09-08).</summary>
+        public IngredientType Next(IngredientRoster roster, int activeIngredientCount)
         {
             if (_bag.Count == 0 || _builtForCount != activeIngredientCount)
-                Refill(activeIngredientCount);
+                Refill(roster, activeIngredientCount);
 
             // Draw from the tail so removal is O(1); the bag is already shuffled.
             int last = _bag.Count - 1;
@@ -27,18 +28,18 @@ namespace DogtorBurguer
             return type;
         }
 
-        private void Refill(int activeIngredientCount)
+        private void Refill(IngredientRoster roster, int activeIngredientCount)
         {
             _bag.Clear();
             _builtForCount = activeIngredientCount;
 
             // One of each active type guarantees no type droughts...
             for (int i = 0; i < activeIngredientCount; i++)
-                _bag.Add(GameplayConfig.REGULAR_INGREDIENTS[i]);
+                _bag.Add(roster.At(i));
 
             // ...the random extras inject controlled, non-countable variance.
             for (int i = 0; i < GameplayConfig.BAG_RANDOM_EXTRAS; i++)
-                _bag.Add(GameplayConfig.REGULAR_INGREDIENTS[Rng.Range(0, activeIngredientCount)]);
+                _bag.Add(roster.At(Rng.Range(0, activeIngredientCount)));
 
             Shuffle(_bag);
         }

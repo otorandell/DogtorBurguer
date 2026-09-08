@@ -20,6 +20,9 @@ namespace DogtorBurguer
         // Regular (non-bun) ingredients in spawn-progression order (Egg appears in
         // advanced phases). Spawning indexes this list, so IngredientType's int values
         // are no longer load-bearing — adding one is a single append here (F-39).
+        // The canonical SET of regular types (and the shop-row order). NOT the unlock order
+        // anymore: since 2026-09-08 IngredientRoster deals a per-run order — Meat/Cheese/Bacon
+        // always start, the rest join shuffled as INGREDIENT_COUNT_BY_LEVEL grows.
         public static readonly IngredientType[] REGULAR_INGREDIENTS =
         {
             IngredientType.Meat,
@@ -84,6 +87,11 @@ namespace DogtorBurguer
         public const int MAX_LEVEL = 20;
         public const int KILLER_LEVEL = 21; // Tetris-style kill screen, above the normal curve.
         public const int STARTING_INGREDIENT_COUNT = 4;
+        // Wave grace (2026-09-08): a wave never fires sooner than this many fall-steps after
+        // the previous one — on tall stacks pieces land near-instantly and waves cascaded
+        // faster than a human can parse. Scales with the fall step, so it self-shortens with
+        // level; the preview ghosts blink FAST through the wait (the "incoming" cue).
+        public const float SPAWN_GRACE_FALL_STEPS = 3f;
         public const int MAX_INGREDIENT_COUNT = 8;
 
         // Highest level selectable from the Settings START level row (a player feature since
@@ -94,13 +102,17 @@ namespace DogtorBurguer
         // Per-level curves: index 0 = level 1 … index 19 = level 20. Length MUST equal MAX_LEVEL.
         // The killer level (21) is NOT in these tables — it applies MIN_FALL_STEP_DURATION,
         // MAX_INGREDIENT_COUNT, and always-triple waves directly (see DifficultyManager).
+        // 2026-09-08 (Oscar): gentler ramp, and the speed HOLDS on every ingredient-unlock
+        // level (3, 6, 9, 12) — the new type IS that level's difficulty bump.
         public static readonly float[] FALL_STEP_BY_LEVEL = {
-            0.45f, 0.37f, 0.33f, 0.31f, 0.28f, 0.27f, 0.25f, 0.23f, 0.22f, 0.205f,
-            0.19f, 0.18f, 0.17f, 0.16f, 0.15f, 0.14f, 0.13f, 0.12f, 0.11f, 0.10f
+            0.45f, 0.40f, 0.40f, 0.36f, 0.33f, 0.33f, 0.30f, 0.28f, 0.28f, 0.26f,
+            0.24f, 0.24f, 0.22f, 0.20f, 0.185f, 0.17f, 0.155f, 0.14f, 0.12f, 0.10f
         };
+        // Unlocks land at L3, L6, L9, L12 (2026-09-08 — the last type used to wait until L16).
+        // WHICH type unlocks is per-run random (IngredientRoster); this table is only the count.
         public static readonly int[] INGREDIENT_COUNT_BY_LEVEL = {
-            4, 4, 4, 5, 5, 5, 5, 6, 6, 6,
-            6, 7, 7, 7, 7, 8, 8, 8, 8, 8
+            4, 4, 5, 5, 5, 6, 6, 6, 7, 7,
+            7, 8, 8, 8, 8, 8, 8, 8, 8, 8
         };
         public static readonly float[] TRIPLE_CHANCE_BY_LEVEL = {
             0f,    0f,    0f,    0f,    0f,    0.05f, 0.08f, 0.11f, 0.15f, 0.18f,
@@ -130,10 +142,10 @@ namespace DogtorBurguer
         // One ruleset since 2026-09-07 (the mode toggle went; speed players pick a higher START
         // level in Settings). MAX_LEVEL long (asserted).
         public static readonly int[] LEVEL_THRESHOLDS = {
-            0, 20, 44, 70, 98, 129, 162, 198, 237, 278,
-            323, 372, 424, 480, 540, 604, 673, 748, 829, 917
+            0, 20, 42, 64, 88, 114, 141, 171, 204, 237,
+            273, 313, 353, 397, 446, 500, 559, 623, 694, 776
         };
-        public const int KILLER_LEVEL_THRESHOLD = 1012; // ingredients placed to enter the kill screen
+        public const int KILLER_LEVEL_THRESHOLD = 871; // ingredients placed to enter the kill screen (re-derived 2026-09-08)
         #endregion
 
         #region Special Order Ladder (indexed by challenge level − 1, clamped at the last entry)
