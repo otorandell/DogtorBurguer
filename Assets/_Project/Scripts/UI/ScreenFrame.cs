@@ -71,16 +71,25 @@ namespace DogtorBurguer
                 * (UIStyles.REFERENCE_RESOLUTION.x / UIStyles.REFERENCE_RESOLUTION.y);
             Vector3 c = _cam.transform.position;
 
+            float left = c.x - halfW;
+            float right = c.x + halfW;
+            float bottom = c.y - halfH;
+            float top = c.y + halfH;
+
+            // The sprite pivots at its bottom-left corner and the texture is cropped to whole
+            // squares, so each band's pattern is anchored at its SCREEN border (mirror flips for
+            // the top/right bands): full squares start at the outer edge and grow inward — the
+            // one cut row lands against the game content, never at the visible border.
             float vSurplus = halfH - innerHalfH; // > 0 on tall phones
             float hSurplus = halfW - innerHalfW; // > 0 on tablets / wide screens
             SetBar(_bars[0], vSurplus, new Vector2(halfW * 2f, vSurplus),
-                new Vector2(c.x, c.y + innerHalfH + vSurplus * 0.5f));
+                new Vector3(left, top), new Vector3(1f, -1f, 1f));
             SetBar(_bars[1], vSurplus, new Vector2(halfW * 2f, vSurplus),
-                new Vector2(c.x, c.y - innerHalfH - vSurplus * 0.5f));
+                new Vector3(left, bottom), Vector3.one);
             SetBar(_bars[2], hSurplus, new Vector2(hSurplus, halfH * 2f),
-                new Vector2(c.x - innerHalfW - hSurplus * 0.5f, c.y));
+                new Vector3(left, bottom), Vector3.one);
             SetBar(_bars[3], hSurplus, new Vector2(hSurplus, halfH * 2f),
-                new Vector2(c.x + innerHalfW + hSurplus * 0.5f, c.y));
+                new Vector3(right, bottom), new Vector3(-1f, 1f, 1f));
 
             // Publish the inner window in screen px (the camera view is screen-centered).
             float wPx = Mathf.Min(Screen.width * (innerHalfW / halfW), Screen.width);
@@ -89,13 +98,15 @@ namespace DogtorBurguer
                 (Screen.width - wPx) * 0.5f, (Screen.height - hPx) * 0.5f, wPx, hPx);
         }
 
-        private static void SetBar(SpriteRenderer bar, float surplus, Vector2 size, Vector2 pos)
+        private static void SetBar(SpriteRenderer bar, float surplus, Vector2 size,
+            Vector3 cornerPos, Vector3 scale)
         {
             bool visible = surplus > 0.001f;
             bar.enabled = visible;
             if (!visible) return;
             bar.size = size;
-            bar.transform.position = new Vector3(pos.x, pos.y, 0f);
+            bar.transform.position = cornerPos;
+            bar.transform.localScale = scale;
         }
 
         private void OnDestroy() => InnerScreenRect = Rect.zero;
