@@ -23,9 +23,9 @@ namespace DogtorBurguer
         public static readonly Color HUD_TEXT_FILL = new(0.988f, 0.980f, 0.945f);      // #FCFAF1 cream white
         public static readonly Color32 HUD_TEXT_BORDER = new(0x12, 0x0A, 0x05, 0xFF);  // near-black — the OUTER ring/shadow layer (was #492611 brown; black third layer per Oscar 2026-09-08; also the border of colored headings)
         public static readonly Color32 HUD_TEXT_STROKE = new(0x88, 0x46, 0x2A, 0xFF);  // #88462A mid brown — the inner stroke (sampled off the mock's PLAY)
-        public const float HUD_TEXT_BORDER_WIDTH = 0.38f;                               // TMP outline width (0..1) — tune live (0.25 pre-Baloo; thicker per Oscar 2026-09-08)
+        public const float HUD_TEXT_BORDER_WIDTH = 0.19f;                               // TMP outline width (0..1) — tune live (0.25 pre-Baloo; thicker per Oscar 2026-09-08)
         public const float TEXT_CHARACTER_SPACING = -6f;                                // global tracking, TMP units (~0.01 em) — negative tightens; Baloo tracks looser than Panton did
-        public const float TEXT_FACE_DILATE = 0.12f;                                    // weight trim (negative thins) — slightly positive so the thicker outline pushes OUTWARD instead of eating the fill. Tune live; styled AND plain texts
+        public const float TEXT_FACE_DILATE = 0.06f;                                    // weight trim (negative thins) — slightly positive so the thicker outline pushes OUTWARD instead of eating the fill. Tune live; styled AND plain texts
         // The sticker drop shadow (TMP Underlay) applied by StyleFillAndBorder to EVERY bordered
         // text, matching the artist's Photoshop stroke+shadow recipe (Look Reference/Font info.png).
         // Offsets/dilate are in SDF *spread* units (-1..1): the on-screen reach = value × atlas
@@ -33,8 +33,8 @@ namespace DogtorBurguer
         // is regenerated with a bigger spread — 2048 atlas / padding 24 / sampling 144 / SDFAA
         // (the original 12-padding atlas caps the whole effect at ~1px per 30px of text).
         public const float TEXT_SHADOW_OFFSET_X = 0f;
-        public const float TEXT_SHADOW_OFFSET_Y = -0.5f;                                // straight down; big values read as the dark layers sagging
-        public const float TEXT_SHADOW_DILATE = 1f;                                     // thickens the black outer ring (fill + brown stroke + THIS)
+        public const float TEXT_SHADOW_OFFSET_Y = -0.25f;                                // straight down; big values read as the dark layers sagging
+        public const float TEXT_SHADOW_DILATE = 0.65f;                                   // black outer ring reach — 0.5 matches the pre-rebake max; headroom to 1.0 (knobs are padding-normalized: rescaled /2 for the 16px atlas, 2026-09-08)
         public const float TEXT_SHADOW_SOFTNESS = 0f;                                   // hard edge — a sticker, not a blur
         #endregion
 

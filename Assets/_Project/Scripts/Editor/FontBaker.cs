@@ -24,12 +24,13 @@ namespace DogtorBurguer
         private const string SourceFontPath = "Assets/_Project/Fonts/Baloo2-ExtraBold.ttf";
         private const string TargetAssetPath = "Assets/_Project/Fonts/PantonDemo-Black SDF.asset";
 
-        // 96pt / 8px padding keeps the old 144/12 padding-to-point ratio, so the sticker
-        // stroke + shadow (SDF-normalized material units) keep the same visual thickness — and
-        // the ~190-character set fits ONE 2048 atlas (multi-atlas would break the custom
-        // styled materials, which bind the first atlas texture only).
+        // Padding is the ceiling for stroke + the black ring (all material widths are
+        // padding-normalized): 16px @ 96pt doubles the old 8px reach — the 2026-09-08 triple
+        // layer clipped at 8. UIStyles knobs were rescaled /2 the same day to keep the look.
+        // Cell (96+32)px -> the ~190-character set still fits ONE 2048 atlas (multi-atlas
+        // would break the custom styled materials, which bind the first atlas texture only).
         private const int PointSize = 96;
-        private const int Padding = 8;
+        private const int Padding = 16;
         private const int AtlasSize = 2048;
 
         // The localization set: ASCII + Latin-1 supplement + the extras for ES/PT/DE/FR/IT/TR
