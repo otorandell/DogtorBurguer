@@ -13,6 +13,7 @@ namespace DogtorBurguer
         private const string KEY_GAMES_PLAYED = "gamesPlayed";
         private const string KEY_CONTROL_MODE = "controlMode";
         private const string KEY_STARTING_LEVEL = "startingLevel";
+        private const string KEY_LANGUAGE = "language";
         private const string KEY_ADS_REMOVED = "adsRemoved";
         private const string KEY_TUTORIAL_SEEN = "tutorialSeen";
         private const string KEY_OWNED_SKINS = "ownedSkins";          // CSV of skin ids
@@ -38,6 +39,7 @@ namespace DogtorBurguer
         public int GamesPlayed { get; private set; }
         public ControlMode ControlMode { get; private set; }
         public int StartingLevel { get; private set; }
+        public Language Language { get; private set; }
         public bool AdsRemoved { get; private set; }
         public bool TutorialSeen { get; private set; }
 
@@ -63,6 +65,12 @@ namespace DogtorBurguer
             ControlMode = (ControlMode)PlayerPrefs.GetInt(KEY_CONTROL_MODE, (int)DEFAULT_CONTROL_MODE);
             StartingLevel = Mathf.Clamp(
                 PlayerPrefs.GetInt(KEY_STARTING_LEVEL, DEFAULT_STARTING_LEVEL), 1, GameplayConfig.SETTINGS_LEVEL_CAP);
+
+            // First run (nothing stored): follow the device language, English when unsupported.
+            int storedLanguage = PlayerPrefs.GetInt(KEY_LANGUAGE, -1);
+            Language = storedLanguage >= 0 && storedLanguage < LanguageInfo.Count
+                ? (Language)storedLanguage
+                : LanguageInfo.FromSystem(Application.systemLanguage);
             AdsRemoved = PlayerPrefs.GetInt(KEY_ADS_REMOVED, 0) == 1;
             TutorialSeen = PlayerPrefs.GetInt(KEY_TUTORIAL_SEEN, 0) == 1;
 
@@ -150,6 +158,12 @@ namespace DogtorBurguer
             TutorialSeen = true;
             PlayerPrefs.SetInt(KEY_TUTORIAL_SEEN, 1);
             PlayerPrefs.Save();
+        }
+
+        public void SetLanguage(Language language)
+        {
+            Language = language;
+            PlayerPrefs.SetInt(KEY_LANGUAGE, (int)language);
         }
 
         public void SetStartingLevel(int level)

@@ -371,6 +371,8 @@ namespace DogtorBurguer
         // blue blank, "START: LVL N" centered, a yellow arrow button INSIDE each end.
         public const float SETTINGS_LEVEL_ARROW_X = 150f;                            // ± from the row center
         public const float SETTINGS_LEVEL_ARROW_H = 40f;                             // ui_arrow_yellow sized by height, then rotated
+        public static readonly Vector2 SETTINGS_PANEL_OFFSET = Vector2.zero;         // whole-panel nudge for the 4-row sheet (tune live)
+        public static readonly Vector2 SETTINGS_CHROME_OFFSET = Vector2.zero;        // title + X nudge if the 4-row sheet tab sits elsewhere
 
         // How-to-play panel (the "?" top-bar button, in-game + menu; on the modal chrome)
         public const float HOWTO_HEADER_Y = 130f;                                    // lime page header (CONTROLS, BURGERS, …)

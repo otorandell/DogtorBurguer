@@ -27,6 +27,7 @@ Assets/_Project/Scripts/
                  IngredientType, WavePreviewManager, WaveComposer, WaveSlot, IngredientBag,
                  IngredientRoster (per-run random unlock order)
   Input/         TouchInputHandler
+  Localization/  Loc (static accessor), Language, LanguageInfo, LocKey, Strings_EN..TR (one table per language)
   Scoring/       Scoring (points/tiers), BurgerTier, BurgerNamer
   Skins/         Skin (ScriptableObject), SkinSlot, UnlockMethod, SkinMap, Theme (static accessor)
   Shop/          ShopScreen (full-screen overlay), ShopSections, ShopWidgets, ShopSkinCell,
@@ -576,6 +577,20 @@ touches the persistent stock; completion = the column is empty). Callout = `Tuto
 text/positions live in TutorialManager). SKIP is always available. New hooks:
 `ChefController.OnMoved/OnFlipped`, `IngredientSpawner.SpawnScripted`,
 `BurgerChallenge.SetScriptedOrder/SetPanelVisible`, `ConsumableInventory.NotifyChanged`.
+
+### Localization (2026-09-08, `Scripts/Localization/`)
+7 languages: EN ES PT-BR DE FR IT TR (JP/KR/RU/CN ruled out 2026-09-08 — CJK fonts, Play
+absent in CN, Play payments suspended in RU). `Loc.Get(LocKey)` / `Loc.Format` serve the
+current language's string — typed enum keys, one table file per language (`Strings_XX`),
+missing key = loud error + English fallback, and an editor-only boot check validates every
+table carries every key. `SaveDataManager.Language` persists the choice; first run
+auto-detects from `Application.systemLanguage` (unsupported -> English). The menu Settings'
+4th row cycles the language by native name (menu-only, like START — a mid-run swap would
+leave built HUD text stale); Settings sits on its own 4-row sheet `ui_settings_panel`
+(How to Play keeps `ui_modal_panel`). **STATUS: core + Settings pilot wired; PENDING: the
+extraction pass (every UI string literal -> LocKey) and filling the 6 non-English tables.**
+All translations render ALL CAPS (Panton Black Caps). Store-listing translations are a
+separate Play Console task.
 
 ### Skins & Theme (cosmetics)
 All gameplay sprites flow through one place: `Theme` (static) reads `Skin` ScriptableObject

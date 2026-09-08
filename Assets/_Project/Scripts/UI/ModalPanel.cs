@@ -24,13 +24,18 @@ namespace DogtorBurguer
         /// the pop-in scales it too; positions are in panel px (canvas-centered + panelOffset).</summary>
         public Transform Panel { get; }
 
+        /// <summary>The title word on the tab — writable so a screen can refresh it live
+        /// (the Settings language cycle).</summary>
+        public TextMeshProUGUI Title { get; }
+
         private readonly CanvasGroup _group;
 
-        private ModalPanel(GameObject root, CanvasGroup group, Transform panel)
+        private ModalPanel(GameObject root, CanvasGroup group, Transform panel, TextMeshProUGUI title)
         {
             Root = root;
             _group = group;
             Panel = panel;
+            Title = title;
         }
 
         /// <summary>Builds the chrome into <paramref name="canvas"/>. It comes back ACTIVE — screens
@@ -69,7 +74,7 @@ namespace DogtorBurguer
             UIFactory.CreateSpriteButton(panel, "Close", close, Center, UIStyles.MODAL_CLOSE_POS + chromeOffset,
                 UIFactory.SizeByHeight(close, UIStyles.MODAL_CLOSE_H), onClose);
 
-            return new ModalPanel(root, group, panel);
+            return new ModalPanel(root, group, panel, titleText);
         }
 
         /// <summary>Activates the root and replays the pop-in (unscaled — the in-game opener pauses the run).</summary>

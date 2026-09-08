@@ -23,6 +23,7 @@ namespace DogtorBurguer
         private TextMeshProUGUI _soundLabel;
         private TextMeshProUGUI _controlLabel;
         private TextMeshProUGUI _levelLabel;
+        private TextMeshProUGUI _languageLabel;
         private GameObject _levelDown;
         private GameObject _levelUp;
         private bool _showRunButtons;
@@ -44,9 +45,7 @@ namespace DogtorBurguer
             if (_modal == null)
                 CreatePanel();
 
-            UpdateSoundLabel();
-            UpdateControlLabel();
-            UpdateLevelRow();
+            RefreshTexts();
             _modal.Show();
         }
 
@@ -60,7 +59,8 @@ namespace DogtorBurguer
 
         private void CreatePanel()
         {
-            _modal = ModalPanel.Build(_canvas, "SETTINGS", "ui_modal_panel", Vector2.zero, Vector2.zero, Hide);
+            _modal = ModalPanel.Build(_canvas, Loc.Get(LocKey.SettingsTitle), "ui_settings_panel",
+                UIStyles.SETTINGS_PANEL_OFFSET, UIStyles.SETTINGS_CHROME_OFFSET, Hide);
 
             // Rows down the body. The label strings are set by the Update* refreshers.
             _soundLabel = CreateRowButton("Sound", new Vector2(0f, RowY(0)), UIStyles.SETTINGS_ROW_W, OnSoundToggleClicked);
@@ -70,9 +70,16 @@ namespace DogtorBurguer
             // 2026-09-05 — game over already offers Retry; scene loads reset timeScale, so
             // leaving from the paused panel is safe). In the menu, the START level row.
             if (_showRunButtons)
-                CreateRowButton("Quit to Menu", new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W, OnQuitClicked);
+            {
+                CreateRowButton(Loc.Get(LocKey.SettingsQuit), new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W, OnQuitClicked);
+            }
             else
+            {
                 BuildLevelRow(new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W);
+                // Fourth row (menu-only, like START): cycles the language. A mid-run swap would
+                // leave already-built HUD text in the old language, so the in-game panel skips it.
+                _languageLabel = CreateRowButton("Language", new Vector2(0f, RowY(3)), UIStyles.SETTINGS_ROW_W, OnLanguageClicked);
+            }
         }
 
         private static float RowY(int row) => UIStyles.SETTINGS_ROW_TOP_Y - row * UIStyles.SETTINGS_ROW_PITCH;
@@ -142,7 +149,7 @@ namespace DogtorBurguer
             bool soundOn = SaveDataManager.Instance != null
                 ? SaveDataManager.Instance.SoundOn
                 : SaveDataManager.DEFAULT_SOUND_ON;
-            _soundLabel.text = soundOn ? "Sound: ON" : "Sound: OFF";
+            _soundLabel.text = Loc.Get(soundOn ? LocKey.SettingsSoundOn : LocKey.SettingsSoundOff);
         }
 
         private void OnControlToggleClicked()
@@ -161,7 +168,8 @@ namespace DogtorBurguer
             ControlMode mode = SaveDataManager.Instance != null
                 ? SaveDataManager.Instance.ControlMode
                 : SaveDataManager.DEFAULT_CONTROL_MODE;
-            _controlLabel.text = mode == ControlMode.Drag ? "Controls: Drag" : "Controls: Tap";
+            _controlLabel.text = Loc.Get(mode == ControlMode.Drag
+                ? LocKey.SettingsControlsDrag : LocKey.SettingsControlsTap);
         }
 
         private void OnLevelStep(int delta)
@@ -178,9 +186,33 @@ namespace DogtorBurguer
             int level = SaveDataManager.Instance != null
                 ? SaveDataManager.Instance.StartingLevel
                 : SaveDataManager.DEFAULT_STARTING_LEVEL;
-            _levelLabel.text = $"START: LVL {level}";
+            _levelLabel.text = Loc.Format(LocKey.SettingsStartLevel, level);
             _levelDown.SetActive(level > 1);
             _levelUp.SetActive(level < GameplayConfig.SETTINGS_LEVEL_CAP);
+        }
+
+        private void OnLanguageClicked()
+        {
+            if (SaveDataManager.Instance == null) return;
+
+            SaveDataManager.Instance.SetLanguage(LanguageInfo.Next(SaveDataManager.Instance.Language));
+            RefreshTexts(); // the panel relabels itself live; other screens read Loc when built
+        }
+
+        private void UpdateLanguageLabel()
+        {
+            if (_languageLabel == null) return;
+            _languageLabel.text = Loc.Format(LocKey.SettingsLanguage, LanguageInfo.NativeName(Loc.Current));
+        }
+
+        // Every Loc-driven text on the panel — Show and the language cycle both come through here.
+        private void RefreshTexts()
+        {
+            if (_modal != null) _modal.Title.text = Loc.Get(LocKey.SettingsTitle);
+            UpdateSoundLabel();
+            UpdateControlLabel();
+            UpdateLevelRow();
+            UpdateLanguageLabel();
         }
 
         private void OnDestroy()
