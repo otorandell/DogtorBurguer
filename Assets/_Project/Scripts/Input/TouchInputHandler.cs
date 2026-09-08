@@ -20,6 +20,10 @@ namespace DogtorBurguer
 
         private Vector2 _touchStartPos;
         private PressPhase _press = PressPhase.None;
+        // Tap mode: a press on the chef arms a flip that fires on the LIFT (and dies if the press
+        // becomes a swipe) — flipping on the press made a drag that starts on the chef flip AND
+        // move at once (found 2026-09-08). Drag mode always flipped on the lift anyway.
+        private bool _pendingFlip;
 
         private void Awake()
         {
@@ -148,6 +152,7 @@ namespace DogtorBurguer
             if (!IsSwipe(_touchStartPos, screenPos, out float deltaX)) return;
 
             _press = PressPhase.None;
+            _pendingFlip = false; // the press became a swipe — the armed flip dies with it
             MoveChefHorizontal(deltaX);
         }
 
@@ -195,12 +200,13 @@ namespace DogtorBurguer
         {
             _touchStartPos = screenPos;
             _press = PressPhase.Open;
+            _pendingFlip = false;
             TryBeginCarry(screenPos);
             if (IsCarrying) return;
 
             if (CurrentControlMode == ControlMode.Tap)
             {
-                ResolveTap(screenPos);
+                ResolveTap(screenPos, deferFlip: true); // the flip arms; everything else fires now
                 _press = PressPhase.SwipeOnly;
             }
         }
@@ -237,11 +243,23 @@ namespace DogtorBurguer
         private void ResolveRelease(Vector2 startScreenPos, Vector2 endScreenPos, bool allowTap)
         {
             if (_chef == null) return;
+            bool pendingFlip = _pendingFlip;
+            _pendingFlip = false;
 
             if (IsSwipeCandidate(startScreenPos, endScreenPos, _swipeThreshold))
             {
+                // Any drag past the threshold (horizontal or not) is a deliberate non-tap:
+                // the armed flip stays cancelled.
                 if (IsSwipe(startScreenPos, endScreenPos, out float deltaX))
                     MoveChefHorizontal(deltaX);
+                return;
+            }
+
+            // Tap mode's deferred chef flip: the press stayed a tap, so it fires now.
+            if (pendingFlip)
+            {
+                if (TutorialMode.AllowFlip)
+                    _chef.SwapPlates();
                 return;
             }
 
@@ -250,7 +268,7 @@ namespace DogtorBurguer
 
         // The tap intent at one screen point: world-object taps (fairy / preview / falling) in both
         // modes, then the mode-specific chef taps.
-        private void ResolveTap(Vector2 screenPos)
+        private void ResolveTap(Vector2 screenPos, bool deferFlip = false)
         {
             if (_chef == null || _camera == null) return;
             Vector3 worldPos = _camera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, ScreenToWorldZ));
@@ -281,7 +299,9 @@ namespace DogtorBurguer
             // Tap mode: tap the chef to swap, or tap to a side (below the playfield) to move there.
             if (tappedChef)
             {
-                if (TutorialMode.AllowFlip)
+                if (deferFlip)
+                    _pendingFlip = true; // fires on the lift unless the press becomes a swipe
+                else if (TutorialMode.AllowFlip)
                     _chef.SwapPlates();
             }
             else if (TutorialMode.AllowMove &&

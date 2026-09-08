@@ -134,7 +134,9 @@ falling piece) never move or swap the cook (`ProcessInput`):
 finger crosses the threshold (`TrySwipeEarly`), never on the lift; the chef retargets mid-move
 (no `_isMoving` gate on `MoveToPosition`). In **Tap mode the whole tap intent resolves on the
 PRESS** (`BeginPress` → `ResolveTap`; the press then goes `PressPhase.SwipeOnly`, so the lift can
-only still swipe). **Drag mode keeps taps on the lift** — there a press on the chef or a piece is
+only still swipe) — EXCEPT the chef flip (2026-09-08): it ARMS on the press (`_pendingFlip`) and
+fires on the lift, cancelled if the press becomes a swipe — flipping on the press made a drag
+that starts on the chef flip AND move at once. Drag mode always flipped on the lift anyway. **Drag mode keeps taps on the lift** — there a press on the chef or a piece is
 usually the start of a swipe. `PressPhase` (None / Open / SwipeOnly) is the press state; a
 consumable carry stays Open. Also from that test: `AppBootstrap.ApplyFrameRate` targets the
 display refresh with a `MIN_TARGET_FRAME_RATE` floor (60) — Unity's mobile default was 30 fps.
