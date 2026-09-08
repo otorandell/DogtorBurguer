@@ -250,11 +250,30 @@ namespace DogtorBurguer
             tmp.textWrappingMode = wrap ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;
             tmp.characterSpacing = UIStyles.TEXT_CHARACTER_SPACING;
             tmp.lineSpacing = UIStyles.TEXT_LINE_SPACING;
+
+            // Localization shrink-to-fit (2026-09-08): translated labels can outgrow rects tuned
+            // on English (SPEZIALBESTELLUNG...), so every single-line label caps at its requested
+            // size and shrinks only when it must. Paragraphs (wrap: true) flow instead.
+            if (!wrap)
+            {
+                tmp.enableAutoSizing = true;
+                tmp.fontSizeMin = fontSize * 0.55f;
+                tmp.fontSizeMax = fontSize;
+            }
+
             // The weight trim (TEXT_FACE_DILATE) must reach PLAIN texts too — a cached
             // dilate-only clone of the font material. Styled texts replace it a moment later via
             // StyleFillAndBorder, which bakes the same dilate into its own cached materials.
-            tmp.fontSharedMaterial = PlainMaterial(tmp.font.material);
-            tmp.UpdateMeshPadding();
+            // On an INACTIVE hierarchy TMP hasn't run Awake yet and tmp.font is null (the
+            // ModalPanel gotcha — bit the How-to bullets 2026-09-08), so assign the default
+            // font explicitly instead of dereferencing it.
+            TMP_FontAsset font = tmp.font != null ? tmp.font : TMP_Settings.defaultFontAsset;
+            if (font != null)
+            {
+                tmp.font = font;
+                tmp.fontSharedMaterial = PlainMaterial(font.material);
+                tmp.UpdateMeshPadding();
+            }
             return tmp;
         }
 
