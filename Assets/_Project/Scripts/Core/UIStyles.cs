@@ -253,8 +253,10 @@ namespace DogtorBurguer
         // defaults from the artist's mock — tune live.
         public static readonly Vector2 MENU_LOGO_POS = new(23f, -185f);      // logo CENTER below the top edge (x: the art's opaque pixels sit left of its canvas center — +23 recenters the visible lettering)
         public const float MENU_LOGO_W = 604f;                               // sized to the 2026-09-04 pass (DesiredMenu.png)
-        public static readonly Vector2 MENU_PLAY_POS = new(0f, -136f);       // authored PLAY (text baked in)
+        public static readonly Vector2 MENU_PLAY_POS = new(0f, -136f);       // the kit's green blank (word overlaid since 2026-09-08)
         public const float MENU_PLAY_W = 400f;
+        public static readonly Vector2 MENU_PLAY_LABEL_NUDGE = new(0f, 8f);  // word centered on the face (the canvas shadow sits low)
+        public const float MENU_PLAY_LABEL_SIZE = 84f;                       // PLAY word (HUD palette)
         public const float MENU_BOTTOM_STRIP_W = 680f;                       // the checker strip: the ART has ~150px clear margins per side, so it must
                                                                              // outsize the canvas for the squares to reach the screen edges
         public const float MENU_BOTTOM_BTN_Y = 108f;                         // CREDITS/SHOP center height from the bottom edge

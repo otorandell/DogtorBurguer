@@ -51,10 +51,15 @@ namespace DogtorBurguer
             // (The old high-score plaque was dropped 2026-09-03 — the TopBar trophy pill already
             // shows the high score; the plaque was redundant. ui_hs_plaque stays in Resources.)
 
-            // PLAY — authored button, text baked into the art.
+            // PLAY — the kit's green blank with the word overlaid (was baked-text art until
+            // 2026-09-08), so it matches every other button's sticker lettering.
             Sprite play = UiArt.Load("ui_play_button");
-            UIFactory.CreateSpriteButton(_canvas.transform, "Play", play, new Vector2(0.5f, 0.5f),
-                UIStyles.MENU_PLAY_POS, UIFactory.SizeByWidth(play, UIStyles.MENU_PLAY_W), OnPlayClicked);
+            Vector2 playSize = UIFactory.SizeByWidth(play, UIStyles.MENU_PLAY_W);
+            Button playBtn = UIFactory.CreateSpriteButton(_canvas.transform, "Play", play,
+                new Vector2(0.5f, 0.5f), UIStyles.MENU_PLAY_POS, playSize, OnPlayClicked);
+            TextMeshProUGUI playWord = UIFactory.CreateText(playBtn.transform, "PLAY",
+                UIStyles.MENU_PLAY_LABEL_NUDGE, playSize, UIStyles.MENU_PLAY_LABEL_SIZE, FontStyles.Bold);
+            UIFactory.StyleHudText(playWord);
 
             BuildBottomStrip();
             if (TestBuild.IsEnabled) BuildTestBuildLabel();

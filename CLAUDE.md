@@ -835,7 +835,7 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   camera (both frame by width — see Camera & UI scaling). **Boxes are baked art at native aspect**
   (the 9-slice route was dropped — fixed-size HUD boxes don't need it).
 - **Main Menu (authored, 2026-08-30)**: rebuilt to the artist's mock — logo (top-anchored),
-  the authored PLAY button (the high-score plaque was dropped 2026-09-03 as redundant — the
+  the PLAY button (kit green blank + overlaid word since 2026-09-08 - was baked-text art) (the high-score plaque was dropped 2026-09-03 as redundant — the
   TopBar trophy pill shows the high score; `ui_hs_plaque` stays imported but unused),
   checkered bottom strip with CREDITS + SHOP,
   TopBar with the "?" help button + settings gear (shop stays a bottom button). Knobs: `UIStyles.MENU_*`; art in
