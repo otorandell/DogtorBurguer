@@ -40,8 +40,9 @@ namespace DogtorBurguer
                 _gridManager.OnIngredientPlaced += HandleIngredientPlaced;
 
             // Seed the starting level. Dual-column test mode overrides; otherwise the
-            // player-chosen Settings value (defaults to 1). The '>' guard in EvaluateLevel
-            // keeps a raised start from being reset before _ingredientsPlaced catches up.
+            // player-chosen Settings value (defaults to 1). The placement counter is seeded
+            // to the start level's threshold below, so progression runs at the normal
+            // per-level pace (the '>' guard in EvaluateLevel stays as belt-and-braces).
             int startLevel = SaveDataManager.Instance != null
                 ? SaveDataManager.Instance.StartingLevel
                 : SaveDataManager.DEFAULT_STARTING_LEVEL;
@@ -54,6 +55,13 @@ namespace DogtorBurguer
                 startLevel = 1;
 
             _currentLevel = Mathf.Clamp(startLevel, 1, GameplayConfig.KILLER_LEVEL);
+            // A raised start counts as having already placed its level's threshold: L12->L13
+            // then takes the normal 40 pieces, not the 353 absolute (found 2026-09-08 - a
+            // raised start held its level near-forever). The kill screen sits proportionally
+            // closer too, as it would in a natural run.
+            _ingredientsPlaced = _currentLevel >= GameplayConfig.KILLER_LEVEL
+                ? GameplayConfig.KILLER_LEVEL_THRESHOLD
+                : GameplayConfig.LEVEL_THRESHOLDS[_currentLevel - 1];
             // The initial level is pull-state, not an event: subscribers read CurrentLevel
             // on their own init (GameHUD.RefreshAll, GameOverPanel). Firing OnLevelChanged
             // here would risk a spurious level-up SFX and depend on subscribe ordering.
