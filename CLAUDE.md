@@ -462,10 +462,10 @@ Rebuilt each open, destroyed on close (no stale state).
   wide green blank (the button sheet has words baked in), so it's the wide blue blank hue-shifted
   (`scratchpad/build_shop_art.py`, outline + highlight preserved). Ask the artist for a wide green
   blank and it's a file swap.
-- Money price labels show digits + separators ONLY (`ShopWidgets.MoneyLabel` strips currency
-  symbols from config placeholders AND store-localized strings) — KEPT after the 2026-09-08
-  Baloo swap: no single font covers every store currency (₹ ₩ …) and fallback-rendered symbols
-  read off-style; the store purchase sheet shows the real symbol. The `LiberationSans SDF -
+- Money price labels keep the store's own formatting: `ShopWidgets.MoneyLabel` drops only
+  characters missing from the baked atlas (2026-09-08 — the currency block is baked: € $ £ ¥
+  ₹ ₩ ₺ ₽ ₱ ₫ ¢; an uncovered one, e.g. Thai ฿, degrades to digits-only rather than an
+  off-style fallback glyph; the store purchase sheet always shows the real formatted price). The `LiberationSans SDF -
   Sticker.mat` rich-text hacks (banner "+", pager "/") are retired — Baloo draws both natively;
   the .mat stays for possible exotic-glyph needs.
 - **Layer split**: `ShopScreen` (frame/orchestration + confirm dialog + pills),

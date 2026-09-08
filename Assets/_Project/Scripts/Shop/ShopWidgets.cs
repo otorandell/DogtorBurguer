@@ -153,16 +153,18 @@ namespace DogtorBurguer
         public static void StyleAccent(TextMeshProUGUI tmp) =>
             UIFactory.StyleFillAndBorder(tmp, UIStyles.SHOP_ACCENT, UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH);
 
-        /// <summary>Money price labels for display: digits and separators only ("0,01 €" → "0,01",
-        /// "$2.99" → "2.99"). The trial font renders every currency symbol wrong ($ = the
-        /// placeholder sliver, € = a mismatched fallback glyph — tried and rejected 2026-09-05),
-        /// so they are dropped; the store's own purchase sheet shows the real symbol. Delete with
-        /// the font swap.</summary>
+        /// <summary>The shop's price text from a store label: keeps the store's own formatting
+        /// (symbol, code, separators) but drops any character the game font cannot draw
+        /// in-style — a currency outside the baked atlas (e.g. Thai baht) would render as a
+        /// plain fallback glyph or a missing box, so those markets see digits only. (Blanket
+        /// symbol stripping was a trial-font workaround, retired 2026-09-08.)</summary>
         public static string MoneyLabel(string priceLabel)
         {
+            TMP_FontAsset font = TMP_Settings.defaultFontAsset;
             var sb = new System.Text.StringBuilder(priceLabel.Length);
             foreach (char c in priceLabel)
-                if (char.IsDigit(c) || c == '.' || c == ',' || c == ' ')
+                if (char.IsDigit(c) || c == '.' || c == ',' || c == ' '
+                    || (font != null && font.HasCharacter(c)))
                     sb.Append(c);
             return sb.ToString().Trim();
         }
