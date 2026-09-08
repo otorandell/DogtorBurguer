@@ -24,6 +24,7 @@ namespace DogtorBurguer
         public static readonly Color32 HUD_TEXT_BORDER = new(0x12, 0x0A, 0x05, 0xFF);  // near-black — the OUTER ring/shadow layer (was #492611 brown; black third layer per Oscar 2026-09-08; also the border of colored headings)
         public static readonly Color32 HUD_TEXT_STROKE = new(0x88, 0x46, 0x2A, 0xFF);  // #88462A mid brown — the inner stroke (sampled off the mock's PLAY)
         public const float HUD_TEXT_BORDER_WIDTH = 0.19f;                               // TMP outline width (0..1) — tune live (0.25 pre-Baloo; thicker per Oscar 2026-09-08)
+        public const float TEXT_LINE_SPACING = -30f;                                    // global leading trim — Baloo's native line height is huge (overflowed How-to, wrapped the one-time-buy tag); negative tightens
         public const float TEXT_CHARACTER_SPACING = -6f;                                // global tracking, TMP units (~0.01 em) — negative tightens; Baloo tracks looser than Panton did
         public const float TEXT_FACE_DILATE = 0.06f;                                    // weight trim (negative thins) — slightly positive so the thicker outline pushes OUTWARD instead of eating the fill. Tune live; styled AND plain texts
         // The sticker drop shadow (TMP Underlay) applied by StyleFillAndBorder to EVERY bordered
@@ -427,8 +428,8 @@ namespace DogtorBurguer
         public static readonly Vector2 SHOP_CLOSE_POS = new(192f, -47f);        // round X over the awning's corner (from top-center)
         public const float SHOP_CLOSE_H = 78f;
         public const float SHOP_TOPBAR_DROP = 141f;                             // the shared TopBar pills, moved down into the page
-        public static readonly Vector2 SHOP_TITLE_POS = new(0f, 340f);          // SHOP word on the awning (measured off the old baked art — tune live)
-        public const float SHOP_TITLE_SIZE = 46f;
+        public static readonly Vector2 SHOP_TITLE_POS = new(0f, 412f);          // SHOP word centered on the awning roof — tune live
+        public const float SHOP_TITLE_SIZE = 92f;
         public const float SHOP_TOPBAR_X_NUDGE = 40f;                           // …and nudged right to center the 3 pills (the bar recipe hugs the left)
         // Scroll viewport: the page body between the pills and the page bottom. Side inset + content
         // padding center the 3-column grids (3 × SHOP_CELL_W + 2 × SHOP_CELL_SPACING) in the body.

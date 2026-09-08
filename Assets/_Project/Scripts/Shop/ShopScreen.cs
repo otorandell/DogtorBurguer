@@ -228,7 +228,7 @@ namespace DogtorBurguer
             // The awning title — overlaid since 2026-09-08 (the sheet is the no-text version now,
             // so the word follows the game font and, later, the language).
             TextMeshProUGUI title = UIFactory.CreateText(_page, "SHOP", UIStyles.SHOP_TITLE_POS,
-                new Vector2(300f, 70f), UIStyles.SHOP_TITLE_SIZE, FontStyles.Bold);
+                new Vector2(460f, 120f), UIStyles.SHOP_TITLE_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(title);
 
             Sprite close = UiArt.Load("ui_btn_close_x");

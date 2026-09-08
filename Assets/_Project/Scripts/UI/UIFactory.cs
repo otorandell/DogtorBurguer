@@ -249,6 +249,7 @@ namespace DogtorBurguer
             // genuinely auto-wrapping paragraphs need wrap = true.
             tmp.textWrappingMode = wrap ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;
             tmp.characterSpacing = UIStyles.TEXT_CHARACTER_SPACING;
+            tmp.lineSpacing = UIStyles.TEXT_LINE_SPACING;
             // The weight trim (TEXT_FACE_DILATE) must reach PLAIN texts too — a cached
             // dilate-only clone of the font material. Styled texts replace it a moment later via
             // StyleFillAndBorder, which bakes the same dilate into its own cached materials.
