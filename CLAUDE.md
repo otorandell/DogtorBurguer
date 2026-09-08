@@ -250,7 +250,9 @@ forfeits the end-of-run score payout.
 - **World popups ride glow plates** (2026-09-04 kit, set 1; `WorldTextFactory.AttachPlate`,
   heights `UIStyles.PLATE_*`): burger name + points on the wide green ellipse
   (`ui_popup_plate_wide`), score "N!" and fast-drops on the green round (`ui_popup_plate`),
-  multiplier "xN" and star awards on the yellow (`ui_popup_plate_mult`); "Too bad!" stays bare.
+  multiplier "xN", star awards AND the fairy loot popups on the yellow (`ui_popup_plate_mult` —
+  fairy popups concatenate the reward icon after the amount via FloatingText's `iconArt`,
+  2026-09-08; every fairy tap also plays the collect chime); "Too bad!" stays bare.
 - Level up requires `min((level+3)/2, CHALLENGE_ORDERS_TO_LEVEL_CAP)` matches — 2, 2, 3, 3, 3 …
 - ⚠️ Score scale shrank ~10× at high levels with the 0.25-step multiplier — revisit
   `STAR_SCORE_DIVISOR` (end-of-run payout) and the score-tier feel after playtests.

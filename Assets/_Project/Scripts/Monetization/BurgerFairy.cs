@@ -105,27 +105,36 @@ namespace DogtorBurguer
             _collected = true;
             _active.Remove(this);
 
+            AudioManager.Instance?.PlayConsumableCollect(); // the collect chime — EVERY payload (2026-09-08)
             Award();
             PlayCollect();
         }
 
         private void Award()
         {
+            // Every payload pops its loot — amount + inline icon on the yellow reward plate
+            // (the fairy silently vanishing read as "did I get anything?" — 2026-09-08).
+            Vector3 popupPos = transform.position + Vector3.up * 0.4f;
             switch (_payload.Kind)
             {
                 case FairyPayloadKind.Gems:
                     SaveDataManager.Instance?.AddGems(MonetizationConfig.GEM_PACK_VALUE);
-                    Debug.Log($"[BurgerFairy] Collected gems! +{MonetizationConfig.GEM_PACK_VALUE}");
+                    FloatingText.Spawn(popupPos, MonetizationConfig.GEM_PACK_VALUE.ToString(),
+                        UIStyles.HUD_TEXT_FILL, UIStyles.WORLD_FLOATING_TEXT_SIZE,
+                        "ui_popup_plate_mult", "ui_gem");
                     break;
                 case FairyPayloadKind.Stars:
                     // Via GameManager so the stars count toward the run total on the game-over panel.
                     GameManager.Instance?.AwardStars(MonetizationConfig.STAR_PACK_VALUE);
-                    Debug.Log($"[BurgerFairy] Collected stars! +{MonetizationConfig.STAR_PACK_VALUE}");
+                    FloatingText.Spawn(popupPos, MonetizationConfig.STAR_PACK_VALUE.ToString(),
+                        UIStyles.HUD_TEXT_FILL, UIStyles.WORLD_FLOATING_TEXT_SIZE,
+                        "ui_popup_plate_mult", "ui_star");
                     break;
                 default:
                     ConsumableInventory.Instance?.Add(_payload.Consumable);
-                    AudioManager.Instance?.PlayConsumableCollect();
-                    Debug.Log($"[BurgerFairy] Collected consumable: {_payload.Consumable}");
+                    FloatingText.Spawn(popupPos, "1", UIStyles.HUD_TEXT_FILL,
+                        UIStyles.WORLD_FLOATING_TEXT_SIZE, "ui_popup_plate_mult",
+                        "ui_consumable_" + _payload.Consumable.ToString().ToLowerInvariant());
                     break;
             }
         }
