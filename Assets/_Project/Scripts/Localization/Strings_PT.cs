@@ -16,6 +16,7 @@ namespace DogtorBurguer
             { LocKey.SettingsStartLevel, "INÍCIO: NÍVEL {0}" },
             { LocKey.SettingsQuit, "Voltar ao Menu" },
             { LocKey.SettingsLanguage, "Idioma: {0}" },
+            { LocKey.SettingsRestart, "Reiniciar" },
             { LocKey.MenuPlay, "JOGAR" },
             { LocKey.MenuCredits, "CRÉDITOS" },
             { LocKey.MenuShop, "LOJA" },

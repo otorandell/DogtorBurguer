@@ -78,7 +78,10 @@ namespace DogtorBurguer
             // leaving from the paused panel is safe). In the menu, the START level row.
             if (_showRunButtons)
             {
-                CreateRowButton(Loc.Get(LocKey.SettingsQuit), new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W, OnQuitClicked);
+                // Restart returned 2026-09-08 (dropped 2026-09-05 for space) — the 4-row sheet
+                // fits it again. Ad-free by design: interstitials live ONLY on game-over Retry.
+                CreateRowButton(Loc.Get(LocKey.SettingsRestart), new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W, OnRestartClicked);
+                CreateRowButton(Loc.Get(LocKey.SettingsQuit), new Vector2(0f, RowY(3)), UIStyles.SETTINGS_ROW_W, OnQuitClicked);
             }
             else
             {
@@ -141,6 +144,13 @@ namespace DogtorBurguer
         private void OnQuitClicked()
         {
             SceneLoader.LoadMainMenu();
+        }
+
+        // Same forfeit semantics as Quit (live-earned stars kept, run payout lost) — the scene
+        // reload resets timeScale, so restarting from the paused panel is safe.
+        private void OnRestartClicked()
+        {
+            SceneLoader.LoadGame();
         }
 
         private void OnSoundToggleClicked()

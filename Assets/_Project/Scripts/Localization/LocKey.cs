@@ -15,6 +15,7 @@
         SettingsStartLevel,
         SettingsQuit,
         SettingsLanguage,
+        SettingsRestart,
         MenuPlay,
         MenuCredits,
         MenuShop,
