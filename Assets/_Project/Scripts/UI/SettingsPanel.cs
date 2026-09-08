@@ -118,7 +118,10 @@ namespace DogtorBurguer
             Sprite blank = UiArt.Load("ui_btn_blue_wide");
             Vector2 size = UIFactory.SizeByWidth(blank, width);
             Image row = UIFactory.CreateImage(_modal.Panel, "StartLevel", blank, Center, pos, size);
-            _levelLabel = CreateRowLabel(row.transform, "START: LVL 1", size);
+            // The label rect is only the space BETWEEN the arrows — with the full row width,
+            // a long translation auto-shrank to the row yet still ran under the arrow buttons.
+            _levelLabel = CreateRowLabel(row.transform, "START",
+                new Vector2(UIStyles.SETTINGS_LEVEL_LABEL_W, size.y));
 
             _levelDown = BuildLevelArrow(row.transform, "Down", -UIStyles.SETTINGS_LEVEL_ARROW_X,
                 UIStyles.ARROW_YELLOW_ROT_LEFT, -1);
