@@ -821,16 +821,16 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   `internalIDToNameTable`, `spriteSheet.sprites[].internalID`, and `nameFileIdTable`.
 
 ## Pending Manual Steps
-- **Font swap to Panton Black Caps (2026-09-08, decided — see Pre-Launch Checklist)**: in the
-  editor open Window - TextMeshPro - Font Asset Creator: Source Font = `PantonDemo-Black`,
-  Sampling Point Size Auto, Padding 12, Packing Fast, Atlas 2048x2048, Render Mode SDFAA,
-  Character Set = Unicode Range (Hex):
-  `20-7E,A1-FF,11E-11F,130-131,152-153,15E-15F,17D-17E,2013-2014,2018-201A,201C-201E,2026,20AC`
-  then Generate Font Atlas and **Save As over the existing**
-  `Assets/_Project/Fonts/Panton-Trial-ExtraBold SDF.asset` (overwriting keeps the GUID, so the
-  TMP-Settings default font and the LiberationSans fallback stay wired; the asset gets renamed
-  in a later commit). A "missing character 0131" warning is expected and harmless. Verify all
-  screens render CAPS in the sticker style; THEN the trial-font symbol workarounds can be
+- **Font bake — Tools > Dogtor > Bake Panton Font Atlas** (`Scripts/Editor/FontBaker.cs`,
+  2026-09-08 — replaces the Font Asset Creator recipe after two manual runs went wrong: an
+  ASCII-only charset, then an EMPTY static asset). One click bakes the full localization
+  charset from `PantonDemo-Black` INTO the existing `PantonDemo-Black SDF.asset` (GUID and
+  sub-asset fileIDs kept, so TMP Settings stays wired; 96pt/8px preserves the old 144/12
+  stroke-shadow ratio; one 2048 atlas — multi-atlas would break the custom styled materials).
+  Expect a console line "Baked ~190 characters". The asset is **git-LFS** — commit after a
+  good bake. Black is thinned toward the old ExtraBold weight via `UIStyles.TEXT_FACE_DILATE`
+  (-0.1; +0.2 was the trial-ExtraBold tuning — tune live; UIFactory applies it to styled AND
+  plain texts via cached materials). Once verified, the trial-font symbol workarounds can be
   removed (safe-charset rule, N! instead of +N, the LiberationSans + and / material hacks).
 - **Leaderboard activation** (code scaffolded 2026-09-06, `Scripts/Social/`): import the Play
   Games plugin v2 (`com.google.play.games`), add the **`PLAY_GAMES` scripting define** (Player
