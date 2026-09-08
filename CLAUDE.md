@@ -291,7 +291,10 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   screen flash 200).
 
 ### Audio
-- **AudioManager**: All SFX procedurally generated (sin waves, envelopes, harmonics). No audio asset
+- **AudioManager**: All SFX procedurally generated (sin waves, envelopes, harmonics), then run
+  through the **chip-style chain** (2026-09-08: sample-hold + drive-clamp + bit-crush in
+  GenerateSound — 8-bit timbre matching the chiptune music; toggle + knobs `AudioConfig.CHIP_*`,
+  overrides bypass it since they replace generation). No audio asset
   files. Each sound has an optional `_*Override` clip slot for authored audio. Consumable hooks:
   `PlayConsumableCollect` / `PlayConsumableUse(type)` / `PlayConsumableFizzle` (placeholder tones).
   **UI voice (2026-09-07, placeholder tones too)**: every UIFactory-made button plays `PlayUiTap`

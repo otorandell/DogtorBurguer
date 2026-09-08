@@ -179,9 +179,22 @@ namespace DogtorBurguer
             int sampleCount = (int)(SAMPLE_RATE * duration);
             float[] samples = new float[sampleCount];
 
+            // Chip-style voicing (2026-09-08, AudioConfig.CHIP_STYLE): the same melodies pushed
+            // through an 8-bit chain — (1) sample-hold at a low virtual rate for the aliasing
+            // grit, (2) drive + hard clamp so the dominant voice squares off like a pulse wave,
+            // (3) amplitude quantization for the crunch. The 0.8 ceiling keeps headroom under
+            // the per-call PlayClip volumes (an algorithmic constant, not a tuning value).
+            int hold = Mathf.Max(1, SAMPLE_RATE / AudioConfig.CHIP_SAMPLE_RATE);
             for (int i = 0; i < sampleCount; i++)
             {
-                samples[i] = sampleFunc(duration, i);
+                if (!AudioConfig.CHIP_STYLE)
+                {
+                    samples[i] = sampleFunc(duration, i);
+                    continue;
+                }
+                float s = sampleFunc(duration, i - (i % hold));
+                s = Mathf.Clamp(s * AudioConfig.CHIP_DRIVE, -0.8f, 0.8f);
+                samples[i] = Mathf.Round(s * AudioConfig.CHIP_LEVELS) / AudioConfig.CHIP_LEVELS;
             }
 
             AudioClip clip = AudioClip.Create(name, sampleCount, 1, SAMPLE_RATE, false);
