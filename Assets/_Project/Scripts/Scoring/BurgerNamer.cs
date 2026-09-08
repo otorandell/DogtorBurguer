@@ -5,17 +5,18 @@ namespace DogtorBurguer
     /// random prefix/noun/adjective combos read like word salad).</summary>
     public static class BurgerNamer
     {
-        // Indexed by ingredient count - 1, clamped at the top. Trial-font-safe characters only.
+        // Indexed by ingredient count - 1, clamped at the top. Trial-font-safe characters
+        // only; the excitement marks are baked into the strings (! -> !! -> !!! at the top).
         private static readonly string[] NameBySize =
         {
-            "Good Burger",        // 1
-            "Great Burger",       // 2
-            "Super Burger",       // 3
-            "Awesome Burger",     // 4
-            "Amazing Burger",     // 5
-            "Incredible Burger",  // 6
-            "Spectacular Burger", // 7
-            "LEGENDARY Burger",   // 8
+            "Good Burger!",       // 1
+            "Tasty Burger!",      // 2
+            "Great Burger!",      // 3
+            "Delicious Burger!",  // 4
+            "Awesome Burger!!",   // 5
+            "Incredible Burger!!",// 6
+            "Exquisite Burger!!", // 7
+            "Gourmet Burger!!",   // 8
         };
 
         public static string Generate(int ingredientCount)
@@ -23,7 +24,7 @@ namespace DogtorBurguer
             if (ingredientCount <= 0)
                 return "Just Bread...";
             if (ingredientCount > NameBySize.Length)
-                return "DOGTOR BURGER!";
+                return "DOGTOR BURGER!!!";
             return NameBySize[ingredientCount - 1];
         }
     }
