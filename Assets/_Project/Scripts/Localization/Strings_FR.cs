@@ -3,17 +3,17 @@
 namespace DogtorBurguer
 {
     /// <summary>FR strings — one entry per LocKey (Loc's editor boot check screams on gaps).
-    /// Machine-drafted 2026-09-08.</summary>
+    /// Machine-drafted 2026-09-08, native-phrasing polish pass the same day.</summary>
     public static class Strings_FR
     {
         public static readonly Dictionary<LocKey, string> Table = new()
         {
             { LocKey.SettingsTitle, "RÉGLAGES" },
-            { LocKey.SettingsSoundOn, "Son: OUI" },
-            { LocKey.SettingsSoundOff, "Son: NON" },
+            { LocKey.SettingsSoundOn, "Son: ON" },
+            { LocKey.SettingsSoundOff, "Son: OFF" },
             { LocKey.SettingsControlsDrag, "Contrôles: Glisser" },
             { LocKey.SettingsControlsTap, "Contrôles: Toucher" },
-            { LocKey.SettingsStartLevel, "DÉBUT: NIV {0}" },
+            { LocKey.SettingsStartLevel, "DÉBUT: NIVEAU {0}" },
             { LocKey.SettingsQuit, "Retour au Menu" },
             { LocKey.SettingsLanguage, "Langue: {0}" },
             { LocKey.MenuPlay, "JOUER" },
@@ -34,7 +34,7 @@ namespace DogtorBurguer
             { LocKey.HowToControls1, "- Glisse à gauche ou à droite pour déplacer le chef." },
             { LocKey.HowToControls2, "- Touche le chef pour échanger ses assiettes." },
             { LocKey.HowToControls3, "- Touche un ingrédient qui tombe pour l'accélérer." },
-            { LocKey.HowToControls4, "- Touche une flèche d'aperçu pour le lancer tout de suite." },
+            { LocKey.HowToControls4, "- Touche une flèche d'aperçu pour faire tomber l'ingrédient tout de suite." },
             { LocKey.HowToMatching, "PAIRES" },
             { LocKey.HowToMatching1, "- Deux ingrédients identiques empilés éclatent et rapportent des points." },
             { LocKey.HowToMatching2, "- Garde les colonnes basses: si une déborde, c'est fini!" },
@@ -54,7 +54,7 @@ namespace DogtorBurguer
             { LocKey.HowToPowerUpsB3, "- La brochette pousse un pain du bas jusqu'à la base de sa colonne." },
             { LocKey.CreditsTitle, "CRÉDITS" },
             { LocKey.CreditsGameBy, "UN JEU DE" },
-            { LocKey.CreditsArtBy, "DESSINS DE" },
+            { LocKey.CreditsArtBy, "GRAPHISMES DE" },
             { LocKey.CreditsMusicBy, "MUSIQUE DE" },
             { LocKey.SpecialOrder, "COMMANDE SPÉCIALE" },
             { LocKey.TooBad, "Dommage!" },
@@ -97,7 +97,7 @@ namespace DogtorBurguer
             { LocKey.ShopStars, "ÉTOILES" },
             { LocKey.ShopGems, "GEMMES" },
             { LocKey.ShopRemoveAds, "SUPPRIMER LES PUBS" },
-            { LocKey.ShopRewardAds, "PUBS BONUS TOUJOURS DISPONIBLES" },
+            { LocKey.ShopRewardAds, "LES PUBS BONUS RESTENT DISPONIBLES" },
             { LocKey.ShopOneTimeBuy, "ACHAT\nUNIQUE" },
             { LocKey.ShopThankYou, "MERCI DE NOUS\nSOUTENIR!" },
             { LocKey.ShopWatchAd, "VOIR LA PUB" },

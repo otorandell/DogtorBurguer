@@ -3,7 +3,7 @@
 namespace DogtorBurguer
 {
     /// <summary>EN strings — one entry per LocKey (Loc's editor boot check screams on gaps).
-    /// Machine-drafted 2026-09-08.</summary>
+    /// Machine-drafted 2026-09-08, native-phrasing polish pass the same day.</summary>
     public static class Strings_EN
     {
         public static readonly Dictionary<LocKey, string> Table = new()

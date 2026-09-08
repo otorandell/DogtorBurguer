@@ -3,7 +3,7 @@
 namespace DogtorBurguer
 {
     /// <summary>DE strings — one entry per LocKey (Loc's editor boot check screams on gaps).
-    /// Machine-drafted 2026-09-08.</summary>
+    /// Machine-drafted 2026-09-08, native-phrasing polish pass the same day.</summary>
     public static class Strings_DE
     {
         public static readonly Dictionary<LocKey, string> Table = new()
@@ -13,8 +13,8 @@ namespace DogtorBurguer
             { LocKey.SettingsSoundOff, "Ton: AUS" },
             { LocKey.SettingsControlsDrag, "Steuerung: Ziehen" },
             { LocKey.SettingsControlsTap, "Steuerung: Tippen" },
-            { LocKey.SettingsStartLevel, "START: LVL {0}" },
-            { LocKey.SettingsQuit, "Zum Menü" },
+            { LocKey.SettingsStartLevel, "START: LEVEL {0}" },
+            { LocKey.SettingsQuit, "Zurück zum Menü" },
             { LocKey.SettingsLanguage, "Sprache: {0}" },
             { LocKey.MenuPlay, "SPIELEN" },
             { LocKey.MenuCredits, "CREDITS" },
@@ -34,7 +34,7 @@ namespace DogtorBurguer
             { LocKey.HowToControls1, "- Wische nach links oder rechts, um den Koch zu bewegen." },
             { LocKey.HowToControls2, "- Tippe auf den Koch, um seine Teller zu tauschen." },
             { LocKey.HowToControls3, "- Tippe auf eine fallende Zutat, damit sie schneller fällt." },
-            { LocKey.HowToControls4, "- Tippe auf einen Vorschau-Pfeil, um sofort zu starten." },
+            { LocKey.HowToControls4, "- Tippe auf einen Vorschau-Pfeil, um die Zutat sofort fallen zu lassen." },
             { LocKey.HowToMatching, "PAARE" },
             { LocKey.HowToMatching1, "- Zwei gestapelte gleiche Zutaten platzen und geben Punkte." },
             { LocKey.HowToMatching2, "- Halte die Spalten niedrig: läuft eine über, ist Schluss!" },
@@ -72,9 +72,9 @@ namespace DogtorBurguer
             { LocKey.TutMoveTitle, "BEWEG DICH!" },
             { LocKey.TutMoveTap, "Tippe LINKS oder RECHTS vom Dogtor, um ihn zwischen den Theken zu bewegen." },
             { LocKey.TutMoveSwipe, "Wische nach links oder rechts, um den Dogtor zwischen den Theken zu bewegen." },
-            { LocKey.TutSwapTitle, "TAUSCH!" },
+            { LocKey.TutSwapTitle, "TAUSCHEN!" },
             { LocKey.TutSwapBody, "Tippe auf den Dogtor, um die zwei Stapel vor ihm zu tauschen!" },
-            { LocKey.TutMatchTitle, "PAAR!" },
+            { LocKey.TutMatchTitle, "MATCH!" },
             { LocKey.TutMatchBody, "Zwei Gleiche platzen! Tausche die Stapel, damit das fallende Patty auf seinem Zwilling landet." },
             { LocKey.TutMatchDone, "Köstlich! Paare räumen die Theke und geben Punkte." },
             { LocKey.TutBurgerTitle, "BURGER-ZEIT!" },
@@ -87,8 +87,8 @@ namespace DogtorBurguer
             { LocKey.TutPowerUpBody, "Ein gratis Ketchup! Zieh ihn aus dem Slot auf die volle Spalte, um sie zu putzen." },
             { LocKey.TutPowerUpDone, "Blitzblank! Burger-Feen bringen mehr Power-ups - tippe sie an, wenn sie vorbeifliegen." },
             { LocKey.TutReadyTitle, "BEREIT!" },
-            { LocKey.TutReadyBody, "Das Diner gehört dir. Bedien sie gut, Dogtor!" },
-            { LocKey.TutTapToContinue, "TIPPE ZUM FORTFAHREN" },
+            { LocKey.TutReadyBody, "Das Diner gehört dir. Mach die Gäste glücklich, Dogtor!" },
+            { LocKey.TutTapToContinue, "ZUM FORTFAHREN TIPPEN" },
             { LocKey.TutSkip, "SKIP" },
             { LocKey.ShopTitle, "SHOP" },
             { LocKey.ShopDogtorSkins, "DOGTOR-SKINS" },

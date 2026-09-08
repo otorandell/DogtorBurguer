@@ -3,7 +3,7 @@
 namespace DogtorBurguer
 {
     /// <summary>IT strings — one entry per LocKey (Loc's editor boot check screams on gaps).
-    /// Machine-drafted 2026-09-08.</summary>
+    /// Machine-drafted 2026-09-08, native-phrasing polish pass the same day.</summary>
     public static class Strings_IT
     {
         public static readonly Dictionary<LocKey, string> Table = new()
@@ -13,7 +13,7 @@ namespace DogtorBurguer
             { LocKey.SettingsSoundOff, "Audio: NO" },
             { LocKey.SettingsControlsDrag, "Controlli: Trascina" },
             { LocKey.SettingsControlsTap, "Controlli: Tocca" },
-            { LocKey.SettingsStartLevel, "INIZIO: LIV {0}" },
+            { LocKey.SettingsStartLevel, "INIZIO: LIVELLO {0}" },
             { LocKey.SettingsQuit, "Torna al Menu" },
             { LocKey.SettingsLanguage, "Lingua: {0}" },
             { LocKey.MenuPlay, "GIOCA" },
@@ -23,7 +23,7 @@ namespace DogtorBurguer
             { LocKey.GameOverTitle, "GAME OVER..." },
             { LocKey.GameOverStarsEarned, "{0} stelle guadagnate!" },
             { LocKey.GameOverContinue, "Continua" },
-            { LocKey.GameOverNoMoreContinues, "Niente più continue" },
+            { LocKey.GameOverNoMoreContinues, "Non puoi più continuare" },
             { LocKey.GameOverWatch, "Guarda" },
             { LocKey.GameOverLoading, "Caricamento..." },
             { LocKey.GameOverMainMenu, "Menu\nPrincipale" },
@@ -100,7 +100,7 @@ namespace DogtorBurguer
             { LocKey.ShopRewardAds, "GLI ANNUNCI PREMIO RESTANO DISPONIBILI" },
             { LocKey.ShopOneTimeBuy, "ACQUISTO\nUNICO" },
             { LocKey.ShopThankYou, "GRAZIE PER IL\nTUO SOSTEGNO!" },
-            { LocKey.ShopWatchAd, "GUARDA SPOT" },
+            { LocKey.ShopWatchAd, "GUARDA UN VIDEO" },
             { LocKey.ShopTomorrow, "DOMANI!" },
             { LocKey.ShopLoading, "CARICAMENTO..." },
             { LocKey.ShopRestorePurchases, "Ripristina acquisti" },

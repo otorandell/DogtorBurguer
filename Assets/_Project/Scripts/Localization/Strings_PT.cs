@@ -3,7 +3,7 @@
 namespace DogtorBurguer
 {
     /// <summary>PT strings — one entry per LocKey (Loc's editor boot check screams on gaps).
-    /// Machine-drafted 2026-09-08.</summary>
+    /// Machine-drafted 2026-09-08, native-phrasing polish pass the same day.</summary>
     public static class Strings_PT
     {
         public static readonly Dictionary<LocKey, string> Table = new()
@@ -13,7 +13,7 @@ namespace DogtorBurguer
             { LocKey.SettingsSoundOff, "Som: NÃO" },
             { LocKey.SettingsControlsDrag, "Controles: Arrastar" },
             { LocKey.SettingsControlsTap, "Controles: Tocar" },
-            { LocKey.SettingsStartLevel, "INÍCIO: NVL {0}" },
+            { LocKey.SettingsStartLevel, "INÍCIO: NÍVEL {0}" },
             { LocKey.SettingsQuit, "Voltar ao Menu" },
             { LocKey.SettingsLanguage, "Idioma: {0}" },
             { LocKey.MenuPlay, "JOGAR" },
@@ -21,9 +21,9 @@ namespace DogtorBurguer
             { LocKey.MenuShop, "LOJA" },
             { LocKey.MenuSupportDevs, "Apoie os devs!" },
             { LocKey.GameOverTitle, "GAME OVER..." },
-            { LocKey.GameOverStarsEarned, "{0} estrelas ganhas!" },
+            { LocKey.GameOverStarsEarned, "Você ganhou {0} estrelas!" },
             { LocKey.GameOverContinue, "Continuar" },
-            { LocKey.GameOverNoMoreContinues, "Sem mais continuações" },
+            { LocKey.GameOverNoMoreContinues, "Não dá mais para continuar" },
             { LocKey.GameOverWatch, "Assistir" },
             { LocKey.GameOverLoading, "Carregando..." },
             { LocKey.GameOverMainMenu, "Menu\nPrincipal" },
@@ -34,7 +34,7 @@ namespace DogtorBurguer
             { LocKey.HowToControls1, "- Deslize para a esquerda ou direita para mover o chef." },
             { LocKey.HowToControls2, "- Toque no chef para girar os pratos." },
             { LocKey.HowToControls3, "- Toque num ingrediente caindo para o acelerar." },
-            { LocKey.HowToControls4, "- Toque numa seta de aviso para soltar na hora." },
+            { LocKey.HowToControls4, "- Toque numa seta lá de cima para soltar o ingrediente na hora." },
             { LocKey.HowToMatching, "PARES" },
             { LocKey.HowToMatching1, "- Dois ingredientes iguais empilhados estouram e dão pontos." },
             { LocKey.HowToMatching2, "- Mantenha as colunas baixas: se uma transbordar, acabou!" },

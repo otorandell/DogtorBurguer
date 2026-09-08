@@ -3,7 +3,7 @@
 namespace DogtorBurguer
 {
     /// <summary>TR strings — one entry per LocKey (Loc's editor boot check screams on gaps).
-    /// Machine-drafted 2026-09-08.</summary>
+    /// Machine-drafted 2026-09-08, native-phrasing polish pass the same day.</summary>
     public static class Strings_TR
     {
         public static readonly Dictionary<LocKey, string> Table = new()
@@ -13,7 +13,7 @@ namespace DogtorBurguer
             { LocKey.SettingsSoundOff, "Ses: KAPALI" },
             { LocKey.SettingsControlsDrag, "Kontrol: Sürükle" },
             { LocKey.SettingsControlsTap, "Kontrol: Dokun" },
-            { LocKey.SettingsStartLevel, "BAŞLANGIÇ: SVY {0}" },
+            { LocKey.SettingsStartLevel, "BAŞLANGIÇ: SEVİYE {0}" },
             { LocKey.SettingsQuit, "Menüye Dön" },
             { LocKey.SettingsLanguage, "Dil: {0}" },
             { LocKey.MenuPlay, "OYNA" },
@@ -21,15 +21,15 @@ namespace DogtorBurguer
             { LocKey.MenuShop, "MAĞAZA" },
             { LocKey.MenuSupportDevs, "Geliştiricilere destek ol!" },
             { LocKey.GameOverTitle, "GAME OVER..." },
-            { LocKey.GameOverStarsEarned, "{0} yıldız kazanıldı!" },
+            { LocKey.GameOverStarsEarned, "{0} yıldız kazandın!" },
             { LocKey.GameOverContinue, "Devam" },
-            { LocKey.GameOverNoMoreContinues, "Devam hakkı bitti" },
+            { LocKey.GameOverNoMoreContinues, "Devam hakkın bitti" },
             { LocKey.GameOverWatch, "İzle" },
             { LocKey.GameOverLoading, "Yükleniyor..." },
             { LocKey.GameOverMainMenu, "Ana\nMenü" },
-            { LocKey.GameOverRetry, "Tekrar" },
+            { LocKey.GameOverRetry, "Tekrar Dene" },
             { LocKey.HowToTitle, "NASIL OYNANIR" },
-            { LocKey.HowToPlayTutorial, "ÖĞRETİCİYİ OYNA" },
+            { LocKey.HowToPlayTutorial, "EĞİTİMİ OYNA" },
             { LocKey.HowToControls, "KONTROLLER" },
             { LocKey.HowToControls1, "- Şefi hareket ettirmek için sola veya sağa kaydır." },
             { LocKey.HowToControls2, "- Tabakları döndürmek için şefe dokun." },
@@ -97,7 +97,7 @@ namespace DogtorBurguer
             { LocKey.ShopStars, "YILDIZLAR" },
             { LocKey.ShopGems, "MÜCEVHERLER" },
             { LocKey.ShopRemoveAds, "REKLAMLARI KALDIR" },
-            { LocKey.ShopRewardAds, "ÖDÜLLÜ REKLAMLAR KULLANILABİLİR KALIR" },
+            { LocKey.ShopRewardAds, "ÖDÜLLÜ REKLAMLAR KAYBOLMAZ" },
             { LocKey.ShopOneTimeBuy, "TEK\nSEFERLİK" },
             { LocKey.ShopThankYou, "DESTEĞİN İÇİN\nTEŞEKKÜRLER!" },
             { LocKey.ShopWatchAd, "REKLAM İZLE" },
@@ -105,7 +105,7 @@ namespace DogtorBurguer
             { LocKey.ShopLoading, "YÜKLENİYOR..." },
             { LocKey.ShopRestorePurchases, "Satın alımları geri yükle" },
             { LocKey.ShopBuyAmount, "{0} satın al" },
-            { LocKey.ShopForCost, "karşılığı {0}" },
+            { LocKey.ShopForCost, "fiyatı: {0}" },
             { LocKey.ShopBuy, "AL" },
             { LocKey.ShopCancel, "İPTAL" },
             { LocKey.ShopEquipped, "TAKILI" },
