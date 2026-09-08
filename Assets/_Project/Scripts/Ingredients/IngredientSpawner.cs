@@ -27,7 +27,6 @@ namespace DogtorBurguer
         private WavePreviewManager _previewManager;
         private WaveComposer _composer;
         private IngredientRoster _roster;
-        private float _lastWaveSpawnTime;
 
         // Reused per-frame scratch buffers to avoid per-frame allocations.
         private readonly List<int> _eligibleColumns = new();
@@ -62,20 +61,12 @@ namespace DogtorBurguer
                     _previewManager.RevealCleared(ColumnsWithPieceInPreviewZone());
                     if (AllCurrentWaveLanded())
                     {
-                        // Wave grace: never fire sooner than N fall-steps after the last wave —
-                        // tall stacks land near-instantly and waves cascaded unreadably fast.
-                        float grace = _fallStepDuration * GameplayConfig.SPAWN_GRACE_FALL_STEPS;
-                        float remaining = _lastWaveSpawnTime + grace - Time.time;
-                        if (remaining > 0f)
-                        {
-                            _state = SpawnerState.Delaying;
-                            _delayTimer = remaining;
-                            _previewManager.SetUrgent(true); // fast blink: incoming!
-                        }
-                        else
-                        {
-                            SpawnNextWave();
-                        }
+                        // Wave grace — ALWAYS a beat between a wave landing and the next one
+                        // (Oscar, 2026-09-08): a readable pause scaling with the fall step,
+                        // announced by the previews' fast blink.
+                        _state = SpawnerState.Delaying;
+                        _delayTimer = _fallStepDuration * GameplayConfig.SPAWN_GRACE_FALL_STEPS;
+                        _previewManager.SetUrgent(true); // fast blink: incoming!
                     }
                     break;
             }
@@ -138,7 +129,6 @@ namespace DogtorBurguer
         private void SpawnNextWave()
         {
             if (GridManager.Instance == null) return;
-            _lastWaveSpawnTime = Time.time;
             _previewManager.SetUrgent(false);
 
             // The standing preview queue IS the wave (seeded in StartSpawning, refilled every frame).
