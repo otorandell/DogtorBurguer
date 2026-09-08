@@ -379,9 +379,9 @@ namespace DogtorBurguer
         public static readonly Vector2 SETTINGS_CHROME_OFFSET = Vector2.zero;        // title + X nudge if the 4-row sheet tab sits elsewhere
 
         // How-to-play panel (the "?" top-bar button, in-game + menu; on the modal chrome)
-        public const float HOWTO_HEADER_Y = 150f;                                    // lime page header (CONTROLS, BURGERS, …)
+        public const float HOWTO_HEADER_Y = 130f;                                    // lime page header (CONTROLS, BURGERS, …)
         public const float HOWTO_HEADER_SIZE = 30f;
-        public const float HOWTO_BULLETS_TOP_Y = 116f;                                // top edge of the auto-height bullet list (grows downward)
+        public const float HOWTO_BULLETS_TOP_Y = 92f;                                // top edge of the auto-height bullet list (grows downward)
         public const float HOWTO_BULLET_GAP = 14f;                                   // constant gap between bullets (each auto-sizes to its wrapped height)
         public const float HOWTO_LINE_W = 370f;
         public const float HOWTO_TEXT_SIZE = 22f;                                    // bullets are REGULAR weight — bold smears the ExtraBold trial font
