@@ -51,7 +51,9 @@ namespace DogtorBurguer
             UIFactory.StyleHudText(_body);
             // The box is a fixed piece of art and the step texts vary wildly in length across
             // seven languages, so the body shrinks to fit instead of overflowing its plate.
-            UIFactory.AutoFit(_body, UIStyles.TUT_BODY_SIZE_MIN, UIStyles.TUT_BODY_SIZE);
+            // MUST be the Wrapped variant: plain AutoFit forces NoWrap, which turned the tips
+            // into one endless sideways line (Oscar, 2026-09-13).
+            UIFactory.AutoFitWrapped(_body, UIStyles.TUT_BODY_SIZE_MIN, UIStyles.TUT_BODY_SIZE);
 
             // The pointer: a positioned root + a child image that idle-bobs (so per-frame
             // follow and the bob tween never fight over one transform).

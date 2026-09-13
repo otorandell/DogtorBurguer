@@ -308,10 +308,24 @@ namespace DogtorBurguer
             return new Vector2(height * aspect, height);
         }
 
-        /// <summary>Shrink-to-fit: the rect stays fixed and the text scales down (to <paramref name="min"/>) to stay inside it.</summary>
+        /// <summary>Shrink-to-fit for a SINGLE-LINE label: the rect stays fixed and the text scales
+        /// down (to <paramref name="min"/>) to stay inside it. ⚠️ This forces NoWrap — that is the
+        /// point for a label, but it silently destroys a PARAGRAPH (it then grows sideways as one
+        /// endless line instead of wrapping). Paragraphs want <see cref="AutoFitWrapped"/>.</summary>
         public static void AutoFit(TextMeshProUGUI tmp, float min, float max)
         {
             tmp.textWrappingMode = TextWrappingModes.NoWrap;
+            tmp.enableAutoSizing = true;
+            tmp.fontSizeMin = min;
+            tmp.fontSizeMax = max;
+        }
+
+        /// <summary>Shrink-to-fit for a WRAPPING paragraph: same fixed rect and size floor, but the
+        /// text keeps flowing onto new lines. Use this wherever a translated paragraph has to stay
+        /// inside fixed art (tutorial tips) rather than a one-line label.</summary>
+        public static void AutoFitWrapped(TextMeshProUGUI tmp, float min, float max)
+        {
+            tmp.textWrappingMode = TextWrappingModes.Normal;
             tmp.enableAutoSizing = true;
             tmp.fontSizeMin = min;
             tmp.fontSizeMax = max;

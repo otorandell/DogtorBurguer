@@ -370,7 +370,10 @@ namespace DogtorBurguer
         public const float TUT_TITLE_SIZE_MIN = 16f;                                 // AutoFit floor: long titles ("ACELEN MI VAR?") must not outgrow the banner
         public const float TUT_BODY_Y = -8f;
         public const float TUT_BODY_H = 150f;                                        // grown 2026-09-13 with the bigger tip text; the plate is ~219 tall, so this still clears its soft edges
-        public const float TUT_BODY_INSET = 90f;                                     // keeps text off the plate's soft edges
+        // Keeps text off the plate's soft edges. The plate is an ELLIPSE (~400x219), so it
+        // narrows toward the top and bottom of the text block: at the body rect's extremes
+        // (+/-75) it is only ~291 wide, hence a column of 280 rather than the old 310.
+        public const float TUT_BODY_INSET = 120f;
         public const float TUT_BODY_SIZE = 28f;                                      // bumped 2026-09-13 (Oscar: the tips read too small)
         public const float TUT_BODY_SIZE_MIN = 16f;                                  // AutoFit floor: the box is fixed, so long translations shrink rather than clip
         public const float TUT_CONTINUE_Y = -78f;

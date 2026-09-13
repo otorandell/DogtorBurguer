@@ -106,6 +106,22 @@ there was unused room inside it).
 ⚠️ The How-to bullets get TALLER as a result. They sit in a VerticalLayoutGroup +
 ContentSizeFitter so they re-flow on their own, but the 6 pages should be checked for overflow.
 
+### ...and then AutoFit silently un-wrapped them
+Adding `UIFactory.AutoFit` to the tutorial body (to stop long translations clipping) **turned
+wrapping off**: its first line is `tmp.textWrappingMode = NoWrap`, which is deliberate — it is
+built for single-line labels. On a paragraph that means the text stops wrapping entirely and grows
+sideways as one endless line, which autosize then shrinks to fit horizontally. Oscar spotted it as
+"the tips do not wrap properly, maybe they have too much horizontal space to grow" — exactly right.
+
+Fixed with `UIFactory.AutoFitWrapped` (same fixed rect and size floor, wrapping left ON) and a
+warning on `AutoFit`'s summary. Audited every other `AutoFit` call site: all ten are genuine
+single-line labels (prices, button words, HUD numbers, credits names), so NoWrap is correct there
+— the tutorial body was the only paragraph.
+
+`TUT_BODY_INSET` also went 90 -> 120. The plate is an ELLIPSE (~400x219), so it narrows toward the
+top and bottom of the text block: at the body rect's extremes (+/-75) it is only ~291 wide, so a
+310 column ran past the art. 280 sits inside it.
+
 ## Verification
 `dotnet build Assembly-CSharp.csproj` — **0 errors** (4 pre-existing CS0162 warnings). Localization
 table coverage checked by script.
@@ -119,6 +135,8 @@ table coverage checked by script.
 - Mustard step: confirm the third type visibly survives the sweep (that's the whole point).
 - Skewer step: confirm the bun visibly travels to the floor.
 - How to Play: check all 6 pages still fit now that bullets have real leading.
+- Tips: long translations (the German power-up lines) will AutoFit down; if they shrink too far,
+  the fairy sentence on `TutSkewerDone` is the longest tail and belongs on the Ready step anyway.
 - `TEXT_LINE_SPACING_WRAP` (-10) is an estimate against Baloo's native leading — tune live.
 - Consider whether Match should clear the board between rounds at all — it currently does, which
   is clean but abrupt.
