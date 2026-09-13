@@ -716,7 +716,10 @@ sprite — acceptable; menu equips always show in-game).
   (`Scripts/Editor/FontBaker.cs` — full 7-language charset, 96pt/16px padding, SDFAA, one 2048
   atlas; the asset is git-LFS, commit after baking). Look knobs (`UIStyles`):
   `TEXT_FACE_DILATE` (weight trim), `TEXT_CHARACTER_SPACING` / `TEXT_LINE_SPACING` (Baloo's
-  native tracking/leading run loose), `HUD_TEXT_BORDER_WIDTH` (brown stroke) + the near-black
+  native tracking/leading run loose; ⚠️ that -45 leading trim is for SINGLE-LINE labels only —
+  **wrapped paragraphs take `TEXT_LINE_SPACING_WRAP`**, chosen by `UIFactory` on the `wrap`
+  flag, because the trim collided the lines of the tutorial tips and the How-to bullets into
+  unreadable blocks, 2026-09-13), `HUD_TEXT_BORDER_WIDTH` (brown stroke) + the near-black
   outer ring (`HUD_TEXT_BORDER` as the underlay, `TEXT_SHADOW_*`) — the width knobs are
   padding-normalized: rescale them if FontBaker's Padding changes. The old trial-font
   safe-charset rule is **DEAD** (2026-09-08): full Latin, symbols and currency glyphs render

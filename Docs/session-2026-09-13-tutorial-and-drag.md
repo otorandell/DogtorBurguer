@@ -92,6 +92,20 @@ Tip text got BIGGER (Oscar): `TUT_BODY_SIZE` 22 → 28, `TUT_TITLE_SIZE` 24 → 
 (floors `TUT_BODY_SIZE_MIN` 16 / `TUT_TITLE_SIZE_MIN` 16) so the fixed box art can't be
 overflowed by a long translation — watch the German power-up lines, they're the longest.
 
+### Wrapped text was unreadable (the real cause of the cramped tips)
+`UIFactory.AddStyledText` set `lineSpacing = TEXT_LINE_SPACING` (**-45**, a percentage of font
+size) on EVERY text. That trim exists because Baloo's native leading is loose, and it is right for
+single-line labels — but on a WRAPPED paragraph it pulls lines into each other, so descenders hit
+the next line's caps. The tutorial tips and the How to Play bullets were both rendering as solid
+blocks; the bigger tip font just made it obvious.
+
+Paragraphs now take `TEXT_LINE_SPACING_WRAP` (-10), chosen by `UIFactory` on the `wrap` flag — so
+the fix reaches both call sites. `TUT_BODY_H` also grew 120 → 150 (the plate is ~219 tall, so
+there was unused room inside it).
+
+⚠️ The How-to bullets get TALLER as a result. They sit in a VerticalLayoutGroup +
+ContentSizeFitter so they re-flow on their own, but the 6 pages should be checked for overflow.
+
 ## Verification
 `dotnet build Assembly-CSharp.csproj` — **0 errors** (4 pre-existing CS0162 warnings). Localization
 table coverage checked by script.
@@ -104,5 +118,7 @@ table coverage checked by script.
 - Tune `CONSUMABLE_SLOT_HIT_PADDING` if grabbing still feels tight or now steals neighbours.
 - Mustard step: confirm the third type visibly survives the sweep (that's the whole point).
 - Skewer step: confirm the bun visibly travels to the floor.
+- How to Play: check all 6 pages still fit now that bullets have real leading.
+- `TEXT_LINE_SPACING_WRAP` (-10) is an estimate against Baloo's native leading — tune live.
 - Consider whether Match should clear the board between rounds at all — it currently does, which
   is clean but abrupt.
