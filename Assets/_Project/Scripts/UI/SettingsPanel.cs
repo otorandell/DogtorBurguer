@@ -152,13 +152,18 @@ namespace DogtorBurguer
             return btn.gameObject;
         }
 
+        // Quit is "pause and leave", not a forfeit (2026-09-13): the run is written down and the
+        // menu offers RESUME, so the player can browse the shop or change a skin and come back
+        // to the same board. Nothing is paid out — the end-of-run star payout still happens at
+        // the real game over, whenever that comes.
         private void OnQuitClicked()
         {
+            GameManager.Instance?.SaveResumePoint();
             SceneLoader.LoadMainMenu();
         }
 
-        // Same forfeit semantics as Quit (live-earned stars kept, run payout lost) — the scene
-        // reload resets timeScale, so restarting from the paused panel is safe.
+        // Restart DOES forfeit: it starts a fresh run, and StartGame discards the saved one.
+        // The scene reload resets timeScale, so restarting from the paused panel is safe.
         private void OnRestartClicked()
         {
             SceneLoader.LoadGame();

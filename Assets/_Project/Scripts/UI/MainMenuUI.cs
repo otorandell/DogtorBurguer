@@ -61,6 +61,7 @@ namespace DogtorBurguer
                 UIStyles.MENU_PLAY_LABEL_NUDGE, playSize, UIStyles.MENU_PLAY_LABEL_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(playWord);
 
+            BuildResumeButton();
             BuildBottomStrip();
             if (TestBuild.IsEnabled) BuildTestBuildLabel();
 
@@ -72,6 +73,27 @@ namespace DogtorBurguer
 
             _howToPanel = gameObject.AddComponent<HowToPlayPanel>();
             _howToPanel.Initialize(_canvas);
+        }
+
+        // RESUME — only when a run is waiting to be picked up: one the OS killed by backgrounding
+        // the app, or one the player left through the in-game Quit to Menu. Built above PLAY in
+        // the kit's blue blank and smaller, so PLAY stays the obvious primary action and doesn't
+        // shift depending on whether there's a run to return to.
+        private void BuildResumeButton()
+        {
+            RunSnapshot saved = RunSnapshotStore.Load();
+            if (saved == null) return;
+
+            Sprite blank = UiArt.Load("ui_btn_blue_wide");
+            Vector2 size = UIFactory.SizeByWidth(blank, UIStyles.MENU_RESUME_W);
+            Button btn = UIFactory.CreateSpriteButton(_canvas.transform, "Resume", blank,
+                new Vector2(0.5f, 0.5f), UIStyles.MENU_RESUME_POS, size,
+                () => SceneLoader.ResumeGame(saved));
+
+            TextMeshProUGUI word = UIFactory.CreateText(btn.transform, Loc.Get(LocKey.MenuResume),
+                UIStyles.MENU_RESUME_LABEL_NUDGE, size, UIStyles.MENU_RESUME_LABEL_SIZE, FontStyles.Bold);
+            UIFactory.StyleHudText(word);
+            UIFactory.AutoFit(word, UIStyles.MENU_RESUME_LABEL_SIZE_MIN, UIStyles.MENU_RESUME_LABEL_SIZE);
         }
 
         // The checkered diner strip pinned to the bottom edge, with CREDITS and SHOP on it.

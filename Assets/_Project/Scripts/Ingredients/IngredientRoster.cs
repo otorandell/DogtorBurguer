@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace DogtorBurguer
 {
@@ -18,8 +19,32 @@ namespace DogtorBurguer
 
         private readonly List<IngredientType> _order = new();
 
+        /// <summary>Rebuilds a roster from a saved order (resuming a run). Falls back to a fresh
+        /// random roster if the saved one doesn't cover every regular ingredient — a short order
+        /// would throw the moment a level unlocked a position it lacks.</summary>
+        public IngredientRoster(IngredientType[] savedOrder)
+        {
+            if (savedOrder != null && savedOrder.Length == GameplayConfig.REGULAR_INGREDIENTS.Length)
+            {
+                _order.AddRange(savedOrder);
+                return;
+            }
+
+            Debug.LogWarning("[IngredientRoster] Saved order unusable — rolling a fresh one.");
+            Randomize();
+        }
+
         public IngredientRoster()
         {
+            Randomize();
+        }
+
+        /// <summary>This run's order, for the resume snapshot.</summary>
+        public IngredientType[] ToArray() => _order.ToArray();
+
+        private void Randomize()
+        {
+            _order.Clear();
             _order.AddRange(Starters);
 
             List<IngredientType> rest = new();

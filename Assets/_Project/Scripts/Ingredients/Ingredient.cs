@@ -137,6 +137,23 @@ namespace DogtorBurguer
             GridManager.Instance?.OnIngredientLanded(this);
         }
 
+        /// <summary>
+        /// Seats this piece on top of <paramref name="column"/> as an already-landed piece, with
+        /// no fall, no squash and no landing notification — the resume path (RunSnapshotService),
+        /// where the board is rebuilt bottom-up and must not re-run matches, the overflow check
+        /// or the ingredients-placed counter that drives difficulty.
+        /// </summary>
+        public void PlaceRestored(Column column)
+        {
+            _state = IngredientState.Landed;
+            _currentTween?.Kill();
+
+            // AddIngredient assigns the row and sorting order from the stack height.
+            column.AddIngredient(this);
+            transform.position = column.GetWorldPositionForRow(_currentRow);
+            transform.localScale = Vector3.one;
+        }
+
         public void FallToRow(int row)
         {
             _currentRow = row;

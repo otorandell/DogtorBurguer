@@ -29,6 +29,13 @@ namespace DogtorBurguer
 
         private bool _hasContinued;
 
+        /// <summary>Whether this run already spent its one continue — saved so a resume can't
+        /// hand out a second one.</summary>
+        public bool HasContinued => _hasContinued;
+
+        /// <summary>Resume: reinstates the continue-used flag from the saved run.</summary>
+        public void RestoreContinued(bool hasContinued) => _hasContinued = hasContinued;
+
         private void Start()
         {
             CreateUI();

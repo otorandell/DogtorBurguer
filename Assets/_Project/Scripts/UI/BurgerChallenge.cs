@@ -35,6 +35,8 @@ namespace DogtorBurguer
         public IReadOnlyList<IngredientType> TargetIngredients => _targetIngredients;
         public string ChallengeName => _challengeName;
         public int Level => _challengeLevel;
+        /// <summary>Orders completed toward the next level — kept across a resume.</summary>
+        public int Progress => _challengeProgress;
 
         /// <summary>Progress toward the next challenge level (0..1) — drives the Mult meter.</summary>
         public float ChallengeFill => ProgressTarget > 0 ? (float)_challengeProgress / ProgressTarget : 0f;
@@ -59,7 +61,17 @@ namespace DogtorBurguer
             _view = gameObject.AddComponent<BurgerChallengeView>();
             _view.Initialize(this);
 
-            if (TutorialMode.IsActive || TutorialMode.ShouldRun)
+            RunSnapshot resume = RunSnapshotStore.Pending;
+            if (resume != null && !TutorialMode.ShouldRun)
+            {
+                // Resume: keep the order the player was already working on, and the multiplier
+                // they had climbed to. Restored before the view renders, so the card draws the
+                // saved recipe on its first build rather than flashing a fresh roll.
+                RestoreOrder(resume.ChallengeLevel, resume.ChallengeProgress,
+                    resume.ChallengeRequiredSize, resume.ChallengeTargets);
+                OnChallengeChanged?.Invoke();
+            }
+            else if (TutorialMode.IsActive || TutorialMode.ShouldRun)
             {
                 // Tutorial: no auto order, and hide the panel OURSELVES — same-frame Start order
                 // vs TutorialManager is unspecified, so its SetPanelVisible call can arrive
@@ -191,6 +203,26 @@ namespace DogtorBurguer
             _challengeProgress = progress;
             _challengeName = BuildContainsName();
             OnChallengeChanged?.Invoke();
+        }
+
+        /// <summary>Resume: reinstates the saved order, multiplier level and meter progress.
+        /// A snapshot missing its targets falls back to a fresh roll — an order that can never
+        /// be completed would strand the player's multiplier for the rest of the run.</summary>
+        public void RestoreOrder(int level, int progress, int requiredSize, IngredientType[] targets)
+        {
+            _challengeLevel = Mathf.Max(1, level);
+            _challengeProgress = Mathf.Max(0, progress);
+
+            if (targets == null || requiredSize <= 0)
+            {
+                GenerateNewChallenge();
+                return;
+            }
+
+            _requiredSize = requiredSize;
+            _targetIngredients.Clear();
+            _targetIngredients.AddRange(targets);
+            _challengeName = BuildContainsName();
         }
 
         // The burger's SCORE is fully handled upstream (GridManager computes the final

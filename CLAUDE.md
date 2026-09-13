@@ -21,7 +21,8 @@ Assets/_Project/Scripts/
   Chef/          ChefController, PlateManager
   Core/          GameManager, GameState, Constants, GameplayConfig, MonetizationConfig,
                  UIStyles, AnimConfig, DifficultyManager, SaveDataManager, ControlMode,
-                 FeedbackManager, Rng, SceneLoader, CameraFit, Singleton<T> (manager base)
+                 FeedbackManager, Rng, SceneLoader, CameraFit, Singleton<T> (manager base),
+                 RunSnapshot (+ RunSnapshotColumn), RunSnapshotStore, RunSnapshotService
   Grid/          GridManager, Column, MatchDetector, MatchResult, BurgerAnimator, BurgerData
   Ingredients/   Ingredient, IngredientState, IngredientSpawner, SpawnerState,
                  IngredientType, WavePreviewManager, WaveComposer, WaveSlot, IngredientBag,
@@ -180,8 +181,10 @@ the shop — pauses a running game, panel on its own canvas (`SETTINGS_CANVAS_SO
 game-over, below shop), resumes via `SettingsPanel.OnClosed`. Sound + music apply live
 mid-run; Start Level applies next run. The in-game variant (`Initialize(canvas, showRunButtons:
 true)`) fills rows 3+4 with **Restart** (back 2026-09-08 — the 4-row sheet has the space; ad-free,
-interstitials stay exclusive to game-over Retry) and **Quit to Menu**; both keep live-earned
-order stars but forfeit the end-of-run score payout.
+interstitials stay exclusive to game-over Retry) and **Quit to Menu**. Since 2026-09-13 **Quit is
+"pause and leave"**, not a forfeit: it writes a run snapshot and the menu offers RESUME, so
+nothing is lost and the score payout simply happens at the real game over (see Run resume).
+**Restart still forfeits** — it starts a fresh run, which discards the saved one.
 
 ### Difficulty (DifficultyManager)
 - 20 levels scaling fall speed, active ingredient (type) count, and triple-wave chance.
@@ -220,6 +223,39 @@ order stars but forfeit the end-of-run score payout.
   **Wave grace**: EVERY wave is followed by a flat `SPAWN_GRACE_SECONDS` (1s) pause — a
   readable beat that also stops tall-stack cascades; the preview ghosts blink FAST through the
   wait (`PREVIEW_FADE_DURATION_URGENT` 0.09s, `SetUrgent`).
+
+### Run resume (2026-09-13, `Core/RunSnapshot*`)
+Android kills backgrounded apps to reclaim memory, so the game used to restart on maximization
+(first reported on device 2026-09-13). It can't be prevented — the fix is to write the run down
+and rebuild it. A blue **RESUME** pill above PLAY on the menu (`ui_btn_blue_wide`, sized smaller
+so PLAY stays primary and never moves) appears only when a run is waiting.
+- **What's saved** (`RunSnapshot`, a JsonUtility DTO in PlayerPrefs key `runSnapshot`): score +
+  stars-this-run + `StarsPaidFromScore` (so a resumed run can't double-pay the end-of-run star
+  payout), level + ingredients-placed, the per-run `IngredientRoster` order, the board, chef
+  position + facing, the Special Order (level, progress, recipe) and the continue-used flag.
+- **The board is four `IngredientType[]`s, bottom row first.** A landed piece holds no other
+  state — row, world position and sorting order all follow from its index — so replaying the
+  list through `Column.AddIngredient` rebuilds the stack exactly. `Ingredient.PlaceRestored` /
+  `IngredientSpawner.SpawnRestored` seat a piece as already-landed, skipping match checks,
+  the overflow test and the placement counter.
+- **NOT saved** — falling pieces, the preview queue, the shuffle bag, an in-flight consumable or
+  fairy. A resume starts from a settled board with a fresh wave; a couple of in-flight pieces
+  vanish, which reads as a gift, and the snapshot stays limited to what can't be recomputed.
+- **Who restores what**: a system that already seeds its own starting value reads
+  `RunSnapshotStore.Pending` right there — `DifficultyManager` (level; a resume must NOT re-apply
+  the Settings START level), `IngredientSpawner.Awake` (roster), `ChefController` (position +
+  facing, without re-swapping any column), `BurgerChallenge` (the order). `RunSnapshotService.
+  Apply` covers only what nothing else writes: run totals, the board, the continue flag.
+  ⚠️ **Never push into a self-seeding system** — Start order between them is undefined.
+- **Pending is cleared by whoever starts a scene**, not mid-scene (`SceneLoader.LoadGame` clears,
+  `ResumeGame` sets) — that's what makes the handoff ordering-proof.
+- **Written** on `OnApplicationPause(true)` / `OnApplicationQuit` while Playing (GameManager.
+  `SaveResumePoint`, which also refuses during the tutorial so a scripted board can't overwrite a
+  real run) and by Quit to Menu. **Cleared** by `StartGame` (so Play, Restart and the tutorial's
+  closing reload all discard it — there is only ever ONE saved run, whichever you were last in)
+  and at game over.
+- A snapshot from a different `RunSnapshot.CURRENT_VERSION`, or that won't parse, is dropped
+  rather than guessed at: a resume is a convenience, and a wrong board is worse than none.
 
 ### Burger Challenge (BurgerChallenge) — "Special Orders"
 - **Redesigned 2026-09-05 (Oscar), table-driven 2026-09-06** — every order is an exact-count
@@ -867,6 +903,7 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - **Main Menu (authored, 2026-08-30)**: rebuilt to the artist's mock — logo (top-anchored),
   the PLAY button (kit green blank + overlaid word since 2026-09-08 - was baked-text art) (the high-score plaque was dropped 2026-09-03 as redundant — the
   TopBar trophy pill shows the high score; `ui_hs_plaque` stays imported but unused),
+  the conditional blue **RESUME** pill above PLAY (2026-09-13, `MENU_RESUME_*` — see Run resume),
   checkered bottom strip with CREDITS + SHOP,
   TopBar with the "?" help button + settings gear (shop stays a bottom button). Knobs: `UIStyles.MENU_*`; art in
   `Resources/UI` (`ui_logo`, `ui_hs_plaque`, `ui_play_button`, `ui_menu_bottom`, `ui_btn_cream`,

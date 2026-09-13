@@ -27,6 +27,7 @@ namespace DogtorBurguer
 
         public int CurrentPosition => _currentPosition;
         public bool IsMoving => _isMoving;
+        public bool IsFlipped => _isFlipped;
         public int LeftColumnIndex => _currentPosition;
         public int RightColumnIndex => _currentPosition + 1;
 
@@ -50,7 +51,22 @@ namespace DogtorBurguer
 
         private void Start()
         {
-            _currentPosition = Constants.CHEF_START_POSITION;
+            // Resuming a run restores where the cook stood and which way he faced — the saved
+            // board already reflects every swap he made, so this must NOT re-swap any columns.
+            // (The four plates are identical art, so their arrangement needs no restoring.)
+            RunSnapshot resume = RunSnapshotStore.Pending;
+            if (resume != null)
+            {
+                _currentPosition = Mathf.Clamp(resume.ChefPosition, 0, Constants.COLUMN_COUNT - 2);
+                _isFlipped = resume.ChefFlipped;
+                transform.rotation = Quaternion.Euler(0, _isFlipped ? 180f : 0f, 0);
+                ApplyFlipVisual(_isFlipped);
+            }
+            else
+            {
+                _currentPosition = Constants.CHEF_START_POSITION;
+            }
+
             transform.position = GetWorldPosition(_currentPosition);
             Debug.Log($"[Chef] Started at position {_currentPosition}");
         }

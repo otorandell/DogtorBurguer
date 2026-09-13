@@ -15,6 +15,8 @@ namespace DogtorBurguer
         private int _ingredientsPlaced;
 
         public int CurrentLevel => _currentLevel;
+        /// <summary>Pieces placed so far this run — the level clock, kept across a resume.</summary>
+        public int IngredientsPlaced => _ingredientsPlaced;
         public event Action<int> OnLevelChanged;
 
         private void Awake()
@@ -38,6 +40,19 @@ namespace DogtorBurguer
 
             if (_gridManager != null)
                 _gridManager.OnIngredientPlaced += HandleIngredientPlaced;
+
+            // Resuming a saved run: its level and placement count replace the whole seeding path
+            // below — a resume must not re-apply the Settings START level, or a player who
+            // starts at 12 would drop back to 12 after every interruption. Read straight from
+            // the store because this IS the seeding decision (see RunSnapshotService's summary).
+            RunSnapshot resume = RunSnapshotStore.Pending;
+            if (resume != null)
+            {
+                _currentLevel = Mathf.Clamp(resume.Level, 1, GameplayConfig.KILLER_LEVEL);
+                _ingredientsPlaced = resume.IngredientsPlaced;
+                ApplyDifficulty();
+                return;
+            }
 
             // Seed the starting level. Dual-column test mode overrides; otherwise the
             // player-chosen Settings value (defaults to 1). The placement counter is seeded

@@ -260,6 +260,13 @@ namespace DogtorBurguer
         public const float MENU_PLAY_W = 400f;
         public static readonly Vector2 MENU_PLAY_LABEL_NUDGE = new(0f, 8f);  // word centered on the face (the canvas shadow sits low)
         public const float MENU_PLAY_LABEL_SIZE = 84f;                       // PLAY word (HUD palette)
+        // RESUME — shown only when a run is waiting (RunSnapshotStore). Sits ON TOP of PLAY and
+        // never moves it: PLAY stays put whether or not there's a run to come back to.
+        public static readonly Vector2 MENU_RESUME_POS = new(0f, 22f);       // clears PLAY's top edge (PLAY: center -136, height 400/2.10)
+        public const float MENU_RESUME_W = 330f;                             // deliberately smaller than PLAY — the secondary action
+        public static readonly Vector2 MENU_RESUME_LABEL_NUDGE = new(-3f, 4f); // word toward the face center (shadow is bottom-right)
+        public const float MENU_RESUME_LABEL_SIZE = 48f;
+        public const float MENU_RESUME_LABEL_SIZE_MIN = 18f;                 // AutoFit floor (long words: "FORTSETZEN", "DEVAM ET")
         public const float MENU_BOTTOM_STRIP_W = 680f;                       // the checker strip: the ART has ~150px clear margins per side, so it must
                                                                              // outsize the canvas for the squares to reach the screen edges
         public const float MENU_BOTTOM_BTN_Y = 108f;                         // CREDITS/SHOP center height from the bottom edge

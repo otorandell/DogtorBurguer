@@ -36,7 +36,14 @@ namespace DogtorBurguer
         {
             _previewManager = gameObject.AddComponent<WavePreviewManager>();
             _previewManager.Initialize(GetSpriteForType);
-            _roster = new IngredientRoster(); // this run's random unlock order
+            // Resuming a run must keep ITS roster: the saved board's pieces were drawn from that
+            // unlock order, and the Special Order card names types by roster position. Awake runs
+            // before every Start, so the snapshot is read straight from the store here (see
+            // RunSnapshotService for the split between early readers and pushed restores).
+            RunSnapshot resume = RunSnapshotStore.Pending;
+            _roster = resume != null
+                ? new IngredientRoster(resume.RosterOrder)
+                : new IngredientRoster(); // this run's random unlock order
             _composer = new WaveComposer(_roster);
         }
 
@@ -124,6 +131,9 @@ namespace DogtorBurguer
         /// <summary>This run's ingredient at unlock position <paramref name="index"/> (the
         /// per-run random roster — see IngredientRoster).</summary>
         public IngredientType ActiveTypeAt(int index) => _roster.At(index);
+
+        /// <summary>This run's unlock order, for the resume snapshot.</summary>
+        public IngredientType[] RosterOrder => _roster.ToArray();
 
         private void SpawnNextWave()
         {
@@ -268,6 +278,23 @@ namespace DogtorBurguer
             ingredient.Initialize(type, column, Theme.Ingredient(type));
             ingredient.StartFalling(stepDuration ?? _fallStepDuration);
 
+            return ingredient;
+        }
+
+        /// <summary>Resume: seats one already-landed piece on top of <paramref name="column"/>.
+        /// Replaying a saved column bottom-up rebuilds the stack exactly — rows and sorting
+        /// orders come from the stack height, so nothing else needs saving (see RunSnapshot).</summary>
+        public Ingredient SpawnRestored(IngredientType type, Column column)
+        {
+            if (_ingredientPrefab == null || column == null) return null;
+
+            GameObject obj = Instantiate(_ingredientPrefab, transform);
+            Ingredient ingredient = obj.GetComponent<Ingredient>();
+            if (ingredient == null)
+                ingredient = obj.AddComponent<Ingredient>();
+
+            ingredient.Initialize(type, column, Theme.Ingredient(type));
+            ingredient.PlaceRestored(column);
             return ingredient;
         }
 

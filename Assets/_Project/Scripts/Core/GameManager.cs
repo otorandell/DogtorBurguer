@@ -36,7 +36,12 @@ namespace DogtorBurguer
         public bool IsResolving => _resolutionDepth > 0;
         public int Score => _score;
         public int StarsEarnedThisRun => _starsEarnedThisRun;
+        /// <summary>Score already converted to stars this run — saved so a resumed run doesn't
+        /// pay the end-of-run bonus twice for the same points.</summary>
+        public int StarsPaidFromScore => _starsPaidFromScore;
         public int CurrentLevel => _difficultyManager != null ? _difficultyManager.CurrentLevel : 1;
+        public DifficultyManager Difficulty => _difficultyManager;
+        public IngredientSpawner Spawner => _spawner;
 
         public event Action<GameState> OnStateChanged;
         public event Action<int> OnScoreChanged;
@@ -55,8 +60,40 @@ namespace DogtorBurguer
             if (TutorialMode.ShouldRun)
                 MonoBehaviourUtil.EnsureComponent<TutorialManager>();
 
+            // Resuming a run the OS killed (or that the player left via Quit to Menu). The
+            // systems that seed their own state have already read the snapshot during their
+            // init; RunSnapshotService fills in the rest (see its summary for the split).
+            RunSnapshot resume = RunSnapshotStore.Pending;
+            if (resume != null && !TutorialMode.ShouldRun)
+            {
+                RunSnapshotService.Apply(resume);
+                ResumeRun();
+                return;
+            }
+
             if (_autoStartGame)
                 StartGame();
+        }
+
+        // Android kills backgrounded apps to reclaim memory, so a run has to be written down
+        // the moment we lose the foreground — there is no later chance. OnApplicationQuit
+        // covers the orderly exit; between them every way out of a live run is saved.
+        private void OnApplicationPause(bool paused)
+        {
+            if (paused) SaveResumePoint();
+        }
+
+        private void OnApplicationQuit() => SaveResumePoint();
+
+        /// <summary>Writes the run to storage so the menu's RESUME button can rebuild it. Only a
+        /// live run qualifies: a finished one is over, and the tutorial's scripted board is not
+        /// a run at all (it would also overwrite a real saved one).</summary>
+        public void SaveResumePoint()
+        {
+            if (_currentState != GameState.Playing) return;
+            if (TutorialMode.IsActive || TutorialMode.ShouldRun) return;
+
+            RunSnapshotStore.Save(RunSnapshotService.Capture());
         }
 
         private void ResolveDependencies()
@@ -127,10 +164,38 @@ namespace DogtorBurguer
             _starsPaidFromScore = 0;
             OnScoreChanged?.Invoke(_score);
 
+            // Starting a run discards any saved one — there is only ever one resumable run, and
+            // it is whichever the player was last in. Covers Play, Restart, and the reload that
+            // ends the tutorial.
+            RunSnapshotStore.Clear();
+
             SetState(GameState.Playing);
             _spawner?.StartSpawning();
 
             Debug.Log("[GameManager] Game Started!");
+        }
+
+        /// <summary>Resume entry (menu RESUME): the board, totals and progression are already
+        /// back in place, so this only re-enters Playing and restarts the waves. In-flight
+        /// pieces and the preview queue are deliberately not restored (see RunSnapshot), so the
+        /// run picks up from a settled board with a fresh wave.</summary>
+        private void ResumeRun()
+        {
+            OnScoreChanged?.Invoke(_score);
+
+            SetState(GameState.Playing);
+            _spawner?.StartSpawning();
+
+            Debug.Log($"[GameManager] Run resumed at level {CurrentLevel}, score {_score}.");
+        }
+
+        /// <summary>Resume: restores the run totals. Called by RunSnapshotService before
+        /// <see cref="ResumeRun"/>.</summary>
+        public void RestoreRunTotals(int score, int starsEarnedThisRun, int starsPaidFromScore)
+        {
+            _score = score;
+            _starsEarnedThisRun = starsEarnedThisRun;
+            _starsPaidFromScore = starsPaidFromScore;
         }
 
         // Pause is a modifier on the Playing state, not a peer state — you can only
@@ -235,6 +300,10 @@ namespace DogtorBurguer
                 _starsPaidFromScore += payout;
                 AwardStars(payout);
             }
+
+            // The run is over — nothing left to resume. (A continue puts us back in Playing,
+            // and the next background writes a fresh snapshot.)
+            RunSnapshotStore.Clear();
 
             SetState(GameState.GameOver);
             _spawner?.StopSpawning();

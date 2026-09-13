@@ -21,6 +21,7 @@
         SettingsLanguage,
         SettingsRestart,
         MenuPlay,
+        MenuResume,   // menu-only: pick up the saved run (RunSnapshotStore)
         MenuCredits,
         MenuShop,
         MenuSupportDevs,
