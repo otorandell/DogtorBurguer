@@ -67,6 +67,7 @@ Match is now `MatchRounds` (3) rounds instead of one. Each round seats a lone pi
 twin over a NEIGHBOURING column, recomputed per attempt, so one swap always solves it; the
 ingredient type rotates through `MatchTypes` so it doesn't read as the same drop three times.
 Body carries a `{0}/{1}` counter. Still unfailable — wrong landings poof and the twin returns.
+Fast-drop is LIVE during this step (Oscar) — reaching for a falling piece must not be a dead tap.
 
 Added a beat at the top of the coroutine: `ChefController.OnFlipped` fires *before*
 `SwapColumnsWithWaveEffect` runs, so clearing the board immediately would yank it out from under
@@ -87,8 +88,9 @@ counter; new `TutFastDrop{Title,Body,Done}`; `TutPowerUp{Body,Done}` split into
 the LAST power-up step. All 7 tables filled — verified programmatically: 115 keys, no missing, no
 extras, no duplicates in any table.
 
-`TutorialPopup`'s body now AutoFits down to `TUT_BODY_SIZE_MIN` (13) — the box is fixed art and
-the new bodies are longer, so translations shrink rather than clip.
+Tip text got BIGGER (Oscar): `TUT_BODY_SIZE` 22 → 28, `TUT_TITLE_SIZE` 24 → 30. Both AutoFit
+(floors `TUT_BODY_SIZE_MIN` 16 / `TUT_TITLE_SIZE_MIN` 16) so the fixed box art can't be
+overflowed by a long translation — watch the German power-up lines, they're the longest.
 
 ## Verification
 `dotnet build Assembly-CSharp.csproj` — **0 errors** (4 pre-existing CS0162 warnings). Localization
