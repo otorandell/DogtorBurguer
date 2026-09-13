@@ -204,6 +204,15 @@ namespace DogtorBurguer
             TryBeginCarry(screenPos);
             if (IsCarrying) return;
 
+            // The press landed on the inventory row but didn't start a carry — the slot is empty
+            // (its plate is a shop button instead). Swallow it: falling through to chef/preview
+            // logic made a press on the tray do something unrelated somewhere else on screen.
+            if (IsOverConsumableRow(screenPos))
+            {
+                _press = PressPhase.None;
+                return;
+            }
+
             if (CurrentControlMode == ControlMode.Tap)
             {
                 ResolveTap(screenPos, deferFlip: true); // the flip arms; everything else fires now
@@ -336,6 +345,10 @@ namespace DogtorBurguer
 
         private bool IsCarrying =>
             ConsumableDragController.Instance != null && ConsumableDragController.Instance.IsCarrying;
+
+        private static bool IsOverConsumableRow(Vector2 screenPos) =>
+            ConsumableInventoryView.Instance != null &&
+            ConsumableInventoryView.Instance.IsOverRow(screenPos);
 
         private void TryBeginCarry(Vector2 screenPos)
         {

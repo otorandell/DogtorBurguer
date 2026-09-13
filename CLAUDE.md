@@ -548,6 +548,18 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   (only stocked slots carry); the carry/drop are world-space. Driven by `TouchInputHandler` (origin
   disambiguates: a press on a slot becomes a carry and suppresses chef gestures). **World keeps
   moving while carrying** — a cancellable pause would be a free stop-time exploit.
+- **Slot hit areas (fixed 2026-09-13)** — the row had two overlapping-hitbox bugs on device:
+  1. `Contains` tested the PLATE rect only, but the count badge is drawn overhanging the plate's
+     bottom-right corner — so the NUMBER itself was un-grabbable and a dead band sat between
+     slots. It now tests the plate grown by `CONSUMABLE_SLOT_HIT_PADDING`, and because the grown
+     areas overlap, `TryGetSlotTypeAt` picks the **nearest slot centre** — never iteration order,
+     which used to hand the overlap to whichever type came first in the enum.
+  2. The green plus box was a real UGUI `Button`, and its overhang reached into the NEXT slot's
+     grab area — pressing to pick up Mustard or Skewer could open the shop instead. The shop
+     deep-link now lives on the **whole plate**, raycast-enabled **only while the slot is empty**;
+     the badge is decoration.
+  Plus: `TouchInputHandler` **swallows** any press on the row that didn't start a carry, so a
+  press meant for the tray can never fall through to chef/preview logic somewhere else on screen.
 - **Faller + effects**: on release a `ConsumableFaller` drops fast and **resolves on impact**;
   reaching the floor with no target **fizzles** (item still spent). Each `ConsumableEffect`
   supplies a target rule + on-impact behavior + its falling visual (`FallerSprite`/`FallerHeight`;
@@ -597,31 +609,54 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   layout/sizes are placeholder; eyeball-tune via `UIStyles`. Editor debug: keys **1/2/3** grant
   Ketchup/Mustard/Skewer.
 
-### Tutorial (2026-09-07, `Scripts/Tutorial/`)
-Scripted, UNFAILABLE, ~90s. Runs automatically on the first-ever Play (`SaveDataManager.
+### Tutorial (2026-09-07, expanded 2026-09-13, `Scripts/Tutorial/`)
+Scripted, UNFAILABLE, ~3 min. Runs automatically on the first-ever Play (`SaveDataManager.
 TutorialSeen`, set on finish AND skip) and from the **PLAY TUTORIAL** pill on the How to Play
-panel (`TutorialMode.Pending` → load Game scene; an in-game opener forfeits the run like Quit).
+panel (`TutorialMode.Pending` -> load Game scene; an in-game opener forfeits the run like Quit).
 `GameManager.Start` creates `TutorialManager` when `TutorialMode.ShouldRun`; while active the
-auto systems stand down (spawner waves/previews — gated on ShouldRun too for the same-frame
-ordering, fairies, difficulty, auto orders, star persistence — popups still play) and input is
-masked per step (`TutorialMode.Allow*`, enforced in TouchInputHandler). Steps (`TutorialStep`):
-Move (2 swipes) → Swap (tap chef; two pre-placed stacks) → Match (a twin falls at the WRONG
-stack; wrong landings poof + respawn forever) → Burger (INTERACTIVE since 2026-09-07: each piece
-falls beside the bun column, one swap routes it on; misses poof and return, a stray top bun
-self-destructs on its own) → Order (`BurgerChallenge.SetScriptedOrder` — meter pre-filled one short so the match LEVELS UP
-the multiplier on screen) → PowerUp (granted Ketchup on a junk column; a fizzle re-grants) →
-Ready → scene reloads into a normal run. Iteration 2026-09-07 (Oscar's playtest): the Move text
-follows the live ControlMode; the pointer arrow idle-BOBS and FOLLOWS the chef through Move/Swap
-(`TutorialPopup.PointAtWorld`, per-frame); the Order burger is BUILT by the player (the shared
-guided routine — only the recipe's pieces fall, misses poof and return); overlay closes no
-longer leak real waves in (ResumeSpawning + the spawner Update are tutorial-gated); the PowerUp
-step is a tall 8-piece junk column + a **virtual
-Ketchup** (`TutorialMode.VirtualKetchup` — ConsumableInventory shows one and consuming it never
-touches the persistent stock; completion = the column is empty). Callout = `TutorialPopup`
-(green plate title + green plate box + bobbing yellow arrow, `UIStyles.TUT_*`; step
-text/positions live in TutorialManager). SKIP is always available. New hooks:
-`ChefController.OnMoved/OnFlipped`, `IngredientSpawner.SpawnScripted`,
-`BurgerChallenge.SetScriptedOrder/SetPanelVisible`, `ConsumableInventory.NotifyChanged`.
+auto systems stand down (spawner waves/previews - gated on ShouldRun too for the same-frame
+ordering, fairies, difficulty, auto orders, star persistence - popups still play) and input is
+masked per step (`TutorialMode.Allow*`, enforced in TouchInputHandler).
+
+**Steps** (`TutorialStep`): Move (2 moves) -> Swap (tap chef; two pre-placed pieces) ->
+**Match x`MatchRounds` (3)** -> **FastDrop** -> Burger -> Order -> **Ketchup -> Mustard ->
+Skewer** -> Ready -> scene reloads into a normal run.
+- **Match** gives room to PRACTISE (Oscar, 2026-09-13 - it used to be a single pair): each round
+  seats one piece and drops its twin over a NEIGHBOURING column so one swap always solves it;
+  the type rotates (`MatchTypes`) and the body carries a `{0}/{1}` counter. Fast-drop stays
+  masked here so the next step introduces it alone.
+- **FastDrop** (new 2026-09-13) teaches tap-to-hurry: pieces drift at `TeachFall` (slower than
+  anything else) until one is tapped. Hook: `IngredientSpawner.OnFastDrop`, raised at the single
+  point the tap resolves.
+- **Burger / Order** are INTERACTIVE (2026-09-07): each piece falls beside the bun column, one
+  swap routes it on; misses poof and return, a stray top bun self-destructs on its own. Order
+  uses `BurgerChallenge.SetScriptedOrder` with the meter pre-filled one short, so the match
+  LEVELS UP the multiplier on screen.
+- **One step per power-up** (2026-09-13 - was Ketchup only). All three share `RunPowerUpStep`:
+  clear the board, lay out a situation the item solves, grant a free **virtual** item
+  (`TutorialMode.VirtualItem` - ConsumableInventory shows one and consuming it never touches the
+  persistent stock), wait for a per-step completion test. Unfailable by construction: the virtual
+  item never depletes, so a fizzle or a wrong column just means trying again.
+  - Ketchup: one tall junk column -> done when the board shrinks.
+  - Mustard: THREE types spread over all four columns, so the sweep takes the top two and leaves
+    the third standing - the lesson is that it is not a board wipe. Done when the board shrinks.
+  - Skewer: a bottom bun buried mid-stack. ⚠️ The Skewer leaves the piece COUNT alone (it only
+    destroys SURPLUS bottom buns), so its test is the bun reaching row 0 - not a shrink.
+- **Board setup is INSTANT** (`PlaceInstantly` -> `IngredientSpawner.SpawnRestored`, the same
+  already-landed seat the resume path uses). Dropping eight junk pieces one at a time made the
+  old power-up step ~6 s of watching nothing (Oscar, 2026-09-13). Only pieces the player must
+  REACT to actually fall. Pre-placed stacks must be match-free on their own - `SpawnRestored`
+  skips the landing match check, so two adjacent same-type pieces would just sit there.
+
+Iteration 2026-09-07 (Oscar's playtest): the Move text follows the live ControlMode; the pointer
+arrow idle-BOBS and FOLLOWS the chef through Move/Swap (`TutorialPopup.PointAtWorld`, per-frame);
+overlay closes no longer leak real waves in (ResumeSpawning + the spawner Update are
+tutorial-gated). Callout = `TutorialPopup` (green plate title + green plate box + bobbing yellow
+arrow, `UIStyles.TUT_*`; the body AutoFits down to `TUT_BODY_SIZE_MIN` so long translations
+shrink instead of clipping). Step text/positions live in TutorialManager. SKIP is always
+available. Hooks: `ChefController.OnMoved/OnFlipped`, `IngredientSpawner.SpawnScripted/
+SpawnRestored/OnFastDrop`, `BurgerChallenge.SetScriptedOrder/SetPanelVisible`,
+`ConsumableInventory.NotifyChanged`.
 
 ### Localization (2026-09-08, `Scripts/Localization/`)
 7 languages: EN ES PT-BR DE FR IT TR (JP/KR/RU/CN ruled out 2026-09-08 — CJK fonts, Play

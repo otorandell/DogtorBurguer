@@ -109,6 +109,12 @@ namespace DogtorBurguer
         // Span the same zone as Level/Score: 80-wide plates at 58/144/230 → left edge 18, right edge 270.
         public const float CONSUMABLE_SLOT_X_START = 58f;                       // first slot center X
         public const float CONSUMABLE_SLOT_SPACING = 86f;                       // gap between slot centers
+        // Grab radius padding around the plate (2026-09-13). The count badge is drawn at
+        // CONSUMABLE_BADGE_OFFSET and overhangs the plate by ~5px, so plate-only hit-testing left
+        // the NUMBER itself un-grabbable and a dead band between slots — pressing there fell
+        // through to chef/preview logic instead of starting a carry. Padding past half the
+        // spacing is fine: overlapping slots are resolved by nearest center, never by order.
+        public const float CONSUMABLE_SLOT_HIT_PADDING = 12f;
         #endregion
 
 
@@ -360,6 +366,7 @@ namespace DogtorBurguer
         public const float TUT_BODY_H = 120f;
         public const float TUT_BODY_INSET = 90f;                                     // keeps text off the plate's soft edges
         public const float TUT_BODY_SIZE = 22f;
+        public const float TUT_BODY_SIZE_MIN = 13f;                                  // AutoFit floor: the box is fixed, so long translations shrink rather than clip
         public const float TUT_CONTINUE_Y = -78f;
         public const float TUT_CONTINUE_SIZE = 16f;
         public const float TUT_ARROW_H = 64f;

@@ -15,6 +15,10 @@ namespace DogtorBurguer
         [Header("Wave Settings")]
         [SerializeField] private float _initialDelay = GameplayConfig.INITIAL_SPAWN_DELAY;
 
+        /// <summary>A falling piece was tapped to drop faster — the tutorial's FastDrop step
+        /// listens for it. Raised at the single point the tap resolves.</summary>
+        public event System.Action OnFastDrop;
+
         private bool _active;
         private SpawnerState _state = SpawnerState.Delaying;
         private float _tripleWaveChance;
@@ -253,6 +257,7 @@ namespace DogtorBurguer
                 {
                     ingredient.FastDrop();
                     AudioManager.Instance?.PlayFastDrop();
+                    OnFastDrop?.Invoke();
                     return true;
                 }
             }

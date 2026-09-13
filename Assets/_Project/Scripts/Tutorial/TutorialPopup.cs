@@ -47,6 +47,9 @@ namespace DogtorBurguer
                 new Vector2(UIStyles.TUT_BOX_W - UIStyles.TUT_BODY_INSET, UIStyles.TUT_BODY_H),
                 UIStyles.TUT_BODY_SIZE, FontStyles.Bold, null, TextAlignmentOptions.Center, wrap: true);
             UIFactory.StyleHudText(_body);
+            // The box is a fixed piece of art and the step texts vary wildly in length across
+            // seven languages, so the body shrinks to fit instead of overflowing its plate.
+            UIFactory.AutoFit(_body, UIStyles.TUT_BODY_SIZE_MIN, UIStyles.TUT_BODY_SIZE);
 
             // The pointer: a positioned root + a child image that idle-bobs (so per-frame
             // follow and the bob tween never fight over one transform).

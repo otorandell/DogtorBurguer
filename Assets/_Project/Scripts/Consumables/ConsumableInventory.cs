@@ -34,13 +34,13 @@ namespace DogtorBurguer
 
         private void RaiseChanged() => OnChanged?.Invoke();
 
-        /// <summary>Tutorial: refreshes the slot views after toggling the virtual Ketchup.</summary>
+        /// <summary>Tutorial: refreshes the slot views after granting/clearing the virtual item.</summary>
         public void NotifyChanged() => RaiseChanged();
 
         public int CountOf(ConsumableType type)
         {
-            // The tutorial's free Ketchup: always visible, never depletes (see TryConsume).
-            if (TutorialMode.VirtualKetchup && type == ConsumableType.Ketchup) return 1;
+            // The tutorial's free item: always visible, never depletes (see TryConsume).
+            if (TutorialMode.VirtualItem == type) return 1;
             return SaveDataManager.Instance != null ? SaveDataManager.Instance.ConsumableCount(type) : 0;
         }
 
@@ -51,8 +51,8 @@ namespace DogtorBurguer
         /// <summary>Uses one if available. Returns false (no-op) when that slot is empty.</summary>
         public bool TryConsume(ConsumableType type)
         {
-            // The tutorial's free Ketchup is spent without touching the persistent stock.
-            if (TutorialMode.VirtualKetchup && type == ConsumableType.Ketchup)
+            // The tutorial's free item is spent without touching the persistent stock.
+            if (TutorialMode.VirtualItem == type)
             {
                 RaiseChanged();
                 return true;

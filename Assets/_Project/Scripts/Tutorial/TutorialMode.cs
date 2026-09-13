@@ -25,9 +25,10 @@ namespace DogtorBurguer
         public static bool ShouldRun =>
             Pending || (SaveDataManager.Instance != null && !SaveDataManager.Instance.TutorialSeen);
 
-        // The PowerUp step's free Ketchup: while true, ConsumableInventory shows at least one
-        // Ketchup and using it never touches the persistent stock.
-        public static bool VirtualKetchup;
+        // The power-up steps' free item: while set, ConsumableInventory shows one of that type
+        // and using it never touches the persistent stock. Each of the three steps grants its
+        // own (was Ketchup-only until 2026-09-13), so a wasted drop just means trying again.
+        public static ConsumableType? VirtualItem;
 
         // Per-step input mask (all true outside the tutorial). Set by TutorialManager.
         public static bool AllowMove = true;
@@ -45,7 +46,7 @@ namespace DogtorBurguer
         public static void End()
         {
             IsActive = false;
-            VirtualKetchup = false;
+            VirtualItem = null;
             SetMask(true, true, true, true);
         }
 
