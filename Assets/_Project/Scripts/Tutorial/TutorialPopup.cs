@@ -42,6 +42,8 @@ namespace DogtorBurguer
             _title = UIFactory.CreateText(bannerImg.transform, "", UIStyles.TUT_TITLE_NUDGE,
                 bannerImg.rectTransform.sizeDelta, UIStyles.TUT_TITLE_SIZE, FontStyles.Bold);
             UIFactory.StyleHudText(_title);
+            // Same reason as the body: the banner is fixed art, the titles are translated.
+            UIFactory.AutoFit(_title, UIStyles.TUT_TITLE_SIZE_MIN, UIStyles.TUT_TITLE_SIZE);
 
             _body = UIFactory.CreateText(_box, "", new Vector2(0f, UIStyles.TUT_BODY_Y),
                 new Vector2(UIStyles.TUT_BOX_W - UIStyles.TUT_BODY_INSET, UIStyles.TUT_BODY_H),

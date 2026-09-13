@@ -623,8 +623,9 @@ masked per step (`TutorialMode.Allow*`, enforced in TouchInputHandler).
 Skewer** -> Ready -> scene reloads into a normal run.
 - **Match** gives room to PRACTISE (Oscar, 2026-09-13 - it used to be a single pair): each round
   seats one piece and drops its twin over a NEIGHBOURING column so one swap always solves it;
-  the type rotates (`MatchTypes`) and the body carries a `{0}/{1}` counter. Fast-drop stays
-  masked here so the next step introduces it alone.
+  the type rotates (`MatchTypes`) and the body carries a `{0}/{1}` counter. Fast-drop is LIVE
+  here (Oscar, 2026-09-13 - reaching for a falling piece must not be a dead tap); the
+  FastDrop step still names the trick afterwards.
 - **FastDrop** (new 2026-09-13) teaches tap-to-hurry: pieces drift at `TeachFall` (slower than
   anything else) until one is tapped. Hook: `IngredientSpawner.OnFastDrop`, raised at the single
   point the tap resolves.

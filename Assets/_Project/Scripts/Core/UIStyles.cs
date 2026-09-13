@@ -361,12 +361,13 @@ namespace DogtorBurguer
         public const float TUT_TITLE_W = 240f;                                       // red banner strip on its top edge
         public const float TUT_TITLE_Y = 26f;
         public static readonly Vector2 TUT_TITLE_NUDGE = new(0f, 4f);
-        public const float TUT_TITLE_SIZE = 24f;
+        public const float TUT_TITLE_SIZE = 30f;                                     // bumped 2026-09-13 (Oscar: the tips read too small)
+        public const float TUT_TITLE_SIZE_MIN = 16f;                                 // AutoFit floor: long titles ("ACELEN MI VAR?") must not outgrow the banner
         public const float TUT_BODY_Y = -8f;
         public const float TUT_BODY_H = 120f;
         public const float TUT_BODY_INSET = 90f;                                     // keeps text off the plate's soft edges
-        public const float TUT_BODY_SIZE = 22f;
-        public const float TUT_BODY_SIZE_MIN = 13f;                                  // AutoFit floor: the box is fixed, so long translations shrink rather than clip
+        public const float TUT_BODY_SIZE = 28f;                                      // bumped 2026-09-13 (Oscar: the tips read too small)
+        public const float TUT_BODY_SIZE_MIN = 16f;                                  // AutoFit floor: the box is fixed, so long translations shrink rather than clip
         public const float TUT_CONTINUE_Y = -78f;
         public const float TUT_CONTINUE_SIZE = 16f;
         public const float TUT_ARROW_H = 64f;

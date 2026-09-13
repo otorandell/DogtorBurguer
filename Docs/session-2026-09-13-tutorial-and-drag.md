@@ -74,8 +74,8 @@ the animation.
 
 ### Fast-drop is now taught
 New `TutorialStep.FastDrop` between Match and Burger. Pieces drift at `TeachFall` (0.9 s/step,
-slower than anything else in the tutorial) and keep coming until one is tapped. Fast-drop is
-masked OFF during Match so this step introduces it alone.
+slower than anything else in the tutorial) and keep coming until one is tapped. It still runs
+when the player already discovered tapping during Match - the step names the trick.
 
 Hook: `IngredientSpawner.OnFastDrop`, raised at the single point the tap resolves
 (`TryTapFallingIngredient`).

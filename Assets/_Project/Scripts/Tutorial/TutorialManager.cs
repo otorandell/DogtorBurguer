@@ -139,9 +139,10 @@ namespace DogtorBurguer
         private void EnterMatch()
         {
             _step = TutorialStep.Match;
-            // Fast-drop stays masked: it gets its own step next, so the practice drops keep the
-            // scripted pace and the lesson lands one idea at a time.
-            TutorialMode.SetMask(move: true, flip: true, fastDrop: false, consumable: false);
+            // Fast-drop is live here too (Oscar, 2026-09-13): a player who reaches for a falling
+            // piece should get the real response, not a dead tap. The FastDrop step still names
+            // the trick afterwards for anyone who didn't stumble on it.
+            TutorialMode.SetMask(move: true, flip: true, fastDrop: true, consumable: false);
             StartCoroutine(RunMatchStep());
         }
 
