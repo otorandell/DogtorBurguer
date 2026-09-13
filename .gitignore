@@ -114,3 +114,6 @@ Keys/
 # Unity Microsoft GDK auto-generated asset (regenerates on editor load)
 Assets/Resources/GDKEditionAutoGen/
 Assets/Resources/GDKEditionAutoGen.meta
+
+# Beta tester emails: other people's personal data, never publish (2026-09-13)
+Docs/beta-testers.txt

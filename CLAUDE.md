@@ -1042,7 +1042,8 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 Platform-readiness / launch-logistics items tracked separately from
 code-review findings. See `Docs/pre-launch-checklist.md` for the full
 list (save layer security, cloud save, schema versioning, IAP receipt
-validation, analytics, privacy policy, etc.). Ready-to-use copy:
+validation, analytics, privacy policy, etc.). **Beta tester emails live in `Docs/beta-testers.txt`, which is GIT-IGNORED** (other people's
+personal data) — so it is not in the repo history and pushing does NOT back it up. Ready-to-use copy:
 `Docs/privacy-policy.md` (+ `.html` to host, e.g. GitHub Pages — the URL goes in the Play
 listing and the LevelPlay dashboard) and `Docs/play-store-listing.md` (descriptions,
 questionnaire answers, product ids, asset specs). **Font: RESOLVED 2026-09-08 — Baloo 2 ExtraBold** (Google Fonts OFL, embedding free;
