@@ -119,9 +119,17 @@ Buns are **decoupled** from regular ingredients (own chances) and from level/typ
   The bun roll reads grid state when the preview is *reserved* (a wave ahead), same as before.
 
 ### Controls (TouchInputHandler)
-Two modes, configurable in Settings (saved via PlayerPrefs):
-- **Drag**: Swipe = move chef, **Tap the cook = swap plates**, Tap falling = fast-drop, Tap preview = spawn
+**One scheme since 2026-09-08 — Tap** (the Settings row is gone; the freed slot took the Music
+toggle). Tap is a strict SUPERSET of the retired Drag mode, so nothing was lost:
 - **Tap**: Tap the cook = swap, **Tap a side (below the grid floor) = move**, Swipe = move, Tap falling = fast-drop, Tap preview = spawn
+- **Drag** (retired): Swipe = move chef, Tap the cook = swap, Tap falling = fast-drop, Tap preview = spawn
+
+Retired, not deleted: `ControlMode`, the `controlMode` save key and both `TouchInputHandler`
+branches are all still live behind **`GameplayConfig.CONTROL_MODE_SELECTABLE`** (false) — flip it
+and the Controls row + Drag mode come back (⚠️ that makes FIVE settings rows; the sheet fits four).
+While it's false `SaveDataManager` ignores the stored mode entirely, so an old save that picked
+Drag can't strand a player in it. The one behavioural consequence of losing Drag: taps resolve on
+the PRESS, so a press that lands on a falling piece fast-drops it even if a swipe was intended.
 
 **Chef tap-control is bounded** so taps up in the playfield (e.g. a near-miss reaching for a
 falling piece) never move or swap the cook (`ProcessInput`):
@@ -169,7 +177,7 @@ persisted), stars/gems/consumables topped up to a stash each launch, and a red T
 on the menu. Tick it for tester APKs (`Docs/build-and-share.md`), untick for release.
 **Settings opens in-game too** (top-bar gear, `GameHUD.OnConfigClicked`): same pause pattern as
 the shop — pauses a running game, panel on its own canvas (`SETTINGS_CANVAS_SORT` 110, above
-game-over, below shop), resumes via `SettingsPanel.OnClosed`. Sound/control-mode apply live
+game-over, below shop), resumes via `SettingsPanel.OnClosed`. Sound + music apply live
 mid-run; Start Level applies next run. The in-game variant (`Initialize(canvas, showRunButtons:
 true)`) fills rows 3+4 with **Restart** (back 2026-09-08 — the 4-row sheet has the space; ad-free,
 interstitials stay exclusive to game-over Retry) and **Quit to Menu**; both keep live-earned
@@ -897,14 +905,21 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   title + X when a sheet draws its tab elsewhere than the Settings one.
 - **Settings panel (authored, 2026-09-01)**: rebuilt to the mock (`Look Reference/settings.png`)
   on the modal chrome: wide blue rows (`ui_btn_blue_wide`, sized by width, HUD-palette auto-fit
-  labels) stacked down the body: **Sound: ON/OFF**, **Controls: Drag/Tap**, then the third row is
-  the **START: LVL N** level row in the menu (see Controls; replaced the Mode toggle 2026-09-07)
-  or, in-game,
-  **Restart** (returned 2026-09-08, ad-free) + **Quit to Menu**. Both openers (menu gear, in-game
-  gear) share the one class. Knobs: `UIStyles.SETTINGS_*` (eyeball defaults — tune live). Deliberate gaps:
-  the mock's third **"Language: ENG"** row is **not built** — there is no localization system,
-  and a button that does nothing is worse than none; add it as one `CreateRowButton` call when
-  localization exists (in-game it would then need a 4th row or a tighter pitch).
+  labels) stacked down the body: **Sound: ON/OFF** (SFX) and **Music: ON/OFF**, then the menu shows
+  **START: LVL N** + **Language: X**, and in-game **Restart** (returned 2026-09-08, ad-free) +
+  **Quit to Menu** — four rows either way, which is exactly what the sheet fits. Rows are placed by
+  a **running counter**, not fixed indices, so a hidden row closes its own gap (the Controls row
+  went 2026-09-08 — see Controls). Both openers (menu gear, in-game gear) share the one class.
+  Knobs: `UIStyles.SETTINGS_*` (eyeball defaults — tune live).
+- **Two audio toggles (2026-09-08)**: Sound = SFX, Music = the soundtrack, independent. Each mutes
+  its OWN sources — `AudioManager.ApplySoundSetting` (the two SFX `AudioSource`s) and
+  `MusicManager.ApplySoundSetting` (the music source) — orchestrated by `SoundSettings.Apply`,
+  which now **pins `AudioListener.volume` to 1**. The old master-mute route (listener volume 0)
+  could not separate the two, and the listener is a global that survives scene loads, so Apply
+  clears a stale 0 rather than leaving it stuck. `AudioManager` is scene-local and can be built
+  *after* Apply has run, so it re-applies the SFX toggle to its fresh sources in its own `Awake`.
+  Muting (not pausing) the music means unmuting resumes in place instead of restarting the loop.
+  Keys `musicOn` / `soundOn`; IT names the SFX row *Effetti* since *Audio* would imply both.
 - **How to Play panel (2026-09-05, `UI/HowToPlayPanel.cs`)**: the top bar's **"?" button** —
   in-game (replaced the shop button) AND on the menu (identical
   placement/size to the in-game bar — the menu gear override was dropped too); the kit's blank green square `ui_btn_square_green` + a HUD question mark. Opens the

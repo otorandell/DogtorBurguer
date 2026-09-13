@@ -10,6 +10,10 @@
         SettingsTitle,
         SettingsSoundOn,
         SettingsSoundOff,
+        SettingsMusicOn,
+        SettingsMusicOff,
+        // The Controls row is hidden (GameplayConfig.CONTROL_MODE_SELECTABLE) — the keys stay
+        // filled in every table so flipping the flag back needs no translation work.
         SettingsControlsDrag,
         SettingsControlsTap,
         SettingsStartLevel,

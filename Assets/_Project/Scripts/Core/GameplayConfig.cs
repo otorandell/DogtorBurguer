@@ -98,6 +98,14 @@ namespace DogtorBurguer
         // screen can be entered directly; drop to MAX_LEVEL (or lower) for release.
         public const int SETTINGS_LEVEL_CAP = KILLER_LEVEL;
 
+        // Drag mode is retired (2026-09-08): Tap is a strict superset of it (swipe still moves the
+        // chef, and a side tap moves him too), and dropping the row freed a Settings slot for the
+        // Music toggle. The ControlMode enum, its save key and the TouchInputHandler branches are
+        // all still live — flip this back to true and the Controls row + Drag mode return.
+        // ⚠️ The Settings sheet fits FOUR rows; re-enabling this makes five, so the sheet art or
+        // SETTINGS_ROW_PITCH needs revisiting at the same time.
+        public const bool CONTROL_MODE_SELECTABLE = false;
+
         // Per-level curves: index 0 = level 1 … index 19 = level 20. Length MUST equal MAX_LEVEL.
         // The killer level (21) is NOT in these tables — it applies MIN_FALL_STEP_DURATION,
         // MAX_INGREDIENT_COUNT, and always-triple waves directly (see DifficultyManager).

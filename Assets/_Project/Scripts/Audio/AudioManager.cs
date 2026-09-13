@@ -84,6 +84,19 @@ namespace DogtorBurguer
 
             GenerateClips();
             SubscribeEvents();
+
+            // AudioManager is scene-local, so it is (re)created after SoundSettings.Apply has
+            // already run for this scene — it applies the SFX toggle to its own fresh sources.
+            ApplySoundSetting();
+        }
+
+        /// <summary>Mutes/unmutes the SFX sources from the persisted Sound toggle. Music has its
+        /// own toggle on MusicManager — this one must never touch the AudioListener.</summary>
+        public void ApplySoundSetting()
+        {
+            bool on = SoundSettings.SoundOn;
+            if (_sfxSource != null) _sfxSource.mute = !on;
+            if (_squeezSource != null) _squeezSource.mute = !on;
         }
 
         private void SubscribeEvents()

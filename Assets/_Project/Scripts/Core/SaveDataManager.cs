@@ -10,6 +10,7 @@ namespace DogtorBurguer
         private const string KEY_STARS = "stars";
         private const string KEY_HIGH_SCORE = "highScore";
         private const string KEY_SOUND_ON = "soundOn";
+        private const string KEY_MUSIC_ON = "musicOn";
         private const string KEY_GAMES_PLAYED = "gamesPlayed";
         private const string KEY_CONTROL_MODE = "controlMode";
         private const string KEY_STARTING_LEVEL = "startingLevel";
@@ -25,7 +26,9 @@ namespace DogtorBurguer
         // Canonical first-run defaults. Single source of truth — referenced by
         // LoadData and by consumers that need a fallback when Instance is null.
         public const bool DEFAULT_SOUND_ON = true;
-        public const ControlMode DEFAULT_CONTROL_MODE = ControlMode.Drag;
+        public const bool DEFAULT_MUSIC_ON = true;
+        // Tap is the shipped scheme (Drag is retired — see GameplayConfig.CONTROL_MODE_SELECTABLE).
+        public const ControlMode DEFAULT_CONTROL_MODE = ControlMode.Tap;
         public const int DEFAULT_STARTING_LEVEL = 1;
 
         public event Action<int> OnGemsChanged;
@@ -35,7 +38,8 @@ namespace DogtorBurguer
         public int Gems { get; private set; }
         public int Stars { get; private set; }
         public int HighScore { get; private set; }
-        public bool SoundOn { get; private set; }
+        public bool SoundOn { get; private set; }   // SFX only since 2026-09-08 (music has its own toggle)
+        public bool MusicOn { get; private set; }
         public int GamesPlayed { get; private set; }
         public ControlMode ControlMode { get; private set; }
         public int StartingLevel { get; private set; }
@@ -61,8 +65,13 @@ namespace DogtorBurguer
             Stars = PlayerPrefs.GetInt(KEY_STARS, 0);
             HighScore = PlayerPrefs.GetInt(KEY_HIGH_SCORE, 0);
             SoundOn = PlayerPrefs.GetInt(KEY_SOUND_ON, DEFAULT_SOUND_ON ? 1 : 0) == 1;
+            MusicOn = PlayerPrefs.GetInt(KEY_MUSIC_ON, DEFAULT_MUSIC_ON ? 1 : 0) == 1;
             GamesPlayed = PlayerPrefs.GetInt(KEY_GAMES_PLAYED, 0);
-            ControlMode = (ControlMode)PlayerPrefs.GetInt(KEY_CONTROL_MODE, (int)DEFAULT_CONTROL_MODE);
+            // The stored mode is only honored while the Settings row exists; with the row hidden
+            // every run is Tap, so an old save that picked Drag can't strand the player in it.
+            ControlMode = GameplayConfig.CONTROL_MODE_SELECTABLE
+                ? (ControlMode)PlayerPrefs.GetInt(KEY_CONTROL_MODE, (int)DEFAULT_CONTROL_MODE)
+                : DEFAULT_CONTROL_MODE;
             StartingLevel = Mathf.Clamp(
                 PlayerPrefs.GetInt(KEY_STARTING_LEVEL, DEFAULT_STARTING_LEVEL), 1, GameplayConfig.SETTINGS_LEVEL_CAP);
 
@@ -132,9 +141,17 @@ namespace DogtorBurguer
 
         public void SetSoundOn(bool on)
         {
-            // Persistence only — applying it to the AudioListener/music is SoundSettings.Apply (F-78).
+            // Persistence only — applying it to the SFX sources is SoundSettings.Apply (F-78).
             SoundOn = on;
             PlayerPrefs.SetInt(KEY_SOUND_ON, on ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+
+        public void SetMusicOn(bool on)
+        {
+            // Persistence only — applying it to the music source is SoundSettings.Apply.
+            MusicOn = on;
+            PlayerPrefs.SetInt(KEY_MUSIC_ON, on ? 1 : 0);
             PlayerPrefs.Save();
         }
 

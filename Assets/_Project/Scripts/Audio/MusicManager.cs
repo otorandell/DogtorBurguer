@@ -73,10 +73,12 @@ namespace DogtorBurguer
             _source.volume = volume;
         }
 
+        /// <summary>Mutes/unmutes the music from its OWN toggle (MusicOn) — independent of the
+        /// SFX toggle since 2026-09-08. The track keeps playing muted, so unmuting resumes in
+        /// place instead of restarting the loop.</summary>
         public void ApplySoundSetting()
         {
-            bool soundOn = SaveDataManager.Instance != null ? SaveDataManager.Instance.SoundOn : true;
-            _source.mute = !soundOn;
+            _source.mute = !SoundSettings.MusicOn;
         }
     }
 }

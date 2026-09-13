@@ -7,7 +7,7 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// The Settings panel, on the shared ModalPanel chrome (full-canvas panel art, title, round X):
-    /// wide blue rows — the Sound and Controls toggles, then the menu-only START level row (the
+    /// wide blue rows — the Sound (SFX) and Music toggles, then the menu-only START level row (the
     /// blue blank with a yellow arrow inside each end, "START: LVL N" between — steps the persisted
     /// StartingLevel, 1..SETTINGS_LEVEL_CAP; replaced the mode toggle 2026-09-07) or the
     /// full-width Quit to Menu in-game (the level applies to the NEXT run, so in-game it would
@@ -21,6 +21,7 @@ namespace DogtorBurguer
         private Canvas _canvas;
         private ModalPanel _modal;
         private TextMeshProUGUI _soundLabel;
+        private TextMeshProUGUI _musicLabel;
         private TextMeshProUGUI _controlLabel;
         private TextMeshProUGUI _levelLabel;
         private TextMeshProUGUI _languageLabel;
@@ -69,26 +70,36 @@ namespace DogtorBurguer
             _modal = ModalPanel.Build(_canvas, Loc.Get(LocKey.SettingsTitle), "ui_settings_panel",
                 UIStyles.SETTINGS_PANEL_OFFSET, UIStyles.SETTINGS_CHROME_OFFSET, Hide);
 
-            // Rows down the body. The label strings are set by the Update* refreshers.
-            _soundLabel = CreateRowButton("Sound", new Vector2(0f, RowY(0)), UIStyles.SETTINGS_ROW_W, OnSoundToggleClicked);
-            _controlLabel = CreateRowButton("Controls", new Vector2(0f, RowY(1)), UIStyles.SETTINGS_ROW_W, OnControlToggleClicked);
+            // Rows down the body, top to bottom. A running counter, not fixed indices, so a
+            // hidden row (Controls) closes its gap instead of leaving a hole. The label strings
+            // are set by the Update* refreshers.
+            int row = 0;
+            // Sound = SFX, Music = the soundtrack: two independent toggles since 2026-09-08
+            // (they shared one master mute before, so you couldn't keep music without effects).
+            _soundLabel = CreateRowButton("Sound", new Vector2(0f, RowY(row++)), UIStyles.SETTINGS_ROW_W, OnSoundToggleClicked);
+            _musicLabel = CreateRowButton("Music", new Vector2(0f, RowY(row++)), UIStyles.SETTINGS_ROW_W, OnMusicToggleClicked);
 
-            // Third row: in-game a full-width Quit to Menu (the Restart half was dropped
-            // 2026-09-05 — game over already offers Retry; scene loads reset timeScale, so
-            // leaving from the paused panel is safe). In the menu, the START level row.
+            // The Controls (Drag/Tap) row is retired — Tap is the only scheme now. The toggle is
+            // intact behind the flag; see GameplayConfig.CONTROL_MODE_SELECTABLE for the revert
+            // (and its note about the sheet only fitting four rows).
+            if (GameplayConfig.CONTROL_MODE_SELECTABLE)
+                _controlLabel = CreateRowButton("Controls", new Vector2(0f, RowY(row++)), UIStyles.SETTINGS_ROW_W, OnControlToggleClicked);
+
+            // Remaining rows: in-game Restart + Quit to Menu (scene loads reset timeScale, so
+            // leaving from the paused panel is safe). In the menu, START level + Language.
             if (_showRunButtons)
             {
                 // Restart returned 2026-09-08 (dropped 2026-09-05 for space) — the 4-row sheet
                 // fits it again. Ad-free by design: interstitials live ONLY on game-over Retry.
-                CreateRowButton(Loc.Get(LocKey.SettingsRestart), new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W, OnRestartClicked);
-                CreateRowButton(Loc.Get(LocKey.SettingsQuit), new Vector2(0f, RowY(3)), UIStyles.SETTINGS_ROW_W, OnQuitClicked);
+                CreateRowButton(Loc.Get(LocKey.SettingsRestart), new Vector2(0f, RowY(row++)), UIStyles.SETTINGS_ROW_W, OnRestartClicked);
+                CreateRowButton(Loc.Get(LocKey.SettingsQuit), new Vector2(0f, RowY(row++)), UIStyles.SETTINGS_ROW_W, OnQuitClicked);
             }
             else
             {
-                BuildLevelRow(new Vector2(0f, RowY(2)), UIStyles.SETTINGS_ROW_W);
-                // Fourth row (menu-only, like START): cycles the language. A mid-run swap would
+                BuildLevelRow(new Vector2(0f, RowY(row++)), UIStyles.SETTINGS_ROW_W);
+                // Last row (menu-only, like START): cycles the language. A mid-run swap would
                 // leave already-built HUD text in the old language, so the in-game panel skips it.
-                _languageLabel = CreateRowButton("Language", new Vector2(0f, RowY(3)), UIStyles.SETTINGS_ROW_W, OnLanguageClicked);
+                _languageLabel = CreateRowButton("Language", new Vector2(0f, RowY(row++)), UIStyles.SETTINGS_ROW_W, OnLanguageClicked);
             }
         }
 
@@ -166,10 +177,24 @@ namespace DogtorBurguer
         private void UpdateSoundLabel()
         {
             if (_soundLabel == null) return;
-            bool soundOn = SaveDataManager.Instance != null
-                ? SaveDataManager.Instance.SoundOn
-                : SaveDataManager.DEFAULT_SOUND_ON;
-            _soundLabel.text = Loc.Get(soundOn ? LocKey.SettingsSoundOn : LocKey.SettingsSoundOff);
+            _soundLabel.text = Loc.Get(SoundSettings.SoundOn
+                ? LocKey.SettingsSoundOn : LocKey.SettingsSoundOff);
+        }
+
+        private void OnMusicToggleClicked()
+        {
+            if (SaveDataManager.Instance == null) return;
+
+            SaveDataManager.Instance.SetMusicOn(!SaveDataManager.Instance.MusicOn);
+            SoundSettings.Apply();
+            UpdateMusicLabel();
+        }
+
+        private void UpdateMusicLabel()
+        {
+            if (_musicLabel == null) return;
+            _musicLabel.text = Loc.Get(SoundSettings.MusicOn
+                ? LocKey.SettingsMusicOn : LocKey.SettingsMusicOff);
         }
 
         private void OnControlToggleClicked()
@@ -230,6 +255,7 @@ namespace DogtorBurguer
         {
             if (_modal != null) _modal.Title.text = Loc.Get(LocKey.SettingsTitle);
             UpdateSoundLabel();
+            UpdateMusicLabel();
             UpdateControlLabel();
             UpdateLevelRow();
             UpdateLanguageLabel();

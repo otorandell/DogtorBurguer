@@ -9,8 +9,10 @@ namespace DogtorBurguer
         public static readonly Dictionary<LocKey, string> Table = new()
         {
             { LocKey.SettingsTitle, "IMPOSTAZIONI" },
-            { LocKey.SettingsSoundOn, "Audio: SÌ" },
-            { LocKey.SettingsSoundOff, "Audio: NO" },
+            { LocKey.SettingsSoundOn, "Effetti: SÌ" },
+            { LocKey.SettingsSoundOff, "Effetti: NO" },
+            { LocKey.SettingsMusicOn, "Musica: SÌ" },
+            { LocKey.SettingsMusicOff, "Musica: NO" },
             { LocKey.SettingsControlsDrag, "Controlli: Trascina" },
             { LocKey.SettingsControlsTap, "Controlli: Tocca" },
             { LocKey.SettingsStartLevel, "INIZIO: LIVELLO {0}" },
@@ -32,7 +34,7 @@ namespace DogtorBurguer
             { LocKey.HowToTitle, "COME SI GIOCA" },
             { LocKey.HowToPlayTutorial, "GIOCA TUTORIAL" },
             { LocKey.HowToControls, "CONTROLLI" },
-            { LocKey.HowToControls1, "- Scorri a sinistra o destra per muovere lo chef." },
+            { LocKey.HowToControls1, "- Scorri, o tocca a sinistra o destra dello chef, per spostarlo." },
             { LocKey.HowToControls2, "- Tocca lo chef per scambiare le due colonne davanti a lui." },
             { LocKey.HowToControls3, "- Tocca un ingrediente in caduta per accelerarlo." },
             { LocKey.HowToControls4, "- Tocca una freccia di anteprima per farlo scendere subito." },
