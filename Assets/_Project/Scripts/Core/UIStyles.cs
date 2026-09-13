@@ -25,6 +25,11 @@ namespace DogtorBurguer
         public static readonly Color32 HUD_TEXT_STROKE = new(0x88, 0x46, 0x2A, 0xFF);  // #88462A mid brown — the inner stroke (sampled off the mock's PLAY)
         public const float HUD_TEXT_BORDER_WIDTH = 0.19f;                               // TMP outline width (0..1) — tune live (0.25 pre-Baloo; thicker per Oscar 2026-09-08)
         public const float TEXT_LINE_SPACING = -45f;                                    // global leading trim — Baloo's native line height is huge (overflowed How-to, wrapped the one-time-buy tag); negative tightens
+        // ...but that trim is for SINGLE-LINE labels. On a WRAPPED paragraph it pulls the lines
+        // into each other (descenders hitting the next line's caps) - the tutorial tips and the
+        // How-to bullets were unreadable blocks (Oscar, 2026-09-13). Paragraphs get their own,
+        // far gentler value; UIFactory picks between the two on the `wrap` flag.
+        public const float TEXT_LINE_SPACING_WRAP = -10f;
         public const float TEXT_CHARACTER_SPACING = -2f;                                // global tracking, TMP units (~0.01 em) — negative tightens; Baloo tracks looser than Panton did
         public const float TEXT_FACE_DILATE = 0.06f;                                    // weight trim (negative thins) — slightly positive so the thicker outline pushes OUTWARD instead of eating the fill. Tune live; styled AND plain texts
         // The sticker drop shadow (TMP Underlay) applied by StyleFillAndBorder to EVERY bordered
@@ -364,7 +369,7 @@ namespace DogtorBurguer
         public const float TUT_TITLE_SIZE = 30f;                                     // bumped 2026-09-13 (Oscar: the tips read too small)
         public const float TUT_TITLE_SIZE_MIN = 16f;                                 // AutoFit floor: long titles ("ACELEN MI VAR?") must not outgrow the banner
         public const float TUT_BODY_Y = -8f;
-        public const float TUT_BODY_H = 120f;
+        public const float TUT_BODY_H = 150f;                                        // grown 2026-09-13 with the bigger tip text; the plate is ~219 tall, so this still clears its soft edges
         public const float TUT_BODY_INSET = 90f;                                     // keeps text off the plate's soft edges
         public const float TUT_BODY_SIZE = 28f;                                      // bumped 2026-09-13 (Oscar: the tips read too small)
         public const float TUT_BODY_SIZE_MIN = 16f;                                  // AutoFit floor: the box is fixed, so long translations shrink rather than clip

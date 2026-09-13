@@ -249,7 +249,8 @@ namespace DogtorBurguer
             // genuinely auto-wrapping paragraphs need wrap = true.
             tmp.textWrappingMode = wrap ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;
             tmp.characterSpacing = UIStyles.TEXT_CHARACTER_SPACING;
-            tmp.lineSpacing = UIStyles.TEXT_LINE_SPACING;
+            // Paragraphs need real leading; the global trim is for single-line labels only.
+            tmp.lineSpacing = wrap ? UIStyles.TEXT_LINE_SPACING_WRAP : UIStyles.TEXT_LINE_SPACING;
 
             // Localization shrink-to-fit (2026-09-08): translated labels can outgrow rects tuned
             // on English (SPEZIALBESTELLUNG...), so every single-line label caps at its requested
