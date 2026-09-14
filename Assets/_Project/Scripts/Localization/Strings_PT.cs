@@ -96,7 +96,7 @@ namespace DogtorBurguer
             { LocKey.TutMustardBody, "Mostarda grátis! Limpa os DOIS do topo do balcão inteiro." },
             { LocKey.TutMustardDone, "Que varrida! A mostarda rende se um ingrediente está em tudo." },
             { LocKey.TutSkewerBody, "Espeto grátis! Solte onde o pão está enterrado." },
-            { LocKey.TutSkewerDone, "Resgatado! O pão voltou pro chão, pronto pra rechear." },
+            { LocKey.TutSkewerDone, "Resgatado e servido! Um pão enterrado é um hambúrguer esperando." },
             { LocKey.TutReadyTitle, "PRONTO!" },
             { LocKey.TutReadyBody, "Toque nas Fadas Burger para mais power-ups! A lanchonete é sua." },
             { LocKey.TutTapToContinue, "TOQUE PARA CONTINUAR" },

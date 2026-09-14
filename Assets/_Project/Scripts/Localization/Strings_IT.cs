@@ -96,7 +96,7 @@ namespace DogtorBurguer
             { LocKey.TutMustardBody, "Senape gratis! Cancella i suoi DUE in cima da tutto il bancone." },
             { LocKey.TutMustardDone, "Che sventagliata! La senape rende se un ingrediente è ovunque." },
             { LocKey.TutSkewerBody, "Spiedino gratis! Lascialo sulla colonna col panino sepolto." },
-            { LocKey.TutSkewerDone, "Salvato! Il panino è di nuovo in basso, pronto da farcire." },
+            { LocKey.TutSkewerDone, "Salvato e servito! Un panino sepolto è un burger in attesa." },
             { LocKey.TutReadyTitle, "PRONTO!" },
             { LocKey.TutReadyBody, "Tocca le Fate Burger per altri power-up! Il locale è tuo." },
             { LocKey.TutTapToContinue, "TOCCA PER CONTINUARE" },

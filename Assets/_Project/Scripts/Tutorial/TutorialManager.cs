@@ -27,7 +27,10 @@ namespace DogtorBurguer
         private const float SlowFall = 0.55f;  // drops the player must REACT to
         private const float TeachFall = 0.9f;  // slower still: the fast-drop step needs tapping room
         private const float ChefArrowLift = 2.4f; // the follow arrow floats this far above the chef (world units)
+        private const float ColumnArrowLift = 0.35f; // the column arrow floats this far above the grid top
         private const float RespawnDelay = 0.8f;
+        private const float SkewerFinaleBeat = 0.6f;    // pause either side of the payoff burger
+        private const float SkewerFinaleTimeout = 6f;   // never hang the lesson on the payoff
         private const int MatchRounds = 3;     // pairs to make before moving on — room to practise
 
         // Rotated through the match rounds so the practice doesn't read as the same drop thrice.
@@ -44,6 +47,7 @@ namespace DogtorBurguer
         private bool _matchFired;
         private bool _fastDropped;
         private bool _burgerServed;
+        private int _arrowColumn = -1; // >= 0 while a power-up lesson points at a target column
 
         private void Start()
         {
@@ -94,10 +98,21 @@ namespace DogtorBurguer
 
         private void Update()
         {
-            // The pointer follows the chef through the two chef-focused steps.
+            // The pointer follows the chef through the two chef-focused steps...
             if ((_step == TutorialStep.Move || _step == TutorialStep.Swap) && _chef != null)
                 _popup.PointAtWorld(_chef.transform.position + Vector3.up * ChefArrowLift);
+            // ...and hovers over the column a power-up lesson wants, when that column is the
+            // non-obvious part (the Skewer's buried bun). Per-frame, like the chef arrow.
+            else if (_arrowColumn >= 0)
+                _popup.PointAtWorld(ColumnArrowPos(_arrowColumn));
         }
+
+        /// <summary>The drop line above a column — the same height the carry ghost appears at, so
+        /// the arrow reads as "drop it HERE", and high enough to clear the callout box below.</summary>
+        private static Vector3 ColumnArrowPos(int columnIndex) => new Vector3(
+            Constants.GRID_ORIGIN_X + columnIndex * Constants.CELL_WIDTH,
+            Constants.GRID_ORIGIN_Y + Constants.MAX_ROWS * Constants.CELL_VISUAL_HEIGHT + ColumnArrowLift,
+            0f);
 
         // ---------------- move / swap ----------------
 
@@ -334,6 +349,10 @@ namespace DogtorBurguer
                     new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
                 _popup.ArmContinue(EnterOrder);
             }
+            else if (_step == TutorialStep.Skewer)
+            {
+                _burgerServed = true; // the Skewer finale's payoff burger just closed
+            }
             else if (_step == TutorialStep.Order)
             {
                 // The scripted order just matched: the pre-filled meter levels the multiplier up.
@@ -391,7 +410,34 @@ namespace DogtorBurguer
             // is exactly what the player is being taught to look for. Hence the discarded count.
             StartCoroutine(RunPowerUpStep(TutorialStep.Skewer, ConsumableType.Skewer,
                 LocKey.TutSkewerBody, LocKey.TutSkewerDone, EnterReady, BuildSkewerBoard,
-                _ => BunBottomOnFloor()));
+                _ => BunBottomOnFloor(), SkewerFinale));
+        }
+
+        /// <summary>
+        /// The Skewer's payoff (Oscar, 2026-09-14): digging the bun out only means something if
+        /// the player sees what it is FOR, so a top bun drops onto the rescued column and the
+        /// burger completes on its own. The flip is masked during power-up steps, so the bun
+        /// cannot be steered away from the column it was aimed at.
+        /// </summary>
+        private IEnumerator SkewerFinale()
+        {
+            yield return new WaitForSeconds(SkewerFinaleBeat); // let the skewer's VFX settle first
+
+            int col = BunBottomFloorColumn();
+            if (col < 0) yield break; // no rescued bun to close — nothing to show
+
+            _burgerServed = false;
+            _spawner.SpawnScripted(IngredientType.BunTop, col, SlowFall);
+
+            // HandleBurger flags the completion. The timeout is belt and braces: the lesson must
+            // never hang here if the burger somehow doesn't resolve.
+            float timeout = SkewerFinaleTimeout;
+            while (!_burgerServed && timeout > 0f)
+            {
+                timeout -= Time.deltaTime;
+                yield return null;
+            }
+            yield return new WaitForSeconds(SkewerFinaleBeat); // let the burger popup be read
         }
 
         /// <summary>
@@ -399,9 +445,15 @@ namespace DogtorBurguer
         /// free virtual one, and wait for <paramref name="isDone"/> (which receives the piece
         /// count the board started with). Unfailable by construction — the virtual item never
         /// depletes, so a fizzle or a wrong column just means trying again.
+        ///
+        /// <paramref name="buildBoard"/> returns the column the pointer should hover over, or -1
+        /// to leave it on the inventory slot: the board layout is what decides whether the target
+        /// column is obvious. <paramref name="epilogue"/> optionally plays a payoff once the
+        /// lesson is solved, before the closing text.
         /// </summary>
         private IEnumerator RunPowerUpStep(TutorialStep step, ConsumableType type,
-            LocKey body, LocKey done, Action next, Action buildBoard, Func<int, bool> isDone)
+            LocKey body, LocKey done, Action next, Func<int> buildBoard, Func<int, bool> isDone,
+            Func<IEnumerator> epilogue = null)
         {
             _step = step;
             TutorialMode.SetMask(move: true, flip: false, fastDrop: false, consumable: true);
@@ -409,20 +461,32 @@ namespace DogtorBurguer
             ClearBoardSilently();
             // A frame's gap so the old board's poof reads as separate from the new one popping in.
             yield return null;
-            buildBoard();
+            int targetColumn = buildBoard();
             int piecesAtStart = BoardPieceCount();
 
             TutorialMode.VirtualItem = type;
             ConsumableInventory.Instance?.NotifyChanged();
+            // A named column steers the arrow per frame (Update); otherwise it sits on the slot,
+            // which is what teaches where power-ups live in the first lesson.
+            _arrowColumn = targetColumn;
             _popup.Show(Loc.Get(LocKey.TutPowerUpTitle), Loc.Get(body),
                 new Vector2(0f, -40f), SlotArrowPos(type), 0f);
 
             while (_step == step && !isDone(piecesAtStart))
                 yield return null;
+            _arrowColumn = -1;
             if (_step != step) yield break;
 
             TutorialMode.VirtualItem = null;
             ConsumableInventory.Instance?.NotifyChanged();
+
+            if (epilogue != null)
+            {
+                _popup.SetArrowVisible(false); // the column is resolved; stop pointing at it
+                yield return StartCoroutine(epilogue());
+                if (_step != step) yield break;
+            }
+
             _popup.Show(Loc.Get(LocKey.TutPowerUpTitle), Loc.Get(done),
                 new Vector2(0f, -40f), Vector2.zero, 0f, arrowVisible: false);
             _popup.ArmContinue(next);
@@ -433,7 +497,10 @@ namespace DogtorBurguer
         private static Vector2 SlotArrowPos(ConsumableType type) =>
             UIStyles.TUT_ARROW_SLOT_POS + Vector2.right * (UIStyles.CONSUMABLE_SLOT_SPACING * (int)type);
 
-        private void BuildKetchupBoard()
+        // Returns the column the pointer should hover over, or -1 for the inventory slot.
+        // Ketchup's board is ONE tall stack on an empty table: the target is unmissable, so the
+        // arrow stays on the slot, which is the thing this first lesson has to teach.
+        private int BuildKetchupBoard()
         {
             IngredientType[] junk =
             {
@@ -443,9 +510,11 @@ namespace DogtorBurguer
             };
             foreach (IngredientType type in junk)
                 PlaceInstantly(type, JunkCol);
+            return -1;
         }
 
-        private void BuildMustardBoard()
+        // Every column is a valid drop here, so there is no single column to point at.
+        private int BuildMustardBoard()
         {
             // No two vertically adjacent pieces share a type: PlaceInstantly skips the landing
             // match check, so the board must be match-free on its own or it would look broken.
@@ -453,15 +522,19 @@ namespace DogtorBurguer
             PlaceColumn(1, IngredientType.Tomato, IngredientType.Lettuce, IngredientType.Bacon);
             PlaceColumn(2, IngredientType.Bacon, IngredientType.Tomato, IngredientType.Lettuce);
             PlaceColumn(3, IngredientType.Lettuce, IngredientType.Bacon, IngredientType.Tomato);
+            return -1;
         }
 
-        private void BuildSkewerBoard()
+        // The buried bun IS the puzzle and two columns look alike, so this one names its target
+        // column and the arrow hovers over it (Oscar, 2026-09-14).
+        private int BuildSkewerBoard()
         {
             // The bun sits in the middle of the stack — buried, which is the situation the
             // Skewer exists for. A second column gives the drop somewhere wrong to go.
             PlaceColumn(ColB, IngredientType.Tomato, IngredientType.Bacon, IngredientType.BunBottom,
                 IngredientType.Tomato, IngredientType.Bacon);
             PlaceColumn(JunkCol, IngredientType.Bacon, IngredientType.Tomato);
+            return ColB;
         }
 
         /// <summary>Did the board lose pieces since the lesson's board was laid out? The
@@ -516,15 +589,19 @@ namespace DogtorBurguer
             return total;
         }
 
-        private static bool BunBottomOnFloor()
+        private static bool BunBottomOnFloor() => BunBottomFloorColumn() >= 0;
+
+        /// <summary>Column whose row 0 holds a bottom bun, or -1. Both the Skewer lesson's
+        /// completion test and its finale (which drops the closing top bun) read it.</summary>
+        private static int BunBottomFloorColumn()
         {
             for (int c = 0; c < Constants.COLUMN_COUNT; c++)
             {
                 Column col = GridManager.Instance?.GetColumn(c);
                 Ingredient floor = col != null ? col.GetIngredientAtRow(0) : null;
-                if (floor != null && floor.Type == IngredientType.BunBottom) return true;
+                if (floor != null && floor.Type == IngredientType.BunBottom) return c;
             }
-            return false;
+            return -1;
         }
 
         private static int FirstNonEmptyColumn()

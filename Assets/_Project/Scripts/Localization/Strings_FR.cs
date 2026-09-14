@@ -96,7 +96,7 @@ namespace DogtorBurguer
             { LocKey.TutMustardBody, "Moutarde gratuite! Efface ses DEUX du haut de tout le comptoir." },
             { LocKey.TutMustardDone, "Grand ménage! La moutarde paie si un ingrédient est partout." },
             { LocKey.TutSkewerBody, "Brochette gratuite! Lâche-la sur la colonne au pain enfoui." },
-            { LocKey.TutSkewerDone, "Sauvé! Le pain est de nouveau en bas, prêt à garnir." },
+            { LocKey.TutSkewerDone, "Sauvé et servi! Un pain enfoui, c'est un burger qui attend." },
             { LocKey.TutReadyTitle, "PRÊT!" },
             { LocKey.TutReadyBody, "Touche les Fées Burger pour plus de power-ups! Le resto est à toi." },
             { LocKey.TutTapToContinue, "TOUCHE POUR CONTINUER" },

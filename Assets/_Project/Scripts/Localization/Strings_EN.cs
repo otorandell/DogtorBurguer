@@ -96,7 +96,7 @@ namespace DogtorBurguer
             { LocKey.TutMustardBody, "Free Mustard! Drop it to clear its top TWO ingredients board-wide." },
             { LocKey.TutMustardDone, "Big sweep! Mustard pays off when one ingredient is everywhere." },
             { LocKey.TutSkewerBody, "Free Skewer! Drop it on the buried bun's column to dig it out." },
-            { LocKey.TutSkewerDone, "Rescued! The bun is on the floor again, ready to fill." },
+            { LocKey.TutSkewerDone, "Rescued and served! A buried bun is a burger waiting to happen." },
             { LocKey.TutReadyTitle, "READY!" },
             { LocKey.TutReadyBody, "Tap the Burger Fairies for more power-ups. The diner is yours!" },
             { LocKey.TutTapToContinue, "TAP TO CONTINUE" },

@@ -645,7 +645,14 @@ Skewer** -> Ready -> scene reloads into a normal run.
   - Mustard: THREE types spread over all four columns, so the sweep takes the top two and leaves
     the third standing - the lesson is that it is not a board wipe. Done when the board shrinks.
   - Skewer: a bottom bun buried mid-stack. ⚠️ The Skewer leaves the piece COUNT alone (it only
-    destroys SURPLUS bottom buns), so its test is the bun reaching row 0 - not a shrink.
+    destroys SURPLUS bottom buns), so its test is the bun reaching row 0 - not a shrink. It is
+    the one lesson with an **epilogue**: a top bun drops onto the rescued column and the burger
+    closes itself, so the player sees what digging the bun out was FOR (Oscar, 2026-09-14).
+  - `buildBoard` **returns the column the arrow should hover over**, or -1 to leave the pointer
+    on the inventory slot. Ketchup/Mustard return -1 (one obvious stack / every column valid);
+    the Skewer names its column, because the buried bun is the puzzle and two columns look
+    alike. The arrow tracks it per frame in `Update`, at the same height the carry ghost
+    appears (`ColumnArrowLift` above the grid top), so it reads as "drop it HERE".
 - **Board setup is INSTANT** (`PlaceInstantly` -> `IngredientSpawner.SpawnRestored`, the same
   already-landed seat the resume path uses). Dropping eight junk pieces one at a time made the
   old power-up step ~6 s of watching nothing (Oscar, 2026-09-13). Only pieces the player must

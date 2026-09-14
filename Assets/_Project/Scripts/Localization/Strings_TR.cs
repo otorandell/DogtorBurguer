@@ -96,7 +96,7 @@ namespace DogtorBurguer
             { LocKey.TutMustardBody, "Bedava hardal! En üstteki İKİ malzemeyi tüm tezgahtan siler." },
             { LocKey.TutMustardDone, "Tam süpürme! Bir malzeme her yerdeyse hardal çok iş görür." },
             { LocKey.TutSkewerBody, "Bedava şiş! Ekmeğin gömülü olduğu sütuna bırak." },
-            { LocKey.TutSkewerDone, "Kurtarıldı! Ekmek yine en altta, doldurmaya hazır." },
+            { LocKey.TutSkewerDone, "Kurtarıldı ve servis edildi! Gömülü ekmek, bekleyen bir burger." },
             { LocKey.TutReadyTitle, "HAZIR!" },
             { LocKey.TutReadyBody, "Daha çok güçlendirme için Burger Perilerine dokun! Burası senin." },
             { LocKey.TutTapToContinue, "DEVAM İÇİN DOKUN" },

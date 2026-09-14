@@ -96,7 +96,7 @@ namespace DogtorBurguer
             { LocKey.TutMustardBody, "Gratis-Senf! Löscht die obersten ZWEI von der ganzen Theke." },
             { LocKey.TutMustardDone, "Rundumschlag! Senf lohnt sich, wenn eine Zutat überall liegt." },
             { LocKey.TutSkewerBody, "Gratis-Spieß! Wirf ihn auf die Spalte mit dem vergrabenen Brötchen." },
-            { LocKey.TutSkewerDone, "Gerettet! Das Brötchen liegt wieder unten, bereit zum Belegen." },
+            { LocKey.TutSkewerDone, "Gerettet und serviert! Ein vergrabenes Brötchen ist ein halber Burger." },
             { LocKey.TutReadyTitle, "BEREIT!" },
             { LocKey.TutReadyBody, "Tippe die Burger-Feen an für mehr Power-ups! Das Diner gehört dir." },
             { LocKey.TutTapToContinue, "ZUM WEITERMACHEN TIPPEN" },

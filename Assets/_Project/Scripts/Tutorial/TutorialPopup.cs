@@ -113,6 +113,9 @@ namespace DogtorBurguer
             _continueLabel.gameObject.SetActive(false);
         }
 
+        /// <summary>Shows/hides the pointer without disturbing the rest of the callout.</summary>
+        public void SetArrowVisible(bool visible) => _arrowRoot.gameObject.SetActive(visible);
+
         /// <summary>Steers the arrow over a world position (call per frame to follow the chef).</summary>
         public void PointAtWorld(Vector3 worldPos)
         {

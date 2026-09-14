@@ -96,7 +96,7 @@ namespace DogtorBurguer
             { LocKey.TutMustardBody, "¡Mostaza gratis! Borra sus DOS de arriba de todo el mostrador." },
             { LocKey.TutMustardDone, "¡Barrido! La mostaza rinde si un ingrediente está por todas partes." },
             { LocKey.TutSkewerBody, "¡Pincho gratis! Suéltalo donde el pan está enterrado." },
-            { LocKey.TutSkewerDone, "¡Rescatado! El pan vuelve abajo, listo para rellenar." },
+            { LocKey.TutSkewerDone, "¡Rescatado y servido! Un pan enterrado es una hamburguesa en potencia." },
             { LocKey.TutReadyTitle, "¡LISTO!" },
             { LocKey.TutReadyBody, "¡Toca a las Hadas Burger para más potenciadores! El local es tuyo." },
             { LocKey.TutTapToContinue, "TOCA PARA CONTINUAR" },
