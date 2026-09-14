@@ -68,7 +68,8 @@ namespace DogtorBurguer
 
             if (report.summary.result == BuildResult.Succeeded)
             {
-                Debug.Log($"[BuildMenu] App bundle built: {outputPath} ({report.summary.totalSize / (1024 * 1024)} MB)");
+                long sizeMb = new FileInfo(outputPath).Length / (1024 * 1024);
+                Debug.Log($"[BuildMenu] App bundle built: {outputPath} ({sizeMb} MB)");
                 EditorUtility.RevealInFinder(Path.GetFullPath(outputPath));
             }
             else
@@ -128,7 +129,9 @@ namespace DogtorBurguer
 
             string line = File.ReadLines(KEYSTORE_INFO_PATH)
                 .FirstOrDefault(l => l.TrimStart().StartsWith(PASSWORD_LINE_PREFIX, StringComparison.OrdinalIgnoreCase));
-            string password = line?.Substring(line.IndexOf(':') + 1).Trim();
+            // The password is the first token after the colon — the line may carry a note in
+            // parentheses after it.
+            string password = line?.Substring(line.IndexOf(':') + 1).Trim().Split(' ', '\t')[0];
             if (string.IsNullOrEmpty(password))
             {
                 EditorUtility.DisplayDialog("Build App Bundle",

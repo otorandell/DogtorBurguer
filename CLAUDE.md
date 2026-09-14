@@ -446,9 +446,12 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   event): `IapManager.Grant` → `ShopService.GrantGemPack` / `GrantRemoveAds` (idempotent);
   `IapManager.OnGranted` re-renders an open shop. The shop shows `IapManager.PriceLabel` (the store's localized string once known,
   else the config placeholder minus "$"), the App Store-mandatory **Restore Purchases** text
-  button sits under the gem grid. Still pending: local receipt validation (Unity's obfuscated
+  button sits under the gem grid. **Play products live 2026-09-13** (`gems_100/550/1200/2600` +
+  `remove_ads`, base prices set tax-exclusive so the shelf price lands on .99 tiers — table in
+  `Docs/play-store-listing.md`). Still pending: local receipt validation (Unity's obfuscated
   tangle classes are editor-generated — `UnityIapProvider.IsReceiptValid` passes everything
-  until then) and the on-device purchase test on the internal track.
+  until then; the licensing public key is on Monetize → Monetization setup) and the on-device
+  purchase test on the internal track (oscar.plk@gmail.com is a license tester).
 
 ### Shop (`Scripts/Shop/` — authored page, 2026-09-01)
 Built to the artist's mock (`Look Reference/Shop_example_1..3.png` + `Shop buy confirm.png`) with
@@ -654,7 +657,10 @@ arrow idle-BOBS and FOLLOWS the chef through Move/Swap (`TutorialPopup.PointAtWo
 overlay closes no longer leak real waves in (ResumeSpawning + the spawner Update are
 tutorial-gated). Callout = `TutorialPopup` (green plate title + green plate box + bobbing yellow
 arrow, `UIStyles.TUT_*`; the body AutoFits down to `TUT_BODY_SIZE_MIN` so long translations
-shrink instead of clipping). Step text/positions live in TutorialManager. SKIP is always
+shrink instead of clipping). Step text/positions live in TutorialManager. **Tip text is kept SHORT on purpose** (2026-09-14:
+trimmed from a 140-char worst case in German to 79) so the popup renders near full size
+instead of AutoFitting down to the floor — treat ~70 EN chars as the budget, since German and
+Spanish run 15-20% longer. The fairy tip lives on the READY step, not on a power-up step. SKIP is always
 available. Hooks: `ChefController.OnMoved/OnFlipped`, `IngredientSpawner.SpawnScripted/
 SpawnRestored/OnFastDrop`, `BurgerChallenge.SetScriptedOrder/SetPanelVisible`,
 `ConsumableInventory.NotifyChanged`.
@@ -820,8 +826,11 @@ gesture-latency fixes, the shop page-root fix, the single-ruleset + START level 
 the time-budgeted pacing — all in `Docs/session-2026-09-07.md` (**uncommitted at session end**,
 read it first). The screenshot-driven screen pass was completed 2026-09-05
 (`Docs/session-2026-09-05.md`). Next up:
-**Play Console setup + payments** (app, the 5 IAP products, internal track — see Pre-Launch
-Checklist), then the on-device test. Playtest-pending: two-type mustard, the 2026-09-06 order
+**On-device internal-test pass** — the Play Console is set up (2026-09-13: listing, policy
+forms, internal-track release 1.0 (vc1), the 5 IAP products ACTIVE at .99 shelf tiers, tester +
+license-tester list; full state + remaining steps in `Docs/play-store-listing.md` → Console
+status). Store builds: **Tools → Dogtor → Build Android App Bundle (Play upload)**
+(`Scripts/Editor/BuildMenu.cs`). Launch gate: a 14-day closed test with 12 testers. Playtest-pending: two-type mustard, the 2026-09-06 order
 ladder + the long pacing as the only ruleset (every cell is a table entry, retune freely), the
 START level row.
 Focus areas:
@@ -1009,6 +1018,8 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   `ui_arrow_yellow` prev/next buttons, hidden at the ends. Layout `UIStyles.HOWTO_*`. In-game it
   pauses/resumes like Settings; the menu opener shows it plain. `ui_shop_button` stays unused.
   Keep the Mustard bullet in step with `MUSTARD_SWEEP_TYPES` (top two types, board-wide).
+  ⚠️ **Don't name the preview ARROW in player text** (2026-09-14): the arrow back-picture is
+  barely visible in play, so every language now says "an upcoming ingredient at the top".
 - **Credits panel (authored, 2026-09-01, `UI/CreditsPanel.cs`)**: menu-only, to the mock (`Look
   Reference/Credits.png`) on the modal chrome with **its own sheet** from the 2026-09-01 kit
   (`ui_credits_panel` — taller and wider than the Settings sheet, tab ~38 px higher →
