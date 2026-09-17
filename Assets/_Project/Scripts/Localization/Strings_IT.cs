@@ -93,7 +93,7 @@ namespace DogtorBurguer
             { LocKey.TutPowerUpTitle, "POWER-UP!" },
             { LocKey.TutKetchupBody, "Ketchup gratis! Trascinalo sulla colonna piena." },
             { LocKey.TutKetchupDone, "Impeccabile! Il ketchup svuota un'intera colonna." },
-            { LocKey.TutMustardBody, "Senape gratis! Cancella i suoi DUE in cima da tutto il bancone." },
+            { LocKey.TutMustardBody, "Senape gratis! Lasciala su una colonna: i suoi due ingredienti in cima spariscono ovunque!" },
             { LocKey.TutMustardDone, "Che sventagliata! La senape rende se un ingrediente è ovunque." },
             { LocKey.TutSkewerBody, "Spiedino gratis! Lascialo sulla colonna col panino sepolto." },
             { LocKey.TutSkewerDone, "Salvato e servito! Un panino sepolto è un burger in attesa." },

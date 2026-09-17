@@ -93,7 +93,7 @@ namespace DogtorBurguer
             { LocKey.TutPowerUpTitle, "POWER-UP!" },
             { LocKey.TutKetchupBody, "Gratis-Ketchup! Zieh ihn auf die volle Spalte." },
             { LocKey.TutKetchupDone, "Blitzblank! Ketchup leert eine ganze Spalte." },
-            { LocKey.TutMustardBody, "Gratis-Senf! Löscht die obersten ZWEI von der ganzen Theke." },
+            { LocKey.TutMustardBody, "Gratis-Senf! Wirf ihn auf eine Spalte: ihre zwei obersten Zutaten verschwinden überall!" },
             { LocKey.TutMustardDone, "Rundumschlag! Senf lohnt sich, wenn eine Zutat überall liegt." },
             { LocKey.TutSkewerBody, "Gratis-Spieß! Wirf ihn auf die Spalte mit dem vergrabenen Brötchen." },
             { LocKey.TutSkewerDone, "Gerettet und serviert! Ein vergrabenes Brötchen ist ein halber Burger." },

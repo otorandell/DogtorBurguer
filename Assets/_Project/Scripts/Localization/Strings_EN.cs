@@ -93,7 +93,7 @@ namespace DogtorBurguer
             { LocKey.TutPowerUpTitle, "POWER-UP!" },
             { LocKey.TutKetchupBody, "Free Ketchup! Drag it from its slot onto the messy column." },
             { LocKey.TutKetchupDone, "Spotless! Ketchup empties one whole column." },
-            { LocKey.TutMustardBody, "Free Mustard! Drop it to clear its top TWO ingredients board-wide." },
+            { LocKey.TutMustardBody, "Free Mustard! Drop it on a column: its top two ingredients vanish everywhere!" },
             { LocKey.TutMustardDone, "Big sweep! Mustard pays off when one ingredient is everywhere." },
             { LocKey.TutSkewerBody, "Free Skewer! Drop it on the buried bun's column to dig it out." },
             { LocKey.TutSkewerDone, "Rescued and served! A buried bun is a burger waiting to happen." },

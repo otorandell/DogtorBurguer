@@ -93,7 +93,7 @@ namespace DogtorBurguer
             { LocKey.TutPowerUpTitle, "POWER-UP!" },
             { LocKey.TutKetchupBody, "Ketchup grátis! Arraste até a coluna bagunçada." },
             { LocKey.TutKetchupDone, "Impecável! O ketchup esvazia uma coluna inteira." },
-            { LocKey.TutMustardBody, "Mostarda grátis! Limpa os DOIS do topo do balcão inteiro." },
+            { LocKey.TutMustardBody, "Mostarda grátis! Solte numa coluna e os dois ingredientes do topo somem do tabuleiro inteiro." },
             { LocKey.TutMustardDone, "Que varrida! A mostarda rende se um ingrediente está em tudo." },
             { LocKey.TutSkewerBody, "Espeto grátis! Solte onde o pão está enterrado." },
             { LocKey.TutSkewerDone, "Resgatado e servido! Um pão enterrado é um hambúrguer esperando." },
