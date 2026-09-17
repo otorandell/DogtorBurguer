@@ -11,8 +11,9 @@ namespace DogtorBurguer
     /// <summary>
     /// One-click Play Store build — Tools → Dogtor → Build Android App Bundle. Guards the two
     /// footguns of a release build (the Test Build switch left on, an unsigned bundle), reads the
-    /// upload-key password from the gitignored Keys/KEYSTORE-INFO.txt and writes the .aab into
-    /// Builds/Android/. Tester APKs keep the manual route in Docs/build-and-share.md.
+    /// upload-key password from the gitignored Keys/KEYSTORE-INFO.txt, bumps the Android version
+    /// code (Play wants a fresh one per upload) and writes the .aab into Builds/Android/. Tester
+    /// APKs keep the manual route in Docs/build-and-share.md.
     /// </summary>
     public static class BuildMenu
     {
@@ -43,6 +44,12 @@ namespace DogtorBurguer
 
             bool previousBundleSetting = EditorUserBuildSettings.buildAppBundle;
             EditorUserBuildSettings.buildAppBundle = true;
+
+            // Play rejects an upload whose version code it has already seen, so every store
+            // build takes the next code. Persisted in ProjectSettings — commit it with the build.
+            PlayerSettings.Android.bundleVersionCode += 1;
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[BuildMenu] Version code bumped to {PlayerSettings.Android.bundleVersionCode}.");
 
             string fileName = $"DogtorBurguer-{PlayerSettings.bundleVersion}-vc{PlayerSettings.Android.bundleVersionCode}.aab";
             string outputPath = Path.Combine(OUTPUT_DIR, fileName);

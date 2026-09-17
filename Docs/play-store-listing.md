@@ -4,10 +4,12 @@ Copy-ready text for the Play Console (Store presence → Main store listing) plu
 assets and questionnaire answers. Character limits are Google's; the counts are in brackets.
 
 ## App details
-- **App name** (30): `Dogtor Burguer` [14]
+- **App name** (30): `Dogtor Burger` [13] — the store name (decision 2026-09-13; matches the icon
+  art). The package/namespace keep the `Burguer` spelling — they are permanent.
 - **Package**: `com.proximacentaury.dogtorburguer` (already set in ProjectSettings — must match
   the Play Console app exactly; permanent once uploaded)
-- **Developer name**: ProximaCentaury
+- **Developer name**: Oscar Torandell (personal account 7277266853178408719; the console shows the
+  legal name — ProximaCentaury is only the package/company label)
 - **Category**: Game → Arcade. Tags: Arcade, Casual, Puzzle, Single player, Offline
 - **Contact email**: oscar.plk@gmail.com
 - **Privacy policy URL**: HOSTED — https://otorandell.github.io/proximacentaury-legal/
@@ -15,26 +17,75 @@ assets and questionnaire answers. Character limits are Google's; the counts are 
   the same URL goes in the LevelPlay dashboard). To update it: edit `Docs/privacy-policy.md`,
   regenerate the html, push to that repo.
 
+## Console status (walkthrough 2026-09-13, Claude driving Chrome)
+App id in the console: `4972657403600944405` (developer `7277266853178408719`). Console UI is
+in Spanish.
+
+**Done** — main store listing (icon, feature graphic, screenshots, texts; "ready for review"),
+content rating questionnaire, target audience 13+, privacy-policy URL, ads declaration, data
+safety, app access, advertising-ID / government / financial / health declarations, category
+(Arcade), app price = free, payments profile with a bank account, closed-test (Alpha) countries
+= all 177, Play Games on PC form factor **disabled** (was accidentally on — it adds PC review
+requirements), account group "Oscar Torandell" created (step 1 of the 15 % fee enrollment).
+
+**Done 2026-09-13 (evening)** — `.aab` 1.0 (vc1) built via the menu item and **published to Internal
+testing** (release "1.0 (1) - internal test"); the **5 one-time products are created and ACTIVE**
+(purchase option id `buy` on each, backwards-compatible, all 173 regions); email list
+**"Dogtor testers"** (oscar.plk@gmail.com) is both the internal-track tester list and the
+**license-tester** list (test purchases are free — Settings → Licencia para testing, response
+RESPOND_NORMALLY). Tester opt-in link (internal track — testers must be on the list first, then open it signed in
+with that Google account → Become a tester → Install from Play):
+**https://play.google.com/apps/internaltest/4701257598160915314**. Play sends no emails — share
+the link yourself. Sideloaded tester APKs must be uninstalled first (different signing key).
+
+**Pending, in order**
+1. **Install + play the internal build on a phone** (opt-in link above → Play Store install).
+   Verify: real store prices show in the shop, a test purchase grants gems, Remove Ads restores
+   after reinstall, ads test suite (`LEVELPLAY_TEST_SUITE`). Note the console's warning that
+   license testing is not compatible with *automatic integrity protection* (currently ON for
+   the app) — if test purchases misbehave, toggle it off under Protegida con Play for the test.
+2. **15 % service fee — step 2**: the "Review and enroll" banner appears on Settings → Developer
+   account → Associated developer accounts once the group propagates; accept the terms there.
+   Until then revenue is charged at 30 %.
+3. **Closed test (Alpha)** for the production gate below: pick the tester list, upload (or promote)
+   a build, get 12 testers to opt in.
+4. **Play Games Services** (leaderboard) — section below.
+5. **Every new upload**: `Tools → Dogtor → Build Android App Bundle (Play upload)` (it bumps
+   `AndroidBundleVersionCode` itself since 2026-09-14 — commit the ProjectSettings change with the
+   build; Play refuses a code it has already seen) → Internal testing → *Crear nueva versión* →
+   drop the .aab → release name → next → *Guardar y publicar*. Testers get it as a normal update.
+
+**Production gate (personal account created after Nov 2023)**: production access is only
+granted after a **closed test with ≥ 12 opted-in testers running for 14 days**, then an
+application form. Plan the tester group (friends/testers list) early — this is the longest
+lead-time item of the launch.
+
+**Licensing key** (Monetize → Monetization setup → Licensing): the Base64 RSA public key for
+`UnityIapProvider` receipt validation (Unity IAP Receipt Validation Obfuscator). Copy it from
+the console when generating the tangle — do not paste it into docs.
+
 ## Short description (80)
-`Catch falling ingredients, stack burgers, chase Special Orders. Quick arcade fun!` [79]
+`Catch falling ingredients, stack burgers, chase Special Orders. Crazy and fun!` [78]
 
 ## Full description (4000)
+Live in the console since 2026-09-13 (Oscar's wording + the stale-mechanics fixes):
 ```
-Dogtor Burguer is a fast, colorful arcade game about one very busy dog chef.
+Dogtor Burger is a fast, colorful arcade game about one very busy dog chef.
 
-Ingredients rain down over four lanes. Slide the Dogtor between the columns, catch what falls,
+Ingredients rain down over four lanes. Slide the chef between the columns, catch what falls,
 and stack it into burgers: a bottom bun starts one, a top bun finishes it — the taller the
 burger, the bigger the score. Matching ingredients side by side clears them, so keep the
 counter tidy or the stacks reach the ceiling and it's game over!
 
 FEATURES
-- Simple one-thumb controls: swipe to move, tap to flip. Drag or Tap mode — your choice.
+- Simple one-thumb controls: swipe or tap to move, tap the chef to flip.
 - Special Orders: build the burger the customer wants for big multipliers.
-- Power-ups delivered by Burger Fairies: Ketchup clears a column, Mustard sweeps an ingredient
+- Power-ups delivered by Burger Fairies: Ketchup clears a column, Mustard sweeps ingredients
   off the whole board, the Skewer pins a burger together.
-- 20 levels of rising speed and new ingredients — and a secret kill screen for the brave.
-- Earn Stars as you play and spend them on skins: new Dogtors and gourmet ingredient sets.
-- Offline, no account needed. Short rounds, made for a quick break.
+- Rising speed and new ingredients as the game progresses.
+- Earn Stars as you play and spend them on cool rewards and new ingredients or cooks from
+  all around the world.
+- Offline, no account needed.
 
 Music by SketchyLogic, BossLevelVGM, Martin Nilsson, Alex McCulloch and Spring Spring
 (OpenGameArt).
@@ -62,9 +113,24 @@ it in every store listing.
   provider. Mirror the wording of the privacy policy.
 - **App access**: all functionality available without special access.
 - **Government apps / News / COVID**: No.
-- **In-app products**: create the products from `MonetizationConfig` with the exact IDs
-  (`gems_100`, `gems_550`, `gems_1200`, `gems_2600`, `remove_ads`) and the intended prices
-  ($0.99 / $4.99 / $9.99 / $19.99 / $2.99); activate them before the first test track upload.
+- **In-app products** — CREATED + ACTIVE 2026-09-13. Play treats the base price as
+  tax-EXCLUSIVE and grosses it up per country with charm rounding, so the base is set BELOW the
+  intended shelf price (decision 2026-09-13: classic .99 shelf tiers):
+
+  | id | name | base (EUR, tax-excl) | ES/DE/FR shelf | US | UK |
+  |---|---|---|---|---|---|
+  | `gems_100` | 100 Gems | 0,82 | 0,99 € | $0.99 | £0.79 |
+  | `gems_550` | 550 Gems | 4,12 | 4,99 € (DE 4,89) | $4.79 | £4.19 |
+  | `gems_1200` | 1200 Gems | 8,25 | 9,99 € | $9.49 | £8.49 |
+  | `gems_2600` | 2600 Gems | 16,52 | 19,99 € | $18.99 | £16.99 |
+  | `remove_ads` | Remove Ads | 2,47 | 2,99 € (DE 2,89) | $2.89 | £2.49 |
+
+  Other currencies are Play's auto-conversion (per-country override any time). The in-code
+  `$` labels in `MonetizationConfig` remain placeholders — the shop shows the store's string.
+  Play's product model has no consumable flag any more: the app decides by consuming (gems) or
+  not (remove_ads); Unity IAP does that from the product type in its catalog.
+  ⚠️ **Locale trap**: the console runs in Spanish — type prices with a COMMA (`0,99`); `0.99`
+  is read as 99 €.
 
 ## Play Games Services (leaderboard — code scaffolded 2026-09-06)
 - Grow → Play Games Services → Setup and management → Configuration: **create a new Play Games

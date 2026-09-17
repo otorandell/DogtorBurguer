@@ -27,6 +27,11 @@ building a tester APK. It sets `TestBuild.IsEnabled`, which:
 
 ## Build
 
+> **Play Store upload (.aab)** is a separate one-click path: **Tools → Dogtor → Build Android
+> App Bundle (Play upload)** (`Scripts/Editor/BuildMenu.cs`, 2026-09-13) — it refuses a scene
+> with Test Build on, reads the keystore password from `Keys/KEYSTORE-INFO.txt`, bumps the version code and writes
+> `Builds/Android/DogtorBurguer-<ver>-vc<code>.aab`. The steps below are the manual tester-APK route.
+
 1. File → Build Profiles → **Android** → Switch Platform (the first switch reimports every
    texture for Android — minutes, the 4096 backgrounds/chef are slow).
 2. Player Settings → Publishing Settings. The project points at `Keys/upload.keystore`
