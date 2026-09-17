@@ -74,12 +74,16 @@ namespace DogtorBurguer
             Vector2 bannerLabelRect = new(bannerSize.x * UIStyles.SPECIAL_BANNER_LABEL_W_FRAC, bannerSize.y);
             TextMeshProUGUI bannerLabel = UIFactory.CreateText(bannerImg.transform, Loc.Get(LocKey.SpecialOrder),
                 UIStyles.SPECIAL_BANNER_LABEL_OFFSET, bannerLabelRect, UIStyles.SPECIAL_BANNER_LABEL_SIZE,
-                FontStyles.Bold);
+                FontStyles.Bold, alignment: TextAlignmentOptions.Midline);
             UIFactory.StyleHudText(bannerLabel);
             bannerLabel.textWrappingMode = TextWrappingModes.NoWrap;
             bannerLabel.enableAutoSizing = true;
             bannerLabel.fontSizeMin = UIStyles.SPECIAL_BANNER_LABEL_SIZE_MIN;
             bannerLabel.fontSizeMax = UIStyles.SPECIAL_BANNER_LABEL_SIZE;
+            // Midline centres the drawn glyphs, not the font's line box, so the word sits at the
+            // same height whatever size auto-size settles on (Center drifted per language).
+            float bannerPad = bannerLabelRect.x * UIStyles.SPECIAL_BANNER_LABEL_SIDE_PAD_FRAC;
+            bannerLabel.margin = new Vector4(bannerPad, 0f, bannerPad, 0f);
 
             // Burger stack container (centred a touch below the card middle).
             GameObject stackObj = new GameObject("Stack");

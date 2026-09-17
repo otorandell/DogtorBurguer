@@ -32,6 +32,8 @@ namespace DogtorBurguer
                 tabSize, UIStyles.HUD_TITLE_LABEL_SIZE * scale, FontStyles.Bold);
             UIFactory.StyleHudText(titleLabel);
             UIFactory.AutoFit(titleLabel, UIStyles.HUD_TITLE_LABEL_SIZE_MIN * scale, UIStyles.HUD_TITLE_LABEL_SIZE * scale);
+            float titlePad = tabSize.x * UIStyles.HUD_RED_LABEL_SIDE_PAD_FRAC;
+            titleLabel.margin = new Vector4(titlePad, 0f, titlePad, 0f);
 
             TextMeshProUGUI number = UIFactory.CreateText(card.transform, "0",
                 new Vector2(0f, UIStyles.HUD_PANEL_NUMBER_Y * scale),

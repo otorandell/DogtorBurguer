@@ -105,11 +105,11 @@ namespace DogtorBurguer
         // Three slots (Ketchup, Mustard, Skewer): a round plate + the consumable icon + a corner badge
         // (red num box with the count, or green plus box when empty). Left-aligned ≈ the Level/Score width.
         public static readonly Vector2 CONSUMABLE_SLOT_SIZE = new(80f, 80f);    // round plate
-        public const float CONSUMABLE_SLOT_ICON_H = 58f;                        // consumable icon (width follows aspect)
-        public static readonly Vector2 CONSUMABLE_ICON_OFFSET = new(0f, 3f);    // icon offset within the plate
-        public const float CONSUMABLE_BADGE_H = 34f;                            // num/plus badge (width follows aspect)
+        public const float CONSUMABLE_SLOT_ICON_H = 68f;                        // consumable icon (width follows aspect; 58 → 68, artist 2026-09-17)
+        public static readonly Vector2 CONSUMABLE_ICON_OFFSET = new(0f, -1f);   // icon offset within the plate (sat a touch high — artist 2026-09-17)
+        public const float CONSUMABLE_BADGE_H = 40f;                            // num/plus badge (width follows aspect; 34 → 40, artist 2026-09-17)
         public static readonly Vector2 CONSUMABLE_BADGE_OFFSET = new(28f, -28f);// badge offset (bottom-right of plate)
-        public const float CONSUMABLE_COUNT_SIZE = 26f;                         // count number on the num box
+        public const float CONSUMABLE_COUNT_SIZE = 30f;                         // count number on the num box (scaled with the badge)
         public const float CONSUMABLE_ROW_Y = -233f;                            // row Y (margin below the Level/Score cards)
         // Span the same zone as Level/Score: 80-wide plates at 58/144/230 → left edge 18, right edge 270.
         public const float CONSUMABLE_SLOT_X_START = 58f;                       // first slot center X
@@ -119,7 +119,7 @@ namespace DogtorBurguer
         // the NUMBER itself un-grabbable and a dead band between slots — pressing there fell
         // through to chef/preview logic instead of starting a carry. Padding past half the
         // spacing is fine: overlapping slots are resolved by nearest center, never by order.
-        public const float CONSUMABLE_SLOT_HIT_PADDING = 12f;
+        public const float CONSUMABLE_SLOT_HIT_PADDING = 15f;                   // +3 with the 40px badge so the number stays grabbable
         #endregion
 
 
@@ -136,6 +136,12 @@ namespace DogtorBurguer
         public const float HUD_PANEL_TITLE_Y = 37f;                        // tab offset up within the card
         public const float HUD_TITLE_LABEL_SIZE = 22f;                     // tab word TMP font (auto-size max)
         public const float HUD_TITLE_LABEL_SIZE_MIN = 8f;                  // auto-size floor for the tab word
+        // Minimum side gap between a red-box word and its border (fraction of the label rect width),
+        // applied as a TMP margin so auto-size shrinks the word BEFORE it touches the red (artist
+        // note 2026-09-17). Only the LONG strings (ES "PUNTOS") ever sit at this minimum — short
+        // ones (EN) fit at full size with slack — so judge it in Spanish/German, not English. The
+        // sticker border + shadow draw outside the measured glyph box and eat a few px of it.
+        public const float HUD_RED_LABEL_SIDE_PAD_FRAC = 0.2f;
         public const float HUD_PANEL_NUMBER_SIZE = 54f;                    // the big number font (auto-size max)
         public const float HUD_PANEL_NUMBER_W = 100f;                      // number auto-fit rect — inside the card art's margins, so long scores shrink to fit
         public const float HUD_PANEL_NUMBER_SIZE_MIN = 14f;                // auto-size floor for the number
@@ -160,7 +166,10 @@ namespace DogtorBurguer
         public const float SPECIAL_BANNER_LABEL_SIZE = 18f;                   // "SPECIAL ORDER" TMP (auto-size max)
         public const float SPECIAL_BANNER_LABEL_W_FRAC = 0.8f;                       // label rect vs the banner art (its canvas has transparent margins)
         public const float SPECIAL_BANNER_LABEL_SIZE_MIN = 7f;                // auto-size floor
-        public static readonly Vector2 SPECIAL_BANNER_LABEL_OFFSET = new(6f, 5f); // right + up a touch to sit in the bubble
+        // Minimum side gap inside the band, as a fraction of the LABEL rect (which W_FRAC already
+        // shrank to the visible band — so this is smaller than the tabs' HUD_RED_LABEL_SIDE_PAD_FRAC).
+        public const float SPECIAL_BANNER_LABEL_SIDE_PAD_FRAC = 0.07f;
+        public static readonly Vector2 SPECIAL_BANNER_LABEL_OFFSET = new(6f, 3f); // right + up a touch to sit in the bubble (Midline-centred glyphs since 2026-09-17)
         // Stack sprites (ingredients/buns/plate) are sized from their WORLD dimensions (pixel rect /
         // PPU × this factor) — the same per-file normalization the playfield uses, so the stack's
         // proportions match the game (pieces ~1.2 world units wide → ~60px, buns 1.38 → ~69px).

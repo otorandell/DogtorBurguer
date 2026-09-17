@@ -52,7 +52,13 @@ namespace DogtorBurguer
             FitToCamera(_renderer.transform, Constants.Z_BACKGROUND, new Vector3(scale, scale, 1f));
         }
 
-        // Diner scene scaled to fill the camera width and pinned to the top edge.
+        // Diner scene scaled to fill the DESIGN window's width and pinned to its top edge — the
+        // 9:16 rect the checker letterbox exposes, not the camera. The width-framing camera grows
+        // upward on tall phones; pinned to the camera the strip rode up under the top band and
+        // its bottom edge lifted clear of the play mat, exposing the base layer as a dark band
+        // (artist note 2026-09-17). Laid out against the design window it lands exactly where it
+        // does in the 9:16 editor view on every device; whatever overflows above sits under
+        // the band. Same rule SafeAreaRoot follows for the HUD.
         private void BuildRestaurant()
         {
             Sprite sprite = Theme.Restaurant;
@@ -61,15 +67,17 @@ namespace DogtorBurguer
             SpriteRenderer layer = CreateLayer("RestaurantLayer", Constants.SORT_RESTAURANT);
             layer.sprite = sprite;
 
+            float designHalfH = Constants.DESIGN_ORTHO_SIZE;
+            float designWidth = designHalfH * 2f * (UIStyles.REFERENCE_RESOLUTION.x / UIStyles.REFERENCE_RESOLUTION.y);
             Vector2 size = sprite.bounds.size;
-            float scale = _camWidth / size.x;
+            float scale = designWidth / size.x;
             float scaledHalfHeight = size.y * scale * 0.5f;
-            float camTop = _cam.transform.position.y + _camHeight * 0.5f;
+            float designTop = _cam.transform.position.y + designHalfH;
 
             layer.transform.localScale = new Vector3(scale, scale, 1f);
             layer.transform.position = new Vector3(
                 _cam.transform.position.x,
-                camTop - scaledHalfHeight + UIStyles.RESTAURANT_Y_NUDGE,
+                designTop - scaledHalfHeight + UIStyles.RESTAURANT_Y_NUDGE,
                 Constants.Z_BACKGROUND);
         }
 
