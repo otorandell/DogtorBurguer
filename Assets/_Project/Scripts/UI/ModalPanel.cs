@@ -48,7 +48,7 @@ namespace DogtorBurguer
         public static ModalPanel Build(Canvas canvas, string title, string panelArt, Vector2 panelOffset,
             Vector2 chromeOffset, UnityAction onClose)
         {
-            GameObject root = UIFactory.CreateOverlay(canvas.transform, UIStyles.MODAL_OVERLAY);
+            GameObject root = UIFactory.CreateOverlay(canvas.transform, UIStyles.MODAL_OVERLAY, blur: true); // panel is a child → the overlay hides itself for the snapshot
             CanvasGroup group = root.AddComponent<CanvasGroup>();
 
             // Content root: a plain rect at the reference size; everything (art included) is a child so

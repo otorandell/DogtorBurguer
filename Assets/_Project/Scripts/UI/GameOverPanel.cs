@@ -51,7 +51,7 @@ namespace DogtorBurguer
             _canvasGroup = _canvas.gameObject.AddComponent<CanvasGroup>();
             UIFactory.EnsureEventSystem();
 
-            UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY);
+            UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY, blur: true, hideDuringCapture: _canvas.gameObject);
 
             // The panel art is a full-phone canvas: shown at the reference resolution it lands exactly
             // where the artist drew it. Everything else is a child so the pop-in scales the whole screen.

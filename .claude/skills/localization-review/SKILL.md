@@ -101,5 +101,10 @@ If you would not phrase it that way to a friend in that language, rewrite it.
 4. Run the build check; report changes grouped by language, flag anything needing a
    human/native decision (the dev natively speaks Spanish and proofreads ES himself).
 
-Out of scope: skin display names (live on Skin assets), the Play Store listing texts
+Skin display names (`Skin*` keys, one per shop skin, mapped by id in `Skins/SkinNames.cs`)
+ARE in scope since 2026-09-26: short menu-style food names, no articles; the gold set reads
+"… de oro / de ouro / Gold- / en or / d'oro / Altın …". They sit on a ~130 px label that
+shrinks to fit, so keep them tight.
+
+Out of scope: the Play Store listing texts
 (Docs/play-store-listing.md — separate manual task).

@@ -458,7 +458,7 @@ Built to the artist's mock (`Look Reference/Shop_example_1..3.png` + `Shop buy c
 the **2026-09-01 kit's `Assets/Shop` pieces** (`scratchpad/gen_shop_art.ps1`): the full-canvas
 **page** `ui_shop_page` (striped awning with SHOP baked in + dotted cream body, shown at
 `REFERENCE_RESOLUTION` like the other screens) over the dimmed game/menu, our round X on the
-awning's corner, the shared **TopBar pills inside the page** (dropped by `SHOP_TOPBAR_DROP`, centered by `SHOP_TOPBAR_X_NUDGE`), and
+awning's corner, the shared **TopBar pills inside the page** (dropped by `SHOP_TOPBAR_DROP`; a button-less bar centres its own pills), and
 one vertically scrolling body inset to the page (`SHOP_SCROLL_*`). Own canvas (`SHOP_CANVAS_SORT` 120, above
 everything). **Everything hangs off a page root at `REFERENCE_RESOLUTION`** (the ModalPanel pattern,
 since 2026-09-06): on phones taller than 9:16 the match-width canvas outgrows the page, and
@@ -561,6 +561,11 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
      grab area — pressing to pick up Mustard or Skewer could open the shop instead. The shop
      deep-link now lives on the **whole plate**, raycast-enabled **only while the slot is empty**;
      the badge is decoration.
+  **Fairies come first (2026-09-26)**: `BeginPress` hit-tests fairies BEFORE the carry / row
+  swallow — a fairy flying over a slot used to lose the press (stocked slot = a carry, empty slot
+  = the shop opened on release). A press that collects a fairy sets
+  `TouchInputHandler.PressTakenByFairy`, and every UIFactory button + the plate's shop link
+  ignore their click for that press (fairies fly over the top bar too).
   Plus: `TouchInputHandler` **swallows** any press on the row that didn't start a carry, so a
   press meant for the tray can never fall through to chef/preview logic somewhere else on screen.
 - **Faller + effects**: on release a `ConsumableFaller` drops fast and **resolves on impact**;
@@ -601,7 +606,8 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   sorts `SORT_CONSUMABLE_FX_*`.
 - **Art** (`RewardArt` + `SpriteFit`): the **fairy is one full-body illustration per payload**
   (`Resources/Fairy/fairy_{gems,stars,ketchup,mustard,skewer}` — the cargo is drawn into the
-  art; the old body+badge overlay is gone). The `Resources/Rewards/` badges
+  art; the old body+badge overlay is gone). The GEM fairy is the artist's blue fairy since
+  2026-09-26 (empty-handed, by choice — the colour marks it; the others stay red with cargo). The `Resources/Rewards/` badges
   (`ketchup`/`mustard`/`skewer`) remain the column ghost (alpha) + faller sprites; the
   **inventory slot icons** are the splashy kit versions (`Resources/UI/ui_consumable_{name}`,
   via `UiArt`). `SpriteFit.Height` normalizes every sprite to a world-height so source PPU/size
@@ -662,8 +668,12 @@ Skewer** -> Ready -> scene reloads into a normal run.
 Iteration 2026-09-07 (Oscar's playtest): the Move text follows the live ControlMode; the pointer
 arrow idle-BOBS and FOLLOWS the chef through Move/Swap (`TutorialPopup.PointAtWorld`, per-frame);
 overlay closes no longer leak real waves in (ResumeSpawning + the spawner Update are
-tutorial-gated). Callout = `TutorialPopup` (green plate title + green plate box + bobbing yellow
-arrow, `UIStyles.TUT_*`; the body AutoFits down to `TUT_BODY_SIZE_MIN` so long translations
+tutorial-gated). Callout = `TutorialPopup` (since 2026-09-26 the artist's cream box `ui_tut_panel` +
+red speech-bubble title tag `ui_tut_tag` over its top-left, + bobbing yellow arrow, `UIStyles.TUT_*`;
+canvas sort `TUT_CANVAS_SORT` 105 — UNDER settings/how-to/shop, which it used to cover;
+the callout NEVER covers the board: it lives in the HUD band above it (`TUT_BAND_*`) in a
+`TutorialBoxSlot` — Top (full width) for most steps, Left for the Special Order steps (order card
+stays visible), Right for the power-up steps (the slots stay visible); the box is 9-sliced; the body AutoFits down to `TUT_BODY_SIZE_MIN` so long translations
 shrink instead of clipping). Step text/positions live in TutorialManager. **Tip text is kept SHORT on purpose** (2026-09-14:
 trimmed from a 140-char worst case in German to 79) so the popup renders near full size
 instead of AutoFitting down to the floor — treat ~70 EN chars as the budget, since German and
@@ -683,7 +693,9 @@ auto-detects from `Application.systemLanguage` (unsupported -> English). The men
 leave built HUD text stale); Settings sits on its own 4-row sheet `ui_settings_panel`
 (How to Play keeps `ui_modal_panel`). **STATUS: extraction COMPLETE 2026-09-08 — every
 player-facing string is a LocKey (~100 keys) and all 7 tables are filled (machine-drafted;
-Oscar proofreads ES). Skin display names (on Skin assets) remain English. Menu texts rebuild
+Oscar proofreads ES). Skin display names are localized too since 2026-09-26: `Skin*` keys,
+mapped by skin id in `Skins/SkinNames.cs` (the asset's old `_displayName` field is gone — a new
+skin needs a key, 7 table lines and a SkinNames line). Menu texts rebuild
 via a menu-scene reload when Settings closes after a language change; HowTo/Credits resolve
 Loc per open (properties, not cached statics).**
 All translations render ALL CAPS (Panton Black Caps). Store-listing translations are a
@@ -753,7 +765,8 @@ sprite — acceptable; menu equips always show in-game).
   — sourced from `RawArt/iNGREDEINTS REVISED` (proper names; the earlier kit misnamed several).
   The star-cheap bun is **Integral** (top + real bottom, delivered 2026-09-05; the
   asset keeps the `bun_gourmet` id). **Deleted placeholders**: meat_alt,
-  chef_alt, chef_happy (assets + sprites). Jalapeño (gems 100◆) landed 2026-09-05 — no missing skin art remains. Shop rows are
+  chef_alt, chef_happy (assets + sprites). Jalapeño (gems 100◆) landed 2026-09-05 — no missing skin art remains. Within a row: default, then star skins cheapest-first, then gem skins cheapest-first
+  (Oscar, 2026-09-26 — the golden/Royale skins no longer close the row). Shop rows are
   ordered buns → level-1 ingredients → the rest by appearance (`ShopCatalog.IngredientSlots`,
   keep in step with `REGULAR_INGREDIENTS`). Shop cells: ingredient previews sit on a plate
   (`SHOP_SKIN_PLATE_*`), buns preview as the top+bottom pair (`SHOP_SKIN_BUN_*`).
@@ -799,9 +812,9 @@ wrapping — fix by shortening the string or widening the rect, never by re-enab
 - **HUD numbers + all red-box labels** (Level/Score numbers, tab words, SPECIAL ORDER banner,
   mult badge, consumable counts): the reference palette — cream fill `#FCFAF1` + dark-brown border
   `#492611` via `UIFactory.StyleHudText` (`UIStyles.HUD_TEXT_*`).
-- Top-bar currency pill numbers: HUD palette too (since 2026-09-03 — plain brown read poorly on
-  the pill art once everything gained the sticker shadow). `TOPBAR_NUMBER_COLOR` (plain dark
-  brown) remains for small plain labels (shop subtitles, Restore Purchases).
+- Top-bar currency pill numbers: SOLID dark brown `TOPBAR_NUMBER_COLOR`, no sticker lettering
+  (artist note 2026-09-26 — they were HUD palette 2026-09-03→26); the same brown serves small
+  plain labels (shop subtitles, Restore Purchases).
 - Buttons/popups/panels (menu): white text.
 - World-space popups: **cream sticker lettering** (`HUD_TEXT_FILL` + stroke + shadow, shared
   material — 2026-09-04) with identity exceptions (2026-09-05): the burger popup's score line is
@@ -948,7 +961,10 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   to *start* on the kill screen. One-line flip (comment marks it).
 
 ## Pending Features
-- **HUD done so far** (authored, screen-space UGUI): the shared **TopBar** (`UI/TopBar.cs` —
+- **HUD done so far** (authored, screen-space UGUI): the shared **TopBar** (`UI/TopBar.cs` — lays
+  itself out since 2026-09-26: equal side margins on VISIBLE edges (`TOPBAR_SIDE_MARGIN`), items
+  evenly spaced, icons (with drop shadow, cropped to art) taller than the pills and raised
+  (`TOPBAR_ICON_Y`), numbers centred between icon and pill end;
   trophy/star/gem pills + optional help-"?"/settings buttons; one recipe used by the game HUD, the
   main menu, and the shop header, so the bar looks identical and stays put across screens; it
   self-binds to the SaveDataManager currency events and punches a pill on change),
@@ -958,7 +974,13 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - **Main Menu (authored, 2026-08-30)**: rebuilt to the artist's mock — logo (top-anchored),
   the PLAY button (kit green blank + overlaid word since 2026-09-08 - was baked-text art) (the high-score plaque was dropped 2026-09-03 as redundant — the
   TopBar trophy pill shows the high score; `ui_hs_plaque` stays imported but unused),
-  the conditional blue **RESUME** pill above PLAY (2026-09-13, `MENU_RESUME_*` — see Run resume),
+  the conditional blue **RESUME** pill above PLAY (2026-09-13, `MENU_RESUME_*` — see Run resume).
+  **2026-09-26 artist pass**: PLAY sits LOW, just above CREDITS/SHOP, bottom-anchored with them
+  (`MENU_PLAY_FACE_BOTTOM`) so the Dogtor's face in the illustration shows; PLAY and RESUME are
+  centred by their VISIBLE face (the blanks' shadow margins are uneven); the logo carries a
+  white border (new `ui_logo`). Every `CreateFaceLabel` word stays Capline-centred on its face
+  (a 5% drop was tried and reverted the same day — it was already centred), tracks tighter (`BUTTON_LABEL_CHARACTER_SPACING`) and gets ONE outline
+  around the whole word (`UI/MergedOutlineText` — a fill-only twin over the stroked text).
   checkered bottom strip with CREDITS + SHOP,
   TopBar with the "?" help button + settings gear (shop stays a bottom button). Knobs: `UIStyles.MENU_*`; art in
   `Resources/UI` (`ui_logo`, `ui_hs_plaque`, `ui_play_button`, `ui_menu_bottom`, `ui_btn_cream`,
@@ -1012,7 +1034,11 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   *after* Apply has run, so it re-applies the SFX toggle to its fresh sources in its own `Awake`.
   Muting (not pausing) the music means unmuting resumes in place instead of restarting the loop.
   Keys `musicOn` / `soundOn`; IT names the SFX row *Effetti* since *Audio* would imply both.
-- **How to Play panel (2026-09-05, `UI/HowToPlayPanel.cs`)**: the top bar's **"?" button** —
+- **How to Play panel (2026-09-05, `UI/HowToPlayPanel.cs`; re-laid out 2026-09-26 to the artist's
+  `Fixes/HowToReference.png`: page in a darker rounded SUBPANEL (`SpriteFactory.RoundedRect`, 9-sliced),
+  header on its top edge, dash-free bigger bullets that shrink to fit, pager + green `ui_arrow_pager`
+  inside its bottom, PLAY TUTORIAL = the big green blank straddling the sheet's bottom edge — the
+  notes below on dash bullets / yellow arrows / the small pill are superseded)**: the top bar's **"?" button** —
   in-game (replaced the shop button) AND on the menu (identical
   placement/size to the in-game bar — the menu gear override was dropped too); the kit's blank green square `ui_btn_square_green` + a HUD question mark. Opens the
   modal chrome ("HOW TO PLAY"), **paginated** (6 pages): `Pages` = (header, bullets)[] in the
@@ -1033,8 +1059,12 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   `CREDITS_CHROME_OFFSET`). Three `CreditsEntry` lines — **A GAME BY** Oscar Torandell / **ART
   BY** Lucia Varona / **MUSIC BY** the five OpenGameArt artists — each a colored role heading
   (`StyleFillAndBorder`, accent + HUD border) over the kit's **checkered band**
-  (`ui_credits_band_game/art/music`: text-free, translucent, sized by `CREDITS_BAND_W` — the
-  canvas has a ~4% margin around the face) with the name in the HUD palette. Entries live at the
+  (`ui_credits_band_game/art/music`: text-free, translucent). Since 2026-09-26 every band is sized
+  and placed by its measured FACE (`CreditsPanel.BandFaces` — the three canvases carry different
+  margins, so canvas-width sizing drew the music band small and off-centre), the heading's caps
+  sit centred on the band's top edge, the three sections share the body with equal gaps
+  (`CREDITS_BODY_TOP/BOTTOM`), and the CREDITS title is Capline-centred on the header strip
+  (`CREDITS_TITLE_Y`). The name is in the HUD palette. Entries live at the
   top of `CreditsPanel`; colors/layout in `UIStyles.CREDITS_*`. A name may span explicit `
 `
   lines and auto-fits inside the band (down to `CREDITS_NAME_SIZE_MIN`). **MUSIC BY lists five

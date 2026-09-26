@@ -17,7 +17,10 @@ namespace DogtorBurguer
         [Tooltip("TESTER BUILD: everything unlocked (skins, currency, consumables), ads bypassed, store mocked, red TEST BUILD label on the menu. Never ship with this on.")]
         [SerializeField] private bool _testBuild = false;
 
+        private static readonly Vector2 BottomCenter = new(0.5f, 0f);
+
         private Canvas _canvas;
+        private float _playFaceTop; // PLAY's visible top edge, px above the bottom — RESUME stacks on it
         private SettingsPanel _settingsPanel;
         private CreditsPanel _creditsPanel;
         private HowToPlayPanel _howToPanel;
@@ -53,13 +56,16 @@ namespace DogtorBurguer
 
             // PLAY — the kit's green blank with the word overlaid (was baked-text art until
             // 2026-09-08), so it matches every other button's sticker lettering.
+            // Low on the screen, just above CREDITS/SHOP and anchored to the bottom edge with them
+            // (artist note 2026-09-26: the Dogtor's face in the illustration must stay visible).
             Sprite play = UiArt.Load("ui_play_button");
             Vector2 playSize = UIFactory.SizeByWidth(play, UIStyles.MENU_PLAY_W);
-            Button playBtn = UIFactory.CreateSpriteButton(_canvas.transform, "Play", play,
-                new Vector2(0.5f, 0.5f), UIStyles.MENU_PLAY_POS, playSize, OnPlayClicked);
-            TextMeshProUGUI playWord = UIFactory.CreateText(playBtn.transform, Loc.Get(LocKey.MenuPlay),
-                UIStyles.MENU_PLAY_LABEL_NUDGE, playSize, UIStyles.MENU_PLAY_LABEL_SIZE, FontStyles.Bold);
-            UIFactory.StyleHudText(playWord);
+            Rect playFace = ButtonFace.Of(play, playSize);
+            _playFaceTop = UIStyles.MENU_PLAY_FACE_BOTTOM + playFace.height;
+            Button playBtn = UIFactory.CreateSpriteButton(_canvas.transform, "Play", play, BottomCenter,
+                FaceCentredAt(playFace, UIStyles.MENU_PLAY_FACE_BOTTOM), playSize, OnPlayClicked);
+            UIFactory.CreateFaceLabel(playBtn.transform, play, playSize, Loc.Get(LocKey.MenuPlay),
+                UIStyles.MENU_PLAY_LABEL_SIZE, UIStyles.MENU_PLAY_LABEL_SIZE_MIN);
 
             BuildResumeButton();
             BuildBottomStrip();
@@ -86,14 +92,12 @@ namespace DogtorBurguer
 
             Sprite blank = UiArt.Load("ui_btn_blue_wide");
             Vector2 size = UIFactory.SizeByWidth(blank, UIStyles.MENU_RESUME_W);
-            Button btn = UIFactory.CreateSpriteButton(_canvas.transform, "Resume", blank,
-                new Vector2(0.5f, 0.5f), UIStyles.MENU_RESUME_POS, size,
+            Button btn = UIFactory.CreateSpriteButton(_canvas.transform, "Resume", blank, BottomCenter,
+                FaceCentredAt(ButtonFace.Of(blank, size), _playFaceTop + UIStyles.MENU_RESUME_GAP), size,
                 () => SceneLoader.ResumeGame(saved));
 
-            TextMeshProUGUI word = UIFactory.CreateText(btn.transform, Loc.Get(LocKey.MenuResume),
-                UIStyles.MENU_RESUME_LABEL_NUDGE, size, UIStyles.MENU_RESUME_LABEL_SIZE, FontStyles.Bold);
-            UIFactory.StyleHudText(word);
-            UIFactory.AutoFit(word, UIStyles.MENU_RESUME_LABEL_SIZE_MIN, UIStyles.MENU_RESUME_LABEL_SIZE);
+            UIFactory.CreateFaceLabel(btn.transform, blank, size, Loc.Get(LocKey.MenuResume),
+                0f, UIStyles.MENU_RESUME_LABEL_SIZE_MIN);
         }
 
         // The checkered diner strip pinned to the bottom edge, with CREDITS and SHOP on it.
@@ -146,11 +150,15 @@ namespace DogtorBurguer
             Button btn = UIFactory.CreateSpriteButton(_canvas.transform, label, blank,
                 new Vector2(0.5f, 0f), new Vector2(x, UIStyles.MENU_BOTTOM_BTN_Y), size, onClick);
 
-            TextMeshProUGUI word = UIFactory.CreateText(btn.transform, label, UIStyles.MENU_BOTTOM_LABEL_NUDGE,
-                size, labelSize, FontStyles.Bold);
-            UIFactory.StyleHudText(word);
+            UIFactory.CreateFaceLabel(btn.transform, blank, size, label, labelSize, UIStyles.MENU_BOTTOM_LABEL_SIZE_MIN);
             return btn;
         }
+
+        // Position (bottom-centre anchored) that puts a button's VISIBLE face centred on the screen's
+        // x and its bottom edge at faceBottom. The blanks' canvases carry uneven shadow margins, so
+        // centring the canvas left PLAY ~6px right of centre and RESUME ~2px left (2026-09-26).
+        private static Vector2 FaceCentredAt(Rect face, float faceBottom) =>
+            new(-face.center.x, faceBottom - face.yMin);
 
         private void OnPlayClicked()
         {

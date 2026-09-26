@@ -90,10 +90,10 @@ TextureImporter:
       name: ui_gem
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 609
-        height: 604
+        x: 136
+        y: 85
+        width: 352
+        height: 390
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

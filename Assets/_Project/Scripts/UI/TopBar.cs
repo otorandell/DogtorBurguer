@@ -39,34 +39,77 @@ namespace DogtorBurguer
             return bar;
         }
 
+        // Transparent margins of the bar's authored blanks, as fractions of the canvas width
+        // (left, right) — alpha bbox, measured 2026-09-26. The layout works on VISIBLE edges, so
+        // "same space left and right" is true of what the eye sees, not of the canvases.
+        private static readonly Vector2 BoxMargins = new(0.0959f, 0.0817f);      // ui_currency_box
+        private static readonly Vector2 HelpMargins = new(0.1346f, 0.1268f);     // ui_btn_square_green
+        private static readonly Vector2 ConfigMargins = new(0.1076f, 0.1286f);  // ui_config_button
+
+        private static readonly (string Art, float IconH)[] Pills =
+        {
+            ("ui_score_trophy", UIStyles.TOPBAR_SCORE_ICON_H),
+            ("ui_star", UIStyles.TOPBAR_STAR_ICON_H),
+            ("ui_gem", UIStyles.TOPBAR_GEM_ICON_H),
+        };
+
+        // Layout (artist note 2026-09-26): the row runs trophy · star · gem · ? · gear between two
+        // EQUAL side margins (TOPBAR_SIDE_MARGIN, visible edges), items spaced evenly. A bar
+        // without the buttons (the shop header) keeps that same spacing and centres the pills.
         private void BuildContents(Action onHelp, Action onSettings)
         {
-            _highScoreNumber = BuildCurrencyWidget("HighScore", "ui_score_trophy",
-                UIStyles.TOPBAR_SCORE_POS, UIStyles.TOPBAR_SCORE_ICON_H);
+            float[] pillLeft = new float[Pills.Length];
+            float[] pillRight = new float[Pills.Length];
+            float pillsW = 0f;
+            for (int i = 0; i < Pills.Length; i++)
+            {
+                (pillLeft[i], pillRight[i]) = PillExtent(UiArt.Load(Pills[i].Art), Pills[i].IconH);
+                pillsW += pillRight[i] - pillLeft[i];
+            }
+            float s = UIStyles.TOPBAR_BUTTON_SIZE.x;
+            float helpW = s * (1f - HelpMargins.x - HelpMargins.y);
+            float configW = s * (1f - ConfigMargins.x - ConfigMargins.y);
+
+            float rowW = UIStyles.REFERENCE_RESOLUTION.x - 2f * UIStyles.TOPBAR_SIDE_MARGIN;
+            float gap = (rowW - pillsW - helpW - configW) / (Pills.Length + 1);
+            bool buttons = onHelp != null || onSettings != null;
+            float cursor = buttons ? -rowW * 0.5f : -(pillsW + gap * (Pills.Length - 1)) * 0.5f;
+
+            TextMeshProUGUI[] numbers = new TextMeshProUGUI[Pills.Length];
+            for (int i = 0; i < Pills.Length; i++)
+            {
+                numbers[i] = BuildCurrencyWidget(Pills[i].Art, Pills[i].Art, cursor - pillLeft[i], Pills[i].IconH);
+                cursor += pillRight[i] - pillLeft[i] + gap;
+            }
+            _highScoreNumber = numbers[0];
+            _starNumber = numbers[1];
+            _gemNumber = numbers[2];
+
             // The trophy pill doubles as the leaderboard button (2026-09-06) — tap opens the
             // Play Games board (the editor mock just logs). Zero extra layout.
             Image trophyBox = _highScoreNumber.transform.parent.GetComponent<Image>();
             trophyBox.raycastTarget = true;
             trophyBox.gameObject.AddComponent<Button>().onClick.AddListener(
                 () => LeaderboardManager.Instance?.ShowLeaderboard());
-            _starNumber = BuildCurrencyWidget("Stars", "ui_star",
-                UIStyles.TOPBAR_STAR_POS, UIStyles.TOPBAR_STAR_ICON_H);
-            _gemNumber = BuildCurrencyWidget("Gems", "ui_gem",
-                UIStyles.TOPBAR_GEM_POS, UIStyles.TOPBAR_GEM_ICON_H);
 
             if (onHelp != null)
             {
                 // The "?" help button (replaced the in-game shop button 2026-09-05): the kit's
                 // blank green square with a HUD-palette question mark on it.
+                float x = cursor + s * (0.5f - HelpMargins.x);
                 Button help = UIFactory.CreateSpriteButton(transform, "HelpButton", UiArt.Load("ui_btn_square_green"),
-                    new Vector2(0f, 1f), UIStyles.TOPBAR_HELP_POS, UIStyles.TOPBAR_BUTTON_SIZE, () => onHelp());
+                    TopCenter, new Vector2(x, UIStyles.TOPBAR_Y), UIStyles.TOPBAR_BUTTON_SIZE, () => onHelp());
                 TextMeshProUGUI mark = UIFactory.CreateText(help.transform, "?", Vector2.zero,
                     UIStyles.TOPBAR_BUTTON_SIZE, UIStyles.HOWTO_BTN_TEXT_SIZE, FontStyles.Bold);
                 UIFactory.StyleHudText(mark);
             }
+            cursor += helpW + gap;
             if (onSettings != null)
+            {
+                float x = cursor + s * (0.5f - ConfigMargins.x);
                 UIFactory.CreateSpriteButton(transform, "ConfigButton", UiArt.Load("ui_config_button"),
-                    new Vector2(0f, 1f), UIStyles.TOPBAR_CONFIG_POS, UIStyles.TOPBAR_BUTTON_SIZE, () => onSettings());
+                    TopCenter, new Vector2(x, UIStyles.TOPBAR_Y), UIStyles.TOPBAR_BUTTON_SIZE, () => onSettings());
+            }
 
             SaveDataManager save = SaveDataManager.Instance;
             // High score only changes at game over, so a one-time seed is enough (no live event).
@@ -80,26 +123,45 @@ namespace DogtorBurguer
             }
         }
 
-        // A currency pill (baked box) with an overhanging icon and a number; returns the number label.
-        private TextMeshProUGUI BuildCurrencyWidget(string name, string iconArt, Vector2 pos, float iconHeight)
+        private static readonly Vector2 TopCenter = new(0.5f, 1f);
+
+        // A pill's visible extent relative to the pill's centre: from the icon's (or the box's)
+        // left edge to the box's visible right edge.
+        private static (float Left, float Right) PillExtent(Sprite icon, float iconH)
         {
+            float boxW = UIStyles.TOPBAR_BOX_SIZE.x;
+            float iconW = IconWidth(icon, iconH);
+            float left = Mathf.Min(UIStyles.TOPBAR_ICON_X - iconW * 0.5f, -boxW * 0.5f + boxW * BoxMargins.x);
+            return (left, boxW * 0.5f - boxW * BoxMargins.y);
+        }
+
+        // Icons are sized by height, width following native aspect — never force a square (distorts).
+        private static float IconWidth(Sprite icon, float iconH) =>
+            icon != null ? iconH * icon.rect.width / icon.rect.height : iconH;
+
+        // A currency pill (baked box) with an overhanging icon (bigger than the pill) and a number
+        // centred in the free zone between the icon and the box's right edge; returns the number.
+        private TextMeshProUGUI BuildCurrencyWidget(string name, string iconArt, float x, float iconHeight)
+        {
+            Vector2 boxSize = UIStyles.TOPBAR_BOX_SIZE;
             Image box = UIFactory.CreateImage(transform, name, UiArt.Load("ui_currency_box"),
-                new Vector2(0f, 1f), pos, UIStyles.TOPBAR_BOX_SIZE);
+                TopCenter, new Vector2(x, UIStyles.TOPBAR_Y), boxSize);
 
-            // Size the icon by height, width following native aspect — never force a square (distorts).
             Sprite iconSprite = UiArt.Load(iconArt);
-            float aspect = iconSprite != null ? iconSprite.rect.width / iconSprite.rect.height : 1f;
+            float iconW = IconWidth(iconSprite, iconHeight);
             UIFactory.CreateImage(box.transform, "Icon", iconSprite,
-                new Vector2(0.5f, 0.5f), new Vector2(UIStyles.TOPBAR_ICON_X, 0f),
-                new Vector2(iconHeight * aspect, iconHeight));
+                new Vector2(0.5f, 0.5f), new Vector2(UIStyles.TOPBAR_ICON_X, UIStyles.TOPBAR_ICON_Y),
+                new Vector2(iconW, iconHeight));
 
+            float zoneLeft = UIStyles.TOPBAR_ICON_X + iconW * 0.5f + UIStyles.TOPBAR_NUMBER_SIDE_PAD;
+            float zoneRight = boxSize.x * 0.5f - boxSize.x * BoxMargins.y - UIStyles.TOPBAR_NUMBER_SIDE_PAD;
+            // Solid brown, no sticker lettering (artist note 2026-09-26 — the cream HUD palette
+            // used here since 2026-09-03 read as busy on the pill).
             TextMeshProUGUI number = UIFactory.CreateText(box.transform, "0",
-                new Vector2(UIStyles.TOPBAR_NUMBER_X, UIStyles.TOPBAR_NUMBER_Y), UIStyles.TOPBAR_NUMBER_RECT,
-                UIStyles.TOPBAR_NUMBER_SIZE, FontStyles.Bold, UIStyles.HUD_TEXT_FILL,
-                TextAlignmentOptions.Center); // centered in the free zone regardless of digit count
-            // HUD palette (cream + border + sticker shadow): the plain brown read poorly on the
-            // busy pill art once everything else got the sticker lettering.
-            UIFactory.StyleHudText(number);
+                new Vector2((zoneLeft + zoneRight) * 0.5f, UIStyles.TOPBAR_NUMBER_Y),
+                new Vector2(zoneRight - zoneLeft, boxSize.y),
+                UIStyles.TOPBAR_NUMBER_SIZE, FontStyles.Bold, UIStyles.TOPBAR_NUMBER_COLOR,
+                TextAlignmentOptions.Capline); // caps centred in the free zone regardless of digit count
             // Shrink-to-fit: the box stays fixed and the text scales down to stay inside it.
             number.textWrappingMode = TextWrappingModes.NoWrap;
             number.enableAutoSizing = true;

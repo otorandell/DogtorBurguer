@@ -11,8 +11,8 @@ namespace DogtorBurguer
     public class Skin : ScriptableObject
     {
         [Header("Identity")]
+        [Tooltip("Also keys the localized display name — see SkinNames.")]
         [SerializeField] private string _id;
-        [SerializeField] private string _displayName;
         [SerializeField] private SkinSlot _slot;
         [Tooltip("The base skin served when no other is selected/owned for this slot.")]
         [SerializeField] private bool _isDefault;
@@ -30,7 +30,8 @@ namespace DogtorBurguer
         [SerializeField] private int _starCost;
 
         public string Id => _id;
-        public string DisplayName => _displayName;
+        /// <summary>The name in the current language (Localization tables, via <see cref="SkinNames"/>).</summary>
+        public string DisplayName => SkinNames.Get(this);
         public SkinSlot Slot => _slot;
         public bool IsDefault => _isDefault;
         public Sprite Sprite => _sprite;

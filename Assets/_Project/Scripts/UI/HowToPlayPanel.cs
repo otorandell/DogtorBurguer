@@ -6,12 +6,12 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// The HOW TO PLAY panel on the shared ModalPanel chrome, opened from the top bar "?" button
-    /// — in-game AND on the main menu, same display everywhere. Paginated: a lime page header
-    /// over a vertical LAYOUT of dash bullets — each bullet auto-sizes to its wrapped height
-    /// (VerticalLayoutGroup + ContentSizeFitter), so multi-line bullets can never overlap and
-    /// the gap between bullets is constant. Bullets are REGULAR weight (synthetic bold on the
-    /// ExtraBold trial font smears). Pager "1/6" (fallback-material slash) + rotated yellow
-    /// arrows flip pages. Layout knobs: UIStyles.HOWTO_*.
+    /// — in-game AND on the main menu, same display everywhere. Laid out to the artist's reference
+    /// (2026-09-26): a darker rounded subpanel in the cream body carries the page — a lime header
+    /// centred on its top edge, a vertical LAYOUT of bullets (each auto-sizes to its wrapped height,
+    /// constant gap; a long page steps its text size down to fit), and the "1/6" pager with the
+    /// green arrows inside its bottom — while PLAY TUTORIAL straddles the sheet's bottom edge.
+    /// Layout knobs: UIStyles.HOWTO_*.
     /// </summary>
     public class HowToPlayPanel : MonoBehaviour
     {
@@ -51,8 +51,10 @@ namespace DogtorBurguer
             if (_modal == null)
                 CreatePanel();
 
-            SetPage(0);
+            // Show first: SetPage measures the bullet layout to fit it, and an inactive panel
+            // skips layout (the fit would silently do nothing).
             _modal.Show();
+            SetPage(0);
         }
 
         public void Hide()
@@ -69,30 +71,57 @@ namespace DogtorBurguer
             // modal body; the extra height is claimed by the HOWTO_* Y knobs.
             _modal = ModalPanel.Build(_canvas, Loc.Get(LocKey.HowToTitle), "ui_settings_panel", Vector2.zero, Vector2.zero, Hide);
 
-            _header = UIFactory.CreateText(_modal.Panel, "", new Vector2(0f, UIStyles.HOWTO_HEADER_Y),
-                new Vector2(UIStyles.HOWTO_LINE_W, 40f), UIStyles.HOWTO_HEADER_SIZE, FontStyles.Bold);
+            // Layout to the artist's reference (2026-09-26, Fixes/HowToReference.png): a darker
+            // rounded SUBPANEL inset in the cream body holds the page — header centred on its top
+            // edge, the bullets, then the pager inside its bottom — and PLAY TUTORIAL straddles the
+            // sheet's bottom edge as the big green button.
+            BuildSubpanel();
+
+            _header = UIFactory.CreateText(_modal.Panel, "", new Vector2(0f, UIStyles.HOWTO_SUBPANEL_TOP),
+                new Vector2(UIStyles.HOWTO_SUBPANEL_W - 2f * UIStyles.HOWTO_SUBPANEL_PAD, UIStyles.HOWTO_HEADER_SIZE * 2f),
+                UIStyles.HOWTO_HEADER_SIZE, FontStyles.Bold, alignment: TextAlignmentOptions.Capline);
             ShopWidgets.StyleAccent(_header);
+            UIFactory.AutoFit(_header, UIStyles.HOWTO_HEADER_SIZE_MIN, UIStyles.HOWTO_HEADER_SIZE);
 
             _bulletList = BuildBulletList();
 
-            // Pager row: [<] 1/6 [>] — the yellow preview arrow art, rotated sideways.
+            // Pager row inside the subpanel's bottom: [<] 1/6 [>] — the artist's green arrow, drawn
+            // pointing right; the left one is its mirror.
             _pager = UIFactory.CreateText(_modal.Panel, "", new Vector2(0f, UIStyles.HOWTO_PAGER_Y),
-                new Vector2(120f, 40f), UIStyles.HOWTO_PAGER_SIZE, FontStyles.Bold);
+                new Vector2(120f, 40f), UIStyles.HOWTO_PAGER_SIZE, FontStyles.Bold, alignment: TextAlignmentOptions.Capline);
             UIFactory.StyleHudText(_pager);
 
-            _prevArrow = BuildArrow("Prev", -UIStyles.HOWTO_ARROW_X, UIStyles.ARROW_YELLOW_ROT_LEFT, -1);
-            _nextArrow = BuildArrow("Next", UIStyles.HOWTO_ARROW_X, UIStyles.ARROW_YELLOW_ROT_RIGHT, 1);
+            _prevArrow = BuildArrow("Prev", -UIStyles.HOWTO_ARROW_X, -1);
+            _nextArrow = BuildArrow("Next", UIStyles.HOWTO_ARROW_X, 1);
 
-            // PLAY TUTORIAL — one pill above the pager, on every page. Loads the game scene in
-            // tutorial mode; from an in-game opener this forfeits the paused run (like Quit).
-            Button tut = ShopWidgets.CreatePill(_modal.Panel, "PlayTutorial", "ui_btn_green_wide",
-                new Vector2(0.5f, 0.5f), new Vector2(0f, UIStyles.HOWTO_TUTORIAL_Y),
-                UIStyles.HOWTO_TUTORIAL_W, () =>
+            // PLAY TUTORIAL — the big green blank (the menu PLAY's), its face centred ON the sheet's
+            // bottom edge. Loads the game scene in tutorial mode; from an in-game opener this
+            // forfeits the paused run (like Quit).
+            Sprite blank = UiArt.Load("ui_play_button");
+            Vector2 size = UIFactory.SizeByWidth(blank, UIStyles.HOWTO_TUTORIAL_W);
+            Rect face = ButtonFace.Of(blank, size);
+            Button tut = UIFactory.CreateSpriteButton(_modal.Panel, "PlayTutorial", blank, new Vector2(0.5f, 0.5f),
+                new Vector2(-face.center.x, UIStyles.HOWTO_TUTORIAL_Y - face.center.y), size, () =>
                 {
                     TutorialMode.Pending = true;
                     SceneLoader.LoadGame();
-                }, UIStyles.HOWTO_TUTORIAL_H);
-            ShopWidgets.SetPillLabel(tut, Loc.Get(LocKey.HowToPlayTutorial), null);
+                });
+            UIFactory.CreateFaceLabel(tut.transform, blank, size, Loc.Get(LocKey.HowToPlayTutorial),
+                UIStyles.HOWTO_TUTORIAL_LABEL_SIZE, UIStyles.HOWTO_TUTORIAL_LABEL_SIZE_MIN);
+        }
+
+        // The darker rounded panel the page sits in (procedural 9-sliced rounded rect, tinted).
+        private void BuildSubpanel()
+        {
+            float h = UIStyles.HOWTO_SUBPANEL_TOP - UIStyles.HOWTO_SUBPANEL_BOTTOM;
+            Image sub = UIFactory.CreateImage(_modal.Panel, "Subpanel", SpriteFactory.RoundedRect(),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, (UIStyles.HOWTO_SUBPANEL_TOP + UIStyles.HOWTO_SUBPANEL_BOTTOM) * 0.5f),
+                new Vector2(UIStyles.HOWTO_SUBPANEL_W, h));
+            sub.type = Image.Type.Sliced;
+            sub.pixelsPerUnitMultiplier = SpriteFactory.ROUNDED_RECT_RADIUS / UIStyles.HOWTO_SUBPANEL_RADIUS;
+            sub.color = UIStyles.HOWTO_SUBPANEL_COLOR;
+            sub.raycastTarget = false;
         }
 
         // The bullet list: a top-anchored vertical layout that measures each bullet's wrapped
@@ -106,7 +135,7 @@ namespace DogtorBurguer
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(0.5f, 1f); // grows downward from a fixed top edge
             rect.anchoredPosition = new Vector2(0f, UIStyles.HOWTO_BULLETS_TOP_Y);
-            rect.sizeDelta = new Vector2(UIStyles.HOWTO_LINE_W, 0f);
+            rect.sizeDelta = new Vector2(UIStyles.HOWTO_SUBPANEL_W - 2f * UIStyles.HOWTO_SUBPANEL_PAD, 0f);
 
             VerticalLayoutGroup layout = obj.AddComponent<VerticalLayoutGroup>();
             layout.spacing = UIStyles.HOWTO_BULLET_GAP;
@@ -119,13 +148,15 @@ namespace DogtorBurguer
             return rect;
         }
 
-        private GameObject BuildArrow(string name, float x, float zRotation, int step)
+        // step -1 = the mirrored (left) arrow: flipped by scale, not rotated, so its dot shading
+        // and the drop shadow under it stay the right way up.
+        private GameObject BuildArrow(string name, float x, int step)
         {
-            Sprite arrow = UiArt.Load("ui_arrow_yellow");
+            Sprite arrow = UiArt.Load("ui_arrow_pager");
             Button btn = UIFactory.CreateSpriteButton(_modal.Panel, name, arrow,
                 new Vector2(0.5f, 0.5f), new Vector2(x, UIStyles.HOWTO_PAGER_Y),
                 UIFactory.SizeByHeight(arrow, UIStyles.HOWTO_ARROW_H), () => SetPage(_page + step));
-            btn.transform.localEulerAngles = new Vector3(0f, 0f, zRotation);
+            btn.transform.localScale = new Vector3(step < 0 ? -1f : 1f, 1f, 1f);
             return btn.gameObject;
         }
 
@@ -145,17 +176,32 @@ namespace DogtorBurguer
             (string header, string[] bullets) = Pages[_page];
             _header.text = header;
 
+            TextMeshProUGUI[] lines = new TextMeshProUGUI[bullets.Length];
             for (int i = 0; i < bullets.Length; i++)
             {
-                TextMeshProUGUI line = UIFactory.CreateText(_bulletList, bullets[i],
+                lines[i] = UIFactory.CreateText(_bulletList, bullets[i],
                     Vector2.zero, Vector2.zero, UIStyles.HOWTO_TEXT_SIZE, FontStyles.Normal,
-                    UIStyles.TOPBAR_NUMBER_COLOR, TextAlignmentOptions.TopLeft, wrap: true);
-                line.gameObject.name = "Bullet" + i;
+                    UIStyles.HOWTO_TEXT_COLOR, TextAlignmentOptions.TopLeft, wrap: true);
+                lines[i].gameObject.name = "Bullet" + i;
             }
+            FitBullets(lines);
 
             _pager.text = (_page + 1) + PagerSlash + Pages.Length;
             _prevArrow.SetActive(_page > 0);
             _nextArrow.SetActive(_page < Pages.Length - 1);
+        }
+
+        // Big text by default, but a long page (German, four wrapped bullets) must never run into
+        // the pager: step the whole page's size down together until the list fits its space.
+        private void FitBullets(TextMeshProUGUI[] lines)
+        {
+            float room = UIStyles.HOWTO_BULLETS_TOP_Y - UIStyles.HOWTO_BULLETS_BOTTOM_Y;
+            for (float size = UIStyles.HOWTO_TEXT_SIZE; size >= UIStyles.HOWTO_TEXT_SIZE_MIN; size -= 1f)
+            {
+                foreach (TextMeshProUGUI line in lines) line.fontSize = size;
+                LayoutRebuilder.ForceRebuildLayoutImmediate(_bulletList);
+                if (_bulletList.rect.height <= room) return;
+            }
         }
 
         private void OnDestroy() => _modal?.Kill();

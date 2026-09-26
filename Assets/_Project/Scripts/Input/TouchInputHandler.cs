@@ -7,6 +7,11 @@ namespace DogtorBurguer
 {
     public class TouchInputHandler : MonoBehaviour
     {
+        /// <summary>True while the current press collected a fairy (cleared by the next press). UI
+        /// buttons check it: a fairy flies OVER the HUD, and the UGUI button under it (the empty
+        /// consumable slot's shop link, the top-bar buttons) still got the click on release.</summary>
+        public static bool PressTakenByFairy { get; private set; }
+
         [Header("References")]
         [SerializeField] private ChefController _chef;
         [SerializeField] private Camera _camera;
@@ -201,6 +206,17 @@ namespace DogtorBurguer
             _touchStartPos = screenPos;
             _press = PressPhase.Open;
             _pendingFlip = false;
+
+            // A fairy is on top of everything it flies over — the playfield AND the HUD — so it gets
+            // the press before anything else: before a carry (a stocked slot under it) and before the
+            // row swallow (an empty slot's shop link under it). Both used to win (2026-09-26).
+            PressTakenByFairy = BurgerFairy.TryTapAt(ToWorld(screenPos));
+            if (PressTakenByFairy)
+            {
+                _press = PressPhase.None;
+                return;
+            }
+
             TryBeginCarry(screenPos);
             if (IsCarrying) return;
 

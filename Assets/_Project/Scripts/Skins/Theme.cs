@@ -96,6 +96,13 @@ namespace DogtorBurguer
             return _active.TryGetValue(slot, out Skin skin) ? skin : null;
         }
 
+        /// <summary>The default skin for a slot, or null if none is authored.</summary>
+        public static Skin Default(SkinSlot slot)
+        {
+            EnsureLoaded();
+            return _defaults.TryGetValue(slot, out Skin skin) ? skin : null;
+        }
+
         /// <summary>Primary sprite for a slot. Use <see cref="Ingredient"/> for bun-aware lookups.</summary>
         public static Sprite Sprite(SkinSlot slot)
         {

@@ -90,10 +90,10 @@ TextureImporter:
       name: ui_star
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 542
-        height: 577
+        x: 47
+        y: 71
+        width: 439
+        height: 398
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

@@ -144,7 +144,7 @@ namespace DogtorBurguer
         public void ShowConfirm(int amount, string amountIcon, int cost, string costIcon, Action onConfirm)
         {
             CloseDialog();
-            _dialog = UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY);
+            _dialog = UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY, blur: true); // the shop page frosts behind the card
 
             Sprite cardArt = UiArt.Load("ui_shop_confirm_card");
             Image card = UIFactory.CreateImage(_dialog.transform, "Card", cardArt, Center, Vector2.zero,
@@ -178,7 +178,7 @@ namespace DogtorBurguer
             _canvas = UIFactory.CreateCanvas(transform, "Shop_Canvas", UIStyles.SHOP_CANVAS_SORT);
             UIFactory.EnsureEventSystem();
 
-            UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY);
+            UIFactory.CreateOverlay(_canvas.transform, UIStyles.MODAL_OVERLAY, blur: true, hideDuringCapture: _canvas.gameObject);
             BuildPage();
 
             _scrollContent = ShopWidgets.CreateVerticalScroll(_page,
@@ -236,7 +236,7 @@ namespace DogtorBurguer
                 UIFactory.SizeByHeight(close, UIStyles.SHOP_CLOSE_H), Close);
 
             _topBar = TopBar.Build(_page);
-            _topBar.GetComponent<RectTransform>().anchoredPosition = new Vector2(UIStyles.SHOP_TOPBAR_X_NUDGE, -UIStyles.SHOP_TOPBAR_DROP);
+            _topBar.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -UIStyles.SHOP_TOPBAR_DROP); // the button-less bar centres its pills itself
         }
 
         private void Close() => Destroy(gameObject);

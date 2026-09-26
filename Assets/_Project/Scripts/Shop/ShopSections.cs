@@ -40,24 +40,35 @@ namespace DogtorBurguer
             offerBox.gameObject.AddComponent<Button>().onClick.AddListener(
                 () => StorePurchase(screen, MonetizationConfig.REMOVE_ADS_STORE_ID, offerBox.transform));
 
+            // The left text column runs from the banner's left padding to just short of the price
+            // pill's visible FACE (the blank carries transparent margins), so it tracks the pill knobs.
+            // All three lines share it and centre on it: the title and tag auto-size to FILL its
+            // width — whatever the language — and the bonus centres under them.
+            Vector2 pillSize = new(UIStyles.SHOP_BANNER_PILL_W, UIStyles.SHOP_BANNER_PILL_H);
+            float pillFaceLeft = UIStyles.SHOP_CONTENT_W + UIStyles.SHOP_BANNER_PILL_X
+                + ButtonFace.Of(UiArt.Load("ui_btn_green_big"), pillSize).xMin;
+            float columnW = pillFaceLeft - UIStyles.SHOP_BANNER_TEXT_PILL_GAP - UIStyles.SHOP_BANNER_TEXT_LEFT;
+
             TextMeshProUGUI title = UIFactory.CreateText(row, Loc.Get(LocKey.ShopRemoveAds), Vector2.zero,
-                UIStyles.SHOP_BANNER_TITLE_RECT, UIStyles.SHOP_BANNER_TITLE_SIZE, FontStyles.Bold);
+                new Vector2(columnW, UIStyles.SHOP_BANNER_TITLE_H), UIStyles.SHOP_BANNER_TITLE_SIZE,
+                FontStyles.Bold, alignment: TextAlignmentOptions.Capline);
             ShopWidgets.StyleAccent(title);
-            title.alignment = TextAlignmentOptions.Left;
-            ShopWidgets.AnchorLeft(title.rectTransform, UIStyles.SHOP_BANNER_TITLE_POS);
+            UIFactory.AutoFit(title, UIStyles.SHOP_BANNER_TITLE_SIZE_MIN, UIStyles.SHOP_BANNER_TITLE_SIZE);
+            ShopWidgets.AnchorLeft(title.rectTransform, new Vector2(UIStyles.SHOP_BANNER_TEXT_LEFT, UIStyles.SHOP_BANNER_TITLE_Y));
 
             TextMeshProUGUI tag = UIFactory.CreateText(row, Loc.Get(LocKey.ShopRewardAds), Vector2.zero,
-                UIStyles.SHOP_BANNER_TAG_RECT, UIStyles.SHOP_BANNER_TAG_SIZE, FontStyles.Bold,
-                UIStyles.TOPBAR_NUMBER_COLOR, TextAlignmentOptions.Left);
-            ShopWidgets.AnchorLeft(tag.rectTransform, UIStyles.SHOP_BANNER_TAG_POS);
+                new Vector2(columnW, UIStyles.SHOP_BANNER_TAG_H), UIStyles.SHOP_BANNER_TAG_SIZE, FontStyles.Bold,
+                UIStyles.TOPBAR_NUMBER_COLOR, TextAlignmentOptions.Capline);
+            UIFactory.AutoFit(tag, UIStyles.SHOP_BANNER_TAG_SIZE_MIN, UIStyles.SHOP_BANNER_TAG_SIZE);
+            ShopWidgets.AnchorLeft(tag.rectTransform, new Vector2(UIStyles.SHOP_BANNER_TEXT_LEFT, UIStyles.SHOP_BANNER_TAG_Y));
 
-            // The gem-bonus line: "+100 [gem icon]" (a plain + since the 2026-09-08 Baloo swap —
-            // the old trial font slivered it and needed a LiberationSans rich-text hack).
+            // The gem-bonus line: "+100 [gem icon]", centred as one on the same column.
             TextMeshProUGUI bonus = ShopWidgets.CreateIconLine(row, "Bonus", Vector2.zero,
-                UIStyles.SHOP_BANNER_BONUS_RECT,
+                new Vector2(columnW, UIStyles.SHOP_BANNER_BONUS_H),
                 "+" + MonetizationConfig.REMOVE_ADS_BONUS_GEMS,
                 UIStyles.SHOP_BANNER_BONUS_SIZE, "ui_gem", UIStyles.SHOP_BANNER_BONUS_ICON_H);
-            ShopWidgets.AnchorLeft((RectTransform)bonus.transform.parent, UIStyles.SHOP_BANNER_BONUS_POS);
+            ShopWidgets.AnchorLeft((RectTransform)bonus.transform.parent,
+                new Vector2(UIStyles.SHOP_BANNER_TEXT_LEFT, UIStyles.SHOP_BANNER_BONUS_Y));
 
             Button pill = null;
             pill = ShopWidgets.CreatePill(row, "Pill", "ui_btn_green_big", new Vector2(1f, 0.5f),
@@ -65,12 +76,9 @@ namespace DogtorBurguer
                 () => StorePurchase(screen, MonetizationConfig.REMOVE_ADS_STORE_ID, pill.transform),
                 UIStyles.SHOP_BANNER_PILL_H);
             RectTransform pillRect = pill.GetComponent<RectTransform>();
-            TextMeshProUGUI price = UIFactory.CreateText(pill.transform,
+            UIFactory.CreateFaceLabel(pill.transform, pill.image.sprite, pillRect.sizeDelta,
                 StorePrice(MonetizationConfig.REMOVE_ADS_STORE_ID, MonetizationConfig.REMOVE_ADS_PRICE_LABEL),
-                UIStyles.SHOP_PILL_LABEL_NUDGE, pillRect.sizeDelta * 0.8f,
-                UIStyles.SHOP_BANNER_PILL_TEXT, FontStyles.Bold);
-            UIFactory.StyleHudText(price);
-            UIFactory.AutoFit(price, 14f, UIStyles.SHOP_BANNER_PILL_TEXT);
+                UIStyles.SHOP_BANNER_PILL_TEXT, UIStyles.SHOP_BANNER_PILL_TEXT_MIN);
 
             // The red ONE TIME BUY tag on the pill's corner. The kit has no BLANK red dot (the
             // round close button's X is baked into ui_btn_close_x), so the red num box stands in —
@@ -103,21 +111,23 @@ namespace DogtorBurguer
             if (skins.Count == 0) return;
 
             ShopWidgets.CreateSectionTitle(content, title);
-            RectTransform row = ShopWidgets.CreateHorizontalRow(content, ShopWidgets.CellHeight(true, ShopWidgets.SkinBoxArt));
+            // The dogtor cells sit SHOP_SKIN_CHEF_CELL_DROP lower (ShopSkinCell) — the row grows to match.
+            RectTransform row = ShopWidgets.CreateHorizontalRow(content,
+                ShopWidgets.CellHeight(true, ShopWidgets.SkinBoxArt) + UIStyles.SHOP_SKIN_CHEF_CELL_DROP);
             foreach (Skin skin in skins)
                 ShopSkinCell.Create(row, skin, screen);
         }
 
-        // Ingredient skins: one "INGREDIENT SKINS" header, then a labelled row per ingredient type
-        // (Patty, Cheese, …, Buns) so each type's variants scroll independently.
+        // Ingredient skins: one "INGREDIENT SKINS" header, then one row per ingredient type
+        // (buns, patty, cheese, …) so each type's variants scroll independently.
         private static void BuildIngredientSkins(RectTransform content, ShopScreen screen)
         {
-            List<(string Label, List<Skin> Skins)> rows = ShopCatalog.IngredientSkinRows();
+            List<List<Skin>> rows = ShopCatalog.IngredientSkinRows();
             if (rows.Count == 0) return;
 
             ShopWidgets.CreateSectionTitle(content, Loc.Get(LocKey.ShopIngredientSkins));
             // Per-type sub-labels dropped 2026-09-05 (Oscar) — the previews say what each row is.
-            foreach ((string _, List<Skin> skins) in rows)
+            foreach (List<Skin> skins in rows)
             {
                 RectTransform row = ShopWidgets.CreateHorizontalRow(content, ShopWidgets.CellHeight(true, ShopWidgets.SkinBoxArt));
                 foreach (Skin skin in skins)
@@ -131,7 +141,7 @@ namespace DogtorBurguer
         private static void BuildPowerUps(RectTransform content, ShopScreen screen)
         {
             // The plus-box deep link jumps the page scroll to this title (ShopScreen).
-            screen.PowerUpsAnchor = ShopWidgets.CreateSectionTitle(content, Loc.Get(LocKey.PowerUps)).rectTransform;
+            screen.PowerUpsAnchor = ShopWidgets.CreateSectionTitle(content, Loc.Get(LocKey.PowerUps));
 
             RectTransform grid = ShopWidgets.CreateGrid(content, ShopWidgets.CellHeight(false, ShopWidgets.ItemBoxArt));
             foreach (ConsumablePack pack in MonetizationConfig.CONSUMABLE_PACKS)
@@ -202,9 +212,8 @@ namespace DogtorBurguer
                     if (ShopService.TryBuyProCookPack()) screen.NotifyChanged();
                     else ShopScreen.Deny(pill.transform);
                 });
-            ShopWidgets.CreateIconLine(pill.transform, "Face", UIStyles.SHOP_PILL_LABEL_NUDGE,
-                pill.GetComponent<RectTransform>().sizeDelta, pack.StarCost.ToString(),
-                UIStyles.SHOP_BUNDLE_PILL_TEXT_SIZE, "ui_star", UIStyles.SHOP_BUNDLE_PILL_ICON_H);
+            ShopWidgets.SetPillLabel(pill, pack.StarCost.ToString(), "ui_star",
+                UIStyles.SHOP_BUNDLE_PILL_TEXT_MAX, UIStyles.SHOP_BUNDLE_PILL_ICON_H);
         }
 
         // Stars are bought with gems (hard → soft, one-directional). Gem spends get a confirm
@@ -256,12 +265,9 @@ namespace DogtorBurguer
             // icon) never matched the other pills however it was sized; unused since 2026-09-05.
             // The label tracks live rewarded availability (an ad may finish loading while the
             // shop is open) and the daily cap (TOMORROW! once spent).
-            TextMeshProUGUI watchLabel = UIFactory.CreateText(adCell.Pill.transform, Loc.Get(LocKey.ShopWatchAd),
-                UIStyles.SHOP_PILL_LABEL_NUDGE,
-                new Vector2(UIStyles.SHOP_CELL_PILL_W - 14f, 32f),
-                UIStyles.SHOP_PILL_TEXT_SIZE, FontStyles.Bold);
-            UIFactory.StyleHudText(watchLabel);
-            UIFactory.AutoFit(watchLabel, UIStyles.SHOP_WATCH_LABEL_MIN, UIStyles.SHOP_PILL_TEXT_SIZE);
+            TextMeshProUGUI watchLabel = UIFactory.CreateFaceLabel(adCell.Pill.transform, adCell.Pill.image.sprite,
+                adCell.Pill.GetComponent<RectTransform>().sizeDelta, Loc.Get(LocKey.ShopWatchAd),
+                0f, UIStyles.SHOP_WATCH_LABEL_MIN);
             screen.RegisterPerFrame(() =>
             {
                 bool capped = GemAdsToday() >= MonetizationConfig.GEM_AD_DAILY_CAP;
@@ -329,7 +335,9 @@ namespace DogtorBurguer
         private static void AddPackContents(ShopCell cell, string iconArt)
         {
             Sprite icon = UiArt.Load(iconArt);
-            UIFactory.CreateImage(cell.Box, "Icon", icon, Center, Vector2.zero, UIFactory.SizeByHeight(icon, UIStyles.SHOP_ITEM_ICON_H));
+            bool currency = iconArt == "ui_gem" || iconArt == "ui_star";
+            float height = currency ? UIStyles.SHOP_ITEM_CURRENCY_ICON_H : UIStyles.SHOP_ITEM_ICON_H;
+            UIFactory.CreateImage(cell.Box, "Icon", icon, Center, Vector2.zero, UIFactory.SizeByHeight(icon, height));
         }
 
         // Single icon for the x1 rung, the trio art from x3 up.

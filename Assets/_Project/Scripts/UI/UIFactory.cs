@@ -111,6 +111,7 @@ namespace DogtorBurguer
             btn.targetGraphic = btnImg;
             btn.onClick.AddListener(() =>
             {
+                if (TouchInputHandler.PressTakenByFairy) return; // the press collected a fairy flying over this button
                 AudioManager.Instance?.PlayUiTap();
                 onClick();
             });
@@ -125,16 +126,40 @@ namespace DogtorBurguer
         }
 
         /// <summary>
-        /// Creates a full-screen overlay with the given color.
+        /// Creates a full-screen overlay with the given color. With <paramref name="blur"/> (the
+        /// modal backdrop, 2026-09-17) a frosted snapshot of the screen sits under the tint
+        /// (<see cref="BlurBackdrop"/>); <paramref name="hideDuringCapture"/> is what must be kept out
+        /// of that snapshot — the modal's canvas when its content is a sibling of the overlay, or
+        /// null for the overlay itself when the content is its child.
         /// </summary>
-        public static GameObject CreateOverlay(Transform parent, Color color)
+        public static GameObject CreateOverlay(Transform parent, Color color, bool blur = false,
+            GameObject hideDuringCapture = null)
         {
             GameObject overlay = new GameObject("Overlay");
             overlay.transform.SetParent(parent, false);
             SetStretchRect(overlay);
 
-            Image img = overlay.AddComponent<Image>();
+            if (blur && UIStyles.MODAL_BLUR_ENABLED)
+            {
+                GameObject frosted = new GameObject("Blur");
+                frosted.transform.SetParent(overlay.transform, false);
+                SetStretchRect(frosted);
+                RawImage raw = frosted.AddComponent<RawImage>();
+                raw.raycastTarget = false;
+                frosted.AddComponent<BlurBackdrop>().HideRoot = hideDuringCapture != null ? hideDuringCapture : overlay;
+            }
+
+            // The tint is a child too (not the overlay's own Image) so it draws OVER the blur.
+            GameObject tint = new GameObject("Tint");
+            tint.transform.SetParent(overlay.transform, false);
+            SetStretchRect(tint);
+            Image img = tint.AddComponent<Image>();
             img.color = color;
+            img.raycastTarget = false;
+
+            // The overlay itself blocks taps into whatever is behind it.
+            Image blocker = overlay.AddComponent<Image>();
+            blocker.color = Color.clear;
 
             return overlay;
         }
@@ -206,6 +231,8 @@ namespace DogtorBurguer
             if (onClick != null)
                 btn.onClick.AddListener(() =>
                 {
+                    // A press that collected a fairy flying over this button is the fairy's, not ours.
+                    if (TouchInputHandler.PressTakenByFairy) return;
                     // Every factory-made button carries the UI tap (2026-09-07); a missing
                     // AudioManager (none in a scene) just means silence.
                     AudioManager.Instance?.PlayUiTap();
@@ -292,6 +319,55 @@ namespace DogtorBurguer
             return mat;
         }
 
+        /// <summary>THE rule for a word on an authored button blank (2026-09-17): centred on the
+        /// art's FACE (<see cref="ButtonFace"/> — the bright surface, not the canvas with its outline
+        /// and bottom lip), cap-height centred (<c>Capline</c>, so the height does not drift with the
+        /// font's metrics, the auto-sized point size or an accent — Midline would sink CRÉDITOS), HUD sticker lettering, and shrink-to-fit
+        /// between <paramref name="minFontSize"/> and <paramref name="fontSize"/> with a guaranteed
+        /// side gap (<see cref="UIStyles.BUTTON_LABEL_SIDE_PAD_FRAC"/> of the face width) so a long
+        /// translation shrinks before it touches the outline. The CEILING is the size whose cap
+        /// height fills the face minus its vertical pad (<see cref="CapFitFontSize"/>) — short words
+        /// grow into the face instead of sitting at a designer number; pass a positive
+        /// <paramref name="maxFontSize"/> only where the mock wants a specific size (0 = fit). The
+        /// rect is the face's width but twice the button height, so only WIDTH drives the shrink
+        /// (TMP would otherwise clamp on Baloo's 1.57 em line box, which is far taller than its caps).
+        /// Replaces the per-screen "*_LABEL_NUDGE" knobs; <paramref name="nudge"/> is for a genuine
+        /// per-art correction only.</summary>
+        public static TextMeshProUGUI CreateFaceLabel(Transform button, Sprite art, Vector2 buttonSize,
+            string text, float maxFontSize, float minFontSize, Vector2 nudge = default)
+        {
+            Rect face = ButtonFace.Of(art, buttonSize);
+            float max = CapFitFontSize(face.height);
+            if (maxFontSize > 0f) max = Mathf.Min(max, maxFontSize);
+            TextMeshProUGUI tmp = CreateText(button, text, face.center + nudge, new Vector2(face.width, buttonSize.y * 2f),
+                max, FontStyles.Bold, alignment: TextAlignmentOptions.Capline);
+            StyleHudText(tmp);
+            // The label's rect is deliberately twice the button's height (so auto-size only ever
+            // shrinks for width) — as a raycast target it made that whole invisible box a click on
+            // the button, stealing taps from whatever sits above it (the How-to pager arrows over
+            // PLAY TUTORIAL, 2026-09-26). The button's own image is the hit area.
+            tmp.raycastTarget = false;
+            tmp.characterSpacing = UIStyles.BUTTON_LABEL_CHARACTER_SPACING;
+            AutoFit(tmp, Mathf.Min(minFontSize, max), max);
+            float pad = face.width * UIStyles.BUTTON_LABEL_SIDE_PAD_FRAC;
+            tmp.margin = new Vector4(pad, 0f, pad, 0f);
+            // One outline around the whole word, so the tighter tracking doesn't pile letters up.
+            MergedOutlineText.Apply(tmp, UIStyles.HUD_TEXT_STROKE, UIStyles.HUD_TEXT_BORDER_WIDTH);
+            return tmp;
+        }
+
+        /// <summary>The font size whose CAP HEIGHT fills <paramref name="faceHeight"/> minus the
+        /// vertical pad (<see cref="UIStyles.BUTTON_LABEL_VERTICAL_PAD_FRAC"/> each side) — the
+        /// natural ceiling for an ALL-CAPS word on a face. Reads the default font's cap line.</summary>
+        public static float CapFitFontSize(float faceHeight)
+        {
+            TMP_FontAsset font = TMP_Settings.defaultFontAsset;
+            float capEm = font != null && font.faceInfo.pointSize > 0f
+                ? font.faceInfo.capLine / font.faceInfo.pointSize
+                : 0.7f;
+            return faceHeight * (1f - 2f * UIStyles.BUTTON_LABEL_VERTICAL_PAD_FRAC) / capEm;
+        }
+
         // --- sizing + fitting helpers ---
 
         /// <summary>Size for an authored sprite shown at <paramref name="width"/>, height following its native aspect.</summary>
@@ -336,7 +412,7 @@ namespace DogtorBurguer
         // One material per (font material, border color, width) style, shared by every text using it —
         // keeps draws batched and avoids per-component material instances (mutating tmp.outlineWidth /
         // fontMaterial right after AddComponent is the path that never rendered reliably).
-        private static readonly Dictionary<(Material font, Color32 border, float width, Color32 shadow, bool hasShadow), Material> _outlineMaterials = new();
+        private static readonly Dictionary<(Material font, Color32 border, float width, Color32 shadow, bool hasShadow, float dilate), Material> _outlineMaterials = new();
 
         /// <summary>
         /// Styles a text with the standard HUD palette: cream fill + dark-brown border
@@ -353,18 +429,22 @@ namespace DogtorBurguer
         /// a cached shared material (keywords enabled, mesh padding updated) instead of the
         /// per-component setters, which don't reliably render on runtime-created TMP components.
         /// </summary>
+        /// <param name="faceDilate">Overrides the glyph weight (default UIStyles.TEXT_FACE_DILATE) —
+        /// the fill-only twin of a MergedOutlineText thins by the stroke width to match the stroked
+        /// text's visible fill exactly.</param>
         public static void StyleFillAndBorder(TMP_Text tmp, Color fill, Color32 border, float width,
-            Color32? shadowColor = null, bool shadow = true)
+            Color32? shadowColor = null, bool shadow = true, float? faceDilate = null)
         {
             tmp.color = fill;
 
             Color32 underlay = shadowColor ?? border;
             Material fontMat = tmp.font.material;
-            var key = (fontMat, border, width, underlay, shadow);
+            float dilate = faceDilate ?? UIStyles.TEXT_FACE_DILATE;
+            var key = (fontMat, border, width, underlay, shadow, dilate);
             if (!_outlineMaterials.TryGetValue(key, out Material mat))
             {
                 mat = new Material(fontMat);
-                mat.SetFloat(ShaderUtilities.ID_FaceDilate, UIStyles.TEXT_FACE_DILATE);
+                mat.SetFloat(ShaderUtilities.ID_FaceDilate, dilate);
                 mat.EnableKeyword(ShaderUtilities.Keyword_Outline);
                 mat.SetColor(ShaderUtilities.ID_OutlineColor, (Color)border);
                 mat.SetFloat(ShaderUtilities.ID_OutlineWidth, width);

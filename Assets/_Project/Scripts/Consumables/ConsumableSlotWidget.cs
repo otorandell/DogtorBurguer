@@ -55,7 +55,12 @@ namespace DogtorBurguer
             _plate.raycastTarget = false;
             _plusButton = plate.gameObject.AddComponent<Button>();
             _plusButton.targetGraphic = _plate;
-            _plusButton.onClick.AddListener(() => ShopScreen.OpenInGame(scrollToPowerUps: true));
+            _plusButton.onClick.AddListener(() =>
+            {
+                // A fairy flying over the slot took this press — collecting it must not open the shop.
+                if (TouchInputHandler.PressTakenByFairy) return;
+                ShopScreen.OpenInGame(scrollToPowerUps: true);
+            });
 
             _count = UIFactory.CreateText(_numBox.transform, "0", Vector2.zero,
                 new Vector2(UIStyles.CONSUMABLE_BADGE_H, UIStyles.CONSUMABLE_BADGE_H),

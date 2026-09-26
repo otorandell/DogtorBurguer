@@ -26,40 +26,24 @@ namespace DogtorBurguer
 
         public static List<Skin> ChefSkins() => SkinsFor(ChefSlots);
 
-        /// <summary>Ingredient skins grouped into one labelled row per slot (in <see cref="IngredientSlots"/>
-        /// order). A slot appears only once it owns a purchasable skin beyond its classic default.</summary>
-        public static List<(string Label, List<Skin> Skins)> IngredientSkinRows()
+        /// <summary>Ingredient skins grouped into one (unlabelled) row per slot, in <see cref="IngredientSlots"/>
+        /// order. A slot appears only once it owns a purchasable skin beyond its classic default.</summary>
+        public static List<List<Skin>> IngredientSkinRows()
         {
-            List<(string, List<Skin>)> rows = new();
+            List<List<Skin>> rows = new();
             foreach (SkinSlot slot in IngredientSlots)
             {
                 List<Skin> ofSlot = SkinsForSlot(slot);
                 if (ofSlot.Count < 2) continue; // default only — nothing to sell for this slot
-                rows.Add((SlotLabel(slot), ofSlot));
+                rows.Add(ofSlot);
             }
             return rows;
         }
 
-        /// <summary>Row subtitle for an ingredient slot (BunSkin reads "Buns" — top+bottom together).</summary>
-        public static string SlotLabel(SkinSlot slot) => slot switch
-        {
-            SkinSlot.MeatSkin => "Patty",
-            SkinSlot.CheeseSkin => "Cheese",
-            SkinSlot.TomatoSkin => "Tomato",
-            SkinSlot.OnionSkin => "Onion",
-            SkinSlot.PickleSkin => "Pickles",
-            SkinSlot.LettuceSkin => "Lettuce",
-            SkinSlot.EggSkin => "Egg",
-            SkinSlot.BaconSkin => "Bacon",
-            SkinSlot.BunSkin => "Buns",
-            _ => slot.ToString()
-        };
-
-        // All skins for one slot. Order (Oscar, 2026-09-09): the classic default anchors the
-        // row, then the cheap star skin, then gem skins cheapest-first, and the slot's ULTIMATE
-        // skin — its priciest star skin (the golden set, the Royale king) — closes the row as
-        // the thing to scroll toward. (The original cheap-to-pricey sort keyed on StarCost
-        // alone, floating gem skins, star cost 0, ahead of every star skin.)
+        // All skins for one slot. Order (Oscar, 2026-09-26): the classic default anchors the
+        // row, then every STAR skin cheapest-first (so the golden set / Royale end the star run),
+        // then every GEM skin cheapest-first. (Replaces the 2026-09-09 order that parked the
+        // priciest star skin at the very end, after the gem skins.)
         private static List<Skin> SkinsForSlot(SkinSlot slot)
         {
             List<Skin> ofSlot = new();
@@ -67,14 +51,7 @@ namespace DogtorBurguer
                 if (skin.Slot == slot)
                     ofSlot.Add(skin);
 
-            int maxStar = 0;
-            foreach (Skin skin in ofSlot)
-                if (skin.Unlock == UnlockMethod.Stars && skin.StarCost > maxStar)
-                    maxStar = skin.StarCost;
-
-            int Rank(Skin s) => s.IsDefault ? 0
-                : s.Unlock == UnlockMethod.Stars && s.StarCost == maxStar ? 3
-                : s.Unlock == UnlockMethod.Stars ? 1 : 2;
+            int Rank(Skin s) => s.IsDefault ? 0 : s.Unlock == UnlockMethod.Stars ? 1 : 2;
 
             ofSlot.Sort((a, b) => Rank(a) != Rank(b)
                 ? Rank(a).CompareTo(Rank(b))

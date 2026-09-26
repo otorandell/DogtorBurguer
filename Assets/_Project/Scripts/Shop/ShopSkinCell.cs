@@ -36,11 +36,14 @@ namespace DogtorBurguer
             _box = _cell.Box.GetComponent<Image>();
             LayoutElement layout = gameObject.AddComponent<LayoutElement>();
             layout.preferredWidth = UIStyles.SHOP_CELL_W;
-            layout.preferredHeight = ShopWidgets.CellHeight(withLabel: true, ShopWidgets.SkinBoxArt);
+            // Dogtor cells sit a little lower in their row (room for the head that rises over the box);
+            // the holder grows by the same amount so the slab grows with them.
+            float drop = _skin.Slot == SkinSlot.ChefSkin ? UIStyles.SHOP_SKIN_CHEF_CELL_DROP : 0f;
+            layout.preferredHeight = ShopWidgets.CellHeight(withLabel: true, ShopWidgets.SkinBoxArt) + drop;
             RectTransform cellRect = _cell.Root;
             cellRect.anchorMin = cellRect.anchorMax = new Vector2(0.5f, 1f);
             cellRect.pivot = new Vector2(0.5f, 1f);
-            cellRect.anchoredPosition = Vector2.zero;
+            cellRect.anchoredPosition = new Vector2(0f, -drop);
 
             // Ingredient slots preview on a plate (like the Special Order stack); the chef doesn't.
             if (_skin.Slot != SkinSlot.ChefSkin)
@@ -68,7 +71,7 @@ namespace DogtorBurguer
             }
             else if (_skin.Slot == SkinSlot.ChefSkin)
             {
-                AddPreviewSprite(_skin.Preview, "Preview", UIStyles.SHOP_SKIN_CHEF_Y, UIStyles.SHOP_SKIN_CHEF_H);
+                AddChefPreview(_skin.Preview);
             }
             else
             {
@@ -89,6 +92,46 @@ namespace DogtorBurguer
 
         private void AddPreviewSized(Sprite sprite, string name, float y, Vector2 size) =>
             UIFactory.CreateImage(_cell.Box, name, sprite, new Vector2(0.5f, 0.5f), new Vector2(0f, y), size);
+
+        // The dogtor overflows its box: sized by WIDTH (the art is wider than tall), feet anchored at
+        // SHOP_SKIN_CHEF_BOTTOM so every chef stands on the same line and hangs down behind the green
+        // pill, which is what cuts it off — a RectMask2D ends exactly at the pill's face top, so no
+        // feet poke out under the pill's transparent shadow margin. The clip is as wide as the chef
+        // and reaches HEAD_ROOM above the box so the head can rise over the top border.
+        private void AddChefPreview(Sprite sprite)
+        {
+            Vector2 boxSize = _cell.Box.sizeDelta;
+            float boxBottom = -boxSize.y * 0.5f;
+            float clipBottom = boxBottom + ShopWidgets.PillFaceTopAboveBoxBottom();
+            float clipTop = boxSize.y * 0.5f + UIStyles.SHOP_SKIN_CHEF_HEAD_ROOM;
+            Vector2 size = ChefPreviewSize(sprite);
+
+            GameObject clipObj = new GameObject("PreviewClip");
+            clipObj.transform.SetParent(_cell.Box, false);
+            RectTransform clip = clipObj.AddComponent<RectTransform>();
+            clip.anchorMin = clip.anchorMax = new Vector2(0.5f, 0.5f);
+            clip.pivot = new Vector2(0.5f, 0.5f);
+            clip.sizeDelta = new Vector2(size.x, clipTop - clipBottom);
+            clip.anchoredPosition = new Vector2(0f, (clipTop + clipBottom) * 0.5f);
+            clipObj.AddComponent<RectMask2D>();
+
+            // Positioned in box space, then re-expressed relative to the clip's centre.
+            float chefCenterY = boxBottom + UIStyles.SHOP_SKIN_CHEF_BOTTOM + size.y * 0.5f;
+            UIFactory.CreateImage(clip, "Preview", sprite, new Vector2(0.5f, 0.5f),
+                new Vector2(0f, chefCenterY - clip.anchoredPosition.y), size);
+        }
+
+        // Chef previews keep their IN-GAME proportions: each chef's PPU is tuned so the figure matches
+        // the default in play, but the canvases carry different transparent margins, so sizing every
+        // canvas to one width made the non-default dogtors ~20% too big. Scale the sprite's world size
+        // by the factor that puts the default chef at SHOP_SKIN_CHEF_W.
+        private static Vector2 ChefPreviewSize(Sprite sprite)
+        {
+            Skin defaultChef = Theme.Default(SkinSlot.ChefSkin);
+            Sprite reference = defaultChef != null ? defaultChef.Sprite : sprite;
+            float pxPerUnit = UIStyles.SHOP_SKIN_CHEF_W / (reference.rect.width / reference.pixelsPerUnit);
+            return sprite.rect.size / sprite.pixelsPerUnit * pxPerUnit;
+        }
 
         private void Refresh()
         {

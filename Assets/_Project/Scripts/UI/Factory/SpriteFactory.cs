@@ -55,6 +55,40 @@ namespace DogtorBurguer
             });
         }
 
+        /// <summary>Corner radius, in texture px, of <see cref="RoundedRect"/>. A UGUI Image shows it
+        /// at any radius R via <c>pixelsPerUnitMultiplier = ROUNDED_RECT_RADIUS / R</c>.</summary>
+        public const int ROUNDED_RECT_RADIUS = 32;
+
+        /// <summary>A white, anti-aliased rounded rectangle with 9-slice borders on the corners —
+        /// set it on an <c>Image.Type.Sliced</c> Image, tint with Image.color. PPU 100.</summary>
+        public static Sprite RoundedRect()
+        {
+            return GetOrCreate("roundrect", () =>
+            {
+                const int r = ROUNDED_RECT_RADIUS;
+                const int size = r * 2 + 2; // a 2px flat middle to stretch
+                Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false)
+                {
+                    filterMode = FilterMode.Bilinear,
+                    wrapMode = TextureWrapMode.Clamp
+                };
+                for (int y = 0; y < size; y++)
+                {
+                    for (int x = 0; x < size; x++)
+                    {
+                        // Distance past the nearest corner circle's centre (0 along the flat edges).
+                        float dx = Mathf.Max(r - (x + 0.5f), (x + 0.5f) - (size - r), 0f);
+                        float dy = Mathf.Max(r - (y + 0.5f), (y + 0.5f) - (size - r), 0f);
+                        float alpha = Mathf.Clamp01(r - Mathf.Sqrt(dx * dx + dy * dy) + 0.5f);
+                        tex.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+                    }
+                }
+                tex.Apply();
+                return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f,
+                    0, SpriteMeshType.FullRect, new Vector4(r, r, r, r));
+            });
+        }
+
         private static Sprite GetOrCreate(string key, Func<Sprite> create)
         {
             // Unity's overloaded == treats a destroyed sprite as null — regenerate if so.

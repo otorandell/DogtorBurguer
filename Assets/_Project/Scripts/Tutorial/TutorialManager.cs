@@ -124,7 +124,7 @@ namespace DogtorBurguer
             bool tapMode = SaveDataManager.Instance != null &&
                            SaveDataManager.Instance.ControlMode == ControlMode.Tap;
             string how = Loc.Get(tapMode ? LocKey.TutMoveTap : LocKey.TutMoveSwipe);
-            _popup.Show(Loc.Get(LocKey.TutMoveTitle), how, new Vector2(0f, -110f), new Vector2(0f, -300f), 0f);
+            _popup.Show(Loc.Get(LocKey.TutMoveTitle), how, TutorialBoxSlot.Top, new Vector2(0f, -300f), 0f);
         }
 
         private void HandleMoved()
@@ -140,7 +140,7 @@ namespace DogtorBurguer
             PlaceInstantly(IngredientType.Meat, ColA);
             PlaceInstantly(IngredientType.Cheese, ColB);
             _popup.Show(Loc.Get(LocKey.TutSwapTitle), Loc.Get(LocKey.TutSwapBody),
-                new Vector2(0f, -110f), new Vector2(0f, -300f), 0f);
+                TutorialBoxSlot.Top, new Vector2(0f, -300f), 0f);
         }
 
         private void HandleFlipped()
@@ -177,7 +177,7 @@ namespace DogtorBurguer
                 PlaceInstantly(type, ColA);
                 _popup.Show(Loc.Get(LocKey.TutMatchTitle),
                     Loc.Format(LocKey.TutMatchBody, round, MatchRounds),
-                    new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
+                    TutorialBoxSlot.Top, Vector2.zero, 0f, arrowVisible: false);
 
                 _matchFired = false;
                 while (!_matchFired && _step == TutorialStep.Match)
@@ -205,7 +205,7 @@ namespace DogtorBurguer
             }
 
             _popup.Show(Loc.Get(LocKey.TutMatchTitle), Loc.Get(LocKey.TutMatchDone),
-                new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
+                TutorialBoxSlot.Top, Vector2.zero, 0f, arrowVisible: false);
             _popup.ArmContinue(EnterFastDrop);
         }
 
@@ -224,7 +224,7 @@ namespace DogtorBurguer
             ClearBoardSilently();
             _fastDropped = false;
             _popup.Show(Loc.Get(LocKey.TutFastDropTitle), Loc.Get(LocKey.TutFastDropBody),
-                new Vector2(0f, -110f), Vector2.zero, 0f, arrowVisible: false);
+                TutorialBoxSlot.Top, Vector2.zero, 0f, arrowVisible: false);
             StartCoroutine(RunFastDropStep());
         }
 
@@ -255,7 +255,7 @@ namespace DogtorBurguer
             // Let the tapped piece finish its plunge before the popup takes over.
             yield return new WaitForSeconds(0.5f);
             _popup.Show(Loc.Get(LocKey.TutFastDropTitle), Loc.Get(LocKey.TutFastDropDone),
-                new Vector2(0f, -110f), Vector2.zero, 0f, arrowVisible: false);
+                TutorialBoxSlot.Top, Vector2.zero, 0f, arrowVisible: false);
             _popup.ArmContinue(EnterBurger);
         }
 
@@ -273,7 +273,7 @@ namespace DogtorBurguer
             TutorialMode.SetMask(move: true, flip: true, fastDrop: true, consumable: false);
             ClearBoardSilently();
             _popup.Show(Loc.Get(LocKey.TutBurgerTitle), Loc.Get(LocKey.TutBurgerBody),
-                new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
+                TutorialBoxSlot.Top, Vector2.zero, 0f, arrowVisible: false);
             StartCoroutine(BuildGuidedBurger(new[] { IngredientType.Meat, IngredientType.Cheese }, ColA));
         }
 
@@ -346,7 +346,7 @@ namespace DogtorBurguer
             {
                 _burgerServed = true;
                 _popup.Show(Loc.Get(LocKey.TutBurgerTitle), Loc.Get(LocKey.TutBurgerDone),
-                    new Vector2(0f, 150f), Vector2.zero, 0f, arrowVisible: false);
+                    TutorialBoxSlot.Top, Vector2.zero, 0f, arrowVisible: false);
                 _popup.ArmContinue(EnterOrder);
             }
             else if (_step == TutorialStep.Skewer)
@@ -358,7 +358,7 @@ namespace DogtorBurguer
                 // The scripted order just matched: the pre-filled meter levels the multiplier up.
                 _burgerServed = true;
                 _popup.Show(Loc.Get(LocKey.TutOrderTitle), Loc.Get(LocKey.TutOrderDone),
-                    new Vector2(0f, -60f), new Vector2(160f, 120f), 180f);
+                    TutorialBoxSlot.Left, new Vector2(160f, 120f), 180f);
                 _popup.ArmContinue(EnterKetchup);
             }
         }
@@ -372,7 +372,7 @@ namespace DogtorBurguer
             // triggers the showcase (level 1 needs 2 orders).
             BurgerChallenge.Instance?.SetScriptedOrder(IngredientType.Cheese, exactCount: 1, progress: 1);
             _popup.Show(Loc.Get(LocKey.TutOrderTitle), Loc.Get(LocKey.TutOrderBody),
-                new Vector2(0f, -60f), new Vector2(160f, 120f), 180f);
+                TutorialBoxSlot.Left, new Vector2(160f, 120f), 180f);
             StartCoroutine(GuidedOrderSequence());
         }
 
@@ -470,7 +470,7 @@ namespace DogtorBurguer
             // which is what teaches where power-ups live in the first lesson.
             _arrowColumn = targetColumn;
             _popup.Show(Loc.Get(LocKey.TutPowerUpTitle), Loc.Get(body),
-                new Vector2(0f, -40f), SlotArrowPos(type), 0f);
+                TutorialBoxSlot.Right, SlotArrowPos(type), 0f);
 
             while (_step == step && !isDone(piecesAtStart))
                 yield return null;
@@ -488,7 +488,7 @@ namespace DogtorBurguer
             }
 
             _popup.Show(Loc.Get(LocKey.TutPowerUpTitle), Loc.Get(done),
-                new Vector2(0f, -40f), Vector2.zero, 0f, arrowVisible: false);
+                TutorialBoxSlot.Right, Vector2.zero, 0f, arrowVisible: false);
             _popup.ArmContinue(next);
         }
 
@@ -548,7 +548,7 @@ namespace DogtorBurguer
             _step = TutorialStep.Ready;
             TutorialMode.SetMask(false, false, false, false);
             _popup.Show(Loc.Get(LocKey.TutReadyTitle), Loc.Get(LocKey.TutReadyBody),
-                new Vector2(0f, 0f), Vector2.zero, 0f, arrowVisible: false);
+                TutorialBoxSlot.Top, Vector2.zero, 0f, arrowVisible: false);
             _popup.ArmContinue(Finish);
         }
 

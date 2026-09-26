@@ -23,6 +23,10 @@ namespace DogtorBurguer
         private readonly List<Color> _stackBaseColors = new List<Color>(); // per-image rest color (the ghost isn't white)
         private TextMeshProUGUI _multText;
         private Image _meterFill;
+        // The card area left free for the burger: left of the meter tube, under the banner (card-local px).
+        private Rect _stackArea;
+        // Fit factor of the current order (<= 1), applied to every stack sprite by AddSprite.
+        private float _stackScale = 1f;
 
         /// <summary>Tutorial: hides/shows the whole panel canvas (state persists on it).</summary>
         public void SetVisible(bool visible)
@@ -74,54 +78,80 @@ namespace DogtorBurguer
             Vector2 bannerLabelRect = new(bannerSize.x * UIStyles.SPECIAL_BANNER_LABEL_W_FRAC, bannerSize.y);
             TextMeshProUGUI bannerLabel = UIFactory.CreateText(bannerImg.transform, Loc.Get(LocKey.SpecialOrder),
                 UIStyles.SPECIAL_BANNER_LABEL_OFFSET, bannerLabelRect, UIStyles.SPECIAL_BANNER_LABEL_SIZE,
-                FontStyles.Bold, alignment: TextAlignmentOptions.Midline);
+                FontStyles.Bold, alignment: TextAlignmentOptions.Capline);
             UIFactory.StyleHudText(bannerLabel);
             bannerLabel.textWrappingMode = TextWrappingModes.NoWrap;
             bannerLabel.enableAutoSizing = true;
             bannerLabel.fontSizeMin = UIStyles.SPECIAL_BANNER_LABEL_SIZE_MIN;
             bannerLabel.fontSizeMax = UIStyles.SPECIAL_BANNER_LABEL_SIZE;
-            // Midline centres the drawn glyphs, not the font's line box, so the word sits at the
-            // same height whatever size auto-size settles on (Center drifted per language).
+            // Capline centres the CAP HEIGHT, not the font's line box or the glyph bounds, so the
+            // word sits at the same height whatever size auto-size settles on and whatever
+            // accents the translation carries (Center drifted per language; Midline sank them).
             float bannerPad = bannerLabelRect.x * UIStyles.SPECIAL_BANNER_LABEL_SIDE_PAD_FRAC;
             bannerLabel.margin = new Vector4(bannerPad, 0f, bannerPad, 0f);
 
-            // Burger stack container (centred a touch below the card middle).
+            // Burger stack container — created before the meter so the stack renders under it;
+            // positioned by HandleChallengeChanged, centred in the area the meter leaves free.
             GameObject stackObj = new GameObject("Stack");
             stackObj.transform.SetParent(_card, false);
             _stackRoot = stackObj.AddComponent<RectTransform>();
             _stackRoot.anchorMin = _stackRoot.anchorMax = new Vector2(0.5f, 0.5f);
-            _stackRoot.anchoredPosition = new Vector2(UIStyles.SPECIAL_STACK_X, UIStyles.SPECIAL_STACK_Y);
             _stackRoot.sizeDelta = Vector2.zero;
 
-            // Mult meter (built before the badge so the badge renders on top of it).
-            BuildMultMeter();
+            // Mult meter (built before the badge so the badge renders on top of it). Returns the
+            // tube's rect so the badge can sit on its bottom-left corner and the stack can centre
+            // in what's left of the card.
+            Rect tube = BuildMultMeter();
 
-            // Multiplier badge (bottom-right) — reuses the red num box sprite.
+            float cardHalfW = UIStyles.SPECIAL_CARD_SIZE.x * 0.5f;
+            float cardHalfH = UIStyles.SPECIAL_CARD_SIZE.y * 0.5f;
+            float bannerBottom = UIStyles.SPECIAL_BANNER_OFFSET.y - UIStyles.SPECIAL_BANNER_H * 0.5f;
+            float left = -cardHalfW + UIStyles.SPECIAL_CARD_INNER_PAD;
+            float bottom = -cardHalfH + UIStyles.SPECIAL_CARD_INNER_PAD;
+            _stackArea = Rect.MinMaxRect(left, bottom, tube.xMin - UIStyles.SPECIAL_STACK_METER_GAP, bannerBottom);
+
+            // Multiplier badge on the tube's bottom cap, sharing its x — reuses the red num box sprite.
+            Vector2 badgePos = new Vector2(tube.center.x, tube.yMin) + UIStyles.SPECIAL_MULT_BADGE_OFFSET;
+            Vector2 badgeSize = new(UIStyles.SPECIAL_MULT_BADGE_H, UIStyles.SPECIAL_MULT_BADGE_H);
             Image badge = UIFactory.CreateImage(_card, "MultBadge", UiArt.Load("ui_consumable_num"),
-                new Vector2(0.5f, 0.5f), UIStyles.SPECIAL_MULT_BADGE_OFFSET,
-                new Vector2(UIStyles.SPECIAL_MULT_BADGE_H, UIStyles.SPECIAL_MULT_BADGE_H));
-            _multText = UIFactory.CreateText(badge.transform, "x1", Vector2.zero,
-                new Vector2(UIStyles.SPECIAL_MULT_BADGE_H, UIStyles.SPECIAL_MULT_BADGE_H),
-                UIStyles.SPECIAL_MULT_TEXT_SIZE, FontStyles.Bold);
+                new Vector2(0.5f, 0.5f), badgePos, badgeSize);
+            _multText = UIFactory.CreateText(badge.transform, "x1", Vector2.zero, badgeSize,
+                UIStyles.SPECIAL_MULT_TEXT_SIZE, FontStyles.Bold, alignment: TextAlignmentOptions.Capline);
             UIFactory.StyleHudText(_multText);
-            _multText.textWrappingMode = TextWrappingModes.NoWrap;
+            UIFactory.AutoFit(_multText, UIStyles.SPECIAL_MULT_TEXT_SIZE_MIN, UIStyles.SPECIAL_MULT_TEXT_SIZE);
+            float badgePad = badgeSize.x * UIStyles.HUD_RED_LABEL_SIDE_PAD_FRAC;
+            _multText.margin = new Vector4(badgePad, 0f, badgePad, 0f); // the box is round: keep "x1.25" off its curve
             // (The red CLASSIC/RELAX mode tab that straddled the card's bottom edge went with
             // the mode toggle on 2026-09-07 — one ruleset, nothing to label.)
         }
 
-        // The mult meter: a vertical capsule from three stacked layers at one rect — brown well (back) →
-        // green fill (middle, an Image.Filled driven bottom-up) → frame (front). Parented to the card and
-        // built before the badge, so the multiplier badge renders on top of it (sharing its x).
-        private void BuildMultMeter()
+        // The mult meter, to the artist's reference: the tube — a vertical capsule from three
+        // stacked layers at one rect: brown well (back) → green fill (middle, an Image.Filled
+        // driven bottom-up) → frame (front) — running from under the MULT box down past the card's
+        // bottom corner, and the red MULT box (the kit's blank Mult_Box) drawn LAST so it caps the
+        // tube's top. The box's top edge is the layout's reference line: it sits on the SPECIAL
+        // ORDER banner's top edge. The tube's height is DERIVED (box → card bottom) so it always
+        // spans the card; width follows the art's aspect. Parented to the card; returns the tube
+        // rect (card-local px).
+        private Rect BuildMultMeter()
         {
+            Vector2 anchor = new(0.5f, 0.5f); // centred in the card, like the mult badge
+            float x = UIStyles.MULT_METER_X;
+
+            Sprite boxArt = UiArt.Load("ui_mult_box");
+            Vector2 boxSize = UIFactory.SizeByHeight(boxArt, UIStyles.MULT_TAB_H);
+            float bannerTop = UIStyles.SPECIAL_BANNER_OFFSET.y + UIStyles.SPECIAL_BANNER_H * 0.5f;
+            Vector2 boxPos = new(x, bannerTop + UIStyles.MULT_TAB_Y_NUDGE - boxSize.y * 0.5f);
+
             Sprite back = UiArt.Load("ui_mult_meter_back");
             Sprite fill = UiArt.Load("ui_mult_meter_fill");
             Sprite frame = UiArt.Load("ui_mult_meter_front");
 
+            float top = boxPos.y - boxSize.y * 0.5f + UIStyles.MULT_METER_TAB_OVERLAP;
+            float bottom = -UIStyles.SPECIAL_CARD_SIZE.y * 0.5f + UIStyles.MULT_METER_BOTTOM_INSET;
             float aspect = back != null ? back.rect.width / back.rect.height : 0.3f;
-            Vector2 size = new(UIStyles.MULT_METER_H * aspect, UIStyles.MULT_METER_H);
-            Vector2 anchor = new(0.5f, 0.5f); // centred in the card, like the mult badge
-            Vector2 pos = UIStyles.MULT_METER_OFFSET;
+            Vector2 size = new((top - bottom) * aspect, top - bottom);
+            Vector2 pos = new(x, (top + bottom) * 0.5f);
 
             UIFactory.CreateImage(_card, "MultMeterBack", back, anchor, pos, size);
 
@@ -137,6 +167,17 @@ namespace DogtorBurguer
             _meterFill.fillAmount = 0f;
 
             UIFactory.CreateImage(_card, "MultMeterFront", frame, anchor, pos, size);
+
+            // The MULT box over the tube's top cap.
+            Image box = UIFactory.CreateImage(_card, "MultBox", boxArt, anchor, boxPos, boxSize);
+            TextMeshProUGUI boxLabel = UIFactory.CreateText(box.transform, Loc.Get(LocKey.MultTab), Vector2.zero,
+                boxSize, UIStyles.MULT_TAB_LABEL_SIZE, FontStyles.Bold, alignment: TextAlignmentOptions.Capline);
+            UIFactory.StyleHudText(boxLabel);
+            UIFactory.AutoFit(boxLabel, UIStyles.MULT_TAB_LABEL_SIZE_MIN, UIStyles.MULT_TAB_LABEL_SIZE);
+            float boxPad = boxSize.x * UIStyles.MULT_TAB_LABEL_SIDE_PAD_FRAC;
+            boxLabel.margin = new Vector4(boxPad, 0f, boxPad, 0f);
+
+            return new Rect(pos - size * 0.5f, size);
         }
 
         // Drives the green fill to the current progress-to-next-level (0..1). Animated on a match /
@@ -168,18 +209,36 @@ namespace DogtorBurguer
             rows.Add(IngredientType.BunTop);
             const string placeholder = "?";
 
-            // Big orders squeeze their row spacing so the stack always fits the card.
+            // Fit-scale (2026-09-17): the stack draws at SPECIAL_STACK_PX_PER_UNIT and only shrinks —
+            // uniformly, spacing included — when a tall order (bun + 3 + bun + plate) would not fit
+            // the free area under the banner. Small orders, most of a run, fill the card like the
+            // artist's reference; the max order always fits. Extents: top-bun top edge → plate bottom.
+            Sprite plate = Theme.Plate;
+            Sprite topBun = _model.GetIngredientSprite(IngredientType.BunTop);
+            Sprite pin = UiArt.Load("ui_burger_pin");
             float spacing = UIStyles.SPECIAL_INGREDIENT_SPACING;
-            if ((rows.Count - 1) * spacing > UIStyles.SPECIAL_STACK_MAX_SPAN)
-                spacing = UIStyles.SPECIAL_STACK_MAX_SPAN / (rows.Count - 1);
+            // The bone pin stands on the top bun with its stick sunk in by SPECIAL_PIN_EMBED, so
+            // the block's top edge is the pin's tip, not the bun's.
+            float bunHalf = topBun != null ? WorldScaled(topBun).y * 0.5f : 0f;
+            Vector2 pinSize = pin != null ? UIFactory.SizeByHeight(pin, UIStyles.SPECIAL_PIN_H) : Vector2.zero;
+            float aboveTop = pin != null ? bunHalf - UIStyles.SPECIAL_PIN_EMBED + pinSize.y : bunHalf;
+            float belowBottom = plate != null ? UIStyles.SPECIAL_PLATE_Y_OFFSET + PlateSize(plate).y * 0.5f : 0f;
+            float visual = (rows.Count - 1) * spacing + aboveTop + belowBottom;
+            float k = Mathf.Min(1f, _stackArea.height / visual);
+            _stackScale = k;
+            spacing *= k; aboveTop *= k; belowBottom *= k;
             float startY = -(rows.Count - 1) * spacing * 0.5f;
 
+            // Centre the VISUAL block (not the row span) in the free area: the plate hangs below
+            // the bottom bun, so the root sits above the area's centre by half that asymmetry.
+            float extentCenter = (aboveTop - belowBottom) * 0.5f;
+            _stackRoot.anchoredPosition = _stackArea.center - new Vector2(0f, extentCenter) + UIStyles.SPECIAL_STACK_NUDGE;
+
             // Plate under the bottom bun (added first → renders behind the stack).
-            Sprite plate = Theme.Plate;
             if (plate != null)
             {
                 Image plateImg = UIFactory.CreateImage(_stackRoot, "Plate", plate, new Vector2(0.5f, 0.5f),
-                    new Vector2(0f, startY - UIStyles.SPECIAL_PLATE_Y_OFFSET), WorldScaled(plate));
+                    new Vector2(0f, startY - UIStyles.SPECIAL_PLATE_Y_OFFSET * k), PlateSize(plate) * k);
                 _stackImages.Add(plateImg);
                 _stackBaseColors.Add(Color.white);
             }
@@ -191,6 +250,16 @@ namespace DogtorBurguer
                     AddSprite(_model.GetIngredientSprite(rows[i].Value), $"Ing_{rows[i].Value}", y, null);
                 else
                     AddSprite(UiArt.Load("ui_mystery"), "Placeholder", y, placeholder);
+            }
+
+            // The bone pin, last so it draws over the top bun (its stick reads as stuck in).
+            if (pin != null)
+            {
+                float bunTopY = startY + (rows.Count - 1) * spacing + bunHalf * k;
+                Vector2 pinPos = new(UIStyles.SPECIAL_PIN_X * k, bunTopY - UIStyles.SPECIAL_PIN_EMBED * k + pinSize.y * k * 0.5f);
+                Image pinImg = UIFactory.CreateImage(_stackRoot, "Pin", pin, new Vector2(0.5f, 0.5f), pinPos, pinSize * k);
+                _stackImages.Add(pinImg);
+                _stackBaseColors.Add(Color.white);
             }
 
             _multText.text = $"x{_model.Multiplier:0.##}"; // 1, 1.25, 1.5 … (the gauge badge shows the LIVE value)
@@ -213,9 +282,9 @@ namespace DogtorBurguer
             if (sprite == null) return;
             bool isMystery = !string.IsNullOrEmpty(label);
             bool ghosted = isMystery;
-            Vector2 size = isMystery
+            Vector2 size = (isMystery
                 ? new Vector2(UIStyles.SPECIAL_MYSTERY_H * sprite.rect.width / sprite.rect.height, UIStyles.SPECIAL_MYSTERY_H)
-                : WorldScaled(sprite);
+                : WorldScaled(sprite)) * _stackScale;
             Image img = UIFactory.CreateImage(_stackRoot, name, sprite, new Vector2(0.5f, 0.5f),
                 new Vector2(0f, y), size);
             Color baseColor = ghosted ? new Color(1f, 1f, 1f, UIStyles.SPECIAL_GHOST_ALPHA) : Color.white;
@@ -237,6 +306,10 @@ namespace DogtorBurguer
         // per-file normalization the playfield uses, so the stack's proportions match the game.
         private static Vector2 WorldScaled(Sprite sprite) =>
             new Vector2(sprite.rect.width, sprite.rect.height) / sprite.pixelsPerUnit * UIStyles.SPECIAL_STACK_PX_PER_UNIT;
+
+        // The plate is drawn larger than its playfield proportion — the reference shows a wide
+        // dish under the burger, not the under-column saucer.
+        private static Vector2 PlateSize(Sprite plate) => WorldScaled(plate) * UIStyles.SPECIAL_PLATE_SCALE;
 
         private void ClearStack()
         {

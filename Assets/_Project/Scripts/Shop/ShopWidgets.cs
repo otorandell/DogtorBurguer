@@ -138,15 +138,33 @@ namespace DogtorBurguer
 
         // --- text ---
 
-        /// <summary>"DOGTOR SKINS" — centered, HUD palette (cream + brown border). Returned so
-        /// a section can register itself as a scroll anchor (the POWER-UPS deep link).</summary>
-        public static TextMeshProUGUI CreateSectionTitle(RectTransform pageContent, string text)
+        /// <summary>"DOGTOR SKINS" — centered, HUD palette (cream + brown border). Returns the laid-out
+        /// holder so a section can register it as a scroll anchor (the POWER-UPS deep link).</summary>
+        public static RectTransform CreateSectionTitle(RectTransform pageContent, string text)
         {
-            TextMeshProUGUI title = UIFactory.CreateText(pageContent, text, Vector2.zero,
-                Vector2.zero, UIStyles.SHOP_SECTION_TITLE_SIZE, FontStyles.Bold);
+            // The holder is what the page lays out: the gap BEFORE the section, then a band exactly
+            // as tall as the caps. So the page reads section — gap — TITLE/section, the title hugging
+            // what it names. (A plain text row carried the font's line box — ascender room above the
+            // caps, descender room below — which no spacing knob could close.)
+            GameObject holderObj = new GameObject("SectionTitle");
+            holderObj.transform.SetParent(pageContent, false);
+            RectTransform holder = holderObj.AddComponent<RectTransform>();
+            holderObj.AddComponent<LayoutElement>().preferredHeight =
+                UIStyles.SHOP_SECTION_GAP + UIStyles.SHOP_SECTION_TITLE_H;
+
+            // The word: as wide as the section (minus the side inset) and generously tall, so
+            // auto-size only ever shrinks for WIDTH; Capline centres the caps on the band.
+            TextMeshProUGUI title = UIFactory.CreateText(holder, text, Vector2.zero, Vector2.zero,
+                UIStyles.SHOP_SECTION_TITLE_SIZE, FontStyles.Bold, alignment: TextAlignmentOptions.Capline);
             UIFactory.StyleHudText(title);
-            title.gameObject.AddComponent<LayoutElement>().preferredHeight = UIStyles.SHOP_SECTION_TITLE_H;
-            return title;
+            UIFactory.AutoFit(title, UIStyles.SHOP_SECTION_TITLE_SIZE_MIN, UIStyles.SHOP_SECTION_TITLE_SIZE);
+            RectTransform rect = title.rectTransform;
+            rect.anchorMin = new Vector2(0f, 0f);
+            rect.anchorMax = new Vector2(1f, 0f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(-2f * UIStyles.SHOP_SECTION_TITLE_SIDE_INSET, UIStyles.SHOP_SECTION_TITLE_SIZE * 2f);
+            rect.anchoredPosition = new Vector2(0f, UIStyles.SHOP_SECTION_TITLE_H * 0.5f);
+            return holder;
         }
 
         /// <summary>The lime accent with the HUD border — cell names, pack amounts, THANK YOU.</summary>
@@ -201,6 +219,28 @@ namespace DogtorBurguer
         /// <summary>A cell's box size: the art at SHOP_CELL_W wide, native aspect.</summary>
         public static Vector2 BoxSize(string boxArt) => UIFactory.SizeByWidth(UiArt.Load(boxArt), UIStyles.SHOP_CELL_W);
 
+        /// <summary>The transparent margin above a box art's visible top border, as a fraction of its
+        /// height (alpha bbox, measured 2026-09-21) — the name line is anchored to the VISIBLE border,
+        /// not the rect. Unknown art = 0 (rect top).</summary>
+        public static float BoxTopMarginFrac(string boxArt) => boxArt switch
+        {
+            SkinBoxArt => 0.103f,
+            SkinEquippedBoxArt => 0.113f,
+            ItemBoxArt => 0.109f,
+            _ => 0f,
+        };
+
+        /// <summary>Where the green pill's face begins, measured UP from the box's bottom edge: the
+        /// pill rides over the box by SHOP_CELL_PILL_OVERLAP, minus the blank's margin + outline
+        /// above its face (<see cref="ButtonFace"/>). A preview hanging down behind the pill is
+        /// clipped here so the pill, not the cell's edge, is what cuts it.</summary>
+        public static float PillFaceTopAboveBoxBottom()
+        {
+            Vector2 pillSize = new(UIStyles.SHOP_CELL_PILL_W, UIStyles.SHOP_CELL_PILL_H);
+            float faceTopBelowPillTop = pillSize.y * 0.5f - ButtonFace.Of(UiArt.Load("ui_btn_green_wide"), pillSize).yMax;
+            return UIStyles.SHOP_CELL_PILL_OVERLAP - faceTopBelowPillTop;
+        }
+
         /// <summary>Height of a cell with/without its label line: half the label (it overlaps the
         /// box top edge) + box + pill, minus the pill's ride over the box bottom.</summary>
         public static float CellHeight(bool withLabel, string boxArt) =>
@@ -223,6 +263,9 @@ namespace DogtorBurguer
             layout.preferredWidth = UIStyles.SHOP_CELL_W;
             layout.preferredHeight = height;
 
+            float labelH = withLabel ? UIStyles.SHOP_CELL_LABEL_H : 0f;
+            Vector2 boxSize = BoxSize(boxArt);
+
             TextMeshProUGUI labelText = null;
             if (withLabel)
             {
@@ -230,11 +273,12 @@ namespace DogtorBurguer
                     new Vector2(UIStyles.SHOP_CELL_W + UIStyles.SHOP_CELL_SPACING, UIStyles.SHOP_CELL_LABEL_H),
                     UIStyles.SHOP_CELL_LABEL_SIZE, FontStyles.Bold);
                 StyleAccent(labelText);
-                AnchorTop(labelText.rectTransform, 0f);
+                // Localized skin names run long ("Formaggio grattugiato") — shrink rather than overflow.
+                UIFactory.AutoFit(labelText, UIStyles.SHOP_CELL_LABEL_SIZE_MIN, UIStyles.SHOP_CELL_LABEL_SIZE);
+                // Centred on the box's VISIBLE top border: the box rect top sits half a label down
+                // from the root top, and the art's transparent margin is below that.
+                AnchorTop(labelText.rectTransform, -BoxTopMarginFrac(boxArt) * boxSize.y);
             }
-
-            float labelH = withLabel ? UIStyles.SHOP_CELL_LABEL_H : 0f;
-            Vector2 boxSize = BoxSize(boxArt);
             Image box = UIFactory.CreateImage(root, "Box", UiArt.Load(boxArt), TopCenter,
                 new Vector2(0f, -labelH * 0.5f - boxSize.y * 0.5f), boxSize);
             box.raycastTarget = true;
@@ -270,19 +314,30 @@ namespace DogtorBurguer
         /// <summary>(Re)writes a pill's face: a HUD-palette word/number and an optional currency
         /// icon after it, centered on the face. Replaces any previous face.</summary>
         public static void SetPillLabel(Button pill, string text, string iconArt)
+            => SetPillLabel(pill, text, iconArt, 0f, UIStyles.SHOP_PILL_ICON_H);
+
+        /// <param name="maxFontSize">A designer cap on the size; 0 = the word grows until its caps
+        /// fill the face (UIFactory.CapFitFontSize), shrinking only for width.</param>
+        public static void SetPillLabel(Button pill, string text, string iconArt, float maxFontSize, float iconHeight)
         {
             Transform old = pill.transform.Find("Face");
             if (old != null) Object.Destroy(old.gameObject);
 
+            // Centred on the art's FACE (ButtonFace), like every button word; the side pad keeps
+            // the line off the outline.
             RectTransform rect = pill.GetComponent<RectTransform>();
-            CreateIconLine(pill.transform, "Face", UIStyles.SHOP_PILL_LABEL_NUDGE, rect.sizeDelta,
-                text, UIStyles.SHOP_PILL_TEXT_SIZE, iconArt, UIStyles.SHOP_PILL_ICON_H);
+            Rect face = ButtonFace.Of(pill.image != null ? pill.image.sprite : null, rect.sizeDelta);
+            float fontSize = UIFactory.CapFitFontSize(face.height);
+            if (maxFontSize > 0f) fontSize = Mathf.Min(fontSize, maxFontSize);
+            CreateIconLine(pill.transform, "Face", face.center, face.size, text, fontSize, iconArt, iconHeight,
+                sidePad: face.width * UIStyles.BUTTON_LABEL_SIDE_PAD_FRAC);
         }
 
         /// <summary>A centered "text [icon]" line — the number-plus-currency-icon pattern the mock
-        /// uses on pills and in the confirm dialog. Layout-driven, so the pair stays centered as one.</summary>
+        /// uses on pills and in the confirm dialog. Layout-driven, so the pair stays centered as one.
+        /// The text is cap-height centred (Capline), so digits sit at the same height as the icon.</summary>
         public static TextMeshProUGUI CreateIconLine(Transform parent, string name, Vector2 pos, Vector2 size,
-            string text, float fontSize, string iconArt, float iconHeight)
+            string text, float fontSize, string iconArt, float iconHeight, float sidePad = 0f)
         {
             GameObject obj = new GameObject(name);
             obj.transform.SetParent(parent, false);
@@ -298,9 +353,17 @@ namespace DogtorBurguer
             layout.childControlHeight = true;
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = false;
+            int pad = Mathf.RoundToInt(sidePad);
+            layout.padding = new RectOffset(pad, pad, 0, 0);
 
-            TextMeshProUGUI label = UIFactory.CreateText(rect, text, Vector2.zero, Vector2.zero, fontSize, FontStyles.Bold);
+            TextMeshProUGUI label = UIFactory.CreateText(rect, text, Vector2.zero, Vector2.zero, fontSize, FontStyles.Bold,
+                alignment: TextAlignmentOptions.Capline);
             UIFactory.StyleHudText(label);
+            // The layout narrows the label to the room left on the face, and auto-size fits the
+            // word to that — but only down to its floor. With a cap-fit ceiling (tall pills offer
+            // 70px+) CreateText's default 55% floor is still wider than the face for CANCEL, so
+            // give it a real one.
+            UIFactory.AutoFit(label, UIStyles.BUTTON_LABEL_MIN_FONT_SIZE, fontSize);
 
             if (iconArt != null)
             {

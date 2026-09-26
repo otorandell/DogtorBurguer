@@ -90,10 +90,10 @@ TextureImporter:
       name: ui_score_trophy
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 697
-        height: 576
+        x: 145
+        y: 57
+        width: 465
+        height: 412
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
