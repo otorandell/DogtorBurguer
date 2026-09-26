@@ -13,7 +13,6 @@ namespace DogtorBurguer
         private const string KEY_MUSIC_ON = "musicOn";
         private const string KEY_GAMES_PLAYED = "gamesPlayed";
         private const string KEY_CONTROL_MODE = "controlMode";
-        private const string KEY_STARTING_LEVEL = "startingLevel";
         private const string KEY_LANGUAGE = "language";
         private const string KEY_ADS_REMOVED = "adsRemoved";
         private const string KEY_TUTORIAL_SEEN = "tutorialSeen";
@@ -29,7 +28,6 @@ namespace DogtorBurguer
         public const bool DEFAULT_MUSIC_ON = true;
         // Tap is the shipped scheme (Drag is retired — see GameplayConfig.CONTROL_MODE_SELECTABLE).
         public const ControlMode DEFAULT_CONTROL_MODE = ControlMode.Tap;
-        public const int DEFAULT_STARTING_LEVEL = 1;
 
         public event Action<int> OnGemsChanged;
         public event Action<int> OnStarsChanged;
@@ -42,7 +40,6 @@ namespace DogtorBurguer
         public bool MusicOn { get; private set; }
         public int GamesPlayed { get; private set; }
         public ControlMode ControlMode { get; private set; }
-        public int StartingLevel { get; private set; }
         public Language Language { get; private set; }
         public bool AdsRemoved { get; private set; }
         public bool TutorialSeen { get; private set; }
@@ -72,8 +69,9 @@ namespace DogtorBurguer
             ControlMode = GameplayConfig.CONTROL_MODE_SELECTABLE
                 ? (ControlMode)PlayerPrefs.GetInt(KEY_CONTROL_MODE, (int)DEFAULT_CONTROL_MODE)
                 : DEFAULT_CONTROL_MODE;
-            StartingLevel = Mathf.Clamp(
-                PlayerPrefs.GetInt(KEY_STARTING_LEVEL, DEFAULT_STARTING_LEVEL), 1, GameplayConfig.SETTINGS_LEVEL_CAP);
+            // The Settings START level option was removed 2026-09-26 (its slot became the Privacy
+            // row); drop any stored value so an old save can't linger.
+            PlayerPrefs.DeleteKey("startingLevel");
 
             // First run (nothing stored): follow the device language, English when unsupported.
             int storedLanguage = PlayerPrefs.GetInt(KEY_LANGUAGE, -1);
@@ -183,12 +181,6 @@ namespace DogtorBurguer
             PlayerPrefs.SetInt(KEY_LANGUAGE, (int)language);
         }
 
-        public void SetStartingLevel(int level)
-        {
-            StartingLevel = Mathf.Clamp(level, 1, GameplayConfig.SETTINGS_LEVEL_CAP);
-            PlayerPrefs.SetInt(KEY_STARTING_LEVEL, StartingLevel);
-            PlayerPrefs.Save();
-        }
 
         /// <summary>One-way: the remove-ads purchase can't be un-bought (store restore re-grants it).</summary>
         public void SetAdsRemoved()

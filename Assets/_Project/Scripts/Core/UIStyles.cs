@@ -458,9 +458,6 @@ namespace DogtorBurguer
         // Dev-only start-level stepper ([−] Lv N [+]) below the panel: flat placeholder widgets.
         // The START level row (menu, third row — replaced the mode toggle 2026-09-07): the same
         // blue blank, "START: LVL N" centered, a yellow arrow button INSIDE each end.
-        public const float SETTINGS_LEVEL_ARROW_X = 150f;                            // ± from the row center
-        public const float SETTINGS_LEVEL_ARROW_H = 40f;                             // ui_arrow_yellow sized by height, then rotated
-        public const float SETTINGS_LEVEL_LABEL_W = 235f;                            // label rect between the arrows — long translations shrink to THIS, not the row
         public static readonly Vector2 SETTINGS_PANEL_OFFSET = Vector2.zero;         // whole-panel nudge for the 4-row sheet (tune live)
         public static readonly Vector2 SETTINGS_CHROME_OFFSET = Vector2.zero;        // title + X nudge if the 4-row sheet tab sits elsewhere
 
@@ -492,8 +489,6 @@ namespace DogtorBurguer
         public const float HOWTO_ARROW_H = 40f;                                      // ui_arrow_pager (green, points right) sized by height
         // z-rotations turning ui_arrow_yellow sideways (a property of the art — shared by the
         // How-to pager and the Settings START level row); flip both signs if the art points the other way.
-        public const float ARROW_YELLOW_ROT_LEFT = -90f;
-        public const float ARROW_YELLOW_ROT_RIGHT = 90f;
         #endregion
 
         #region Layout — Credits Panel

@@ -7,11 +7,10 @@ namespace DogtorBurguer
 {
     /// <summary>
     /// The Settings panel, on the shared ModalPanel chrome (full-canvas panel art, title, round X):
-    /// wide blue rows — the Sound (SFX) and Music toggles, then the menu-only START level row (the
-    /// blue blank with a yellow arrow inside each end, "START: LVL N" between — steps the persisted
-    /// StartingLevel, 1..SETTINGS_LEVEL_CAP; replaced the mode toggle 2026-09-07) or the
-    /// full-width Quit to Menu in-game (the level applies to the NEXT run, so in-game it would
-    /// only mislead). Opened by the menu gear and the in-game top-bar gear (that one pauses the
+    /// wide blue rows — the Sound (SFX) and Music toggles, then (menu) the Privacy row — only for
+    /// players the consent SDK says need it; it re-opens Google's privacy options form — and the
+    /// Language cycle, or (in-game) Restart + Quit to Menu. The Privacy row took the START level
+    /// row's slot on 2026-09-26. Opened by the menu gear and the in-game top-bar gear (that one pauses the
     /// run and resumes on close). Layout knobs: UIStyles.SETTINGS_*.
     /// </summary>
     public class SettingsPanel : MonoBehaviour
@@ -23,10 +22,7 @@ namespace DogtorBurguer
         private TextMeshProUGUI _soundLabel;
         private TextMeshProUGUI _musicLabel;
         private TextMeshProUGUI _controlLabel;
-        private TextMeshProUGUI _levelLabel;
         private TextMeshProUGUI _languageLabel;
-        private GameObject _levelDown;
-        private GameObject _levelUp;
         private bool _showRunButtons;
         private Language _languageAtShow;
 
@@ -35,7 +31,7 @@ namespace DogtorBurguer
 
         /// <summary>Injects the canvas to build into (F-77), instead of scanning the scene.
         /// Pass <paramref name="showRunButtons"/> from the in-game opener to get the
-        /// Quit-to-menu row in place of the START level row.</summary>
+        /// Restart + Quit-to-menu rows in place of the Privacy + Language rows.</summary>
         public void Initialize(Canvas canvas, bool showRunButtons = false)
         {
             _canvas = canvas;
@@ -86,7 +82,7 @@ namespace DogtorBurguer
                 _controlLabel = CreateRowButton("Controls", new Vector2(0f, RowY(row++)), UIStyles.SETTINGS_ROW_W, OnControlToggleClicked);
 
             // Remaining rows: in-game Restart + Quit to Menu (scene loads reset timeScale, so
-            // leaving from the paused panel is safe). In the menu, START level + Language.
+            // leaving from the paused panel is safe). In the menu, Privacy (when required) + Language.
             if (_showRunButtons)
             {
                 // Restart returned 2026-09-08 (dropped 2026-09-05 for space) — the 4-row sheet
@@ -96,8 +92,12 @@ namespace DogtorBurguer
             }
             else
             {
-                BuildLevelRow(new Vector2(0f, RowY(row++)), UIStyles.SETTINGS_ROW_W);
-                // Last row (menu-only, like START): cycles the language. A mid-run swap would
+                // Privacy: re-opens the consent form (GDPR requires a way to change the choice).
+                // Only for players the CMP flags — elsewhere the running counter closes the gap.
+                if (AdManager.Instance != null && AdManager.Instance.PrivacyOptionsRequired)
+                    CreateRowButton(Loc.Get(LocKey.SettingsPrivacy), new Vector2(0f, RowY(row++)), UIStyles.SETTINGS_ROW_W,
+                        () => AdManager.Instance.ShowPrivacyOptions(null));
+                // Last row (menu-only): cycles the language. A mid-run swap would
                 // leave already-built HUD text in the old language, so the in-game panel skips it.
                 _languageLabel = CreateRowButton("Language", new Vector2(0f, RowY(row++)), UIStyles.SETTINGS_ROW_W, OnLanguageClicked);
             }
@@ -123,33 +123,6 @@ namespace DogtorBurguer
             UIFactory.StyleHudText(word);
             UIFactory.AutoFit(word, UIStyles.SETTINGS_ROW_LABEL_SIZE_MIN, UIStyles.SETTINGS_ROW_LABEL_SIZE);
             return word;
-        }
-
-        // The START level row: the same blue blank (not itself a button), the label in the middle
-        // and a yellow arrow button inside each end. Arrows hide at the ends of the range.
-        private void BuildLevelRow(Vector2 pos, float width)
-        {
-            Sprite blank = UiArt.Load("ui_btn_blue_wide");
-            Vector2 size = UIFactory.SizeByWidth(blank, width);
-            Image row = UIFactory.CreateImage(_modal.Panel, "StartLevel", blank, Center, pos, size);
-            // The label rect is only the space BETWEEN the arrows — with the full row width,
-            // a long translation auto-shrank to the row yet still ran under the arrow buttons.
-            _levelLabel = CreateRowLabel(row.transform, "START",
-                new Vector2(UIStyles.SETTINGS_LEVEL_LABEL_W, size.y));
-
-            _levelDown = BuildLevelArrow(row.transform, "Down", -UIStyles.SETTINGS_LEVEL_ARROW_X,
-                UIStyles.ARROW_YELLOW_ROT_LEFT, -1);
-            _levelUp = BuildLevelArrow(row.transform, "Up", UIStyles.SETTINGS_LEVEL_ARROW_X,
-                UIStyles.ARROW_YELLOW_ROT_RIGHT, 1);
-        }
-
-        private GameObject BuildLevelArrow(Transform row, string name, float x, float zRotation, int step)
-        {
-            Sprite arrow = UiArt.Load("ui_arrow_yellow");
-            Button btn = UIFactory.CreateSpriteButton(row, name, arrow, Center, new Vector2(x, 0f),
-                UIFactory.SizeByHeight(arrow, UIStyles.SETTINGS_LEVEL_ARROW_H), () => OnLevelStep(step));
-            btn.transform.localEulerAngles = new Vector3(0f, 0f, zRotation);
-            return btn.gameObject;
         }
 
         // Quit is "pause and leave", not a forfeit (2026-09-13): the run is written down and the
@@ -222,25 +195,6 @@ namespace DogtorBurguer
                 ? LocKey.SettingsControlsDrag : LocKey.SettingsControlsTap);
         }
 
-        private void OnLevelStep(int delta)
-        {
-            if (SaveDataManager.Instance == null) return;
-
-            SaveDataManager.Instance.SetStartingLevel(SaveDataManager.Instance.StartingLevel + delta);
-            UpdateLevelRow();
-        }
-
-        private void UpdateLevelRow()
-        {
-            if (_levelLabel == null) return;
-            int level = SaveDataManager.Instance != null
-                ? SaveDataManager.Instance.StartingLevel
-                : SaveDataManager.DEFAULT_STARTING_LEVEL;
-            _levelLabel.text = Loc.Format(LocKey.SettingsStartLevel, level);
-            _levelDown.SetActive(level > 1);
-            _levelUp.SetActive(level < GameplayConfig.SETTINGS_LEVEL_CAP);
-        }
-
         private void OnLanguageClicked()
         {
             if (SaveDataManager.Instance == null) return;
@@ -262,7 +216,6 @@ namespace DogtorBurguer
             UpdateSoundLabel();
             UpdateMusicLabel();
             UpdateControlLabel();
-            UpdateLevelRow();
             UpdateLanguageLabel();
         }
 

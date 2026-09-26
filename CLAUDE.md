@@ -165,12 +165,11 @@ component owning its hit-test, one color per interaction (`GizmoStyles`): fallin
 sides (cyan, `TouchInputHandler` — mode-aware, Tap mode only), fairy tap (orange, `BurgerFairy` —
 play-mode only, runtime-spawned). Toggle per-script via Unity's Gizmos menu.
 
-The menu Settings' third row is the **START level row** (a player feature since 2026-09-07 —
-it replaced the mode toggle): the blue blank with a yellow `ui_arrow_yellow` button inside each
-end and "START: LVL N" between; the arrows step `SaveDataManager.StartingLevel` by one, clamped
-1..`SETTINGS_LEVEL_CAP`, and hide at the ends of the range. See Difficulty. Menu panel only (the
-in-game panel never shows it; the value applies to the next run anyway). Knobs
-`SETTINGS_LEVEL_ARROW_*`.
+The menu Settings' third row is the **Privacy row** (2026-09-26 — it replaced the START level
+row, and the START level feature was REMOVED: every run starts at level 1, the stored
+`startingLevel` key is deleted on load). It only appears when the consent SDK says the player is
+in a regulated region (`AdManager.PrivacyOptionsRequired`) and re-opens Google's privacy options
+form — see Monetization → Consent. Menu panel only.
 **Test Build** (2026-09-06): the `MainMenuUI` inspector bool → `TestBuild.Enable()`
 (`Core/TestBuild.cs`, a static flag set before the managers spawn): ads bypassed (no provider,
 rewarded ads reward instantly), IAP routed to the mock store, every skin owned (virtual, not
@@ -201,15 +200,13 @@ nothing is lost and the score payout simply happens at the real game over (see R
   screen. Re-derive with
   `scratchpad/level_time.py` whenever `FALL_STEP_BY_LEVEL` / `TRIPLE_CHANCE_BY_LEVEL` change
   (the formula is in the config comment). **One ruleset since 2026-09-07**: the 2026-09-05/06
-  Classic/Relax→Classic/Hard mode toggle is gone (the fast ruleset with it — a speed player
-  picks a higher START level in Settings instead), so `GameMode`, the per-mode tables, the
+  Classic/Relax→Classic/Hard mode toggle is gone (the fast ruleset with it), so `GameMode`, the per-mode tables, the
   card's mode tab and the per-mode trophies/boards were all deleted.
 - **Killer level (21)** — Tetris-style kill screen above the curve, NOT in the curve tables:
   always-triple waves at `MIN_FALL_STEP_DURATION` (0.06s, the absolute fall floor) with 8 types.
-  Entered by sustained survival past `KILLER_LEVEL_THRESHOLD` (1012 placements); selectable from
-  Settings only while `SETTINGS_LEVEL_CAP == KILLER_LEVEL` (testing — see Pending Manual Steps).
-- **Starting level**: `SaveDataManager.StartingLevel` (persisted, set via the Settings START row)
-  seeds `_currentLevel`; `DifficultyManager` runs at `[DefaultExecutionOrder(-100)]` so the seed
+  Entered by sustained survival past `KILLER_LEVEL_THRESHOLD`.
+- **Starting level**: always 1 since 2026-09-26 (the Settings START option is gone; dual-column
+  test mode still overrides) — seeds `_currentLevel`; `DifficultyManager` runs at `[DefaultExecutionOrder(-100)]` so the seed
   is applied before the HUD/spawner init. Initial level is pull-state (no init-time `OnLevelChanged`).
 - HUD shows "Level X" (full word, distinguishes from challenge star)
 - **2026-09-08 progression rework (Oscar)**: ingredient unlock order is PER-RUN RANDOM
@@ -244,8 +241,7 @@ so PLAY stays primary and never moves) appears only when a run is waiting.
   fairy. A resume starts from a settled board with a fresh wave; a couple of in-flight pieces
   vanish, which reads as a gift, and the snapshot stays limited to what can't be recomputed.
 - **Who restores what**: a system that already seeds its own starting value reads
-  `RunSnapshotStore.Pending` right there — `DifficultyManager` (level; a resume must NOT re-apply
-  the Settings START level), `IngredientSpawner.Awake` (roster), `ChefController` (position +
+  `RunSnapshotStore.Pending` right there — `DifficultyManager` (level), `IngredientSpawner.Awake` (roster), `ChefController` (position +
   facing, without re-swapping any column), `BurgerChallenge` (the order). `RunSnapshotService.
   Apply` covers only what nothing else writes: run totals, the board, the continue flag.
   ⚠️ **Never push into a self-seeding system** — Start order between them is undefined.
@@ -421,12 +417,18 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   (https://platform.ironsrc.com — *not* Unity Cloud): Apps page = App Key, Ad Units page =
   ad-unit IDs. Package ID is `com.proximacentaury.dogtorburguer` (all platforms; company
   `ProximaCentaury`; permanent once uploaded to Play). Next: **device test** with
-  `LEVELPLAY_TEST_SUITE = true` on an Android build. **Consent: no prompt for v1** (decision 2026-09-01) —
-  `MonetizationConfig.ADS_PERSONALIZED = false` makes `LevelPlayAdProvider` call
-  `LevelPlayPrivacySettings.SetGDPRConsent(false)` / `SetCCPA(true)` / `SetCOPPA(false)` before
-  `Init`, so every user gets non-personalized ads and iOS never shows ATT (no IDFA). Turning
-  personalization on later requires an EEA/UK consent prompt + the ATT prompt first (see
-  `Docs/pre-launch-checklist.md`). Privacy policy: `Docs/privacy-policy.md`.
+  `LEVELPLAY_TEST_SUITE = true` on an Android build. **Consent (2026-09-26 — replaces the 2026-09-01
+  "no prompt" decision; playtesters called the forced non-personalized ads unrelated)**: Google
+  UMP is the CMP. `AdManager` gathers consent FIRST (`IConsentProvider.Gather`) and only then
+  inits LevelPlay, which reads UMP's IAB TCF answer by itself (LevelPlay 7.7+ — we must NOT call
+  `SetGDPRConsent` then; `LevelPlayAdProvider` skips it when `UMP_CONSENT` + `ADS_PERSONALIZED`).
+  The form is Google's, configured in AdMob (account oscar.plk@gmail.com, app "Doctor Burger",
+  id `ca-app-pub-5175259833465882~1224905538`) → Privacy & messaging → European regulations:
+  published message, EN ES PT DE FR IT, "Do not consent" on the first screen in every country,
+  default ad-partner list (includes ironSource Mobile + Unity Ads). `UmpConsentProvider` compiles
+  only with `UMP_CONSENT` (see Pending Manual Steps); editor/no-SDK builds use
+  `MockConsentProvider` and fall back to forced non-personalized ads. Still open: iOS ATT prompt,
+  a US-states message (CCPA) — for now CCPA opt-out isn't forced when the CMP is active. Privacy policy: `Docs/privacy-policy.md`.
 - **Ad architecture** (production-shaped, 2026-07-05): `AdManager` is a facade owning one
   `IAdProvider` (contract in `Monetization/Abstractions/`) plus the ad policy (cadence,
   remove-ads suppression). The provider models the real SDK lifecycle: async init, **preload**
@@ -693,7 +695,7 @@ current language's string — typed enum keys, one table file per language (`Str
 missing key = loud error + English fallback, and an editor-only boot check validates every
 table carries every key. `SaveDataManager.Language` persists the choice; first run
 auto-detects from `Application.systemLanguage` (unsupported -> English). The menu Settings'
-4th row cycles the language by native name (menu-only, like START — a mid-run swap would
+4th row cycles the language by native name (menu-only — a mid-run swap would
 leave built HUD text stale); Settings sits on its own 4-row sheet `ui_settings_panel`
 (How to Play keeps `ui_modal_panel`). **STATUS: extraction COMPLETE 2026-09-08 — every
 player-facing string is a LocKey (~100 keys) and all 7 tables are filled (machine-drafted;
@@ -952,17 +954,19 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   `SocialConfig.PLAY_GAMES_LEADERBOARD_ID`. Until all three are done every build uses the
   logging mock. Every finished run reports at game over (next to the high-score write); the
   **TopBar trophy pill** opens the board on every screen. Scores are client-reported
-  (spoofable) — never hang rewards off leaderboard rank. Note a run started at a high START
-  level competes on the same board as one from level 1 — accepted for now.
+  (spoofable) — never hang rewards off leaderboard rank. 
 - **Chef size/position tuning**: knobs are the chef sprite **PPU** (990 as of the last tuning pass; an older note said 2009 — trust the meta, not this file, and update here when retuned) for the original
   import) for size, and `Constants.CHEF_BOTTOM_OFFSET` (1.76) for the feet line — `GetWorldPosition` anchors
   the feet and derives the centre from the live sprite height, so resizing keeps the chef on the bottom border.
 - **Verify skin import (Phase 1)**: open Unity, confirm a clean compile and that `Resources/Skins/*.asset`
   each show their sprite (not "None"); the game should look identical to before.
-- **Before release: lower `SETTINGS_LEVEL_CAP` to `MAX_LEVEL`** (`GameplayConfig`) — or lower,
-  now that the START level row is a player feature (2026-09-07). It's currently `KILLER_LEVEL`
-  (21) so the kill screen is reachable from Settings for testing; players should not be able
-  to *start* on the kill screen. One-line flip (comment marks it).
+- **Consent SDK activation** (code landed 2026-09-26, AdMob side DONE): import the Google Mobile
+  Ads Unity plugin (github.com/googleads/googleads-mobile-unity releases — it carries UMP), set
+  the Android app ID `ca-app-pub-5175259833465882~1224905538` in Assets → Google Mobile Ads →
+  Settings, add the **`UMP_CONSENT`** scripting define (Android), resolve Android dependencies.
+  Until then consent is mocked and LevelPlay stays on forced non-personalized ads. Test the form
+  from outside the EEA with `MonetizationConfig.UMP_DEBUG_FORCE_EEA` + the test device id UMP
+  logs (NEVER ship that on).
 
 ## Pending Features
 - **HUD done so far** (authored, screen-space UGUI): the shared **TopBar** (`UI/TopBar.cs` — lays
@@ -1024,7 +1028,7 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
 - **Settings panel (authored, 2026-09-01)**: rebuilt to the mock (`Look Reference/settings.png`)
   on the modal chrome: wide blue rows (`ui_btn_blue_wide`, sized by width, HUD-palette auto-fit
   labels) stacked down the body: **Sound: ON/OFF** (SFX) and **Music: ON/OFF**, then the menu shows
-  **START: LVL N** + **Language: X**, and in-game **Restart** (returned 2026-09-08, ad-free) +
+  **Privacy** (only in regulated regions) + **Language: X**, and in-game **Restart** (returned 2026-09-08, ad-free) +
   **Quit to Menu** — four rows either way, which is exactly what the sheet fits. Rows are placed by
   a **running counter**, not fixed indices, so a hidden row closes its own gap (the Controls row
   went 2026-09-08 — see Controls). Both openers (menu gear, in-game gear) share the one class.

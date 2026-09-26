@@ -41,12 +41,17 @@ namespace DogtorBurguer
         // Launches LevelPlay's on-device test suite after init — flip on for the first
         // device-integration pass, ship OFF.
         public const bool LEVELPLAY_TEST_SUITE = false;
-        // Ad personalization policy (decision 2026-09-01): NO consent prompt for v1 — every user is
-        // treated as having declined, so LevelPlay serves non-personalized ads everywhere (lower
-        // EU eCPMs, but nothing to show and nothing to get wrong) and iOS never asks for
-        // tracking (no ATT call → no IDFA). Flipping this to true is NOT enough on its own: a
-        // consent prompt (EEA/UK) + the ATT prompt must gate it — see Docs/pre-launch-checklist.md.
-        public const bool ADS_PERSONALIZED = false;
+        // Ad personalization (2026-09-26, playtest feedback: the forced non-personalized ads read
+        // as "unrelated shit"): ON, gated by consent — Google UMP asks EEA/UK players (form
+        // configured in AdMob → Privacy & messaging) and LevelPlay honours their answer. Only
+        // effective with the UMP SDK imported + the UMP_CONSENT define; without them LevelPlay
+        // falls back to the old forced non-personalized setup (the 2026-09-01 decision). iOS
+        // additionally needs the ATT prompt before personalization — not built yet.
+        public const bool ADS_PERSONALIZED = true;
+        // UMP testing: force the EEA consent form on the listed test devices (their hashed ids are
+        // printed in logcat by UMP on first run). NEVER ship with this on.
+        public const bool UMP_DEBUG_FORCE_EEA = false;
+        public static readonly string[] UMP_TEST_DEVICE_IDS = { };
         // Not directed at children (matches the privacy policy / Play target audience).
         public const bool ADS_CHILD_DIRECTED = false;
         #endregion

@@ -80,7 +80,14 @@ Dashboard flows/prices drift — treat as the shape, re-verify screens when exec
 ### Ad consent & privacy prerequisites (GDPR / ATT)
 **Impact:** EU GDPR consent and iOS App Tracking Transparency are required before ads will serve and for store compliance. Missing them → ads don't fill and/or the app violates platform policy.
 **Mitigation:** integrate the SDK's consent management (e.g. Google/Unity UMP) for GDPR and trigger the ATT prompt on iOS. Depends on a published privacy policy (see below).
-**Status:** RESOLVED for v1 on 2026-09-01 by policy, not UI: `MonetizationConfig.ADS_PERSONALIZED = false` →
+**Status (2026-09-26): GDPR consent flow BUILT — Google UMP.** AdMob account + app ("Doctor Burger",
+`ca-app-pub-5175259833465882~1224905538`) + published European regulations message (EN ES PT DE FR IT,
+"Do not consent" on the first screen). Code: `IConsentProvider` / `UmpConsentProvider` (behind the
+`UMP_CONSENT` define) / `MockConsentProvider`; `AdManager` gathers consent before LevelPlay init;
+`ADS_PERSONALIZED = true`; Settings "Privacy" row re-opens the form. **To activate:** import the Google
+Mobile Ads Unity plugin, set the Android app ID in its settings, add `UMP_CONSENT`, resolve deps, test
+on device (`UMP_DEBUG_FORCE_EEA` + test device id). **Still open:** iOS ATT prompt; a US-states (CCPA)
+message in AdMob. *Previous status, kept for history —* RESOLVED for v1 on 2026-09-01 by policy, not UI: `MonetizationConfig.ADS_PERSONALIZED = false` →
 non-personalized ads for everyone (GDPR consent false, CCPA opt-out, COPPA false passed to LevelPlay
 before init), no ATT call on iOS. Revisit (in-house EEA prompt, or a certified CMP/UMP if AdMob is ever
 mediated) only if EU revenue justifies it. Privacy policy **final text written 2026-09-01**

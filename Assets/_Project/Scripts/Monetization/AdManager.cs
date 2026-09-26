@@ -12,6 +12,7 @@ namespace DogtorBurguer
     public class AdManager : Singleton<AdManager>
     {
         private IAdProvider _provider;
+        private IConsentProvider _consent;
 
         /// <summary>True when a rewarded ad is loaded and can actually show (always, on a test build).</summary>
         public bool IsRewardedAvailable => TestBuild.IsEnabled || (_provider != null && _provider.IsRewardedReady);
@@ -41,7 +42,36 @@ namespace DogtorBurguer
                 _provider = gameObject.AddComponent<MockAdProvider>();
             }
 #endif
-            _provider.Initialize();
+            // Consent FIRST: the CMP's answer (IAB TCF strings) must be stored before LevelPlay's
+            // first request — LevelPlay reads it by itself (7.7+), nothing is passed along.
+            _consent = CreateConsentProvider();
+            _consent.Gather(_provider.Initialize);
+        }
+
+        // Google UMP on device builds with the SDK imported (UMP_CONSENT define); the mock in the
+        // editor and without the SDK (then LevelPlay stays on forced non-personalized ads).
+        private IConsentProvider CreateConsentProvider()
+        {
+#if UMP_CONSENT && !UNITY_EDITOR
+            return gameObject.AddComponent<UmpConsentProvider>();
+#else
+            return gameObject.AddComponent<MockConsentProvider>();
+#endif
+        }
+
+        /// <summary>True when this player must be offered the Settings "Privacy" row (regulated
+        /// region, per the CMP). False on a test build (no consent flow at all).</summary>
+        public bool PrivacyOptionsRequired => _consent != null && _consent.PrivacyOptionsRequired;
+
+        /// <summary>Re-opens the CMP's privacy options form (change / withdraw consent).</summary>
+        public void ShowPrivacyOptions(Action onClosed)
+        {
+            if (_consent == null)
+            {
+                onClosed?.Invoke();
+                return;
+            }
+            _consent.ShowPrivacyOptions(onClosed);
         }
 
         /// <summary>

@@ -93,11 +93,6 @@ namespace DogtorBurguer
         public const float SPAWN_GRACE_SECONDS = 1f;
         public const int MAX_INGREDIENT_COUNT = 8;
 
-        // Highest level selectable from the Settings START level row (a player feature since
-        // 2026-09-07 — it replaced the mode toggle). TESTING: set to KILLER_LEVEL so the kill
-        // screen can be entered directly; drop to MAX_LEVEL (or lower) for release.
-        public const int SETTINGS_LEVEL_CAP = KILLER_LEVEL;
-
         // Drag mode is retired (2026-09-08): Tap is a strict superset of it (swipe still moves the
         // chef, and a side tap moves him too), and dropping the row freed a Settings slot for the
         // Music toggle. The ControlMode enum, its save key and the TouchInputHandler branches are

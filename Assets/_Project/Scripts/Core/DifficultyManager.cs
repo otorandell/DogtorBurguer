@@ -57,13 +57,11 @@ namespace DogtorBurguer
                 return;
             }
 
-            // Seed the starting level. Dual-column test mode overrides; otherwise the
-            // player-chosen Settings value (defaults to 1). The placement counter is seeded
-            // to the start level's threshold below, so progression runs at the normal
-            // per-level pace (the '>' guard in EvaluateLevel stays as belt-and-braces).
-            int startLevel = SaveDataManager.Instance != null
-                ? SaveDataManager.Instance.StartingLevel
-                : SaveDataManager.DEFAULT_STARTING_LEVEL;
+            // Seed the starting level: 1 (the Settings START level option was removed
+            // 2026-09-26). Dual-column test mode overrides. The placement counter is seeded to
+            // the start level's threshold below, so progression runs at the normal per-level
+            // pace (the '>' guard in EvaluateLevel stays as belt-and-braces).
+            int startLevel = 1;
             if (GameManager.Instance != null && GameManager.Instance.TestDualColumn)
                 startLevel = GameManager.Instance.TestDualColumnLevel;
 

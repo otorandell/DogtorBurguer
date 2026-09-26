@@ -15,7 +15,7 @@ namespace DogtorBurguer
             { LocKey.SettingsMusicOff, "Müzik: KAPALI" },
             { LocKey.SettingsControlsDrag, "Kontrol: Sürükle" },
             { LocKey.SettingsControlsTap, "Kontrol: Dokun" },
-            { LocKey.SettingsStartLevel, "BAŞLA: SEVİYE {0}" },
+            { LocKey.SettingsPrivacy, "Gizlilik" },
             { LocKey.SettingsQuit, "Menüye Dön" },
             { LocKey.SettingsLanguage, "Dil: {0}" },
             { LocKey.SettingsRestart, "Yeniden Başlat" },

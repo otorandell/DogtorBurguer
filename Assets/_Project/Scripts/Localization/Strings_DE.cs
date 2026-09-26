@@ -15,7 +15,7 @@ namespace DogtorBurguer
             { LocKey.SettingsMusicOff, "Musik: AUS" },
             { LocKey.SettingsControlsDrag, "Steuerung: Ziehen" },
             { LocKey.SettingsControlsTap, "Steuerung: Tippen" },
-            { LocKey.SettingsStartLevel, "START: LEVEL {0}" },
+            { LocKey.SettingsPrivacy, "Datenschutz" },
             { LocKey.SettingsQuit, "Zurück zum Menü" },
             { LocKey.SettingsLanguage, "Sprache: {0}" },
             { LocKey.SettingsRestart, "Neu starten" },
