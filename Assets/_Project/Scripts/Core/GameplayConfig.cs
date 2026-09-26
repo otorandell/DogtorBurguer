@@ -110,16 +110,20 @@ namespace DogtorBurguer
         // The killer level (21) is NOT in these tables — it applies MIN_FALL_STEP_DURATION,
         // MAX_INGREDIENT_COUNT, and always-triple waves directly (see DifficultyManager).
         // 2026-09-08 (Oscar): gentler ramp, and the speed HOLDS on every ingredient-unlock
-        // level (3, 6, 9, 12) — the new type IS that level's difficulty bump.
+        // level — the new type IS that level's difficulty bump. Holds moved with the unlocks to
+        // L5, 9, 13, 17 on 2026-09-26 (L1-4 unchanged).
         public static readonly float[] FALL_STEP_BY_LEVEL = {
-            0.45f, 0.40f, 0.40f, 0.36f, 0.33f, 0.33f, 0.30f, 0.28f, 0.28f, 0.26f,
-            0.24f, 0.24f, 0.22f, 0.20f, 0.185f, 0.17f, 0.155f, 0.14f, 0.12f, 0.10f
+            0.45f, 0.40f, 0.40f, 0.36f, 0.36f, 0.33f, 0.30f, 0.28f, 0.28f, 0.26f,
+            0.24f, 0.22f, 0.22f, 0.20f, 0.185f, 0.17f, 0.17f, 0.14f, 0.12f, 0.10f
         };
-        // Unlocks land at L3, L6, L9, L12 (2026-09-08 — the last type used to wait until L16).
+        // Unlocks every FOUR levels: L5, L9, L13, L17 (2026-09-26, playtest feedback — "the
+        // ingredient count ramps too quickly": a ~1k-point run, ~3-4 min, used to meet its 6th type
+        // right as it ended; the 5th now arrives ~2:50 in, the 6th ~5:40). Was L3/6/9/12.
         // WHICH type unlocks is per-run random (IngredientRoster); this table is only the count.
+        // Each unlock is announced (NewIngredientPopup via DifficultyManager.OnIngredientUnlocked).
         public static readonly int[] INGREDIENT_COUNT_BY_LEVEL = {
-            4, 4, 5, 5, 5, 6, 6, 6, 7, 7,
-            7, 8, 8, 8, 8, 8, 8, 8, 8, 8
+            4, 4, 4, 4, 5, 5, 5, 5, 6, 6,
+            6, 6, 7, 7, 7, 7, 8, 8, 8, 8
         };
         public static readonly float[] TRIPLE_CHANCE_BY_LEVEL = {
             0f,    0f,    0f,    0f,    0f,    0.05f, 0.08f, 0.11f, 0.15f, 0.18f,

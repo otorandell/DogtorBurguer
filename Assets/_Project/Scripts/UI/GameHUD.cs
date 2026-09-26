@@ -91,6 +91,7 @@ namespace DogtorBurguer
             {
                 GameManager.Instance.OnScoreChanged += UpdateScore;
                 GameManager.Instance.OnLevelChanged += UpdateLevel;
+                GameManager.Instance.OnIngredientUnlocked += NewIngredientPopup.Spawn;
             }
         }
 
@@ -124,6 +125,7 @@ namespace DogtorBurguer
             {
                 GameManager.Instance.OnScoreChanged -= UpdateScore;
                 GameManager.Instance.OnLevelChanged -= UpdateLevel;
+                GameManager.Instance.OnIngredientUnlocked -= NewIngredientPopup.Spawn;
             }
         }
     }

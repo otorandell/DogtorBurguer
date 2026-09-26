@@ -64,6 +64,7 @@
         SpecialOrder,
         MultTab,
         TooBad,
+        NewIngredient,   // level-up unlock callout (NewIngredientPopup)
         OrderComplete,
         NamerGood,
         NamerTasty,

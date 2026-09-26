@@ -63,6 +63,7 @@ namespace DogtorBurguer
             { LocKey.SpecialOrder, "ÖZEL SİPARİŞ" },
             { LocKey.MultTab, "ÇARP" },
             { LocKey.TooBad, "Tüh!" },
+            { LocKey.NewIngredient, "YENİ MALZEME!" },
             { LocKey.OrderComplete, "Sipariş tamam!" },
             { LocKey.NamerGood, "İyi!" },
             { LocKey.NamerTasty, "Lezzetli!" },

@@ -277,6 +277,13 @@ namespace DogtorBurguer
         public const float WORLD_BURGER_NAME_SIZE = 4f;
         public const float WORLD_BURGER_SCORE_SIZE = 3.5f;
         public const float WORLD_FLOATING_TEXT_SIZE = 4f;
+        // "NEW INGREDIENT!" callout (world units; NewIngredientPopup) — mid-board, under the order card
+        public const float NEW_INGREDIENT_Y = -0.4f;                      // popup centre (world y; the board spans ≈ -4.2 → 1.0)
+        public const float NEW_INGREDIENT_ICON_H = 1.3f;                  // the newcomer's sprite
+        public const float NEW_INGREDIENT_TEXT_DY = 1.05f;                // words above the sprite
+        public const float NEW_INGREDIENT_TEXT_SIZE = 5f;
+        public const float NEW_INGREDIENT_TEXT_W = 5f;                    // auto-size rect (world units) — long translations shrink
+        public const float NEW_INGREDIENT_PLATE_H = 1.25f;                // yellow glow plate behind the words
         public const float WORLD_STAR_POPUP_SIZE = 3f;   // "+N!" star award on an order match (below the xN)
         #endregion
 

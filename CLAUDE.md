@@ -215,7 +215,9 @@ nothing is lost and the score payout simply happens at the real game over (see R
 - **2026-09-08 progression rework (Oscar)**: ingredient unlock order is PER-RUN RANDOM
   (`IngredientRoster`: Meat/Cheese/Bacon always start + a random 4th; the rest join shuffled —
   the bag and Special Orders read through `IngredientSpawner.ActiveTypeAt`). Counts now
-  4,4,5,5,5,6,6,6,7,7,7,8… (unlocks L3/6/9/12 — all in by L12, was L16). The fall curve is
+  4,4,4,4,5,5,5,5,6,6,6,6,7,… (unlocks L5/9/13/17 since 2026-09-26 — playtesters said the
+  types ramped too fast; was L3/6/9/12), each announced by `NewIngredientPopup` (DifficultyManager
+  `OnIngredientUnlocked`, level-ups only). The fall curve is
   gentler and **holds flat on every unlock level** (the new type IS that bump); kill screen at
   871 placements. ⚠️ The flat 42s-per-level budget is **DROPPED as a design rule** (Oscar,
   2026-09-08): later levels SHOULD take longer to beat — the current threshold numbers are
@@ -301,8 +303,8 @@ so PLAY stays primary and never moves) appears only when a run is waiting.
   fairy popups concatenate the reward icon after the amount via FloatingText's `iconArt`,
   2026-09-08; every fairy tap also plays the collect chime); "Too bad!" stays bare.
 - Level up requires 2 matches at EVERY level (`CHALLENGE_ORDERS_TO_LEVEL_CAP` 2 since 2026-09-08; the (level+3)/2 formula is capped flat)
-- ⚠️ Score scale shrank ~10× at high levels with the 0.25-step multiplier — revisit
-  `STAR_SCORE_DIVISOR` (end-of-run payout) and the score-tier feel after playtests.
+- Score scale shrank ~10× with the 0.25-step multiplier; typical runs score ~1k (2026-09-26). The
+  star payout was rebalanced for that (see Monetization & Currencies).
 - Each match also **awards stars** (the currency faucet — see Monetization & Currencies)
 
 ### Scoring
@@ -386,8 +388,10 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   - **Gems** (hard/premium): rare — Burger Fairy drops (~40% of fairies), rewarded ads, IAP packs.
   - **Stars** (soft/free): earned by playing — **per completed Special Order**
     (`STARS_PER_ORDER_BASE + PER_LEVEL·(challengeLevel−1)`, awarded live with a gold "N!"
-    popup), an **end-of-run score payout** (1★ per `STAR_SCORE_DIVISOR` score; continues pay
-    only the un-paid delta), and **star fairies** (`STAR_PACK_VALUE` 25). `GameManager.AwardStars`
+    popup), an **end-of-run score payout** (1★ per 50 score up to 2k, then 1★ per 100 —
+    `STAR_SCORE_*`, diminishing so high scorers don't flood the economy; continues pay only the
+    un-paid delta). **2026-09-26 rebalance**: orders pay 5 + 2/level; a ~1k run ≈ 45★ → a
+    consumable every ~2 runs, a cheap skin ~9 runs, a gold/ultimate skin ~30 runs, and **star fairies** (`STAR_PACK_VALUE` 25). `GameManager.AwardStars`
     grants + tracks `StarsEarnedThisRun` (shown on the game-over panel). Also from gem→star shop
     packs; editor debug key **4** grants 500.
 - One-directional exchange: gems buy stars, never the reverse (standard freemium convention).
@@ -500,7 +504,7 @@ Rebuilt each open, destroyed on close (no stale state).
   equipped state) — with an optional **lime** label line (`SHOP_ACCENT`, `StyleAccent`) above and
   a wide **green pill** below; the whole cell is one button. Pill faces are `CreateIconLine`s — a
   HUD-palette number followed by the currency icon, layout-centered as one — the same line the
-  confirm dialog uses ("Buy 200 ★ / for 40 ◆" on the authored card `ui_shop_confirm_card`, whose
+  confirm dialog uses ("Buy 500 ★ / for 40 ◆" on the authored card `ui_shop_confirm_card`, whose
   canvas width `SHOP_CONFIRM_CARD_W` includes its shadow; BUY/CANCEL = `ui_btn_confirm_*`).
   **Skin cells**: 3 states — EQUIPPED (green checker) / EQUIP (tap equips instantly) / price +
   icon (tap buys **and auto-equips**; insufficient funds shakes the cell). The shop *is* the
@@ -755,8 +759,8 @@ sprite — acceptable; menu equips always show in-game).
   just replace a PNG's contents keeping its filename. Works from the Project window with any scene
   open — no more opening `Game.unity`.
 - **Purchasable skins (curated catalog, 2026-09-05)**: every slot = default + 2 star skins
-  (cheap 400★ / "golden" end-game 5000★) + 2 gem skins (cheap 60◆ / expensive 100◆). Dogtors:
-  Burgerchain 500★ (cheap), Royale 10000★ (end-game), European 80◆, Japanese/Mexican 150◆ each.
+  (cheap 400★ / "golden" end-game 1400★ — was 5000, ~30 runs since 2026-09-26) + 2 gem skins (cheap 60◆ / expensive 100◆). Dogtors:
+  Burgerchain 500★ (cheap), Royale 1500★ (end-game; was 10000), European 80◆, Japanese/Mexican 150◆ each.
   Star-cheap = the old gourmet set (Chicken, Cheddar, Cherry Tomato, Caramelized Onion, Relish,
   Shredded Lettuce, **Boiled Egg** — new; the gourmet Quail Egg moved to gems-expensive) and
   Brioche Buns; star-expensive = the gold set. Gem skins (2026-09-04 kit art): Vegan/Wagyu patty,

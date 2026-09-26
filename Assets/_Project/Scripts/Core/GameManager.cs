@@ -46,6 +46,7 @@ namespace DogtorBurguer
         public event Action<GameState> OnStateChanged;
         public event Action<int> OnScoreChanged;
         public event Action<int> OnLevelChanged; // forwarded from DifficultyManager (F-68)
+        public event Action<IngredientType> OnIngredientUnlocked; // forwarded from DifficultyManager
 
         private void Start()
         {
@@ -136,10 +137,22 @@ namespace DogtorBurguer
             }
 
             if (_difficultyManager != null)
+            {
                 _difficultyManager.OnLevelChanged += RaiseLevelChanged;
+                _difficultyManager.OnIngredientUnlocked += RaiseIngredientUnlocked;
+            }
         }
 
         private void RaiseLevelChanged(int level) => OnLevelChanged?.Invoke(level);
+        private void RaiseIngredientUnlocked(IngredientType type) => OnIngredientUnlocked?.Invoke(type);
+
+        // Total stars a run's score is worth: full rate up to the cap, a reduced rate above it.
+        private static int StarsForScore(int score)
+        {
+            int full = Mathf.Min(score, MonetizationConfig.STAR_SCORE_FULL_RATE_UP_TO);
+            int above = Mathf.Max(0, score - MonetizationConfig.STAR_SCORE_FULL_RATE_UP_TO);
+            return full / MonetizationConfig.STAR_SCORE_DIVISOR + above / MonetizationConfig.STAR_SCORE_DIVISOR_ABOVE;
+        }
 
         protected override void OnDestroy()
         {
@@ -153,7 +166,10 @@ namespace DogtorBurguer
             }
 
             if (_difficultyManager != null)
+            {
                 _difficultyManager.OnLevelChanged -= RaiseLevelChanged;
+                _difficultyManager.OnIngredientUnlocked -= RaiseIngredientUnlocked;
+            }
         }
 
         /// <summary>Fresh game start (any → Playing). Resets score and starts spawning.</summary>
@@ -294,7 +310,7 @@ namespace DogtorBurguer
             // End-of-run star payout from score — only the slice not paid out by an earlier
             // game over this run (a continue keeps the score, so pay the delta). Awarded before
             // the state change so the game-over panel reads the final run total.
-            int payout = _score / MonetizationConfig.STAR_SCORE_DIVISOR - _starsPaidFromScore;
+            int payout = StarsForScore(_score) - _starsPaidFromScore;
             if (payout > 0)
             {
                 _starsPaidFromScore += payout;

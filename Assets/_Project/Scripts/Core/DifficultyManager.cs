@@ -18,6 +18,9 @@ namespace DogtorBurguer
         /// <summary>Pieces placed so far this run — the level clock, kept across a resume.</summary>
         public int IngredientsPlaced => _ingredientsPlaced;
         public event Action<int> OnLevelChanged;
+        /// <summary>A level-up added an ingredient type to the run (once per new type). Never on
+        /// the starting / resumed level — that is init, not an unlock.</summary>
+        public event Action<IngredientType> OnIngredientUnlocked;
 
         private void Awake()
         {
@@ -118,9 +121,13 @@ namespace DogtorBurguer
             // the first placement, when _ingredientsPlaced hasn't caught up yet.
             if (newLevel > _currentLevel)
             {
+                int countBefore = _spawner != null ? _spawner.ActiveIngredientCount : 0;
                 _currentLevel = newLevel;
                 ApplyDifficulty();
                 OnLevelChanged?.Invoke(_currentLevel);
+                if (_spawner != null)
+                    for (int i = countBefore; i < _spawner.ActiveIngredientCount; i++)
+                        OnIngredientUnlocked?.Invoke(_spawner.ActiveTypeAt(i));
                 Debug.Log($"[Difficulty] Level {_currentLevel}! ({_ingredientsPlaced} ingredients placed)");
             }
         }

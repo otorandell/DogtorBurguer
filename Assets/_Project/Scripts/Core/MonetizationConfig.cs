@@ -86,12 +86,14 @@ namespace DogtorBurguer
         #endregion
 
         #region Shop — star packs (bought with gems; hard→soft, one-directional)
-        // ~5 stars/gem baseline, improving with tier — mirrors the gem ladder's shape.
+        // ~12.5 stars/gem baseline, improving with tier — mirrors the gem ladder's shape.
+        // Scaled ×2.5 on 2026-09-26 with the star rebalance (play pays ~3× more stars, so the old
+        // 200/550/1200 packs were suddenly worth ~4 runs each).
         public static readonly StarProduct[] STAR_PRODUCTS =
         {
-            new StarProduct(200, 40),
-            new StarProduct(550, 100),
-            new StarProduct(1200, 200, "BEST VALUE"),
+            new StarProduct(500, 40),
+            new StarProduct(1300, 100),
+            new StarProduct(3000, 200, "BEST VALUE"),
         };
         #endregion
 
@@ -110,13 +112,19 @@ namespace DogtorBurguer
         #endregion
 
         #region Stars — earning (the soft-currency faucet; sinks live in the Shop sections above)
+        // 2026-09-26 rebalance (Oscar): typical players score ~1k, which earned ~15-20 stars a run
+        // (a cheap skin took ~25 runs). Target ≈45 stars for a 1k run: a consumable every ~2 runs,
+        // a cheap skin in ~9, a gold/ultimate skin in ~30.
         // Per completed Special Order: BASE + PER_LEVEL·(challengeLevel−1), awarded live.
-        // A good run reaching challenge level 4 nets ~50 order stars; casual runs ~10-20.
-        public const int STARS_PER_ORDER_BASE = 2;
-        public const int STARS_PER_ORDER_PER_LEVEL = 1;
-        // End-of-run payout: 1 star per this much score (only score not yet paid out —
-        // a continue extends the run without double-paying earlier score).
-        public const int STAR_SCORE_DIVISOR = 500;
+        public const int STARS_PER_ORDER_BASE = 5;
+        public const int STARS_PER_ORDER_PER_LEVEL = 2;
+        // End-of-run payout, with DIMINISHING returns so high scorers don't flood the economy:
+        // 1 star per STAR_SCORE_DIVISOR up to STAR_SCORE_FULL_RATE_UP_TO points (1k → 20, 2k → 40),
+        // then 1 per STAR_SCORE_DIVISOR_ABOVE (10k → 120). Only score not yet paid out counts —
+        // a continue extends the run without double-paying earlier score.
+        public const int STAR_SCORE_DIVISOR = 50;
+        public const int STAR_SCORE_FULL_RATE_UP_TO = 2000;
+        public const int STAR_SCORE_DIVISOR_ABOVE = 100;
         #endregion
 
         #region Shop — remove ads (one-time IAP; kills interstitials, keeps rewarded ads)

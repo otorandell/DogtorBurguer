@@ -59,6 +59,10 @@ namespace DogtorBurguer
         public const float FLOATING_TEXT_RISE = 1.5f;
         public const float FLOATING_TEXT_DURATION = 0.8f;
         public const float FLOATING_TEXT_FADE_DELAY = 0.3f;
+        public const float NEW_INGREDIENT_POP_DURATION = 0.35f;           // NewIngredientPopup: scale-in (OutBack)
+        public const float NEW_INGREDIENT_HOLD = 1.4f;                    // …readable hold
+        public const float NEW_INGREDIENT_FADE_DURATION = 0.45f;          // …then rise + fade
+        public const float NEW_INGREDIENT_RISE = 0.6f;
         #endregion
 
         #region Burger Popup
