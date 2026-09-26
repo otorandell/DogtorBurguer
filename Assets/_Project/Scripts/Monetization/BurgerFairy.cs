@@ -32,15 +32,35 @@ namespace DogtorBurguer
 
         private void BuildVisual()
         {
-            // One full-body illustration per payload (the cargo is drawn into the art — the old
-            // body + badge overlay is gone). On a child so the root transform stays free for the
-            // fly path + pulse; normalized to a world height (the art imports large).
+            // The (blue) fairy body + its cargo held in the raised hand, both on children so the
+            // root transform stays free for the fly path + pulse. Sizes are world heights (the art
+            // imports large). The cargo sits where the artist drew the gem on the old red gem
+            // fairy (measured 2026-09-26), just in front of the body; tune FAIRY_CARGO_*. Sized
+            // and centred on each sprite's VISIBLE art, so padding differences don't show.
             GameObject bodyObj = new GameObject("Body");
             bodyObj.transform.SetParent(transform, false);
             SpriteRenderer body = bodyObj.AddComponent<SpriteRenderer>();
-            body.sprite = RewardArt.Fairy(_payload);
+            body.sprite = RewardArt.FairyBody;
             body.sortingOrder = Constants.SORT_GEM_PACK;
             SpriteFit.Height(body, UIStyles.FAIRY_BODY_HEIGHT);
+
+            Sprite cargoArt = RewardArt.FairyCargo(_payload);
+            Vector3 visible = RewardArt.CargoVisibleArt(cargoArt); // (height frac, centre dx, dy)
+            float visibleH = UIStyles.FAIRY_CARGO_HEIGHT * _payload.Kind switch
+            {
+                FairyPayloadKind.Gems => UIStyles.FAIRY_CARGO_SCALE_GEMS,
+                FairyPayloadKind.Stars => UIStyles.FAIRY_CARGO_SCALE_STARS,
+                _ => UIStyles.FAIRY_CARGO_SCALE_CONSUMABLE,
+            };
+            float spriteH = visibleH / visible.x;
+
+            GameObject cargoObj = new GameObject("Cargo");
+            cargoObj.transform.SetParent(transform, false);
+            cargoObj.transform.localPosition = UIStyles.FAIRY_CARGO_POS - new Vector3(visible.y, visible.z, 0f) * spriteH;
+            SpriteRenderer cargo = cargoObj.AddComponent<SpriteRenderer>();
+            cargo.sprite = cargoArt;
+            cargo.sortingOrder = Constants.SORT_GEM_PACK + 1;
+            SpriteFit.Height(cargo, spriteH);
         }
 
         private void PlayFlyIn(Vector3 startPos, Vector3 endPos, float duration)

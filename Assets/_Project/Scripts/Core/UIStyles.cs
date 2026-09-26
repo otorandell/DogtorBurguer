@@ -82,6 +82,13 @@ namespace DogtorBurguer
         // Full-body per-payload illustration (the cargo is drawn in) — a touch bigger than the
         // old body-only sprite so the payload stays readable without the badge overlay.
         public const float FAIRY_BODY_HEIGHT = 1.5f;
+        // The cargo in the fairy's hand (world units, vs the fairy's centre) — the gem's spot on the
+        // old red gem fairy (+0.181/-0.034 × body height, 0.25 × body height tall). Tune live.
+        public static readonly Vector3 FAIRY_CARGO_POS = new(0.27f, -0.05f, 0f);
+        public const float FAIRY_CARGO_HEIGHT = 0.37f;                    // base VISIBLE height of the cargo art…
+        public const float FAIRY_CARGO_SCALE_GEMS = 1.1f;                 // …× this per payload (Oscar 2026-09-26: gems a touch bigger,
+        public const float FAIRY_CARGO_SCALE_STARS = 1f;                  //  stars as they were,
+        public const float FAIRY_CARGO_SCALE_CONSUMABLE = 1.4f;           //  consumables clearly bigger)
         public const float PREVIEW_ARROW_HEIGHT = 1.05f;                   // arrow back-picture behind a preview ghost
         // World popup plates (the 2026-09-04 halftone blobs, set 1) — heights in world units.
         public const float PLATE_BURGER_H = 2.0f;                          // wide green ellipse behind the burger name + points

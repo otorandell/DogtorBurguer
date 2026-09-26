@@ -610,10 +610,11 @@ Per-run consumable items delivered by fairies; drag onto a column to use. Design
   seats the tip), then only its **head stays pinned** at the base (`fx_skewer_head`,
   `ConsumableVfx.SkewerPin`). Sizes `UIStyles.FX_*`/ghost knobs, timings `AnimConfig.FX_*`,
   sorts `SORT_CONSUMABLE_FX_*`.
-- **Art** (`RewardArt` + `SpriteFit`): the **fairy is one full-body illustration per payload**
-  (`Resources/Fairy/fairy_{gems,stars,ketchup,mustard,skewer}` — the cargo is drawn into the
-  art; the old body+badge overlay is gone). The GEM fairy is the artist's blue fairy since
-  2026-09-26 (empty-handed, by choice — the colour marks it; the others stay red with cargo). The `Resources/Rewards/` badges
+- **Art** (`RewardArt` + `SpriteFit`): since 2026-09-26 every fairy is **one empty-handed blue
+  body** (`Resources/Fairy/fairy_body`) and the
+  cargo is a separate sprite in its hand: `ui_gem` / `ui_star` / the inventory slot icon
+  `ui_consumable_*`, sized + centred on its VISIBLE art (`RewardArt.CargoVisibleArt`) at
+  `UIStyles.FAIRY_CARGO_POS` / `FAIRY_CARGO_HEIGHT` (× `FAIRY_CARGO_SCALE_*` per payload); the red per-payload arts were deleted). The `Resources/Rewards/` badges
   (`ketchup`/`mustard`/`skewer`) remain the column ghost (alpha) + faller sprites; the
   **inventory slot icons** are the splashy kit versions (`Resources/UI/ui_consumable_{name}`,
   via `UiArt`). `SpriteFit.Height` normalizes every sprite to a world-height so source PPU/size

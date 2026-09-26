@@ -23,16 +23,38 @@ namespace DogtorBurguer
         public static Sprite SkewerHead => Load("Effects/fx_skewer_head");
         public static Sprite SkewerTip => Load("Effects/fx_skewer_tip");
 
-        /// <summary>The full-body fairy illustration for a payload (each carries its cargo in-art).</summary>
-        public static Sprite Fairy(FairyPayload payload)
+        /// <summary>The fairy itself — one empty-handed (blue) body for every payload since
+        /// 2026-09-26; the cargo is a separate sprite in its hand (<see cref="FairyCargo"/>).</summary>
+        public static Sprite FairyBody => Load("Fairy/fairy_body");
+
+        /// <summary>What a fairy carries: the top-bar gem/star icons for currency, the in-game
+        /// inventory slot icon for a consumable (the same art the player grabs).</summary>
+        public static Sprite FairyCargo(FairyPayload payload)
         {
             switch (payload.Kind)
             {
-                case FairyPayloadKind.Gems: return Load("Fairy/fairy_gems");
-                case FairyPayloadKind.Stars: return Load("Fairy/fairy_stars");
-                default: return Load("Fairy/fairy_" + payload.Consumable.ToString().ToLowerInvariant());
+                case FairyPayloadKind.Gems: return Load("UI/ui_gem");
+                case FairyPayloadKind.Stars: return Load("UI/ui_star");
+                default: return Load("UI/ui_consumable_" + payload.Consumable.ToString().ToLowerInvariant());
             }
         }
+
+        // The VISIBLE art inside each cargo sprite (alpha bbox, measured 2026-09-26): x = visible
+        // height / sprite height, (y, z) = visible centre offset from the sprite centre, as a
+        // fraction of the sprite height (right, up). The slot icons carry uneven transparent
+        // margins (skewer 85% tall, mustard 97%), so cargo is sized and centred on what shows.
+        private static readonly Dictionary<string, Vector3> CargoArt = new()
+        {
+            ["ui_gem"] = new Vector3(0.967f, -0.012f, 0.014f),
+            ["ui_star"] = new Vector3(0.975f, -0.010f, 0.010f),
+            ["ui_consumable_ketchup"] = new Vector3(0.904f, 0.007f, -0.025f),
+            ["ui_consumable_mustard"] = new Vector3(0.970f, 0.020f, -0.003f),
+            ["ui_consumable_skewer"] = new Vector3(0.853f, 0.029f, 0.010f),
+        };
+
+        /// <summary>Visible-art metrics for a cargo sprite (whole sprite if unmeasured).</summary>
+        public static Vector3 CargoVisibleArt(Sprite sprite) =>
+            sprite != null && CargoArt.TryGetValue(sprite.name, out Vector3 v) ? v : new Vector3(1f, 0f, 0f);
 
         private static Sprite Load(string path)
         {
