@@ -51,7 +51,9 @@ namespace DogtorBurguer
             AssetDatabase.SaveAssets();
             Debug.Log($"[BuildMenu] Version code bumped to {PlayerSettings.Android.bundleVersionCode}.");
 
-            string fileName = $"DogtorBurguer-{PlayerSettings.bundleVersion}-vc{PlayerSettings.Android.bundleVersionCode}.aab";
+            // Named after the product name (Player Settings), spaces dropped: "Dogtor Burger" ->
+            // DogtorBurger-1.0-vc3.aab. One source of truth — the old hard-coded name drifted ("Burguer").
+            string fileName = $"{PlayerSettings.productName.Replace(" ", "")}-{PlayerSettings.bundleVersion}-vc{PlayerSettings.Android.bundleVersionCode}.aab";
             string outputPath = Path.Combine(OUTPUT_DIR, fileName);
             Directory.CreateDirectory(OUTPUT_DIR);
 
