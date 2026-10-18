@@ -39,8 +39,20 @@ namespace DogtorBurguer
 
         public void ShowLeaderboard()
         {
-            if (!_authenticated) return;
-            PlayGamesPlatform.Instance.ShowLeaderboardUI(SocialConfig.PLAY_GAMES_LEADERBOARD_ID);
+            if (_authenticated)
+            {
+                PlayGamesPlatform.Instance.ShowLeaderboardUI(SocialConfig.PLAY_GAMES_LEADERBOARD_ID);
+                return;
+            }
+
+            // The silent sign-in failed or was declined: the trophy tap is an explicit request, so
+            // offer Google's interactive sign-in and open the board once it succeeds.
+            PlayGamesPlatform.Instance.ManuallyAuthenticate(status =>
+            {
+                _authenticated = status == SignInStatus.Success;
+                if (_authenticated)
+                    PlayGamesPlatform.Instance.ShowLeaderboardUI(SocialConfig.PLAY_GAMES_LEADERBOARD_ID);
+            });
         }
     }
 }
