@@ -831,6 +831,22 @@ wrapping — fix by shortening the string or widening the rect, never by re-enab
 
 ## Roadmap
 
+### 🚀 LAUNCHED — 1.0 submitted to production 2026-10-18
+Release "1.0 launch (vc6)" is in Google review: full rollout, all countries, managed publishing
+OFF (goes live automatically on approval — Google emails oscar.plk@gmail.com; Console → Panel de
+control shows Producción no longer "Inactivo"; store page:
+https://play.google.com/store/apps/details?id=com.proximacentaury.dogtorburguer). Play Games
+(leaderboard) + its OAuth consent screen are published. Oscar considers the project DONE —
+future work is post-launch maintenance only. Full record: `Docs/session-2026-10-18.md`.
+
+**Post-launch watch list** (candidates for a 1.1):
+- First device test of the leaderboard (never confirmed before shipping) — on failure read
+  logcat via Unity's adb.
+- Crashes/ANRs + first reviews in the Play Console; real IAP purchases granting correctly.
+- IAP receipt validation is still a pass-through (`UnityIapProvider.IsReceiptValid`).
+- Free rewarded-ad gems = 75◆/day (≈ a €4.99 pack per week) — flagged, left as-is.
+- iOS (ATT prompt, LevelPlay iOS ids, CCPA message) never started — Android-only launch.
+
 ### Phase 1 — Architecture refactoring + code review (COMPLETE)
 The full human-led code review (`Docs/Review/`, findings F-1…F-87) is implemented:
 **86 / 87 resolved**, every behavioral change playtested. Highlights:
@@ -844,7 +860,7 @@ See `Docs/Review/README.md` for the per-finding index. **Only F-4 remains** —
 the procedural-SFX skeleton dedup, deliberately deferred (verify-by-ear, low value;
 revisit only if the SFX get reworked).
 
-### Phase 2 — Polish & final (CURRENT)
+### Phase 2 — Polish & final (COMPLETE — shipped 2026-10-18)
 Making the game feel and look finished. **Playtest-driven**: the developer plays and
 notes what's off; changes land as edits — mostly one-line tweaks, since feel / visual /
 balance values are centralized in `AnimConfig` / `UIStyles` / `GameplayConfig`.
