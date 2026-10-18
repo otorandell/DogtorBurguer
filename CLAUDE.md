@@ -947,15 +947,19 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   in place (GUID kept, TMP Settings stays wired). Run after changing the charset, padding or
   source font; the asset is git-LFS — commit after a good bake. Width knobs are
   padding-normalized (see Skins & Theme -> UI chrome & font).
-- **Leaderboard activation** (code scaffolded 2026-09-06, `Scripts/Social/`): import the Play
-  Games plugin v2 (`com.google.play.games`), add the **`PLAY_GAMES` scripting define** (Player
-  Settings — the plugin defines no symbol of its own), run its Android setup wizard with the
-  PGS resources from the Play Console (Grow → Play Games Services: create the games project,
-  link the app, add one "High Score" leaderboard), and paste the leaderboard id into
-  `SocialConfig.PLAY_GAMES_LEADERBOARD_ID`. Until all three are done every build uses the
-  logging mock. Every finished run reports at game over (next to the high-score write); the
-  **TopBar trophy pill** opens the board on every screen. Scores are client-reported
-  (spoofable) — never hang rewards off leaderboard rank. 
+- **Leaderboard — ACTIVATED 2026-10-18** (`Scripts/Social/`, plugin v2.3.0 in `Assets/GooglePlayGames/`,
+  `PLAY_GAMES` define on Android). PGS project "Dogtor Burger" (app id `804657293006`, Cloud
+  project `my-project-1518871873575`), Android credential on the **Play app signing** SHA-1, one
+  "High Score" leaderboard (`CgkIzs2_yrUXEAIQAQ`, higher-first, tamper protection on). The id lives
+  in the wizard-generated `Assets/GPGSIds.cs` (`SocialConfig` reads it) — re-run Window → Google
+  Play Games → Setup → Android setup with `Docs/play-games-resources.xml` to change it. ⚠️ The
+  `.unitypackage` import window crashes in Unity 6 (NRE in PackageImportTreeView) — extract the
+  package by script instead, and SKIP its bundled ExternalDependencyManager (older than ours).
+  The trophy tap falls back to interactive sign-in when the silent one failed.
+  **Before production**: publish the PGS project (Play Console → Play Games Services →
+  "Revisar y publicar") AND the OAuth consent screen (Google Cloud → Google Auth Platform →
+  Audience → "Publicar app") — while either is a draft/testing, only testers can sign in.
+  Scores are client-reported (spoofable) — never hang rewards off leaderboard rank.
 - **Chef size/position tuning**: knobs are the chef sprite **PPU** (990 as of the last tuning pass; an older note said 2009 — trust the meta, not this file, and update here when retuned) for the original
   import) for size, and `Constants.CHEF_BOTTOM_OFFSET` (1.76) for the feet line — `GetWorldPosition` anchors
   the feet and derives the centre from the live sprite height, so resizing keeps the chef on the bottom border.
