@@ -956,9 +956,7 @@ Granular: one skin = one slot = one sprite (bun = top+bottom).
   `.unitypackage` import window crashes in Unity 6 (NRE in PackageImportTreeView) — extract the
   package by script instead, and SKIP its bundled ExternalDependencyManager (older than ours).
   The trophy tap falls back to interactive sign-in when the silent one failed.
-  **Before production**: publish the PGS project (Play Console → Play Games Services →
-  "Revisar y publicar") AND the OAuth consent screen (Google Cloud → Google Auth Platform →
-  Audience → "Publicar app") — while either is a draft/testing, only testers can sign in.
+  Both the PGS project and the OAuth consent screen were PUBLISHED 2026-10-18 with the launch.
   Scores are client-reported (spoofable) — never hang rewards off leaderboard rank.
 - **Chef size/position tuning**: knobs are the chef sprite **PPU** (990 as of the last tuning pass; an older note said 2009 — trust the meta, not this file, and update here when retuned) for the original
   import) for size, and `Constants.CHEF_BOTTOM_OFFSET` (1.76) for the feet line — `GetWorldPosition` anchors
