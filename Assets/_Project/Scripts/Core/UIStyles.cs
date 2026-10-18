@@ -374,8 +374,8 @@ namespace DogtorBurguer
         public static readonly Vector2 GAMEOVER_TITLE_RECT = new(420f, 80f);
         public const float GAMEOVER_TITLE_SIZE = 40f;
         public const float GAMEOVER_CARD_SCALE = 1.25f;                               // the HUD stat cards, enlarged
-        public static readonly Vector2 GAMEOVER_LEVEL_CARD_POS = new(-94f, 70f);
-        public static readonly Vector2 GAMEOVER_SCORE_CARD_POS = new(94f, 70f);
+        public static readonly Vector2 GAMEOVER_LEVEL_CARD_POS = new(-94f, 86f);    // 70 → 86: lifted to free a row for the star line
+        public static readonly Vector2 GAMEOVER_SCORE_CARD_POS = new(94f, 86f);
         public static readonly Vector2 GAMEOVER_CONTINUE_LABEL_POS = new(0f, -34f);  // "Continue" heading, top of the band
         public static readonly Vector2 GAMEOVER_CONTINUE_LABEL_RECT = new(300f, 44f);
         public const float GAMEOVER_CONTINUE_LABEL_SIZE = 32f;
@@ -399,9 +399,10 @@ namespace DogtorBurguer
         public static readonly Vector2 GAMEOVER_NAV_LABEL_NUDGE = new(-3f, 5f);      // word toward the face center (shadow is bottom-right)
         public static readonly Vector2 GAMEOVER_NAV_LABEL_RECT = new(190f, 100f);
         public const float GAMEOVER_NAV_LABEL_SIZE = 30f;
-        public static readonly Vector2 GAMEOVER_STARS_POS = new(0f, -350f);          // "N stars earned!" below the panel
-        public static readonly Vector2 GAMEOVER_STARS_RECT = new(400f, 40f);
-        public const float GAMEOVER_STARS_SIZE = 24f;
+        public static readonly Vector2 GAMEOVER_STARS_POS = new(0f, 8f);            // "+N [star]" inside the panel, between the cards and the band
+        public static readonly Vector2 GAMEOVER_STARS_RECT = new(360f, 44f);
+        public const float GAMEOVER_STARS_SIZE = 36f;
+        public const float GAMEOVER_STARS_ICON_H = 40f;                               // the star sprite after the number
         #endregion
 
         #region Layout — Modal Panels (the shared Settings / Credits chrome, ModalPanel)

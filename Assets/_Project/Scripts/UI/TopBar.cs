@@ -112,7 +112,6 @@ namespace DogtorBurguer
             }
 
             SaveDataManager save = SaveDataManager.Instance;
-            // High score only changes at game over, so a one-time seed is enough (no live event).
             _highScoreNumber.text = NumberFormat.Abbreviate(save != null ? save.HighScore : 0);
             _starNumber.text = NumberFormat.Abbreviate(save != null ? save.Stars : 0);
             _gemNumber.text = NumberFormat.Abbreviate(save != null ? save.Gems : 0);
@@ -120,6 +119,7 @@ namespace DogtorBurguer
             {
                 save.OnStarsChanged += HandleStarsChanged;
                 save.OnGemsChanged += HandleGemsChanged;
+                save.OnHighScoreChanged += HandleHighScoreChanged;
             }
         }
 
@@ -176,6 +176,10 @@ namespace DogtorBurguer
             Punch(_starNumber.transform.parent);
         }
 
+        // Fires on every point past the old best, so no punch — it would pulse nonstop on a record run.
+        private void HandleHighScoreChanged(int highScore) =>
+            _highScoreNumber.text = NumberFormat.Abbreviate(highScore);
+
         private void HandleGemsChanged(int gems)
         {
             _gemNumber.text = NumberFormat.Abbreviate(gems);
@@ -198,6 +202,7 @@ namespace DogtorBurguer
             {
                 save.OnStarsChanged -= HandleStarsChanged;
                 save.OnGemsChanged -= HandleGemsChanged;
+                save.OnHighScoreChanged -= HandleHighScoreChanged;
             }
         }
     }

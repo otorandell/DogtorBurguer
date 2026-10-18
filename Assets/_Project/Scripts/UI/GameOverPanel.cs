@@ -72,9 +72,10 @@ namespace DogtorBurguer
             BuildContinueRow(root);
             BuildNavRow(root);
 
-            // The run's star haul, called out under the panel (gold, HUD border).
-            _starsText = UIFactory.CreateText(root, "StarsEarned", UIStyles.GAMEOVER_STARS_POS,
-                UIStyles.GAMEOVER_STARS_RECT, UIStyles.GAMEOVER_STARS_SIZE, FontStyles.Bold);
+            // The run's star haul, inside the panel between the cards and the band: "+N" in gold
+            // followed by the star sprite (the number-plus-icon line the shop pills use).
+            _starsText = ShopWidgets.CreateIconLine(root, "StarsEarned", UIStyles.GAMEOVER_STARS_POS,
+                UIStyles.GAMEOVER_STARS_RECT, "", UIStyles.GAMEOVER_STARS_SIZE, "ui_star", UIStyles.GAMEOVER_STARS_ICON_H);
             UIFactory.StyleFillAndBorder(_starsText, UIStyles.GOLD, UIStyles.HUD_TEXT_BORDER, UIStyles.HUD_TEXT_BORDER_WIDTH);
         }
 
@@ -142,7 +143,8 @@ namespace DogtorBurguer
             // High score is persisted by GameManager's game-over flow (F-67), not here.
             // Stars (orders + score payout) are already granted by that flow too — display only.
             int stars = manager != null ? manager.StarsEarnedThisRun : 0;
-            _starsText.text = stars > 0 ? Loc.Format(LocKey.GameOverStarsEarned, stars) : "";
+            _starsText.text = $"+{stars}";
+            _starsText.transform.parent.gameObject.SetActive(stars > 0);
 
             // One continue per run: afterwards the band keeps its heading but loses the buttons.
             bool canContinue = !_hasContinued;

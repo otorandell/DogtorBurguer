@@ -31,6 +31,7 @@ namespace DogtorBurguer
 
         public event Action<int> OnGemsChanged;
         public event Action<int> OnStarsChanged;
+        public event Action<int> OnHighScoreChanged;
         public event Action OnConsumablesChanged;
 
         public int Gems { get; private set; }
@@ -128,12 +129,22 @@ namespace DogtorBurguer
             return true;
         }
 
-        public void SetHighScore(int score)
+        /// <summary>Live high-score tracking, called on every score change: records a new best in
+        /// memory and raises <see cref="OnHighScoreChanged"/>, but does not flush to disk — that
+        /// rides the next PlayerPrefs.Save (game over, or the run snapshot on pause/quit).</summary>
+        public void TrackHighScore(int score)
         {
             if (score <= HighScore) return;
 
             HighScore = score;
             PlayerPrefs.SetInt(KEY_HIGH_SCORE, HighScore);
+            OnHighScoreChanged?.Invoke(HighScore);
+        }
+
+        /// <summary>Game-over commit: tracks the final score and flushes.</summary>
+        public void SetHighScore(int score)
+        {
+            TrackHighScore(score);
             PlayerPrefs.Save();
         }
 

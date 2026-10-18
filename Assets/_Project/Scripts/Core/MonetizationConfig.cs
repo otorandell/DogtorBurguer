@@ -120,16 +120,20 @@ namespace DogtorBurguer
         // 2026-09-26 rebalance (Oscar): typical players score ~1k, which earned ~15-20 stars a run
         // (a cheap skin took ~25 runs). Target ≈45 stars for a 1k run: a consumable every ~2 runs,
         // a cheap skin in ~9, a gold/ultimate skin in ~30.
+        // 2026-10-18 launch pass (Oscar): casual is right but income scaled too fast with skill
+        // (15 stars/min on a short run → 26 on a great one). Order stars grow +1/level (was +2) and
+        // the full payout rate stops at 1k (was 2k): casual ~70/run unchanged, good 160→~140,
+        // great 310→~240, ~16-20 stars/min across the board. Fairy stars excluded from the targets.
         // Per completed Special Order: BASE + PER_LEVEL·(challengeLevel−1), awarded live.
-        public const int STARS_PER_ORDER_BASE = 5;
-        public const int STARS_PER_ORDER_PER_LEVEL = 2;
+        public const int STARS_PER_ORDER_BASE = 6;
+        public const int STARS_PER_ORDER_PER_LEVEL = 1;
         // End-of-run payout, with DIMINISHING returns so high scorers don't flood the economy:
-        // 1 star per STAR_SCORE_DIVISOR up to STAR_SCORE_FULL_RATE_UP_TO points (1k → 20, 2k → 40),
-        // then 1 per STAR_SCORE_DIVISOR_ABOVE (10k → 120). Only score not yet paid out counts —
+        // 1 star per STAR_SCORE_DIVISOR up to STAR_SCORE_FULL_RATE_UP_TO points (1k → 20),
+        // then 1 per STAR_SCORE_DIVISOR_ABOVE (3k → 30, 10k → 65). Only score not yet paid out counts —
         // a continue extends the run without double-paying earlier score.
         public const int STAR_SCORE_DIVISOR = 50;
-        public const int STAR_SCORE_FULL_RATE_UP_TO = 2000;
-        public const int STAR_SCORE_DIVISOR_ABOVE = 100;
+        public const int STAR_SCORE_FULL_RATE_UP_TO = 1000;
+        public const int STAR_SCORE_DIVISOR_ABOVE = 200;
         #endregion
 
         #region Shop — remove ads (one-time IAP; kills interstitials, keeps rewarded ads)

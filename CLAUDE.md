@@ -384,9 +384,9 @@ UI scales by the same rule and stays locked to the playfield. No-op at the refer
   - **Gems** (hard/premium): rare — Burger Fairy drops (~40% of fairies), rewarded ads, IAP packs.
   - **Stars** (soft/free): earned by playing — **per completed Special Order**
     (`STARS_PER_ORDER_BASE + PER_LEVEL·(challengeLevel−1)`, awarded live with a gold "N!"
-    popup), an **end-of-run score payout** (1★ per 50 score up to 2k, then 1★ per 100 —
+    popup), an **end-of-run score payout** (1★ per 50 score up to 1k, then 1★ per 200 —
     `STAR_SCORE_*`, diminishing so high scorers don't flood the economy; continues pay only the
-    un-paid delta). **2026-09-26 rebalance**: orders pay 5 + 2/level; a ~1k run ≈ 45★ → a
+    un-paid delta). **2026-09-26 rebalance**, flattened **2026-10-18** (income scaled too fast with skill): orders pay 6 + 1/level; a ~1k run ≈ 45★ (+~24★ fairy EV; ~16-20★/min for every skill level, good 8-min run ~140★) → a
     consumable every ~2 runs, a cheap skin ~9 runs, a gold/ultimate skin ~30 runs, and **star fairies** (`STAR_PACK_VALUE` 25). `GameManager.AwardStars`
     grants + tracks `StarsEarnedThisRun` (shown on the game-over panel). Also from gem→star shop
     packs; editor debug key **4** grants 500.

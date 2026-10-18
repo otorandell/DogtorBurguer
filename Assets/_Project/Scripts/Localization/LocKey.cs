@@ -3,7 +3,7 @@
     /// <summary>Typed keys for every player-facing string (no magic strings — exhaustive,
     /// refactor-safe). Every Strings_XX table must carry every key; Loc's editor boot check
     /// screams otherwise. Keys whose strings carry a {0} are formatted via Loc.Format
-    /// (SettingsLanguage, GameOverStarsEarned, ShopBuyAmount, ShopForCost).
+    /// (SettingsLanguage, ShopBuyAmount, ShopForCost).
     /// Skin display names are keys too since 2026-09-26 (Skin*), mapped by skin id in SkinNames.</summary>
     public enum LocKey
     {
@@ -26,7 +26,6 @@
         MenuShop,
         MenuSupportDevs,
         GameOverTitle,
-        GameOverStarsEarned,
         GameOverContinue,
         GameOverNoMoreContinues,
         GameOverWatch,

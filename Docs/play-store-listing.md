@@ -38,6 +38,16 @@ with that Google account → Become a tester → Install from Play):
 **https://play.google.com/apps/internaltest/4701257598160915314**. Play sends no emails — share
 the link yourself. Sideloaded tester APKs must be uninstalled first (different signing key).
 
+**Status check 2026-10-10 (Claude driving Chrome)** — Closed test "Prueba cerrada - Alpha" live on
+vc5 (1.0), last published 2026-09-26, nothing pending review. Production gate: 12 testers opted
+in, **12 / 14 days** run without interruption → "Solicitar acceso a producción" unlocks
+~2026-10-12. App content: nothing needs attention; policy status: no problems. 5 one-time
+products present. Android developer verification: package registered (3 keys). Pre-launch
+report: none generated. 15 % fee: no "Review and enroll" option anywhere — not on Associated
+developer accounts, Settings (Ajustes → Monetización has no service-fee row) or Developer account.
+Likely superseded by Google's 2026 fee model (first $1M at 10% from 2026-06-30 in EEA/UK/US) —
+unconfirmed; ask Console support.
+
 **Pending, in order**
 1. **Install + play the internal build on a phone** (opt-in link above → Play Store install).
    Verify: real store prices show in the shop, a test purchase grants gems, Remove Ads restores

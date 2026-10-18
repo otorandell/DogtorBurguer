@@ -356,6 +356,11 @@ namespace DogtorBurguer
         {
             _score += points;
             OnScoreChanged?.Invoke(_score);
+
+            // The high score climbs live, so the trophy pill ticks up mid-run. The tutorial's
+            // scripted points are not a run (same gate as AwardStars).
+            if (!TutorialMode.IsActive && !TutorialMode.ShouldRun)
+                SaveDataManager.Instance?.TrackHighScore(_score);
         }
 
         private void SetState(GameState newState)

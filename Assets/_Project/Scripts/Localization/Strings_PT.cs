@@ -25,7 +25,6 @@ namespace DogtorBurguer
             { LocKey.MenuShop, "LOJA" },
             { LocKey.MenuSupportDevs, "Apoie os devs!" },
             { LocKey.GameOverTitle, "GAME OVER..." },
-            { LocKey.GameOverStarsEarned, "Você ganhou {0} estrelas!" },
             { LocKey.GameOverContinue, "Continuar" },
             { LocKey.GameOverNoMoreContinues, "Não dá mais para continuar" },
             { LocKey.GameOverWatch, "Assistir" },
